@@ -1,0 +1,52 @@
+# Version control
+.git
+.gitattributes
+.gitignore
+
+# Node
+node_modules
+npm-debug.log
+yarn-error.log
+
+# Build outputs
+dist
+.angular
+
+# Testing and coverage
+coverage
+.nyc_output
+TEST*.xml
+
+# IDE
+.idea
+.vscode
+
+# Container and deployment
+.containerignore
+Containerfile
+podman-compose.yaml
+
+# CI/CD and docs
+.github
+CLAUDE.md
+CHANGELOG.md
+README.md
+docs
+
+# Linting and config
+.pre-commit-config.yaml
+.editorconfig
+.markdownlint.yaml
+.codespellignore
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Keys
+*.pem
