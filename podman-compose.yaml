@@ -3,7 +3,7 @@ version: "3.9"
 
 services:
     web:
-        image: localhost/poopyfeed-fe:latest
+        image: ${REGISTRY:-localhost}/${FRONTEND_IMAGE:-poopyfeed-fe}:${IMAGE_TAG:-latest}
         build:
             context: .
             dockerfile: Containerfile
