@@ -2,17 +2,17 @@
 version: "3.9"
 
 services:
-  web:
-    image: localhost/poopyfeed-frontend:latest
-    build:
-      context: .
-      dockerfile: Containerfile
-      target: development
-    command: npm start -- --host 0.0.0.0
-    volumes:
-      - ./poopyfeed:/app
-      - /app/node_modules
-    ports:
-      - 4200:4200
-    environment:
-      - "NODE_ENV=development"
+    web:
+        image: localhost/poopyfeed-fe:latest
+        build:
+            context: .
+            dockerfile: Containerfile
+            target: development
+        command: npm start -- --host 0.0.0.0
+        volumes:
+            - ./poopyfeed:/app
+            - /app/node_modules
+        ports:
+            - 4200:4200
+        environment:
+            - "NODE_ENV=development"
