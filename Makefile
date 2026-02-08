@@ -38,6 +38,14 @@ test:
 test-local:
 	cd poopyfeed && npm test
 
+.PHONY: test-coverage
+test-coverage:
+	$(RUNTIME) compose exec web npm test -- --coverage.enabled=true
+
+.PHONY: test-coverage-local
+test-coverage-local:
+	cd poopyfeed && npm test -- --coverage.enabled=true
+
 .PHONY: build
 build:
 	cd poopyfeed && npm run build
