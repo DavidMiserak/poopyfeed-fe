@@ -1,6 +1,8 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
+import { switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-signup',
@@ -11,6 +13,7 @@ import { Router, RouterLink } from '@angular/router';
 })
 export class Signup {
   private router = inject(Router);
+  private authService = inject(AuthService);
 
   signupForm = new FormGroup({
     name: new FormControl('', [Validators.required, Validators.minLength(2)]),
@@ -27,24 +30,41 @@ export class Signup {
       return;
     }
 
-    // Check if passwords match
-    const password = this.signupForm.value.password;
-    const confirmPassword = this.signupForm.value.confirmPassword;
+    const { email, password, confirmPassword } = this.signupForm.value;
 
+    // Check if passwords match
     if (password !== confirmPassword) {
       this.error.set('Passwords do not match');
+      return;
+    }
+
+    if (!email || !password) {
+      this.error.set('Email and password are required');
       return;
     }
 
     this.isSubmitting.set(true);
     this.error.set(null);
 
-    // TODO: Implement actual signup API call
-    // For now, simulate a signup
-    setTimeout(() => {
-      this.isSubmitting.set(false);
-      // this.router.navigate(['/dashboard']);
-      console.log('Signup submitted:', this.signupForm.value);
-    }, 1000);
+    // Sign up, then automatically log in
+    this.authService
+      .signup({ email, password })
+      .pipe(
+        switchMap(() => {
+          // After successful signup, login with same credentials
+          return this.authService.login({ email, password });
+        })
+      )
+      .subscribe({
+        next: () => {
+          this.isSubmitting.set(false);
+          // TODO: Navigate to dashboard once it exists
+          this.router.navigate(['/']);
+        },
+        error: (err: Error) => {
+          this.isSubmitting.set(false);
+          this.error.set(err.message);
+        },
+      });
   }
 }

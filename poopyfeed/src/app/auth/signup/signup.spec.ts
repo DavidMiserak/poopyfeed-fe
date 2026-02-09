@@ -1,5 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { Signup } from './signup';
 
 describe('Signup', () => {
@@ -9,7 +11,7 @@ describe('Signup', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [Signup],
-      providers: [provideRouter([])],
+      providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(Signup);
@@ -73,7 +75,7 @@ describe('Signup', () => {
     expect(component.isSubmitting()).toBeFalsy();
   });
 
-  it('should submit form when valid and passwords match', () => {
+  it('should set isSubmitting to true when valid form is submitted', () => {
     component.signupForm.patchValue({
       name: 'Test User',
       email: 'test@example.com',
@@ -280,42 +282,15 @@ describe('Signup', () => {
     expect(errorText).toBeTruthy();
   });
 
-  it('should complete async submission and reset isSubmitting', () => {
-    vi.useFakeTimers();
+  it('should not submit when passwords do not match', () => {
     component.signupForm.patchValue({
       name: 'Test User',
       email: 'test@example.com',
       password: 'password123',
-      confirmPassword: 'password123',
+      confirmPassword: 'different',
     });
     component.onSubmit();
-    expect(component.isSubmitting()).toBeTruthy();
-
-    vi.advanceTimersByTime(1000); // Advance time by 1 second to trigger setTimeout callback
-
-    expect(component.isSubmitting()).toBeFalsy();
-    vi.useRealTimers();
-  });
-
-  it('should log form values on successful submission', () => {
-    vi.useFakeTimers();
-    const consoleSpy = vi.spyOn(console, 'log');
-    component.signupForm.patchValue({
-      name: 'Test User',
-      email: 'test@example.com',
-      password: 'password123',
-      confirmPassword: 'password123',
-    });
-
-    component.onSubmit();
-    vi.advanceTimersByTime(1000);
-
-    expect(consoleSpy).toHaveBeenCalledWith('Signup submitted:', {
-      name: 'Test User',
-      email: 'test@example.com',
-      password: 'password123',
-      confirmPassword: 'password123',
-    });
-    vi.useRealTimers();
+    expect(component.error()).toBe('Passwords do not match');
+    expect(component.isSubmitting()).toBe(false);
   });
 });

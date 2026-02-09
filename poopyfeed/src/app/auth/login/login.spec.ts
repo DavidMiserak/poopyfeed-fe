@@ -1,5 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { Login } from './login';
 
 describe('Login', () => {
@@ -9,7 +11,7 @@ describe('Login', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [Login],
-      providers: [provideRouter([])],
+      providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(Login);
@@ -57,7 +59,7 @@ describe('Login', () => {
     expect(component.isSubmitting()).toBeFalsy();
   });
 
-  it('should submit form when valid', () => {
+  it('should set isSubmitting to true when valid form is submitted', () => {
     component.loginForm.controls.email.setValue('test@example.com');
     component.loginForm.controls.password.setValue('password123');
     component.onSubmit();
@@ -167,32 +169,12 @@ describe('Login', () => {
     expect(signupLink?.textContent).toContain('Sign up for free');
   });
 
-  it('should complete async submission and reset isSubmitting', () => {
-    vi.useFakeTimers();
+  it('should set error when email or password is missing', () => {
     component.loginForm.controls.email.setValue('test@example.com');
-    component.loginForm.controls.password.setValue('password123');
+    component.loginForm.controls.password.setValue('');
+    component.loginForm.controls.password.clearValidators();
+    component.loginForm.controls.password.updateValueAndValidity();
     component.onSubmit();
-    expect(component.isSubmitting()).toBeTruthy();
-
-    vi.advanceTimersByTime(1000); // Advance time by 1 second to trigger setTimeout callback
-
-    expect(component.isSubmitting()).toBeFalsy();
-    vi.useRealTimers();
-  });
-
-  it('should log form values on successful submission', () => {
-    vi.useFakeTimers();
-    const consoleSpy = vi.spyOn(console, 'log');
-    component.loginForm.controls.email.setValue('test@example.com');
-    component.loginForm.controls.password.setValue('password123');
-
-    component.onSubmit();
-    vi.advanceTimersByTime(1000);
-
-    expect(consoleSpy).toHaveBeenCalledWith('Login submitted:', {
-      email: 'test@example.com',
-      password: 'password123',
-    });
-    vi.useRealTimers();
+    expect(component.error()).toBe('Email and password are required');
   });
 });

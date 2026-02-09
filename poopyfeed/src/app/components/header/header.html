@@ -1,0 +1,45 @@
+<header class="bg-white shadow-sm border-b border-gray-200">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between items-center h-16">
+      <!-- Logo/Brand -->
+      <div class="flex items-center">
+        <a routerLink="/" class="text-2xl font-bold text-purple-600">
+          PoopyFeed
+        </a>
+      </div>
+
+      <!-- Auth Status -->
+      <div class="flex items-center gap-4">
+        @if (authService.isAuthenticated()) {
+          <div class="flex items-center gap-4">
+            <span class="text-sm text-gray-600">
+              <span class="inline-block w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+              Logged in
+            </span>
+            <button
+              (click)="logout()"
+              class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
+            >
+              Logout
+            </button>
+          </div>
+        } @else {
+          <div class="flex items-center gap-2">
+            <a
+              routerLink="/login"
+              class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
+            >
+              Login
+            </a>
+            <a
+              routerLink="/signup"
+              class="px-4 py-2 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-md transition-colors"
+            >
+              Sign Up
+            </a>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</header>

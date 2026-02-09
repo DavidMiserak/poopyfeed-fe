@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -11,6 +12,7 @@ import { Router, RouterLink } from '@angular/router';
 })
 export class Login {
   private router = inject(Router);
+  private authService = inject(AuthService);
 
   loginForm = new FormGroup({
     email: new FormControl('', [Validators.required, Validators.email]),
@@ -25,15 +27,26 @@ export class Login {
       return;
     }
 
+    const { email, password } = this.loginForm.value;
+
+    if (!email || !password) {
+      this.error.set('Email and password are required');
+      return;
+    }
+
     this.isSubmitting.set(true);
     this.error.set(null);
 
-    // TODO: Implement actual login API call
-    // For now, simulate a login
-    setTimeout(() => {
-      this.isSubmitting.set(false);
-      // this.router.navigate(['/dashboard']);
-      console.log('Login submitted:', this.loginForm.value);
-    }, 1000);
+    this.authService.login({ email, password }).subscribe({
+      next: () => {
+        this.isSubmitting.set(false);
+        // TODO: Navigate to dashboard once it exists
+        this.router.navigate(['/']);
+      },
+      error: (err: Error) => {
+        this.isSubmitting.set(false);
+        this.error.set(err.message);
+      },
+    });
   }
 }
