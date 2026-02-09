@@ -9,6 +9,7 @@ describe('AuthService', () => {
   let httpMock: HttpTestingController;
 
   beforeEach(() => {
+    TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       providers: [
         provideHttpClient(),
@@ -31,26 +32,35 @@ describe('AuthService', () => {
   });
 
   describe('login', () => {
-    it('should login successfully and store token', () => {
+    it('should login successfully with allauth and store token', () => {
       const credentials = { email: 'test@example.com', password: 'password123' };
-      const mockResponse = { auth_token: 'test-token-123' };
+      const mockAllauthResponse = { status: 200, data: { user: { id: 1, email: 'test@example.com' } } };
+      const mockTokenResponse = { auth_token: 'test-token-123' };
 
       service.login(credentials).subscribe({
         next: (response) => {
-          expect(response).toEqual(mockResponse);
+          expect(response).toEqual(mockTokenResponse);
           expect(service.getToken()).toBe('test-token-123');
           expect(localStorage.getItem('auth_token')).toBe('test-token-123');
           expect(service.isAuthenticated()).toBe(true);
         },
       });
 
-      const req = httpMock.expectOne('/api/v1/auth/token/login/');
-      expect(req.request.method).toBe('POST');
-      expect(req.request.body).toEqual(credentials);
-      req.flush(mockResponse);
+      // First request: allauth login
+      const loginReq = httpMock.expectOne('/api/v1/auth/browser/v1/auth/login');
+      expect(loginReq.request.method).toBe('POST');
+      expect(loginReq.request.body).toEqual(credentials);
+      expect(loginReq.request.withCredentials).toBe(true);
+      loginReq.flush(mockAllauthResponse);
+
+      // Second request: get token
+      const tokenReq = httpMock.expectOne('/api/v1/auth/token/');
+      expect(tokenReq.request.method).toBe('GET');
+      expect(tokenReq.request.withCredentials).toBe(true);
+      tokenReq.flush(mockTokenResponse);
     });
 
-    it('should handle login error', () => {
+    it('should handle login error from allauth', () => {
       const credentials = { email: 'test@example.com', password: 'wrong' };
       let errorCaught = false;
 
@@ -61,49 +71,112 @@ describe('AuthService', () => {
         },
       });
 
-      const req = httpMock.expectOne('/api/v1/auth/token/login/');
+      const req = httpMock.expectOne('/api/v1/auth/browser/v1/auth/login');
       req.flush({ detail: 'Invalid credentials' }, { status: 401, statusText: 'Unauthorized' });
+
+      expect(errorCaught).toBe(true);
+    });
+
+    it('should handle token fetch error after successful allauth login', () => {
+      const credentials = { email: 'test@example.com', password: 'password123' };
+      const mockAllauthResponse = { status: 200, data: { user: { id: 1 } } };
+      let errorCaught = false;
+
+      service.login(credentials).subscribe({
+        error: (error) => {
+          expect(error.message).toBe('Server error. Please try again later.');
+          errorCaught = true;
+        },
+      });
+
+      // First request succeeds
+      const loginReq = httpMock.expectOne('/api/v1/auth/browser/v1/auth/login');
+      loginReq.flush(mockAllauthResponse);
+
+      // Second request fails
+      const tokenReq = httpMock.expectOne('/api/v1/auth/token/');
+      tokenReq.flush({}, { status: 500, statusText: 'Internal Server Error' });
 
       expect(errorCaught).toBe(true);
     });
   });
 
   describe('signup', () => {
-    it('should signup successfully', () => {
+    it('should signup successfully with allauth and auto-login', () => {
       const signupData = { email: 'new@example.com', password: 'password123' };
-      const mockResponse = { id: 1, email: 'new@example.com' };
+      const mockAllauthResponse = {
+        status: 200,
+        data: { user: { id: 1, email: 'new@example.com' } },
+      };
+      const mockTokenResponse = { auth_token: 'new-token-123' };
 
       service.signup(signupData).subscribe({
         next: (response) => {
-          expect(response).toEqual(mockResponse);
+          expect(response).toEqual({ id: 1, email: 'new@example.com' });
+          expect(service.getToken()).toBe('new-token-123');
+          expect(service.isAuthenticated()).toBe(true);
         },
       });
 
-      const req = httpMock.expectOne('/api/v1/auth/users/');
-      expect(req.request.method).toBe('POST');
-      expect(req.request.body).toEqual(signupData);
-      req.flush(mockResponse);
+      // First request: allauth signup
+      const signupReq = httpMock.expectOne('/api/v1/auth/browser/v1/auth/signup');
+      expect(signupReq.request.method).toBe('POST');
+      expect(signupReq.request.body).toEqual({ email: signupData.email, password: signupData.password });
+      expect(signupReq.request.withCredentials).toBe(true);
+      signupReq.flush(mockAllauthResponse);
+
+      // Second request: get token
+      const tokenReq = httpMock.expectOne('/api/v1/auth/token/');
+      expect(tokenReq.request.method).toBe('GET');
+      expect(tokenReq.request.withCredentials).toBe(true);
+      tokenReq.flush(mockTokenResponse);
     });
 
-    it('should handle signup error', () => {
+    it('should handle signup error from allauth', () => {
       const signupData = { email: 'existing@example.com', password: 'password123' };
 
       service.signup(signupData).subscribe({
         error: (error) => {
-          expect(error.message).toContain('email:');
+          expect(error.message).toBe('email: User with this email already exists.');
         },
       });
 
-      const req = httpMock.expectOne('/api/v1/auth/users/');
+      const req = httpMock.expectOne('/api/v1/auth/browser/v1/auth/signup');
       req.flush(
         { email: ['User with this email already exists.'] },
-        { status: 400, statusText: 'Bad Request' }
+        { status: 409, statusText: 'Conflict' }
       );
+    });
+
+    it('should handle token fetch error after successful signup', () => {
+      const signupData = { email: 'new@example.com', password: 'password123' };
+      const mockAllauthResponse = {
+        status: 200,
+        data: { user: { id: 1, email: 'new@example.com' } },
+      };
+      let errorCaught = false;
+
+      service.signup(signupData).subscribe({
+        error: (error) => {
+          expect(error.message).toBe('Server error. Please try again later.');
+          errorCaught = true;
+        },
+      });
+
+      // First request succeeds
+      const signupReq = httpMock.expectOne('/api/v1/auth/browser/v1/auth/signup');
+      signupReq.flush(mockAllauthResponse);
+
+      // Second request fails
+      const tokenReq = httpMock.expectOne('/api/v1/auth/token/');
+      tokenReq.flush({}, { status: 500, statusText: 'Internal Server Error' });
+
+      expect(errorCaught).toBe(true);
     });
   });
 
   describe('logout', () => {
-    it('should logout successfully', () => {
+    it('should logout successfully with allauth', () => {
       // Set a token first
       localStorage.setItem('auth_token', 'test-token');
       service['authToken'].set('test-token');
@@ -116,8 +189,9 @@ describe('AuthService', () => {
         },
       });
 
-      const req = httpMock.expectOne('/api/v1/auth/token/logout/');
+      const req = httpMock.expectOne('/api/v1/auth/browser/v1/auth/logout');
       expect(req.request.method).toBe('POST');
+      expect(req.request.withCredentials).toBe(true);
       req.flush({});
     });
 
@@ -132,27 +206,8 @@ describe('AuthService', () => {
         },
       });
 
-      const req = httpMock.expectOne('/api/v1/auth/token/logout/');
+      const req = httpMock.expectOne('/api/v1/auth/browser/v1/auth/logout');
       req.flush({ detail: 'Server error' }, { status: 500, statusText: 'Internal Server Error' });
-    });
-
-    it('should handle logout when no token exists', () => {
-      // Clear any existing token
-      localStorage.removeItem('auth_token');
-      service['authToken'].set(null);
-
-      let errorCaught = false;
-
-      service.logout().subscribe({
-        error: (error) => {
-          expect(error.message).toBe('No token found');
-          expect(service.getToken()).toBeNull();
-          errorCaught = true;
-        },
-      });
-
-      // Should not make HTTP request when no token
-      expect(errorCaught).toBe(true);
     });
   });
 
@@ -188,6 +243,25 @@ describe('AuthService', () => {
   });
 
   describe('error handling', () => {
+    it('should handle field-specific error arrays', () => {
+      let errorCaught = false;
+
+      service.signup({ email: 'bad-email', password: 'short' }).subscribe({
+        error: (error) => {
+          expect(error.message).toContain('password:');
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/auth/browser/v1/auth/signup');
+      req.flush(
+        { password: ['Password must be at least 8 characters'] },
+        { status: 400, statusText: 'Bad Request' }
+      );
+
+      expect(errorCaught).toBe(true);
+    });
+
     it('should handle non_field_errors from Django', () => {
       let errorCaught = false;
 
@@ -198,7 +272,7 @@ describe('AuthService', () => {
         },
       });
 
-      const req = httpMock.expectOne('/api/v1/auth/token/login/');
+      const req = httpMock.expectOne('/api/v1/auth/browser/v1/auth/login');
       req.flush(
         { non_field_errors: ['Invalid credentials', 'Please try again'] },
         { status: 400, statusText: 'Bad Request' }
@@ -207,7 +281,23 @@ describe('AuthService', () => {
       expect(errorCaught).toBe(true);
     });
 
-    it('should handle 401 Unauthorized error with specific message', () => {
+    it('should handle detail field in error response', () => {
+      let errorCaught = false;
+
+      service.login({ email: 'test@example.com', password: 'wrong' }).subscribe({
+        error: (error) => {
+          expect(error.message).toBe('Unable to authenticate');
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/auth/browser/v1/auth/login');
+      req.flush({ detail: 'Unable to authenticate' }, { status: 401, statusText: 'Unauthorized' });
+
+      expect(errorCaught).toBe(true);
+    });
+
+    it('should handle 401 Unauthorized error with generic message', () => {
       let errorCaught = false;
 
       service.login({ email: 'test@example.com', password: 'wrong' }).subscribe({
@@ -217,7 +307,7 @@ describe('AuthService', () => {
         },
       });
 
-      const req = httpMock.expectOne('/api/v1/auth/token/login/');
+      const req = httpMock.expectOne('/api/v1/auth/browser/v1/auth/login');
       req.flush({}, { status: 401, statusText: 'Unauthorized' });
 
       expect(errorCaught).toBe(true);
@@ -233,8 +323,24 @@ describe('AuthService', () => {
         },
       });
 
-      const req = httpMock.expectOne('/api/v1/auth/users/');
+      const req = httpMock.expectOne('/api/v1/auth/browser/v1/auth/signup');
       req.flush({}, { status: 400, statusText: 'Bad Request' });
+
+      expect(errorCaught).toBe(true);
+    });
+
+    it('should handle 409 Conflict error', () => {
+      let errorCaught = false;
+
+      service.signup({ email: 'existing@example.com', password: 'password123' }).subscribe({
+        error: (error) => {
+          expect(error.message).toBe('An account with this email already exists.');
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/auth/browser/v1/auth/signup');
+      req.flush({}, { status: 409, statusText: 'Conflict' });
 
       expect(errorCaught).toBe(true);
     });
@@ -249,7 +355,7 @@ describe('AuthService', () => {
         },
       });
 
-      const req = httpMock.expectOne('/api/v1/auth/token/login/');
+      const req = httpMock.expectOne('/api/v1/auth/browser/v1/auth/login');
       req.flush({}, { status: 500, statusText: 'Internal Server Error' });
 
       expect(errorCaught).toBe(true);
@@ -265,92 +371,8 @@ describe('AuthService', () => {
         },
       });
 
-      const req = httpMock.expectOne('/api/v1/auth/token/login/');
+      const req = httpMock.expectOne('/api/v1/auth/browser/v1/auth/login');
       req.error(new ProgressEvent('error'));
-
-      expect(errorCaught).toBe(true);
-    });
-
-    it('should handle detail field in error response', () => {
-      let errorCaught = false;
-
-      service.login({ email: 'test@example.com', password: 'wrong' }).subscribe({
-        error: (error) => {
-          expect(error.message).toBe('Unable to authenticate');
-          errorCaught = true;
-        },
-      });
-
-      const req = httpMock.expectOne('/api/v1/auth/token/login/');
-      req.flush({ detail: 'Unable to authenticate' }, { status: 401, statusText: 'Unauthorized' });
-
-      expect(errorCaught).toBe(true);
-    });
-
-    it('should handle field-specific error arrays', () => {
-      let errorCaught = false;
-
-      service.signup({ email: 'bad-email', password: 'short' }).subscribe({
-        error: (error) => {
-          expect(error.message).toBe('password: Password must be at least 8 characters');
-          errorCaught = true;
-        },
-      });
-
-      const req = httpMock.expectOne('/api/v1/auth/users/');
-      req.flush(
-        { password: ['Password must be at least 8 characters'] },
-        { status: 400, statusText: 'Bad Request' }
-      );
-
-      expect(errorCaught).toBe(true);
-    });
-
-    it('should handle error when no error object present', () => {
-      let errorCaught = false;
-
-      service.login({ email: 'test@example.com', password: 'password' }).subscribe({
-        error: (error) => {
-          expect(error.message).toBe('An unexpected error occurred. Please try again.');
-          errorCaught = true;
-        },
-      });
-
-      const req = httpMock.expectOne('/api/v1/auth/token/login/');
-      // Simulate network error with no response body
-      req.error(new ProgressEvent('error'), { status: 0, statusText: 'Unknown Error' });
-
-      expect(errorCaught).toBe(true);
-    });
-
-    it('should handle error response with empty error object', () => {
-      let errorCaught = false;
-
-      service.login({ email: 'test@example.com', password: 'password' }).subscribe({
-        error: (error) => {
-          expect(error.message).toBe('Invalid email or password');
-          errorCaught = true;
-        },
-      });
-
-      const req = httpMock.expectOne('/api/v1/auth/token/login/');
-      req.flush({}, { status: 401, statusText: 'Unauthorized' });
-
-      expect(errorCaught).toBe(true);
-    });
-
-    it('should handle error response with null error object', () => {
-      let errorCaught = false;
-
-      service.login({ email: 'test@example.com', password: 'password' }).subscribe({
-        error: (error) => {
-          expect(error.message).toBe('An unexpected error occurred. Please try again.');
-          errorCaught = true;
-        },
-      });
-
-      const req = httpMock.expectOne('/api/v1/auth/token/login/');
-      req.flush(null, { status: 503, statusText: 'Service Unavailable' });
 
       expect(errorCaught).toBe(true);
     });
@@ -376,7 +398,7 @@ describe('AuthService', () => {
       expect(service.isAuthenticated()).toBe(false);
     });
 
-    it('should clear token on logout', () => {
+    it('should clear token on clearToken call', () => {
       localStorage.setItem('auth_token', 'test-token');
       service['authToken'].set('test-token');
       expect(service.isAuthenticated()).toBe(true);

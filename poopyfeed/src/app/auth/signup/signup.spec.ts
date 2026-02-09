@@ -303,9 +303,6 @@ describe('Signup', () => {
       const signupSpy = vi
         .spyOn(authService, 'signup')
         .mockReturnValue(of({ id: 1, email: 'test@example.com' }));
-      const loginSpy = vi
-        .spyOn(authService, 'login')
-        .mockReturnValue(of({ auth_token: 'test-token' }));
 
       component.signupForm.patchValue({
         name: 'Test User',
@@ -317,10 +314,6 @@ describe('Signup', () => {
       component.onSubmit();
 
       expect(signupSpy).toHaveBeenCalledWith({
-        email: 'test@example.com',
-        password: 'password123',
-      });
-      expect(loginSpy).toHaveBeenCalledWith({
         email: 'test@example.com',
         password: 'password123',
       });
@@ -347,13 +340,10 @@ describe('Signup', () => {
       expect(component.error()).toBe('Email already exists');
     });
 
-    it('should handle login error after successful signup', () => {
+    it('should handle backend error during signup', () => {
       const signupSpy = vi
         .spyOn(authService, 'signup')
-        .mockReturnValue(of({ id: 1, email: 'test@example.com' }));
-      const loginSpy = vi
-        .spyOn(authService, 'login')
-        .mockReturnValue(throwError(() => new Error('Login failed')));
+        .mockReturnValue(throwError(() => new Error('Backend error during signup')));
 
       component.signupForm.patchValue({
         name: 'Test User',
@@ -365,9 +355,8 @@ describe('Signup', () => {
       component.onSubmit();
 
       expect(signupSpy).toHaveBeenCalled();
-      expect(loginSpy).toHaveBeenCalled();
       expect(component.isSubmitting()).toBe(false);
-      expect(component.error()).toBe('Login failed');
+      expect(component.error()).toBe('Backend error during signup');
     });
 
     it('should set error when email is missing despite validators', () => {
