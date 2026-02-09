@@ -54,6 +54,43 @@ export const routes: Routes = [
           ),
         title: 'Dashboard - PoopyFeed',
       },
+      {
+        path: ':childId/feedings',
+        children: [
+          {
+            path: '',
+            loadComponent: () =>
+              import('./children/feedings/list/feedings-list').then(
+                (m) => m.FeedingsList
+              ),
+            title: 'Feedings - PoopyFeed',
+          },
+          {
+            path: 'create',
+            loadComponent: () =>
+              import('./children/feedings/form/feeding-form').then(
+                (m) => m.FeedingForm
+              ),
+            title: 'Add Feeding - PoopyFeed',
+          },
+          {
+            path: ':id/edit',
+            loadComponent: () =>
+              import('./children/feedings/form/feeding-form').then(
+                (m) => m.FeedingForm
+              ),
+            title: 'Edit Feeding - PoopyFeed',
+          },
+          {
+            path: ':id/delete',
+            loadComponent: () =>
+              import('./children/feedings/delete/feeding-delete').then(
+                (m) => m.FeedingDelete
+              ),
+            title: 'Delete Feeding - PoopyFeed',
+          },
+        ],
+      },
     ],
   },
 ];
