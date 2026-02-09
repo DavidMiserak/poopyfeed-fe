@@ -91,6 +91,43 @@ export const routes: Routes = [
           },
         ],
       },
+      {
+        path: ':childId/diapers',
+        children: [
+          {
+            path: '',
+            loadComponent: () =>
+              import('./children/diapers/list/diapers-list').then(
+                (m) => m.DiapersList
+              ),
+            title: 'Diaper Changes - PoopyFeed',
+          },
+          {
+            path: 'create',
+            loadComponent: () =>
+              import('./children/diapers/form/diaper-form').then(
+                (m) => m.DiaperForm
+              ),
+            title: 'Add Diaper Change - PoopyFeed',
+          },
+          {
+            path: ':id/edit',
+            loadComponent: () =>
+              import('./children/diapers/form/diaper-form').then(
+                (m) => m.DiaperForm
+              ),
+            title: 'Edit Diaper Change - PoopyFeed',
+          },
+          {
+            path: ':id/delete',
+            loadComponent: () =>
+              import('./children/diapers/delete/diaper-delete').then(
+                (m) => m.DiaperDelete
+              ),
+            title: 'Delete Diaper Change - PoopyFeed',
+          },
+        ],
+      },
     ],
   },
 ];
