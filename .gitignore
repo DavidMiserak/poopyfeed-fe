@@ -51,6 +51,9 @@ temp/
 *~
 *.orig
 
+# SonarQube
+.scannerwork/
+
 # AI generated files
 CLAUDE.md
 memory/
