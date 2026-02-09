@@ -7,7 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { FeedingsService } from '../../../services/feedings.service';
 import { ChildrenService } from '../../../services/children.service';
 import { Feeding } from '../../../models/feeding.model';
@@ -15,7 +15,7 @@ import { Child } from '../../../models/child.model';
 
 @Component({
   selector: 'app-feedings-list',
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule],
   templateUrl: './feedings-list.html',
   styleUrl: './feedings-list.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

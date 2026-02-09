@@ -7,7 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { DiapersService } from '../../../services/diapers.service';
 import { ChildrenService } from '../../../services/children.service';
 import { DiaperChange } from '../../../models/diaper.model';
@@ -15,7 +15,7 @@ import { Child } from '../../../models/child.model';
 
 @Component({
   selector: 'app-diapers-list',
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule],
   templateUrl: './diapers-list.html',
   styleUrl: './diapers-list.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

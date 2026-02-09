@@ -7,7 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { NapsService } from '../../../services/naps.service';
 import { ChildrenService } from '../../../services/children.service';
 import { Nap } from '../../../models/nap.model';
@@ -15,7 +15,7 @@ import { Child } from '../../../models/child.model';
 
 @Component({
   selector: 'app-naps-list',
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule],
   templateUrl: './naps-list.html',
   styleUrl: './naps-list.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

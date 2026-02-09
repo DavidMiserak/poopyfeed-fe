@@ -12,7 +12,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { Router, RouterLink, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { SharingService } from '../../services/sharing.service';
 import { ChildrenService } from '../../services/children.service';
@@ -25,7 +25,7 @@ import { Child } from '../../models/child.model';
 
 @Component({
   selector: 'app-sharing-manage',
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './sharing-manage.html',
   styleUrl: './sharing-manage.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
