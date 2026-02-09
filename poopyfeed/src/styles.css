@@ -1,41 +1,281 @@
-/* You can add global styles to this file, and also import other style files */
+/*
+ * PoopyFeed - Professional Caregiver UI
+ * Design System optimized for professional caregivers like Maria
+ * - Large touch targets (min 48px)
+ * - Clear visual hierarchy
+ * - Professional, trustworthy aesthetics
+ * - Mobile-first responsive design
+ */
+
+/* Import Google Fonts - Professional & Readable */
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Open+Sans:wght@400;500;600;700&display=swap');
 
 @import "tailwindcss";
 
 @theme {
-  /* Electric Blue - Bold primary */
-  --color-electric-50: #e6f0ff;
-  --color-electric-100: #cce0ff;
-  --color-electric-200: #99c2ff;
-  --color-electric-300: #66a3ff;
-  --color-electric-400: #3385ff;
-  --color-electric-500: #0066ff;
-  --color-electric-600: #0052cc;
-  --color-electric-700: #003d99;
-  --color-electric-800: #002966;
-  --color-electric-900: #001433;
+  /* Professional Blue - Trust & Clarity */
+  --color-primary-50: #eff6ff;
+  --color-primary-100: #dbeafe;
+  --color-primary-200: #bfdbfe;
+  --color-primary-300: #93c5fd;
+  --color-primary-400: #60a5fa;
+  --color-primary-500: #3b82f6;
+  --color-primary-600: #2563eb;
+  --color-primary-700: #1d4ed8;
+  --color-primary-800: #1e40af;
+  --color-primary-900: #1e3a8a;
 
-  /* Vibrant Orange - Energetic accent */
-  --color-vibrant-50: #fff4ed;
-  --color-vibrant-100: #ffe8db;
-  --color-vibrant-200: #ffd1b7;
-  --color-vibrant-300: #ffba93;
-  --color-vibrant-400: #ffa36f;
-  --color-vibrant-500: #ff6b35;
-  --color-vibrant-600: #e6562a;
-  --color-vibrant-700: #cc401f;
-  --color-vibrant-800: #b32b14;
-  --color-vibrant-900: #99150a;
+  /* Warm Accent - Friendly & Approachable */
+  --color-accent-50: #fef3c7;
+  --color-accent-100: #fde68a;
+  --color-accent-200: #fcd34d;
+  --color-accent-300: #fbbf24;
+  --color-accent-400: #f59e0b;
+  --color-accent-500: #d97706;
+  --color-accent-600: #b45309;
+  --color-accent-700: #92400e;
+  --color-accent-800: #78350f;
+  --color-accent-900: #451a03;
 
-  /* Electric Purple - Modern accent */
-  --color-neon-50: #f5f3ff;
-  --color-neon-100: #ede9fe;
-  --color-neon-200: #ddd6fe;
-  --color-neon-300: #c4b5fd;
-  --color-neon-400: #a78bfa;
-  --color-neon-500: #8b5cf6;
-  --color-neon-600: #7c3aed;
-  --color-neon-700: #6d28d9;
-  --color-neon-800: #5b21b6;
-  --color-neon-900: #4c1d95;
+  /* Success Green - Confirmation */
+  --color-success-50: #f0fdf4;
+  --color-success-100: #dcfce7;
+  --color-success-200: #bbf7d0;
+  --color-success-300: #86efac;
+  --color-success-400: #4ade80;
+  --color-success-500: #22c55e;
+  --color-success-600: #16a34a;
+  --color-success-700: #15803d;
+  --color-success-800: #166534;
+  --color-success-900: #14532d;
+}
+
+/* Global Styles */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Open Sans', system-ui, -apple-system, sans-serif;
+  background: #f8fafc;
+  color: #1e293b;
+  line-height: 1.6;
+}
+
+/* Typography Scale */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Nunito', system-ui, sans-serif;
+  font-weight: 700;
+  line-height: 1.2;
+  margin: 0;
+}
+
+/* App Layout */
+.app-main {
+  min-height: calc(100vh - 4rem);
+  padding-bottom: 2rem;
+}
+
+/* Professional Button Styles - Large Touch Targets */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 48px;
+  min-width: 48px;
+  padding: 0.75rem 1.5rem;
+  font-family: 'Nunito', system-ui, sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: none;
+  border: 2px solid transparent;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn:focus-visible {
+  outline: 3px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: white;
+  box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.4);
+  transform: translateY(-2px);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  background: white;
+  color: #1e293b;
+  border-color: #e2e8f0;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+}
+
+.btn-secondary:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.btn-success {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: white;
+  box-shadow: 0 4px 6px -1px rgba(34, 197, 94, 0.3);
+}
+
+.btn-success:hover {
+  background: linear-gradient(135deg, #16a34a, #15803d);
+  box-shadow: 0 10px 15px -3px rgba(34, 197, 94, 0.4);
+  transform: translateY(-2px);
+}
+
+/* Form Elements - Large & Clear */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="datetime-local"],
+input[type="date"],
+textarea,
+select {
+  font-family: 'Open Sans', system-ui, sans-serif;
+  font-size: 1rem;
+  padding: 0.875rem 1rem;
+  min-height: 48px;
+  border: 2px solid #e2e8f0;
+  border-radius: 0.5rem;
+  background: white;
+  transition: all 0.2s ease;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Radio & Checkbox - Larger Touch Targets */
+input[type="radio"],
+input[type="checkbox"] {
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+}
+
+/* Success States - Visual Feedback for Maria */
+.success-message {
+  padding: 1rem 1.25rem;
+  background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+  border: 2px solid #22c55e;
+  border-radius: 0.75rem;
+  color: #14532d;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  animation: slideInDown 0.3s ease;
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Error States */
+.error-message {
+  padding: 1rem 1.25rem;
+  background: #fee2e2;
+  border: 2px solid #ef4444;
+  border-radius: 0.75rem;
+  color: #7f1d1d;
+  font-weight: 600;
+}
+
+/* Loading States */
+.loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid #e2e8f0;
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Card Styles */
+.card {
+  background: white;
+  border-radius: 1rem;
+  border: 1px solid #e2e8f0;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive Utilities */
+@media (max-width: 640px) {
+  html {
+    font-size: 14px;
+  }
+
+  .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Focus visible - keyboard navigation */
+*:focus-visible {
+  outline: 3px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .btn-primary {
+    border: 2px solid currentColor;
+  }
 }

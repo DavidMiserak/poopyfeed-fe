@@ -1,0 +1,257 @@
+<!-- Professional Feeding Form - Optimized for Maria -->
+<div class="page-container">
+  <div class="content-wrapper">
+    <!-- Back Navigation -->
+    <nav class="back-nav" aria-label="Breadcrumb">
+      <a
+        [routerLink]="['/children', childId(), 'feedings']"
+        class="back-link"
+      >
+        <svg class="back-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        <span>Back to Feedings</span>
+      </a>
+    </nav>
+
+    <!-- Page Header -->
+    <header class="page-header">
+      <h1 class="page-title">
+        {{ isEdit() ? 'Edit Feeding' : 'Log Feeding' }}
+      </h1>
+      @if (child()) {
+        <p class="page-subtitle">
+          for <strong>{{ child()!.name }}</strong>
+        </p>
+      }
+    </header>
+
+    <!-- Error Message -->
+    @if (error()) {
+      <div class="error-message" role="alert">
+        <svg class="message-icon" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" />
+        </svg>
+        {{ error() }}
+      </div>
+    }
+
+    <!-- Form Card -->
+    <div class="form-card card">
+      <form [formGroup]="feedingForm" (ngSubmit)="onSubmit()" class="form-content">
+        <!-- Feeding Type Selection -->
+        <fieldset class="form-section">
+          <legend class="form-label">
+            Feeding Type <span class="required-mark" aria-label="required">*</span>
+          </legend>
+          <div class="radio-group">
+            <!-- Bottle Option -->
+            <label class="radio-card">
+              <input
+                type="radio"
+                formControlName="feeding_type"
+                value="bottle"
+                class="radio-input"
+                aria-describedby="bottle-desc"
+              />
+              <div class="radio-card-content">
+                <span class="radio-icon" role="img" aria-label="Bottle">🍼</span>
+                <span class="radio-label">Bottle</span>
+              </div>
+            </label>
+
+            <!-- Breast Option -->
+            <label class="radio-card">
+              <input
+                type="radio"
+                formControlName="feeding_type"
+                value="breast"
+                class="radio-input"
+                aria-describedby="breast-desc"
+              />
+              <div class="radio-card-content">
+                <span class="radio-icon" role="img" aria-label="Breast">🤱</span>
+                <span class="radio-label">Breast</span>
+              </div>
+            </label>
+          </div>
+        </fieldset>
+
+        <!-- Date & Time -->
+        <div class="form-section">
+          <label for="fed_at" class="form-label">
+            Date & Time <span class="required-mark" aria-label="required">*</span>
+          </label>
+          <input
+            type="datetime-local"
+            id="fed_at"
+            formControlName="fed_at"
+            class="form-input"
+            aria-required="true"
+          />
+          @if (feedingForm.get('fed_at')?.invalid && feedingForm.get('fed_at')?.touched) {
+            <p class="field-error" role="alert">
+              Date and time is required
+            </p>
+          }
+        </div>
+
+        <!-- Bottle-Specific Fields -->
+        @if (feedingForm.get('feeding_type')?.value === 'bottle') {
+          <div class="form-section">
+            <label for="amount_oz" class="form-label">
+              Amount (oz) <span class="required-mark" aria-label="required">*</span>
+            </label>
+            <div class="input-wrapper">
+              <input
+                type="number"
+                id="amount_oz"
+                formControlName="amount_oz"
+                class="form-input"
+                placeholder="e.g., 4.5"
+                step="0.1"
+                min="0.1"
+                max="50"
+                aria-required="true"
+                aria-describedby="amount-help"
+              />
+              <span class="input-unit">oz</span>
+            </div>
+            <p id="amount-help" class="field-help">
+              Enter amount between 0.1 and 50 oz
+            </p>
+            @if (feedingForm.get('amount_oz')?.invalid && feedingForm.get('amount_oz')?.touched) {
+              <p class="field-error" role="alert">
+                @if (feedingForm.get('amount_oz')?.errors?.['required']) {
+                  Amount is required for bottle feeding
+                }
+                @if (feedingForm.get('amount_oz')?.errors?.['min']) {
+                  Amount must be at least 0.1 oz
+                }
+                @if (feedingForm.get('amount_oz')?.errors?.['max']) {
+                  Amount cannot exceed 50 oz
+                }
+              </p>
+            }
+          </div>
+        }
+
+        <!-- Breast-Specific Fields -->
+        @if (feedingForm.get('feeding_type')?.value === 'breast') {
+          <div class="form-section">
+            <label for="duration_minutes" class="form-label">
+              Duration (minutes) <span class="required-mark" aria-label="required">*</span>
+            </label>
+            <div class="input-wrapper">
+              <input
+                type="number"
+                id="duration_minutes"
+                formControlName="duration_minutes"
+                class="form-input"
+                placeholder="e.g., 15"
+                min="1"
+                max="180"
+                aria-required="true"
+                aria-describedby="duration-help"
+              />
+              <span class="input-unit">min</span>
+            </div>
+            <p id="duration-help" class="field-help">
+              Enter duration between 1 and 180 minutes
+            </p>
+            @if (feedingForm.get('duration_minutes')?.invalid && feedingForm.get('duration_minutes')?.touched) {
+              <p class="field-error" role="alert">
+                @if (feedingForm.get('duration_minutes')?.errors?.['required']) {
+                  Duration is required for breast feeding
+                }
+                @if (feedingForm.get('duration_minutes')?.errors?.['min']) {
+                  Duration must be at least 1 minute
+                }
+                @if (feedingForm.get('duration_minutes')?.errors?.['max']) {
+                  Duration cannot exceed 180 minutes
+                }
+              </p>
+            }
+          </div>
+
+          <!-- Side Selection -->
+          <fieldset class="form-section">
+            <legend class="form-label">
+              Side <span class="required-mark" aria-label="required">*</span>
+            </legend>
+            <div class="radio-group-compact">
+              <label class="radio-option">
+                <input
+                  type="radio"
+                  formControlName="side"
+                  value="left"
+                  class="radio-input-native"
+                />
+                <span class="radio-option-label">Left</span>
+              </label>
+              <label class="radio-option">
+                <input
+                  type="radio"
+                  formControlName="side"
+                  value="right"
+                  class="radio-input-native"
+                />
+                <span class="radio-option-label">Right</span>
+              </label>
+              <label class="radio-option">
+                <input
+                  type="radio"
+                  formControlName="side"
+                  value="both"
+                  class="radio-input-native"
+                />
+                <span class="radio-option-label">Both</span>
+              </label>
+            </div>
+            @if (feedingForm.get('side')?.invalid && feedingForm.get('side')?.touched) {
+              <p class="field-error" role="alert">
+                Please select a side
+              </p>
+            }
+          </fieldset>
+        }
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+          <button
+            type="button"
+            [routerLink]="['/children', childId(), 'feedings']"
+            class="btn btn-secondary"
+            [disabled]="isSubmitting()"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            class="btn btn-primary"
+            [disabled]="feedingForm.invalid || isSubmitting()"
+          >
+            @if (isSubmitting()) {
+              <span class="loading-spinner-small" aria-hidden="true"></span>
+              <span>Saving...</span>
+            } @else {
+              <span>{{ isEdit() ? 'Update Feeding' : 'Save Feeding' }}</span>
+            }
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Helper Tips Card -->
+    <aside class="tips-card card" aria-labelledby="tips-heading">
+      <h2 id="tips-heading" class="tips-heading">
+        💡 Quick Tips
+      </h2>
+      <ul class="tips-list">
+        <li>All fields marked with <span class="required-mark">*</span> are required</li>
+        <li>Times are automatically converted to your local timezone</li>
+        <li>You can edit this entry later if needed</li>
+      </ul>
+    </aside>
+  </div>
+</div>
