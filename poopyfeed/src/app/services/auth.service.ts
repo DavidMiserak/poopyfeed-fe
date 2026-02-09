@@ -95,7 +95,7 @@ export class AuthService {
    * Logout the current user
    */
   logout(): Observable<void> {
-    return this.http.post<void>(`${this.ALLAUTH_BASE}/logout`, {}, {
+    return this.http.delete<void>(`${this.ALLAUTH_BASE}/session`, {
       withCredentials: true
     }).pipe(
       tap(() => {

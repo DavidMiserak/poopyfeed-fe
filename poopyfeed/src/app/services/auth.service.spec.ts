@@ -189,8 +189,8 @@ describe('AuthService', () => {
         },
       });
 
-      const req = httpMock.expectOne('/api/v1/browser/v1/auth/logout');
-      expect(req.request.method).toBe('POST');
+      const req = httpMock.expectOne('/api/v1/browser/v1/auth/session');
+      expect(req.request.method).toBe('DELETE');
       expect(req.request.withCredentials).toBe(true);
       req.flush({});
     });
@@ -206,7 +206,7 @@ describe('AuthService', () => {
         },
       });
 
-      const req = httpMock.expectOne('/api/v1/browser/v1/auth/logout');
+      const req = httpMock.expectOne('/api/v1/browser/v1/auth/session');
       req.flush({ detail: 'Server error' }, { status: 500, statusText: 'Internal Server Error' });
     });
   });
