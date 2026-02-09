@@ -1,0 +1,154 @@
+<div class="min-h-screen relative bg-gradient-to-br from-[#fff5f7] via-[#fffbeb] to-[#fff7ed] px-6 py-8 overflow-hidden">
+  <!-- Decorative background elements -->
+  <div class="absolute inset-0 opacity-20 pointer-events-none">
+    <div class="absolute top-20 left-20 w-64 h-64 bg-gradient-to-br from-[#fb7185] to-[#fbbf24] rounded-full blur-3xl animate-pulse"></div>
+    <div class="absolute bottom-20 right-20 w-96 h-96 bg-gradient-to-br from-[#fb923c] to-[#f43f5e] rounded-full blur-3xl animate-pulse" style="animation-delay: 1s;"></div>
+  </div>
+
+  <div class="max-w-6xl mx-auto relative z-10">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-8">
+      <div>
+        <h1 class="font-['Fredoka',sans-serif] text-4xl font-bold text-slate-900 mb-2">
+          My Children
+        </h1>
+        <p class="font-['DM_Sans',sans-serif] text-slate-600">
+          Track and manage your little ones
+        </p>
+      </div>
+      <a
+        routerLink="/children/create"
+        class="group relative px-6 py-3 rounded-xl font-['DM_Sans',sans-serif] font-bold text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 overflow-hidden border-2 border-[#fb7185]"
+      >
+        <span class="absolute inset-0 bg-gradient-to-br from-[#fb7185] via-[#fb923c] to-[#fbbf24] transition-transform duration-300 group-hover:scale-110"></span>
+        <span class="relative z-10 flex items-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
+          Add Baby
+        </span>
+      </a>
+    </div>
+
+    <!-- Loading State -->
+    @if (isLoading()) {
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        @for (i of [1, 2, 3]; track i) {
+          <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl p-6 border-2 border-[#fecdd3] animate-pulse">
+            <div class="h-24 bg-gradient-to-r from-slate-200 to-slate-300 rounded-2xl mb-4"></div>
+            <div class="h-6 bg-gradient-to-r from-slate-200 to-slate-300 rounded mb-2"></div>
+            <div class="h-4 bg-gradient-to-r from-slate-200 to-slate-300 rounded w-2/3"></div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Error State -->
+    @if (error() && !isLoading()) {
+      <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 border-2 border-red-200">
+        <div class="text-center">
+          <div class="text-6xl mb-4">😞</div>
+          <h2 class="font-['Fredoka',sans-serif] text-2xl font-bold text-slate-900 mb-2">
+            Oops! Something went wrong
+          </h2>
+          <p class="font-['DM_Sans',sans-serif] text-slate-600 mb-6">
+            {{ error() }}
+          </p>
+          <button
+            (click)="loadChildren()"
+            class="group relative px-6 py-3 rounded-xl font-['DM_Sans',sans-serif] font-bold text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 overflow-hidden border-2 border-[#fb7185]"
+          >
+            <span class="absolute inset-0 bg-gradient-to-br from-[#fb7185] via-[#fb923c] to-[#fbbf24] transition-transform duration-300 group-hover:scale-110"></span>
+            <span class="relative z-10">Try Again</span>
+          </button>
+        </div>
+      </div>
+    }
+
+    <!-- Empty State -->
+    @if (!isLoading() && !error() && children().length === 0) {
+      <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl p-12 border-2 border-[#fecdd3]">
+        <div class="text-center">
+          <div class="text-8xl mb-6 animate-bounce">🍼</div>
+          <h2 class="font-['Fredoka',sans-serif] text-3xl font-bold text-slate-900 mb-3">
+            No children yet!
+          </h2>
+          <p class="font-['DM_Sans',sans-serif] text-slate-600 mb-8 max-w-md mx-auto">
+            Start tracking your baby's feeding, diaper changes, and naps by adding your first child.
+          </p>
+          <a
+            routerLink="/children/create"
+            class="group relative inline-flex px-8 py-4 rounded-xl font-['DM_Sans',sans-serif] font-bold text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 overflow-hidden border-2 border-[#fb7185]"
+          >
+            <span class="absolute inset-0 bg-gradient-to-br from-[#fb7185] via-[#fb923c] to-[#fbbf24] transition-transform duration-300 group-hover:scale-110"></span>
+            <span class="relative z-10 flex items-center gap-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+              Add Your First Baby
+            </span>
+          </a>
+        </div>
+      </div>
+    }
+
+    <!-- Children Grid -->
+    @if (!isLoading() && !error() && children().length > 0) {
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        @for (child of children(); track child.id) {
+          <div
+            (click)="navigateToChild(child.id)"
+            class="group bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl hover:shadow-2xl p-6 border-2 border-[#fecdd3] hover:border-[#fb7185] transition-all duration-300 cursor-pointer hover:-translate-y-2"
+          >
+            <!-- Role Badge -->
+            <div class="flex justify-end mb-4">
+              <span
+                [class]="'inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border ' + getRoleBadgeColor(child.user_role)"
+              >
+                {{ ROLE_LABELS[child.user_role] }}
+              </span>
+            </div>
+
+            <!-- Child Avatar -->
+            <div class="flex items-center justify-center mb-4">
+              <div class="relative">
+                <div class="w-24 h-24 bg-gradient-to-br from-[#fb7185] to-[#fbbf24] rounded-full flex items-center justify-center text-5xl group-hover:scale-110 transition-transform duration-300">
+                  {{ getGenderIcon(child.gender) }}
+                </div>
+                <div class="absolute -bottom-1 -right-1 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-lg">
+                  @if (child.gender === 'M') {
+                    <span class="text-blue-500 text-lg">♂</span>
+                  } @else if (child.gender === 'F') {
+                    <span class="text-pink-500 text-lg">♀</span>
+                  } @else {
+                    <span class="text-purple-500 text-lg">◈</span>
+                  }
+                </div>
+              </div>
+            </div>
+
+            <!-- Child Info -->
+            <div class="text-center">
+              <h3 class="font-['Fredoka',sans-serif] text-2xl font-bold text-slate-900 mb-1 group-hover:text-[#fb7185] transition-colors">
+                {{ child.name }}
+              </h3>
+              <p class="font-['DM_Sans',sans-serif] text-slate-600 text-sm mb-2">
+                {{ getChildAge(child.date_of_birth) }} old
+              </p>
+              <p class="font-['DM_Sans',sans-serif] text-slate-500 text-xs">
+                {{ GENDER_LABELS[child.gender] }}
+              </p>
+            </div>
+
+            <!-- Quick Action Hint -->
+            <div class="mt-6 pt-4 border-t border-slate-200">
+              <p class="font-['DM_Sans',sans-serif] text-slate-500 text-xs text-center group-hover:text-[#fb7185] transition-colors">
+                Click to view dashboard →
+              </p>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>

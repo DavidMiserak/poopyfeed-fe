@@ -1,0 +1,195 @@
+<div class="min-h-screen relative bg-gradient-to-br from-[#fff5f7] via-[#fffbeb] to-[#fff7ed] flex items-center justify-center px-6 py-12 overflow-hidden">
+  <!-- Decorative background elements -->
+  <div class="absolute inset-0 opacity-20 pointer-events-none">
+    <div class="absolute top-20 left-20 w-64 h-64 bg-gradient-to-br from-[#fb7185] to-[#fbbf24] rounded-full blur-3xl animate-pulse"></div>
+    <div class="absolute bottom-20 right-20 w-96 h-96 bg-gradient-to-br from-[#fb923c] to-[#f43f5e] rounded-full blur-3xl animate-pulse" style="animation-delay: 1s;"></div>
+  </div>
+
+  <div class="w-full max-w-2xl relative z-10">
+    <!-- Header -->
+    <div class="text-center mb-8">
+      <div class="text-6xl mb-4 animate-bounce">👶</div>
+      <h1 class="font-['Fredoka',sans-serif] text-4xl font-bold text-slate-900 mb-2">
+        @if (isEdit()) {
+          Edit Baby
+        } @else {
+          Add New Baby
+        }
+      </h1>
+      <p class="font-['DM_Sans',sans-serif] text-slate-600">
+        @if (isEdit()) {
+          Update your baby's information
+        } @else {
+          Add your little one to start tracking
+        }
+      </p>
+    </div>
+
+    <!-- Form Card -->
+    <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-8 border-2 border-[#fecdd3]">
+      <!-- Error Message -->
+      @if (error()) {
+        <div class="bg-gradient-to-r from-red-50 to-rose-50 border-l-4 border-red-500 p-4 mb-6 rounded-xl">
+          <p class="font-['DM_Sans',sans-serif] text-red-700 text-sm font-medium flex items-center gap-2">
+            <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" />
+            </svg>
+            {{ error() }}
+          </p>
+        </div>
+      }
+
+      <!-- Form -->
+      <form [formGroup]="childForm" (ngSubmit)="onSubmit()" class="space-y-6">
+        <!-- Name Field -->
+        <div>
+          <label for="name" class="font-['DM_Sans',sans-serif] block text-sm font-bold text-slate-900 mb-2">
+            Baby's Name
+          </label>
+          <input
+            type="text"
+            id="name"
+            formControlName="name"
+            class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-[#fb7185] focus:ring-4 focus:ring-[#fecdd3] transition-all outline-none text-slate-900 font-['DM_Sans',sans-serif]"
+            placeholder="e.g., Emma"
+          />
+          @if (childForm.controls.name.invalid && childForm.controls.name.touched) {
+            <p class="font-['DM_Sans',sans-serif] text-red-600 text-sm mt-2 font-medium flex items-center gap-1">
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
+              </svg>
+              @if (childForm.controls.name.errors?.['required']) {
+                Name is required
+              }
+              @if (childForm.controls.name.errors?.['maxlength']) {
+                Name must be 100 characters or less
+              }
+            </p>
+          }
+        </div>
+
+        <!-- Date of Birth Field -->
+        <div>
+          <label for="date_of_birth" class="font-['DM_Sans',sans-serif] block text-sm font-bold text-slate-900 mb-2">
+            Date of Birth
+          </label>
+          <input
+            type="date"
+            id="date_of_birth"
+            formControlName="date_of_birth"
+            class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-[#fb7185] focus:ring-4 focus:ring-[#fecdd3] transition-all outline-none text-slate-900 font-['DM_Sans',sans-serif]"
+          />
+          @if (childForm.controls.date_of_birth.invalid && childForm.controls.date_of_birth.touched) {
+            <p class="font-['DM_Sans',sans-serif] text-red-600 text-sm mt-2 font-medium flex items-center gap-1">
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
+              </svg>
+              Date of birth is required
+            </p>
+          }
+        </div>
+
+        <!-- Gender Field -->
+        <div>
+          <label class="font-['DM_Sans',sans-serif] block text-sm font-bold text-slate-900 mb-3">
+            Gender
+          </label>
+          <div class="grid grid-cols-3 gap-4">
+            <!-- Male Option -->
+            <label class="relative cursor-pointer">
+              <input
+                type="radio"
+                formControlName="gender"
+                value="M"
+                class="peer sr-only"
+              />
+              <div class="flex flex-col items-center justify-center p-4 border-2 border-slate-200 rounded-xl transition-all peer-checked:border-[#fb7185] peer-checked:bg-gradient-to-br peer-checked:from-blue-50 peer-checked:to-blue-100 hover:border-slate-300">
+                <span class="text-3xl mb-2">♂️</span>
+                <span class="font-['DM_Sans',sans-serif] text-sm font-bold text-slate-900">Male</span>
+              </div>
+            </label>
+
+            <!-- Female Option -->
+            <label class="relative cursor-pointer">
+              <input
+                type="radio"
+                formControlName="gender"
+                value="F"
+                class="peer sr-only"
+              />
+              <div class="flex flex-col items-center justify-center p-4 border-2 border-slate-200 rounded-xl transition-all peer-checked:border-[#fb7185] peer-checked:bg-gradient-to-br peer-checked:from-pink-50 peer-checked:to-pink-100 hover:border-slate-300">
+                <span class="text-3xl mb-2">♀️</span>
+                <span class="font-['DM_Sans',sans-serif] text-sm font-bold text-slate-900">Female</span>
+              </div>
+            </label>
+
+            <!-- Other Option -->
+            <label class="relative cursor-pointer">
+              <input
+                type="radio"
+                formControlName="gender"
+                value="O"
+                class="peer sr-only"
+              />
+              <div class="flex flex-col items-center justify-center p-4 border-2 border-slate-200 rounded-xl transition-all peer-checked:border-[#fb7185] peer-checked:bg-gradient-to-br peer-checked:from-purple-50 peer-checked:to-purple-100 hover:border-slate-300">
+                <span class="text-3xl mb-2">◈</span>
+                <span class="font-['DM_Sans',sans-serif] text-sm font-bold text-slate-900">Other</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex gap-4 pt-4">
+          <!-- Cancel Button -->
+          <button
+            type="button"
+            (click)="onCancel()"
+            class="flex-1 px-6 py-3 rounded-xl font-['DM_Sans',sans-serif] font-bold text-slate-700 bg-slate-200 hover:bg-slate-300 transition-all duration-300 hover:-translate-y-1 active:translate-y-0"
+          >
+            Cancel
+          </button>
+
+          <!-- Submit Button -->
+          <button
+            type="submit"
+            [disabled]="childForm.invalid || isSubmitting()"
+            class="flex-1 group relative px-6 py-3 rounded-xl font-['DM_Sans',sans-serif] font-bold text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 overflow-hidden border-2 border-[#fb7185]"
+          >
+            <span class="absolute inset-0 bg-gradient-to-br from-[#fb7185] via-[#fb923c] to-[#fbbf24] transition-transform duration-300 group-hover:scale-110 group-disabled:scale-100"></span>
+            @if (isSubmitting()) {
+              <span class="relative z-10 flex items-center justify-center gap-2">
+                <svg class="w-5 h-5 animate-spin" aria-hidden="true" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Saving...
+              </span>
+            } @else {
+              <span class="relative z-10">
+                @if (isEdit()) {
+                  Update Baby
+                } @else {
+                  Add Baby
+                }
+              </span>
+            }
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Back Link -->
+    <div class="text-center mt-6">
+      <a
+        routerLink="/children"
+        class="font-['DM_Sans',sans-serif] text-sm text-slate-600 hover:text-[#fb7185] transition-colors font-medium inline-flex items-center gap-2"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        Back to My Children
+      </a>
+    </div>
+  </div>
+</div>
