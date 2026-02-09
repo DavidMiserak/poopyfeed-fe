@@ -128,6 +128,37 @@ export const routes: Routes = [
           },
         ],
       },
+      {
+        path: ':childId/naps',
+        children: [
+          {
+            path: '',
+            loadComponent: () =>
+              import('./children/naps/list/naps-list').then((m) => m.NapsList),
+            title: 'Naps - PoopyFeed',
+          },
+          {
+            path: 'create',
+            loadComponent: () =>
+              import('./children/naps/form/nap-form').then((m) => m.NapForm),
+            title: 'Add Nap - PoopyFeed',
+          },
+          {
+            path: ':id/edit',
+            loadComponent: () =>
+              import('./children/naps/form/nap-form').then((m) => m.NapForm),
+            title: 'Edit Nap - PoopyFeed',
+          },
+          {
+            path: ':id/delete',
+            loadComponent: () =>
+              import('./children/naps/delete/nap-delete').then(
+                (m) => m.NapDelete
+              ),
+            title: 'Delete Nap - PoopyFeed',
+          },
+        ],
+      },
     ],
   },
 ];
