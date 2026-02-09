@@ -150,7 +150,7 @@
             </div>
           } @else {
             <div class="space-y-3">
-              @for (item of recentActivity(); track item.id) {
+              @for (item of recentActivity(); track item.type + '-' + item.id) {
                 <div class="flex items-center gap-4 p-4 rounded-xl bg-gradient-to-r from-slate-50 to-slate-100/50 hover:shadow-md transition-shadow">
                   <div class="text-3xl flex-shrink-0">{{ getActivityIcon(item.type) }}</div>
                   <div class="flex-1">
@@ -170,9 +170,9 @@
         <!-- Navigation Cards -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <!-- View All Feedings -->
-          <button
-            type="button"
-            class="group p-6 rounded-2xl bg-white/80 backdrop-blur-lg shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 border-2 border-[#fb7185]/20 text-left"
+          <a
+            [routerLink]="['/children', child()!.id, 'feedings']"
+            class="group p-6 rounded-2xl bg-white/80 backdrop-blur-lg shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 border-2 border-[#fb7185]/20 text-left no-underline cursor-pointer block"
           >
             <div class="flex items-center gap-4 mb-2">
               <span class="text-4xl">🍼</span>
@@ -183,12 +183,12 @@
             <p class="font-['DM_Sans',sans-serif] text-slate-600 text-sm">
               View and manage feeding history
             </p>
-          </button>
+          </a>
 
           <!-- View All Diapers -->
-          <button
-            type="button"
-            class="group p-6 rounded-2xl bg-white/80 backdrop-blur-lg shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 border-2 border-[#fb923c]/20 text-left"
+          <a
+            [routerLink]="['/children', child()!.id, 'diapers']"
+            class="group p-6 rounded-2xl bg-white/80 backdrop-blur-lg shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 border-2 border-[#fb923c]/20 text-left no-underline cursor-pointer block"
           >
             <div class="flex items-center gap-4 mb-2">
               <span class="text-4xl">🧷</span>
@@ -199,12 +199,12 @@
             <p class="font-['DM_Sans',sans-serif] text-slate-600 text-sm">
               View and manage diaper changes
             </p>
-          </button>
+          </a>
 
           <!-- View All Naps -->
-          <button
-            type="button"
-            class="group p-6 rounded-2xl bg-white/80 backdrop-blur-lg shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 border-2 border-[#fbbf24]/20 text-left"
+          <a
+            [routerLink]="['/children', child()!.id, 'naps']"
+            class="group p-6 rounded-2xl bg-white/80 backdrop-blur-lg shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 border-2 border-[#fbbf24]/20 text-left no-underline cursor-pointer block"
           >
             <div class="flex items-center gap-4 mb-2">
               <span class="text-4xl">😴</span>
@@ -215,13 +215,13 @@
             <p class="font-['DM_Sans',sans-serif] text-slate-600 text-sm">
               View and manage nap history
             </p>
-          </button>
+          </a>
 
           <!-- Manage Sharing (owner only) -->
           @if (canManageSharing()) {
-            <button
-              type="button"
-              class="group p-6 rounded-2xl bg-white/80 backdrop-blur-lg shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 border-2 border-purple-500/20 text-left"
+            <a
+              [routerLink]="['/children', child()!.id, 'sharing']"
+              class="group p-6 rounded-2xl bg-white/80 backdrop-blur-lg shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 border-2 border-purple-500/20 text-left no-underline cursor-pointer block"
             >
               <div class="flex items-center gap-4 mb-2">
                 <span class="text-4xl">👥</span>
@@ -232,7 +232,7 @@
               <p class="font-['DM_Sans',sans-serif] text-slate-600 text-sm">
                 Share access with family members
               </p>
-            </button>
+            </a>
           }
         </div>
       </div>
