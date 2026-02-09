@@ -47,14 +47,14 @@ describe('AuthService', () => {
       });
 
       // First request: allauth login
-      const loginReq = httpMock.expectOne('/api/v1/auth/browser/v1/auth/login');
+      const loginReq = httpMock.expectOne('/api/v1/browser/v1/auth/login');
       expect(loginReq.request.method).toBe('POST');
       expect(loginReq.request.body).toEqual(credentials);
       expect(loginReq.request.withCredentials).toBe(true);
       loginReq.flush(mockAllauthResponse);
 
       // Second request: get token
-      const tokenReq = httpMock.expectOne('/api/v1/auth/token/');
+      const tokenReq = httpMock.expectOne('/api/v1/browser/v1/auth/token/');
       expect(tokenReq.request.method).toBe('GET');
       expect(tokenReq.request.withCredentials).toBe(true);
       tokenReq.flush(mockTokenResponse);
@@ -71,7 +71,7 @@ describe('AuthService', () => {
         },
       });
 
-      const req = httpMock.expectOne('/api/v1/auth/browser/v1/auth/login');
+      const req = httpMock.expectOne('/api/v1/browser/v1/auth/login');
       req.flush({ detail: 'Invalid credentials' }, { status: 401, statusText: 'Unauthorized' });
 
       expect(errorCaught).toBe(true);
@@ -90,11 +90,11 @@ describe('AuthService', () => {
       });
 
       // First request succeeds
-      const loginReq = httpMock.expectOne('/api/v1/auth/browser/v1/auth/login');
+      const loginReq = httpMock.expectOne('/api/v1/browser/v1/auth/login');
       loginReq.flush(mockAllauthResponse);
 
       // Second request fails
-      const tokenReq = httpMock.expectOne('/api/v1/auth/token/');
+      const tokenReq = httpMock.expectOne('/api/v1/browser/v1/auth/token/');
       tokenReq.flush({}, { status: 500, statusText: 'Internal Server Error' });
 
       expect(errorCaught).toBe(true);
@@ -119,14 +119,14 @@ describe('AuthService', () => {
       });
 
       // First request: allauth signup
-      const signupReq = httpMock.expectOne('/api/v1/auth/browser/v1/auth/signup');
+      const signupReq = httpMock.expectOne('/api/v1/browser/v1/auth/signup');
       expect(signupReq.request.method).toBe('POST');
       expect(signupReq.request.body).toEqual({ email: signupData.email, password: signupData.password });
       expect(signupReq.request.withCredentials).toBe(true);
       signupReq.flush(mockAllauthResponse);
 
       // Second request: get token
-      const tokenReq = httpMock.expectOne('/api/v1/auth/token/');
+      const tokenReq = httpMock.expectOne('/api/v1/browser/v1/auth/token/');
       expect(tokenReq.request.method).toBe('GET');
       expect(tokenReq.request.withCredentials).toBe(true);
       tokenReq.flush(mockTokenResponse);
@@ -141,7 +141,7 @@ describe('AuthService', () => {
         },
       });
 
-      const req = httpMock.expectOne('/api/v1/auth/browser/v1/auth/signup');
+      const req = httpMock.expectOne('/api/v1/browser/v1/auth/signup');
       req.flush(
         { email: ['User with this email already exists.'] },
         { status: 409, statusText: 'Conflict' }
@@ -164,11 +164,11 @@ describe('AuthService', () => {
       });
 
       // First request succeeds
-      const signupReq = httpMock.expectOne('/api/v1/auth/browser/v1/auth/signup');
+      const signupReq = httpMock.expectOne('/api/v1/browser/v1/auth/signup');
       signupReq.flush(mockAllauthResponse);
 
       // Second request fails
-      const tokenReq = httpMock.expectOne('/api/v1/auth/token/');
+      const tokenReq = httpMock.expectOne('/api/v1/browser/v1/auth/token/');
       tokenReq.flush({}, { status: 500, statusText: 'Internal Server Error' });
 
       expect(errorCaught).toBe(true);
@@ -189,7 +189,7 @@ describe('AuthService', () => {
         },
       });
 
-      const req = httpMock.expectOne('/api/v1/auth/browser/v1/auth/logout');
+      const req = httpMock.expectOne('/api/v1/browser/v1/auth/logout');
       expect(req.request.method).toBe('POST');
       expect(req.request.withCredentials).toBe(true);
       req.flush({});
@@ -206,7 +206,7 @@ describe('AuthService', () => {
         },
       });
 
-      const req = httpMock.expectOne('/api/v1/auth/browser/v1/auth/logout');
+      const req = httpMock.expectOne('/api/v1/browser/v1/auth/logout');
       req.flush({ detail: 'Server error' }, { status: 500, statusText: 'Internal Server Error' });
     });
   });
@@ -253,7 +253,7 @@ describe('AuthService', () => {
         },
       });
 
-      const req = httpMock.expectOne('/api/v1/auth/browser/v1/auth/signup');
+      const req = httpMock.expectOne('/api/v1/browser/v1/auth/signup');
       req.flush(
         { password: ['Password must be at least 8 characters'] },
         { status: 400, statusText: 'Bad Request' }
@@ -272,7 +272,7 @@ describe('AuthService', () => {
         },
       });
 
-      const req = httpMock.expectOne('/api/v1/auth/browser/v1/auth/login');
+      const req = httpMock.expectOne('/api/v1/browser/v1/auth/login');
       req.flush(
         { non_field_errors: ['Invalid credentials', 'Please try again'] },
         { status: 400, statusText: 'Bad Request' }
@@ -291,7 +291,7 @@ describe('AuthService', () => {
         },
       });
 
-      const req = httpMock.expectOne('/api/v1/auth/browser/v1/auth/login');
+      const req = httpMock.expectOne('/api/v1/browser/v1/auth/login');
       req.flush({ detail: 'Unable to authenticate' }, { status: 401, statusText: 'Unauthorized' });
 
       expect(errorCaught).toBe(true);
@@ -307,7 +307,7 @@ describe('AuthService', () => {
         },
       });
 
-      const req = httpMock.expectOne('/api/v1/auth/browser/v1/auth/login');
+      const req = httpMock.expectOne('/api/v1/browser/v1/auth/login');
       req.flush({}, { status: 401, statusText: 'Unauthorized' });
 
       expect(errorCaught).toBe(true);
@@ -323,7 +323,7 @@ describe('AuthService', () => {
         },
       });
 
-      const req = httpMock.expectOne('/api/v1/auth/browser/v1/auth/signup');
+      const req = httpMock.expectOne('/api/v1/browser/v1/auth/signup');
       req.flush({}, { status: 400, statusText: 'Bad Request' });
 
       expect(errorCaught).toBe(true);
@@ -339,7 +339,7 @@ describe('AuthService', () => {
         },
       });
 
-      const req = httpMock.expectOne('/api/v1/auth/browser/v1/auth/signup');
+      const req = httpMock.expectOne('/api/v1/browser/v1/auth/signup');
       req.flush({}, { status: 409, statusText: 'Conflict' });
 
       expect(errorCaught).toBe(true);
@@ -355,7 +355,7 @@ describe('AuthService', () => {
         },
       });
 
-      const req = httpMock.expectOne('/api/v1/auth/browser/v1/auth/login');
+      const req = httpMock.expectOne('/api/v1/browser/v1/auth/login');
       req.flush({}, { status: 500, statusText: 'Internal Server Error' });
 
       expect(errorCaught).toBe(true);
@@ -371,7 +371,7 @@ describe('AuthService', () => {
         },
       });
 
-      const req = httpMock.expectOne('/api/v1/auth/browser/v1/auth/login');
+      const req = httpMock.expectOne('/api/v1/browser/v1/auth/login');
       req.error(new ProgressEvent('error'));
 
       expect(errorCaught).toBe(true);

@@ -30,8 +30,7 @@ export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
 
-  private readonly API_BASE = '/api/v1/auth';
-  private readonly ALLAUTH_BASE = '/api/v1/auth/browser/v1/auth';
+  private readonly ALLAUTH_BASE = '/api/v1/browser/v1/auth';
   private readonly TOKEN_KEY = 'auth_token';
 
   // Reactive state
@@ -49,7 +48,7 @@ export class AuthService {
       .pipe(
         switchMap(() => {
           // After allauth login, get the auth token
-          return this.http.get<AuthResponse>(`${this.API_BASE}/token/`, {
+          return this.http.get<AuthResponse>(`${this.ALLAUTH_BASE}/token/`, {
             withCredentials: true
           });
         }),
@@ -74,7 +73,7 @@ export class AuthService {
     ).pipe(
       switchMap((response) => {
         // After allauth signup, get the auth token
-        return this.http.get<AuthResponse>(`${this.API_BASE}/token/`, {
+        return this.http.get<AuthResponse>(`${this.ALLAUTH_BASE}/token/`, {
           withCredentials: true
         }).pipe(
           tap((tokenResponse) => {
