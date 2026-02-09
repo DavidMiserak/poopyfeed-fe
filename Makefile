@@ -40,11 +40,11 @@ test-local:
 
 .PHONY: test-coverage
 test-coverage:
-	$(RUNTIME) compose exec web npm test -- --coverage.enabled=true
+	$(RUNTIME) compose exec web npm test -- --watch=false --coverage=true
 
 .PHONY: test-coverage-local
 test-coverage-local:
-	cd poopyfeed && npm test -- --coverage.enabled=true
+	cd poopyfeed && npm test -- --watch=false --coverage=true
 
 .PHONY: build
 build:
