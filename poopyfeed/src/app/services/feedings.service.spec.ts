@@ -1,0 +1,518 @@
+/**
+ * Tests for FeedingsService
+ */
+
+import { TestBed } from '@angular/core/testing';
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { FeedingsService } from './feedings.service';
+import { Feeding, FeedingCreate, FeedingUpdate } from '../models/feeding.model';
+
+describe('FeedingsService', () => {
+  let service: FeedingsService;
+  let httpMock: HttpTestingController;
+
+  const mockBottleFeeding: Feeding = {
+    id: 1,
+    child: 1,
+    feeding_type: 'bottle',
+    fed_at: '2024-01-15T10:00:00Z',
+    amount_oz: 4.5,
+    notes: 'Baby seemed hungry',
+    created_at: '2024-01-15T10:00:00Z',
+    updated_at: '2024-01-15T10:00:00Z',
+  };
+
+  const mockBreastFeeding: Feeding = {
+    id: 2,
+    child: 1,
+    feeding_type: 'breast',
+    fed_at: '2024-01-15T11:00:00Z',
+    duration_minutes: 15,
+    side: 'both',
+    notes: 'Good latch',
+    created_at: '2024-01-15T11:00:00Z',
+    updated_at: '2024-01-15T11:00:00Z',
+  };
+
+  const mockFeedings: Feeding[] = [mockBottleFeeding, mockBreastFeeding];
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting()],
+    });
+    service = TestBed.inject(FeedingsService);
+    httpMock = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => {
+    httpMock.verify();
+  });
+
+  it('should be created', () => {
+    expect(service).toBeTruthy();
+  });
+
+  describe('list', () => {
+    it('should fetch feedings list for a child', () => {
+      service.list(1).subscribe({
+        next: (feedings) => {
+          expect(feedings).toEqual(mockFeedings);
+          expect(feedings.length).toBe(2);
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/feedings/');
+      expect(req.request.method).toBe('GET');
+      req.flush(mockFeedings);
+    });
+
+    it('should handle empty list', () => {
+      service.list(1).subscribe({
+        next: (feedings) => {
+          expect(feedings).toEqual([]);
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/feedings/');
+      req.flush([]);
+    });
+
+    it('should handle 401 unauthorized error', () => {
+      let errorCaught = false;
+
+      service.list(1).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toBe(
+            'You must be logged in to perform this action.'
+          );
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/feedings/');
+      req.flush(null, { status: 401, statusText: 'Unauthorized' });
+
+      expect(errorCaught).toBe(true);
+    });
+
+    it('should handle 403 forbidden error', () => {
+      let errorCaught = false;
+
+      service.list(1).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toBe(
+            'You do not have permission to perform this action.'
+          );
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/feedings/');
+      req.flush(null, { status: 403, statusText: 'Forbidden' });
+
+      expect(errorCaught).toBe(true);
+    });
+
+    it('should handle 404 not found error', () => {
+      let errorCaught = false;
+
+      service.list(999).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toBe('Feeding not found.');
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/999/feedings/');
+      req.flush(null, { status: 404, statusText: 'Not Found' });
+
+      expect(errorCaught).toBe(true);
+    });
+
+    it('should handle 500 server error', () => {
+      let errorCaught = false;
+
+      service.list(1).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toBe('Server error. Please try again later.');
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/feedings/');
+      req.flush(null, { status: 500, statusText: 'Internal Server Error' });
+
+      expect(errorCaught).toBe(true);
+    });
+  });
+
+  describe('get', () => {
+    it('should fetch a single feeding', () => {
+      service.get(1, 1).subscribe({
+        next: (feeding) => {
+          expect(feeding).toEqual(mockBottleFeeding);
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/feedings/1/');
+      expect(req.request.method).toBe('GET');
+      req.flush(mockBottleFeeding);
+    });
+
+    it('should handle 404 not found error', () => {
+      let errorCaught = false;
+
+      service.get(1, 999).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toBe('Feeding not found.');
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/feedings/999/');
+      req.flush(null, { status: 404, statusText: 'Not Found' });
+
+      expect(errorCaught).toBe(true);
+    });
+
+    it('should handle 403 forbidden error', () => {
+      let errorCaught = false;
+
+      service.get(1, 1).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toBe(
+            'You do not have permission to perform this action.'
+          );
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/feedings/1/');
+      req.flush(null, { status: 403, statusText: 'Forbidden' });
+
+      expect(errorCaught).toBe(true);
+    });
+  });
+
+  describe('create', () => {
+    const createBottleData: FeedingCreate = {
+      feeding_type: 'bottle',
+      fed_at: '2024-01-15T12:00:00Z',
+      amount_oz: 5.0,
+      notes: 'Afternoon feeding',
+    };
+
+    const createdBottleFeeding: Feeding = {
+      id: 3,
+      child: 1,
+      ...createBottleData,
+      created_at: '2024-01-15T12:00:00Z',
+      updated_at: '2024-01-15T12:00:00Z',
+    };
+
+    const createBreastData: FeedingCreate = {
+      feeding_type: 'breast',
+      fed_at: '2024-01-15T13:00:00Z',
+      duration_minutes: 20,
+      side: 'left',
+      notes: 'Good feeding session',
+    };
+
+    const createdBreastFeeding: Feeding = {
+      id: 4,
+      child: 1,
+      ...createBreastData,
+      created_at: '2024-01-15T13:00:00Z',
+      updated_at: '2024-01-15T13:00:00Z',
+    };
+
+    it('should create a new bottle feeding', () => {
+      service.create(1, createBottleData).subscribe({
+        next: (feeding) => {
+          expect(feeding).toEqual(createdBottleFeeding);
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/feedings/');
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body).toEqual(createBottleData);
+      req.flush(createdBottleFeeding);
+    });
+
+    it('should create a new breast feeding', () => {
+      service.create(1, createBreastData).subscribe({
+        next: (feeding) => {
+          expect(feeding).toEqual(createdBreastFeeding);
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/feedings/');
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body).toEqual(createBreastData);
+      req.flush(createdBreastFeeding);
+    });
+
+    it('should handle validation errors for bottle feeding', () => {
+      let errorCaught = false;
+
+      service.create(1, createBottleData).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toContain('amount_oz');
+          expect(error.message).toContain('required');
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/feedings/');
+      req.flush(
+        { amount_oz: ['This field is required for bottle feeding'] },
+        { status: 400, statusText: 'Bad Request' }
+      );
+
+      expect(errorCaught).toBe(true);
+    });
+
+    it('should handle validation errors for breast feeding', () => {
+      let errorCaught = false;
+
+      service.create(1, createBreastData).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toContain('side');
+          expect(error.message).toContain('required');
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/feedings/');
+      req.flush(
+        { side: ['This field is required for breast feeding'] },
+        { status: 400, statusText: 'Bad Request' }
+      );
+
+      expect(errorCaught).toBe(true);
+    });
+
+    it('should handle non_field_errors', () => {
+      let errorCaught = false;
+
+      service.create(1, createBottleData).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toBe('non_field_errors: Invalid feeding data');
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/feedings/');
+      req.flush(
+        { non_field_errors: ['Invalid feeding data'] },
+        { status: 400, statusText: 'Bad Request' }
+      );
+
+      expect(errorCaught).toBe(true);
+    });
+
+    it('should handle 403 forbidden error', () => {
+      let errorCaught = false;
+
+      service.create(1, createBottleData).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toBe(
+            'You do not have permission to perform this action.'
+          );
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/feedings/');
+      req.flush(null, { status: 403, statusText: 'Forbidden' });
+
+      expect(errorCaught).toBe(true);
+    });
+  });
+
+  describe('update', () => {
+    const updateData: FeedingUpdate = {
+      notes: 'Updated notes',
+      amount_oz: 5.5,
+    };
+
+    const updatedFeeding: Feeding = {
+      ...mockBottleFeeding,
+      notes: 'Updated notes',
+      amount_oz: 5.5,
+      updated_at: '2024-01-15T11:00:00Z',
+    };
+
+    it('should update a feeding', () => {
+      service.update(1, 1, updateData).subscribe({
+        next: (feeding) => {
+          expect(feeding).toEqual(updatedFeeding);
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/feedings/1/');
+      expect(req.request.method).toBe('PATCH');
+      expect(req.request.body).toEqual(updateData);
+      req.flush(updatedFeeding);
+    });
+
+    it('should handle 404 error', () => {
+      let errorCaught = false;
+
+      service.update(1, 999, updateData).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toBe('Feeding not found.');
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/feedings/999/');
+      req.flush(null, { status: 404, statusText: 'Not Found' });
+
+      expect(errorCaught).toBe(true);
+    });
+
+    it('should handle 403 forbidden error', () => {
+      let errorCaught = false;
+
+      service.update(1, 1, updateData).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toBe(
+            'You do not have permission to perform this action.'
+          );
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/feedings/1/');
+      req.flush(null, { status: 403, statusText: 'Forbidden' });
+
+      expect(errorCaught).toBe(true);
+    });
+
+    it('should handle validation errors', () => {
+      let errorCaught = false;
+
+      service.update(1, 1, updateData).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toContain('amount_oz');
+          expect(error.message).toContain('positive');
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/feedings/1/');
+      req.flush(
+        { amount_oz: ['Amount must be a positive number'] },
+        { status: 400, statusText: 'Bad Request' }
+      );
+
+      expect(errorCaught).toBe(true);
+    });
+  });
+
+  describe('delete', () => {
+    it('should delete a feeding', () => {
+      service.delete(1, 1).subscribe();
+
+      const req = httpMock.expectOne('/api/v1/children/1/feedings/1/');
+      expect(req.request.method).toBe('DELETE');
+      req.flush(null);
+    });
+
+    it('should handle 404 error', () => {
+      let errorCaught = false;
+
+      service.delete(1, 999).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toBe('Feeding not found.');
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/feedings/999/');
+      req.flush(null, { status: 404, statusText: 'Not Found' });
+
+      expect(errorCaught).toBe(true);
+    });
+
+    it('should handle 403 forbidden error', () => {
+      let errorCaught = false;
+
+      service.delete(1, 1).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toBe(
+            'You do not have permission to perform this action.'
+          );
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/feedings/1/');
+      req.flush(null, { status: 403, statusText: 'Forbidden' });
+
+      expect(errorCaught).toBe(true);
+    });
+  });
+
+  describe('error handling', () => {
+    it('should handle detail error response', () => {
+      let errorCaught = false;
+
+      service.get(1, 1).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toBe('Custom error detail');
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/feedings/1/');
+      req.flush(
+        { detail: 'Custom error detail' },
+        { status: 400, statusText: 'Bad Request' }
+      );
+
+      expect(errorCaught).toBe(true);
+    });
+
+    it('should handle 400 generic error', () => {
+      let errorCaught = false;
+
+      service.get(1, 1).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toBe(
+            'Invalid request. Please check your input.'
+          );
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/feedings/1/');
+      req.flush({}, { status: 400, statusText: 'Bad Request' });
+
+      expect(errorCaught).toBe(true);
+    });
+
+    it('should handle unknown error', () => {
+      let errorCaught = false;
+
+      service.get(1, 1).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toBe(
+            'An unexpected error occurred. Please try again.'
+          );
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/feedings/1/');
+      req.error(new ProgressEvent('error'));
+
+      expect(errorCaught).toBe(true);
+    });
+  });
+});
