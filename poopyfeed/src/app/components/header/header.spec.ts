@@ -1,7 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
+import { of, throwError } from 'rxjs';
 import { Header } from './header';
 import { AuthService } from '../../services/auth.service';
 
@@ -9,6 +10,7 @@ describe('Header', () => {
   let component: Header;
   let fixture: ComponentFixture<Header>;
   let authService: AuthService;
+  let httpMock: HttpTestingController;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -19,7 +21,12 @@ describe('Header', () => {
     fixture = TestBed.createComponent(Header);
     component = fixture.componentInstance;
     authService = TestBed.inject(AuthService);
+    httpMock = TestBed.inject(HttpTestingController);
     await fixture.whenStable();
+  });
+
+  afterEach(() => {
+    localStorage.clear();
   });
 
   it('should create', () => {
@@ -61,5 +68,44 @@ describe('Header', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     const brandLink = compiled.querySelector('a[routerLink="/"]');
     expect(brandLink?.textContent?.trim()).toBe('PoopyFeed');
+  });
+
+  describe('Logout functionality', () => {
+    it('should call authService.logout() when logout button clicked', () => {
+      localStorage.setItem('auth_token', 'test-token');
+      authService['authToken'].set('test-token');
+      fixture.detectChanges();
+
+      const logoutSpy = vi.spyOn(authService, 'logout').mockReturnValue(of(undefined));
+
+      const logoutButton = fixture.nativeElement.querySelector('button') as HTMLButtonElement;
+      logoutButton.click();
+
+      expect(logoutSpy).toHaveBeenCalledOnce();
+    });
+
+    it('should handle successful logout', () => {
+      localStorage.setItem('auth_token', 'test-token');
+      authService['authToken'].set('test-token');
+
+      const logoutSpy = vi.spyOn(authService, 'logout').mockReturnValue(of(undefined));
+
+      component.logout();
+
+      expect(logoutSpy).toHaveBeenCalledOnce();
+    });
+
+    it('should handle logout API failure gracefully', () => {
+      localStorage.setItem('auth_token', 'test-token');
+      authService['authToken'].set('test-token');
+
+      const logoutSpy = vi
+        .spyOn(authService, 'logout')
+        .mockReturnValue(throwError(() => new Error('Logout failed')));
+
+      // Should not throw error
+      expect(() => component.logout()).not.toThrow();
+      expect(logoutSpy).toHaveBeenCalledOnce();
+    });
   });
 });

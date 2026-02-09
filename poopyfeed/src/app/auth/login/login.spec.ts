@@ -1,12 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
+import { of, throwError } from 'rxjs';
 import { Login } from './login';
+import { AuthService } from '../../services/auth.service';
 
 describe('Login', () => {
   let component: Login;
   let fixture: ComponentFixture<Login>;
+  let authService: AuthService;
+  let router: Router;
+  let httpMock: HttpTestingController;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -16,7 +21,14 @@ describe('Login', () => {
 
     fixture = TestBed.createComponent(Login);
     component = fixture.componentInstance;
+    authService = TestBed.inject(AuthService);
+    router = TestBed.inject(Router);
+    httpMock = TestBed.inject(HttpTestingController);
     await fixture.whenStable();
+  });
+
+  afterEach(() => {
+    localStorage.clear();
   });
 
   it('should create', () => {
@@ -176,5 +188,45 @@ describe('Login', () => {
     component.loginForm.controls.password.updateValueAndValidity();
     component.onSubmit();
     expect(component.error()).toBe('Email and password are required');
+  });
+
+  describe('Async login flow', () => {
+    it('should navigate to home on successful login', () => {
+      const navigateSpy = vi.spyOn(router, 'navigate');
+      const loginSpy = vi
+        .spyOn(authService, 'login')
+        .mockReturnValue(of({ auth_token: 'test-token' }));
+
+      component.loginForm.setValue({
+        email: 'test@example.com',
+        password: 'password123',
+      });
+
+      component.onSubmit();
+
+      expect(loginSpy).toHaveBeenCalledWith({
+        email: 'test@example.com',
+        password: 'password123',
+      });
+      expect(component.isSubmitting()).toBe(false);
+      expect(navigateSpy).toHaveBeenCalledWith(['/']);
+    });
+
+    it('should display error message on login failure', () => {
+      const loginSpy = vi
+        .spyOn(authService, 'login')
+        .mockReturnValue(throwError(() => new Error('Invalid credentials')));
+
+      component.loginForm.setValue({
+        email: 'test@example.com',
+        password: 'wrongpassword',
+      });
+
+      component.onSubmit();
+
+      expect(loginSpy).toHaveBeenCalled();
+      expect(component.isSubmitting()).toBe(false);
+      expect(component.error()).toBe('Invalid credentials');
+    });
   });
 });

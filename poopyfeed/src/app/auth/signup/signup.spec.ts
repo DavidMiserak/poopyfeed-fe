@@ -1,12 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
+import { of, throwError } from 'rxjs';
 import { Signup } from './signup';
+import { AuthService } from '../../services/auth.service';
 
 describe('Signup', () => {
   let component: Signup;
   let fixture: ComponentFixture<Signup>;
+  let authService: AuthService;
+  let router: Router;
+  let httpMock: HttpTestingController;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -16,7 +21,14 @@ describe('Signup', () => {
 
     fixture = TestBed.createComponent(Signup);
     component = fixture.componentInstance;
+    authService = TestBed.inject(AuthService);
+    router = TestBed.inject(Router);
+    httpMock = TestBed.inject(HttpTestingController);
     await fixture.whenStable();
+  });
+
+  afterEach(() => {
+    localStorage.clear();
   });
 
   it('should create', () => {
@@ -292,5 +304,104 @@ describe('Signup', () => {
     component.onSubmit();
     expect(component.error()).toBe('Passwords do not match');
     expect(component.isSubmitting()).toBe(false);
+  });
+
+  describe('Full signup and auto-login flow', () => {
+    it('should signup then auto-login on success', () => {
+      const navigateSpy = vi.spyOn(router, 'navigate');
+      const signupSpy = vi
+        .spyOn(authService, 'signup')
+        .mockReturnValue(of({ id: 1, email: 'test@example.com' }));
+      const loginSpy = vi
+        .spyOn(authService, 'login')
+        .mockReturnValue(of({ auth_token: 'test-token' }));
+
+      component.signupForm.patchValue({
+        name: 'Test User',
+        email: 'test@example.com',
+        password: 'password123',
+        confirmPassword: 'password123',
+      });
+
+      component.onSubmit();
+
+      expect(signupSpy).toHaveBeenCalledWith({
+        email: 'test@example.com',
+        password: 'password123',
+      });
+      expect(loginSpy).toHaveBeenCalledWith({
+        email: 'test@example.com',
+        password: 'password123',
+      });
+      expect(component.isSubmitting()).toBe(false);
+      expect(navigateSpy).toHaveBeenCalledWith(['/']);
+    });
+
+    it('should handle signup error', () => {
+      const signupSpy = vi
+        .spyOn(authService, 'signup')
+        .mockReturnValue(throwError(() => new Error('Email already exists')));
+
+      component.signupForm.patchValue({
+        name: 'Test User',
+        email: 'existing@example.com',
+        password: 'password123',
+        confirmPassword: 'password123',
+      });
+
+      component.onSubmit();
+
+      expect(signupSpy).toHaveBeenCalled();
+      expect(component.isSubmitting()).toBe(false);
+      expect(component.error()).toBe('Email already exists');
+    });
+
+    it('should handle login error after successful signup', () => {
+      const signupSpy = vi
+        .spyOn(authService, 'signup')
+        .mockReturnValue(of({ id: 1, email: 'test@example.com' }));
+      const loginSpy = vi
+        .spyOn(authService, 'login')
+        .mockReturnValue(throwError(() => new Error('Login failed')));
+
+      component.signupForm.patchValue({
+        name: 'Test User',
+        email: 'test@example.com',
+        password: 'password123',
+        confirmPassword: 'password123',
+      });
+
+      component.onSubmit();
+
+      expect(signupSpy).toHaveBeenCalled();
+      expect(loginSpy).toHaveBeenCalled();
+      expect(component.isSubmitting()).toBe(false);
+      expect(component.error()).toBe('Login failed');
+    });
+
+    it('should set error when email is missing despite validators', () => {
+      // Clear all validators to bypass form validation
+      component.signupForm.controls.name.clearValidators();
+      component.signupForm.controls.email.clearValidators();
+      component.signupForm.controls.password.clearValidators();
+      component.signupForm.controls.confirmPassword.clearValidators();
+
+      component.signupForm.patchValue({
+        name: 'Test User',
+        email: '',
+        password: 'password123',
+        confirmPassword: 'password123',
+      });
+
+      component.signupForm.controls.name.updateValueAndValidity();
+      component.signupForm.controls.email.updateValueAndValidity();
+      component.signupForm.controls.password.updateValueAndValidity();
+      component.signupForm.controls.confirmPassword.updateValueAndValidity();
+
+      component.onSubmit();
+
+      expect(component.error()).toBe('Email and password are required');
+      expect(component.isSubmitting()).toBe(false);
+    });
   });
 });
