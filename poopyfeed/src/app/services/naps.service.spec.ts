@@ -70,7 +70,7 @@ describe('NapsService', () => {
 
       const req = httpMock.expectOne('/api/v1/children/1/naps/');
       expect(req.request.method).toBe('GET');
-      req.flush(mockNaps);
+      req.flush({ count: mockNaps.length, next: null, previous: null, results: mockNaps });
     });
 
     it('should handle empty list', () => {
@@ -81,7 +81,7 @@ describe('NapsService', () => {
       });
 
       const req = httpMock.expectOne('/api/v1/children/1/naps/');
-      req.flush([]);
+      req.flush({ count: 0, next: null, previous: null, results: [] });
     });
 
     it('should handle 401 unauthorized error', () => {

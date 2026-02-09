@@ -84,7 +84,7 @@ describe('DiapersService', () => {
 
       const req = httpMock.expectOne('/api/v1/children/1/diapers/');
       expect(req.request.method).toBe('GET');
-      req.flush(mockDiapers);
+      req.flush({ count: mockDiapers.length, next: null, previous: null, results: mockDiapers });
     });
 
     it('should handle empty list', () => {
@@ -95,7 +95,7 @@ describe('DiapersService', () => {
       });
 
       const req = httpMock.expectOne('/api/v1/children/1/diapers/');
-      req.flush([]);
+      req.flush({ count: 0, next: null, previous: null, results: [] });
     });
 
     it('should handle 401 unauthorized error', () => {

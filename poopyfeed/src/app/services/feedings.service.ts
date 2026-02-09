@@ -4,12 +4,20 @@
 
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Observable, tap, catchError, throwError } from 'rxjs';
+import { Observable, tap, catchError, throwError, map } from 'rxjs';
 import {
   Feeding,
   FeedingCreate,
   FeedingUpdate,
 } from '../models/feeding.model';
+
+// Django REST Framework paginated response
+interface PaginatedResponse<T> {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: T[];
+}
 
 @Injectable({
   providedIn: 'root',
@@ -32,7 +40,8 @@ export class FeedingsService {
    * List all feedings for a child
    */
   list(childId: number): Observable<Feeding[]> {
-    return this.http.get<Feeding[]>(`${this.baseUrl(childId)}/`).pipe(
+    return this.http.get<PaginatedResponse<Feeding>>(`${this.baseUrl(childId)}/`).pipe(
+      map((response) => response.results),
       tap((feedings) => {
         this.feedings.set(feedings);
       }),

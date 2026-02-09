@@ -4,8 +4,16 @@
 
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Observable, tap, catchError, throwError } from 'rxjs';
+import { Observable, tap, catchError, throwError, map } from 'rxjs';
 import { Nap, NapCreate, NapUpdate } from '../models/nap.model';
+
+// Django REST Framework paginated response
+interface PaginatedResponse<T> {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: T[];
+}
 
 @Injectable({
   providedIn: 'root',
@@ -28,7 +36,8 @@ export class NapsService {
    * List all naps for a child
    */
   list(childId: number): Observable<Nap[]> {
-    return this.http.get<Nap[]>(`${this.baseUrl(childId)}/`).pipe(
+    return this.http.get<PaginatedResponse<Nap>>(`${this.baseUrl(childId)}/`).pipe(
+      map((response) => response.results),
       tap((naps) => {
         this.naps.set(naps);
       }),

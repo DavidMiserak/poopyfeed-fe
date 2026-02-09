@@ -40,8 +40,7 @@ export class Login {
     this.authService.login({ email, password }).subscribe({
       next: () => {
         this.isSubmitting.set(false);
-        // TODO: Navigate to dashboard once it exists
-        this.router.navigate(['/']);
+        this.router.navigate(['/children']);
       },
       error: (err: Error) => {
         this.isSubmitting.set(false);

@@ -1,4 +1,4 @@
-import { Injectable, inject, signal, computed } from '@angular/core';
+import { Injectable, inject, signal, computed, afterNextRender } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, tap, catchError, throwError, switchMap } from 'rxjs';
@@ -36,6 +36,16 @@ export class AuthService {
   // Reactive state
   private authToken = signal<string | null>(this.getStoredToken());
   isAuthenticated = computed(() => !!this.authToken());
+
+  constructor() {
+    // Re-initialize token from localStorage after SSR hydration on client
+    afterNextRender(() => {
+      const token = this.getStoredToken();
+      if (token && !this.authToken()) {
+        this.authToken.set(token);
+      }
+    });
+  }
 
   /**
    * Login with email and password

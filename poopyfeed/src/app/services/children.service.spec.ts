@@ -65,7 +65,7 @@ describe('ChildrenService', () => {
 
       const req = httpMock.expectOne('/api/v1/children/');
       expect(req.request.method).toBe('GET');
-      req.flush(mockChildren);
+      req.flush({ count: mockChildren.length, next: null, previous: null, results: mockChildren });
     });
 
     it('should update children signal on successful fetch', () => {
@@ -76,7 +76,7 @@ describe('ChildrenService', () => {
       });
 
       const req = httpMock.expectOne('/api/v1/children/');
-      req.flush(mockChildren);
+      req.flush({ count: mockChildren.length, next: null, previous: null, results: mockChildren });
     });
 
     it('should handle empty list', () => {
@@ -88,7 +88,7 @@ describe('ChildrenService', () => {
       });
 
       const req = httpMock.expectOne('/api/v1/children/');
-      req.flush([]);
+      req.flush({ count: 0, next: null, previous: null, results: [] });
     });
 
     it('should handle 401 unauthorized error', () => {

@@ -67,7 +67,7 @@ describe('FeedingsService', () => {
 
       const req = httpMock.expectOne('/api/v1/children/1/feedings/');
       expect(req.request.method).toBe('GET');
-      req.flush(mockFeedings);
+      req.flush({ count: mockFeedings.length, next: null, previous: null, results: mockFeedings });
     });
 
     it('should handle empty list', () => {
@@ -78,7 +78,7 @@ describe('FeedingsService', () => {
       });
 
       const req = httpMock.expectOne('/api/v1/children/1/feedings/');
-      req.flush([]);
+      req.flush({ count: 0, next: null, previous: null, results: [] });
     });
 
     it('should handle 401 unauthorized error', () => {

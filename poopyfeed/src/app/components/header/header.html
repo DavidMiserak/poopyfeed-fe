@@ -31,6 +31,14 @@
     <nav class="flex items-center gap-3">
       @if (authService.isAuthenticated()) {
         <div class="flex items-center gap-4">
+          <!-- My Children link -->
+          <a
+            routerLink="/children"
+            class="font-['DM_Sans',sans-serif] px-4 py-2 rounded-xl text-sm font-medium text-slate-700 transition-all duration-300 ease-out hover:text-rose-600 hover:bg-white/60 hover:backdrop-blur-sm border border-transparent hover:border-rose-200 no-underline"
+          >
+            My Children
+          </a>
+
           <!-- Status badge with pulse animation -->
           <div class="flex items-center gap-2 px-4 sm:px-3 py-2 rounded-full bg-white/80 backdrop-blur-sm border border-emerald-200 shadow-sm">
             <span class="relative w-2 h-2 rounded-full bg-emerald-500">

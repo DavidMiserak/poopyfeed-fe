@@ -4,8 +4,16 @@
 
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Observable, tap, catchError, throwError } from 'rxjs';
+import { Observable, tap, catchError, throwError, map } from 'rxjs';
 import { Child, ChildCreate, ChildUpdate } from '../models/child.model';
+
+// Django REST Framework paginated response
+interface PaginatedResponse<T> {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: T[];
+}
 
 @Injectable({
   providedIn: 'root',
@@ -22,7 +30,8 @@ export class ChildrenService {
    * List all children accessible by the current user
    */
   list(): Observable<Child[]> {
-    return this.http.get<Child[]>(`${this.API_BASE}/`).pipe(
+    return this.http.get<PaginatedResponse<Child>>(`${this.API_BASE}/`).pipe(
+      map((response) => response.results),
       tap((children) => {
         this.children.set(children);
       }),

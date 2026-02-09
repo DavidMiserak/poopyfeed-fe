@@ -200,7 +200,7 @@ describe('Login', () => {
         password: 'password123',
       });
       expect(component.isSubmitting()).toBe(false);
-      expect(navigateSpy).toHaveBeenCalledWith(['/']);
+      expect(navigateSpy).toHaveBeenCalledWith(['/children']);
     });
 
     it('should display error message on login failure', () => {

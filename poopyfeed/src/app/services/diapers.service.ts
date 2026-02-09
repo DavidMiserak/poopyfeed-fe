@@ -4,12 +4,20 @@
 
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Observable, tap, catchError, throwError } from 'rxjs';
+import { Observable, tap, catchError, throwError, map } from 'rxjs';
 import {
   DiaperChange,
   DiaperChangeCreate,
   DiaperChangeUpdate,
 } from '../models/diaper.model';
+
+// Django REST Framework paginated response
+interface PaginatedResponse<T> {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: T[];
+}
 
 @Injectable({
   providedIn: 'root',
@@ -32,7 +40,8 @@ export class DiapersService {
    * List all diaper changes for a child
    */
   list(childId: number): Observable<DiaperChange[]> {
-    return this.http.get<DiaperChange[]>(`${this.baseUrl(childId)}/`).pipe(
+    return this.http.get<PaginatedResponse<DiaperChange>>(`${this.baseUrl(childId)}/`).pipe(
+      map((response) => response.results),
       tap((diapers) => {
         this.diapers.set(diapers);
       }),

@@ -318,7 +318,7 @@ describe('Signup', () => {
         password: 'password123',
       });
       expect(component.isSubmitting()).toBe(false);
-      expect(navigateSpy).toHaveBeenCalledWith(['/']);
+      expect(navigateSpy).toHaveBeenCalledWith(['/children']);
     });
 
     it('should handle signup error', () => {
