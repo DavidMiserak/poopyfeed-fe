@@ -23,6 +23,9 @@ describe('ChildrenService', () => {
     user_role: 'owner',
     created_at: '2024-01-15T10:00:00Z',
     updated_at: '2024-01-15T10:00:00Z',
+    last_diaper_change: '2024-01-15T14:30:00Z',
+    last_nap: '2024-01-15T13:00:00Z',
+    last_feeding: '2024-01-15T12:00:00Z',
   };
 
   const mockChildren: Child[] = [
@@ -35,6 +38,9 @@ describe('ChildrenService', () => {
       user_role: 'co-parent',
       created_at: '2024-02-20T10:00:00Z',
       updated_at: '2024-02-20T10:00:00Z',
+      last_diaper_change: null,
+      last_nap: null,
+      last_feeding: null,
     },
   ];
 
@@ -198,6 +204,9 @@ describe('ChildrenService', () => {
       user_role: 'owner',
       created_at: '2024-03-01T10:00:00Z',
       updated_at: '2024-03-01T10:00:00Z',
+      last_diaper_change: null,
+      last_nap: null,
+      last_feeding: null,
     };
 
     it('should create a new child', () => {

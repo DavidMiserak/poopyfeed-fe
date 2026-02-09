@@ -13,6 +13,9 @@ export interface Child {
   user_role: 'owner' | 'co-parent' | 'caregiver';
   created_at: string; // ISO datetime string
   updated_at: string; // ISO datetime string
+  last_diaper_change: string | null; // ISO datetime string or null
+  last_nap: string | null; // ISO datetime string or null
+  last_feeding: string | null; // ISO datetime string or null
 }
 
 /**

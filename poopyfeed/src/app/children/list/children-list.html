@@ -140,6 +140,62 @@
               </p>
             </div>
 
+            <!-- Last Activity -->
+            <div class="mt-6 pt-4 border-t border-slate-200">
+              <div class="flex items-center gap-2 mb-3">
+                <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <h4 class="font-['DM_Sans',sans-serif] text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                  Last Activity
+                </h4>
+              </div>
+              <div class="space-y-2">
+                <!-- Diaper -->
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <span class="text-lg">🧷</span>
+                    <span class="font-['DM_Sans',sans-serif] text-sm text-slate-700">Diaper</span>
+                  </div>
+                  <span class="font-['DM_Sans',sans-serif] text-xs text-slate-500">
+                    @if (child.last_diaper_change) {
+                      {{ formatTimestamp(child.last_diaper_change) }}
+                    } @else {
+                      <span class="italic">None yet</span>
+                    }
+                  </span>
+                </div>
+                <!-- Nap -->
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <span class="text-lg">😴</span>
+                    <span class="font-['DM_Sans',sans-serif] text-sm text-slate-700">Nap</span>
+                  </div>
+                  <span class="font-['DM_Sans',sans-serif] text-xs text-slate-500">
+                    @if (child.last_nap) {
+                      {{ formatTimestamp(child.last_nap) }}
+                    } @else {
+                      <span class="italic">None yet</span>
+                    }
+                  </span>
+                </div>
+                <!-- Feeding -->
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <span class="text-lg">🍼</span>
+                    <span class="font-['DM_Sans',sans-serif] text-sm text-slate-700">Feeding</span>
+                  </div>
+                  <span class="font-['DM_Sans',sans-serif] text-xs text-slate-500">
+                    @if (child.last_feeding) {
+                      {{ formatTimestamp(child.last_feeding) }}
+                    } @else {
+                      <span class="italic">None yet</span>
+                    }
+                  </span>
+                </div>
+              </div>
+            </div>
+
             <!-- Quick Action Hint -->
             <div class="mt-6 pt-4 border-t border-slate-200">
               <p class="font-['DM_Sans',sans-serif] text-slate-500 text-xs text-center group-hover:text-[#fb7185] transition-colors">

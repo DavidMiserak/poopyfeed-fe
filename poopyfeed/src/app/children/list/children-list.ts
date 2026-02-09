@@ -100,4 +100,23 @@ export class ChildrenList implements OnInit {
         return 'bg-gradient-to-r from-slate-100 to-slate-200 text-slate-800 border-slate-300';
     }
   }
+
+  formatTimestamp(timestamp: string): string {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / (1000 * 60));
+
+    if (diffMins < 1) {
+      return 'just now';
+    } else if (diffMins < 60) {
+      return `${diffMins} ${diffMins === 1 ? 'min' : 'mins'} ago`;
+    } else if (diffMins < 1440) {
+      const hours = Math.floor(diffMins / 60);
+      return `${hours} ${hours === 1 ? 'hour' : 'hours'} ago`;
+    } else {
+      const days = Math.floor(diffMins / 1440);
+      return `${days} ${days === 1 ? 'day' : 'days'} ago`;
+    }
+  }
 }
