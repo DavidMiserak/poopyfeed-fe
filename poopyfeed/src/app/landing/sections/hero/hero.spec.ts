@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { provideRouter } from '@angular/router';
 import { Hero } from './hero';
 
 describe('Hero', () => {
@@ -8,9 +8,9 @@ describe('Hero', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Hero]
-    })
-    .compileComponents();
+      imports: [Hero],
+      providers: [provideRouter([])],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(Hero);
     component = fixture.componentInstance;
@@ -31,8 +31,8 @@ describe('Hero', () => {
   it('should have primary CTA button', () => {
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-    const button = compiled.querySelector('button[type="button"]');
-    expect(button?.textContent).toContain('Get Started');
+    const link = compiled.querySelector('a[routerLink="/signup"]');
+    expect(link?.textContent).toContain('Get Started');
   });
 
   it('should have accessible section label', () => {

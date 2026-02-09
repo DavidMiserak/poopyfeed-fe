@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { provideRouter } from '@angular/router';
 import { Cta } from './cta';
 
 describe('Cta', () => {
@@ -8,9 +8,9 @@ describe('Cta', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Cta]
-    })
-    .compileComponents();
+      imports: [Cta],
+      providers: [provideRouter([])],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(Cta);
     component = fixture.componentInstance;
@@ -31,8 +31,8 @@ describe('Cta', () => {
   it('should have sign up button', () => {
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-    const button = compiled.querySelector('button');
-    expect(button?.textContent).toContain('Sign Up Free');
+    const link = compiled.querySelector('a[routerLink="/signup"]');
+    expect(link?.textContent).toContain('Sign Up Free');
   });
 
   it('should display trust signal', () => {

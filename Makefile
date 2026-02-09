@@ -32,7 +32,7 @@ run: podman-compose.yaml image-build
 
 .PHONY: test
 test:
-	$(RUNTIME) compose exec web npm test
+	$(RUNTIME) compose exec web npm test -- --watch=false
 
 .PHONY: test-local
 test-local:
