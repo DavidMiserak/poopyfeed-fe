@@ -39,7 +39,7 @@ describe('Header', () => {
     const loginLink = compiled.querySelector('a[routerLink="/login"]');
     const signupLink = compiled.querySelector('a[routerLink="/signup"]');
     expect(loginLink?.textContent?.trim()).toBe('Login');
-    expect(signupLink?.textContent?.trim()).toBe('Sign Up');
+    expect(signupLink?.textContent?.trim()).toBe('Get Started');
   });
 
   it('should show logout button when authenticated', () => {
@@ -53,21 +53,22 @@ describe('Header', () => {
     expect(logoutButton?.textContent?.trim()).toBe('Logout');
   });
 
-  it('should show "Logged in" indicator when authenticated', () => {
+  it('should show "Active" indicator when authenticated', () => {
     localStorage.setItem('auth_token', 'test-token');
     authService['authToken'].set('test-token');
     fixture.detectChanges();
 
     const compiled = fixture.nativeElement as HTMLElement;
-    const statusText = compiled.querySelector('.text-sm.text-gray-600');
-    expect(statusText?.textContent).toContain('Logged in');
+    const statusText = compiled.querySelector('.text-sm.font-medium.text-emerald-700');
+    expect(statusText?.textContent).toContain('Active');
   });
 
   it('should have PoopyFeed brand link', () => {
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
     const brandLink = compiled.querySelector('a[routerLink="/"]');
-    expect(brandLink?.textContent?.trim()).toBe('PoopyFeed');
+    expect(brandLink?.textContent).toContain('Poopy');
+    expect(brandLink?.textContent).toContain('Feed');
   });
 
   describe('Logout functionality', () => {

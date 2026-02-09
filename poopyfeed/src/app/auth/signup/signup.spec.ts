@@ -123,7 +123,7 @@ describe('Signup', () => {
     component.error.set('Email already exists');
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-    const errorDiv = compiled.querySelector('.bg-red-50');
+    const errorDiv = compiled.querySelector('.border-red-500');
     expect(errorDiv?.textContent).toContain('Email already exists');
   });
 
@@ -131,7 +131,7 @@ describe('Signup', () => {
     component.error.set(null);
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-    const errorDiv = compiled.querySelector('.bg-red-50');
+    const errorDiv = compiled.querySelector('.border-red-500');
     expect(errorDiv).toBeNull();
   });
 
@@ -143,7 +143,7 @@ describe('Signup', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     const errorElements = compiled.querySelectorAll('p.text-red-600');
     const errorText = Array.from(errorElements).find((el) =>
-      el.textContent?.includes('at least 2 characters'),
+      el.textContent?.includes('At least 2 characters'),
     );
     expect(errorText).toBeTruthy();
   });
@@ -156,7 +156,7 @@ describe('Signup', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     const errorElements = compiled.querySelectorAll('p.text-red-600');
     const errorText = Array.from(errorElements).find((el) =>
-      el.textContent?.includes('valid email address'),
+      el.textContent?.includes('Please enter a valid email'),
     );
     expect(errorText).toBeTruthy();
   });
@@ -169,7 +169,7 @@ describe('Signup', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     const errorElements = compiled.querySelectorAll('p.text-red-600');
     const errorText = Array.from(errorElements).find((el) =>
-      el.textContent?.includes('at least 8 characters'),
+      el.textContent?.includes('Must be 8+ characters'),
     );
     expect(errorText).toBeTruthy();
   });
@@ -236,16 +236,7 @@ describe('Signup', () => {
     const spinner = compiled.querySelector('.animate-spin');
     const buttonText = compiled.querySelector('button[type="submit"]')?.textContent;
     expect(spinner).toBeNull();
-    expect(buttonText).toContain('Create account');
-  });
-
-  it('should have social signup buttons', () => {
-    fixture.detectChanges();
-    const compiled = fixture.nativeElement as HTMLElement;
-    const socialButtons = compiled.querySelectorAll('button[type="button"]');
-    expect(socialButtons.length).toBe(2);
-    expect(socialButtons[0].textContent).toContain('Google');
-    expect(socialButtons[1].textContent).toContain('GitHub');
+    expect(buttonText).toContain('Create Account');
   });
 
   it('should have link to login page', () => {

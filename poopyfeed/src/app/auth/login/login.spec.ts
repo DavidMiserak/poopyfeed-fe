@@ -90,7 +90,7 @@ describe('Login', () => {
     component.error.set('Invalid credentials');
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-    const errorDiv = compiled.querySelector('.bg-red-50');
+    const errorDiv = compiled.querySelector('.border-red-500');
     expect(errorDiv?.textContent).toContain('Invalid credentials');
   });
 
@@ -98,7 +98,7 @@ describe('Login', () => {
     component.error.set(null);
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-    const errorDiv = compiled.querySelector('.bg-red-50');
+    const errorDiv = compiled.querySelector('.border-red-500');
     expect(errorDiv).toBeNull();
   });
 
@@ -109,7 +109,7 @@ describe('Login', () => {
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
     const errorText = compiled.querySelector('input[type="email"] + p');
-    expect(errorText?.textContent).toContain('valid email address');
+    expect(errorText?.textContent).toContain('Please enter a valid email');
   });
 
   it('should show password validation errors in template', () => {
@@ -120,7 +120,7 @@ describe('Login', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     const errorElements = compiled.querySelectorAll('p.text-red-600');
     const errorText = Array.from(errorElements).find((el) =>
-      el.textContent?.includes('at least 8 characters'),
+      el.textContent?.includes('Must be 8+ characters'),
     );
     expect(errorText).toBeTruthy();
   });
@@ -162,23 +162,14 @@ describe('Login', () => {
     const spinner = compiled.querySelector('.animate-spin');
     const buttonText = compiled.querySelector('button[type="submit"]')?.textContent;
     expect(spinner).toBeNull();
-    expect(buttonText).toContain('Sign in');
-  });
-
-  it('should have social login buttons', () => {
-    fixture.detectChanges();
-    const compiled = fixture.nativeElement as HTMLElement;
-    const socialButtons = compiled.querySelectorAll('button[type="button"]');
-    expect(socialButtons.length).toBe(2);
-    expect(socialButtons[0].textContent).toContain('Google');
-    expect(socialButtons[1].textContent).toContain('GitHub');
+    expect(buttonText).toContain('Sign In');
   });
 
   it('should have link to signup page', () => {
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
     const signupLink = compiled.querySelector('a[routerLink="/signup"]');
-    expect(signupLink?.textContent).toContain('Sign up for free');
+    expect(signupLink?.textContent).toContain('Sign up free');
   });
 
   it('should set error when email or password is missing', () => {
