@@ -95,40 +95,40 @@
           </h2>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <!-- Add Feeding Button -->
-            <button
-              type="button"
-              class="group relative p-6 rounded-2xl font-['DM_Sans',sans-serif] font-bold text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 overflow-hidden border-2 border-[#fb7185]"
+            <a
+              [routerLink]="['/children', child()!.id, 'feedings', 'create']"
+              class="group relative p-6 rounded-2xl font-['DM_Sans',sans-serif] font-bold text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 overflow-hidden border-2 border-[#fb7185] no-underline cursor-pointer"
             >
               <span class="absolute inset-0 bg-gradient-to-br from-[#fb7185] to-rose-500 transition-transform duration-300 group-hover:scale-110"></span>
               <span class="relative z-10 flex flex-col items-center gap-2">
                 <span class="text-4xl">🍼</span>
                 <span class="text-lg">Add Feeding</span>
               </span>
-            </button>
+            </a>
 
             <!-- Add Diaper Change Button -->
-            <button
-              type="button"
-              class="group relative p-6 rounded-2xl font-['DM_Sans',sans-serif] font-bold text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 overflow-hidden border-2 border-[#fb923c]"
+            <a
+              [routerLink]="['/children', child()!.id, 'diapers', 'create']"
+              class="group relative p-6 rounded-2xl font-['DM_Sans',sans-serif] font-bold text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 overflow-hidden border-2 border-[#fb923c] no-underline cursor-pointer"
             >
               <span class="absolute inset-0 bg-gradient-to-br from-[#fb923c] to-orange-500 transition-transform duration-300 group-hover:scale-110"></span>
               <span class="relative z-10 flex flex-col items-center gap-2">
                 <span class="text-4xl">🧷</span>
                 <span class="text-lg">Add Diaper</span>
               </span>
-            </button>
+            </a>
 
             <!-- Add Nap Button -->
-            <button
-              type="button"
-              class="group relative p-6 rounded-2xl font-['DM_Sans',sans-serif] font-bold text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 overflow-hidden border-2 border-[#fbbf24]"
+            <a
+              [routerLink]="['/children', child()!.id, 'naps', 'create']"
+              class="group relative p-6 rounded-2xl font-['DM_Sans',sans-serif] font-bold text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 overflow-hidden border-2 border-[#fbbf24] no-underline cursor-pointer"
             >
               <span class="absolute inset-0 bg-gradient-to-br from-[#fbbf24] to-amber-500 transition-transform duration-300 group-hover:scale-110"></span>
               <span class="relative z-10 flex flex-col items-center gap-2">
                 <span class="text-4xl">😴</span>
                 <span class="text-lg">Add Nap</span>
               </span>
-            </button>
+            </a>
           </div>
         </div>
 
