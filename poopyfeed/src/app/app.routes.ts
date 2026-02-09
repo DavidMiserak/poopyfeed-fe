@@ -46,6 +46,14 @@ export const routes: Routes = [
           import('./children/delete/child-delete').then((m) => m.ChildDelete),
         title: 'Delete Baby - PoopyFeed',
       },
+      {
+        path: ':childId/dashboard',
+        loadComponent: () =>
+          import('./children/dashboard/child-dashboard').then(
+            (m) => m.ChildDashboard
+          ),
+        title: 'Dashboard - PoopyFeed',
+      },
     ],
   },
 ];

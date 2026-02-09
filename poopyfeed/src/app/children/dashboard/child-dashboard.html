@@ -1,0 +1,241 @@
+<div class="min-h-screen relative bg-gradient-to-br from-[#fff5f7] via-[#fffbeb] to-[#fff7ed] px-6 py-12 overflow-hidden">
+  <!-- Decorative background elements -->
+  <div class="absolute inset-0 opacity-20 pointer-events-none">
+    <div class="absolute top-20 left-20 w-64 h-64 bg-gradient-to-br from-[#fb7185] to-[#fb923c] rounded-full blur-3xl animate-pulse"></div>
+    <div class="absolute bottom-20 right-20 w-96 h-96 bg-gradient-to-br from-[#fbbf24] to-[#fb923c] rounded-full blur-3xl animate-pulse" style="animation-delay: 1s;"></div>
+  </div>
+
+  <div class="max-w-6xl mx-auto relative z-10">
+    <!-- Loading State -->
+    @if (isLoading()) {
+      <div class="flex items-center justify-center py-20">
+        <div class="text-center">
+          <svg class="w-16 h-16 animate-spin mx-auto mb-4 text-[#fb7185]" aria-hidden="true" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <p class="font-['DM_Sans',sans-serif] text-slate-600">Loading dashboard...</p>
+        </div>
+      </div>
+    }
+
+    <!-- Error State -->
+    @if (error() && !child()) {
+      <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-8 border-2 border-red-200">
+        <div class="text-center">
+          <div class="text-6xl mb-4">😞</div>
+          <h2 class="font-['Fredoka',sans-serif] text-2xl font-bold text-slate-900 mb-2">
+            Oops! Something went wrong
+          </h2>
+          <p class="font-['DM_Sans',sans-serif] text-slate-600 mb-6">
+            {{ error() }}
+          </p>
+          <a
+            routerLink="/children"
+            class="group relative inline-flex px-6 py-3 rounded-xl font-['DM_Sans',sans-serif] font-bold text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 overflow-hidden border-2 border-[#fb7185]"
+          >
+            <span class="absolute inset-0 bg-gradient-to-br from-[#fb7185] via-[#fb923c] to-[#fbbf24] transition-transform duration-300 group-hover:scale-110"></span>
+            <span class="relative z-10">Back to My Children</span>
+          </a>
+        </div>
+      </div>
+    }
+
+    <!-- Dashboard Content -->
+    @if (child() && !isLoading()) {
+      <div class="space-y-6">
+        <!-- Header Section -->
+        <div class="flex items-center justify-between mb-8">
+          <a
+            routerLink="/children"
+            class="font-['DM_Sans',sans-serif] text-sm text-slate-600 hover:text-[#fb7185] transition-colors font-medium inline-flex items-center gap-2"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to My Children
+          </a>
+        </div>
+
+        <!-- Child Info Card -->
+        <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-8 border-2 border-[#fb7185]/20">
+          <div class="flex items-start justify-between">
+            <div class="flex items-center gap-4">
+              <div class="text-6xl">{{ getGenderIcon(child()!.gender) }}</div>
+              <div>
+                <h1 class="font-['Fredoka',sans-serif] text-4xl font-bold text-slate-900 mb-1">
+                  {{ child()!.name }}
+                </h1>
+                <p class="font-['DM_Sans',sans-serif] text-slate-600 text-lg">
+                  {{ getChildAge(child()!.date_of_birth) }}
+                </p>
+              </div>
+            </div>
+            @if (canEdit()) {
+              <a
+                [routerLink]="['/children', child()!.id, 'edit']"
+                class="group relative inline-flex px-4 py-2 rounded-xl font-['DM_Sans',sans-serif] font-bold text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 overflow-hidden border-2 border-[#fb7185]"
+              >
+                <span class="absolute inset-0 bg-gradient-to-br from-[#fb7185] to-[#fb923c] transition-transform duration-300 group-hover:scale-110"></span>
+                <span class="relative z-10 flex items-center gap-2">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                  Edit
+                </span>
+              </a>
+            }
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-6 border-2 border-[#fb923c]/20">
+          <h2 class="font-['Fredoka',sans-serif] text-2xl font-bold text-slate-900 mb-4">
+            Quick Actions
+          </h2>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Add Feeding Button -->
+            <button
+              type="button"
+              class="group relative p-6 rounded-2xl font-['DM_Sans',sans-serif] font-bold text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 overflow-hidden border-2 border-[#fb7185]"
+            >
+              <span class="absolute inset-0 bg-gradient-to-br from-[#fb7185] to-rose-500 transition-transform duration-300 group-hover:scale-110"></span>
+              <span class="relative z-10 flex flex-col items-center gap-2">
+                <span class="text-4xl">🍼</span>
+                <span class="text-lg">Add Feeding</span>
+              </span>
+            </button>
+
+            <!-- Add Diaper Change Button -->
+            <button
+              type="button"
+              class="group relative p-6 rounded-2xl font-['DM_Sans',sans-serif] font-bold text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 overflow-hidden border-2 border-[#fb923c]"
+            >
+              <span class="absolute inset-0 bg-gradient-to-br from-[#fb923c] to-orange-500 transition-transform duration-300 group-hover:scale-110"></span>
+              <span class="relative z-10 flex flex-col items-center gap-2">
+                <span class="text-4xl">🧷</span>
+                <span class="text-lg">Add Diaper</span>
+              </span>
+            </button>
+
+            <!-- Add Nap Button -->
+            <button
+              type="button"
+              class="group relative p-6 rounded-2xl font-['DM_Sans',sans-serif] font-bold text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 overflow-hidden border-2 border-[#fbbf24]"
+            >
+              <span class="absolute inset-0 bg-gradient-to-br from-[#fbbf24] to-amber-500 transition-transform duration-300 group-hover:scale-110"></span>
+              <span class="relative z-10 flex flex-col items-center gap-2">
+                <span class="text-4xl">😴</span>
+                <span class="text-lg">Add Nap</span>
+              </span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-6 border-2 border-[#fbbf24]/20">
+          <h2 class="font-['Fredoka',sans-serif] text-2xl font-bold text-slate-900 mb-4">
+            Recent Activity
+          </h2>
+
+          @if (recentActivity().length === 0) {
+            <div class="text-center py-12">
+              <div class="text-6xl mb-4">📝</div>
+              <p class="font-['DM_Sans',sans-serif] text-slate-600 mb-4">
+                No activity recorded yet
+              </p>
+              <p class="font-['DM_Sans',sans-serif] text-sm text-slate-500">
+                Use the quick actions above to start tracking!
+              </p>
+            </div>
+          } @else {
+            <div class="space-y-3">
+              @for (item of recentActivity(); track item.id) {
+                <div class="flex items-center gap-4 p-4 rounded-xl bg-gradient-to-r from-slate-50 to-slate-100/50 hover:shadow-md transition-shadow">
+                  <div class="text-3xl flex-shrink-0">{{ getActivityIcon(item.type) }}</div>
+                  <div class="flex-1">
+                    <p class="font-['DM_Sans',sans-serif] font-semibold text-slate-900">
+                      {{ getActivityTitle(item) }}
+                    </p>
+                    <p class="font-['DM_Sans',sans-serif] text-sm text-slate-500">
+                      {{ formatTimestamp(item.timestamp) }}
+                    </p>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Navigation Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- View All Feedings -->
+          <button
+            type="button"
+            class="group p-6 rounded-2xl bg-white/80 backdrop-blur-lg shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 border-2 border-[#fb7185]/20 text-left"
+          >
+            <div class="flex items-center gap-4 mb-2">
+              <span class="text-4xl">🍼</span>
+              <h3 class="font-['Fredoka',sans-serif] text-xl font-bold text-slate-900">
+                All Feedings
+              </h3>
+            </div>
+            <p class="font-['DM_Sans',sans-serif] text-slate-600 text-sm">
+              View and manage feeding history
+            </p>
+          </button>
+
+          <!-- View All Diapers -->
+          <button
+            type="button"
+            class="group p-6 rounded-2xl bg-white/80 backdrop-blur-lg shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 border-2 border-[#fb923c]/20 text-left"
+          >
+            <div class="flex items-center gap-4 mb-2">
+              <span class="text-4xl">🧷</span>
+              <h3 class="font-['Fredoka',sans-serif] text-xl font-bold text-slate-900">
+                All Diapers
+              </h3>
+            </div>
+            <p class="font-['DM_Sans',sans-serif] text-slate-600 text-sm">
+              View and manage diaper changes
+            </p>
+          </button>
+
+          <!-- View All Naps -->
+          <button
+            type="button"
+            class="group p-6 rounded-2xl bg-white/80 backdrop-blur-lg shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 border-2 border-[#fbbf24]/20 text-left"
+          >
+            <div class="flex items-center gap-4 mb-2">
+              <span class="text-4xl">😴</span>
+              <h3 class="font-['Fredoka',sans-serif] text-xl font-bold text-slate-900">
+                All Naps
+              </h3>
+            </div>
+            <p class="font-['DM_Sans',sans-serif] text-slate-600 text-sm">
+              View and manage nap history
+            </p>
+          </button>
+
+          <!-- Manage Sharing (owner only) -->
+          @if (canManageSharing()) {
+            <button
+              type="button"
+              class="group p-6 rounded-2xl bg-white/80 backdrop-blur-lg shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 border-2 border-purple-500/20 text-left"
+            >
+              <div class="flex items-center gap-4 mb-2">
+                <span class="text-4xl">👥</span>
+                <h3 class="font-['Fredoka',sans-serif] text-xl font-bold text-slate-900">
+                  Manage Sharing
+                </h3>
+              </div>
+              <p class="font-['DM_Sans',sans-serif] text-slate-600 text-sm">
+                Share access with family members
+              </p>
+            </button>
+          }
+        </div>
+      </div>
+    }
+  </div>
+</div>
