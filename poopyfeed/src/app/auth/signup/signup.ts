@@ -2,7 +2,6 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
-import { switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-signup',
@@ -46,15 +45,9 @@ export class Signup {
     this.isSubmitting.set(true);
     this.error.set(null);
 
-    // Sign up, then automatically log in
+    // Sign up (allauth automatically logs in the user)
     this.authService
       .signup({ email, password })
-      .pipe(
-        switchMap(() => {
-          // After successful signup, login with same credentials
-          return this.authService.login({ email, password });
-        })
-      )
       .subscribe({
         next: () => {
           this.isSubmitting.set(false);

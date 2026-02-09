@@ -1,7 +1,7 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Observable, tap, catchError, throwError } from 'rxjs';
+import { Observable, tap, catchError, throwError, switchMap } from 'rxjs';
 
 export interface AuthResponse {
   auth_token: string;
@@ -20,6 +20,7 @@ export interface LoginRequest {
 export interface SignupRequest {
   email: string;
   password: string;
+  re_password?: string; // Optional, not used by allauth
 }
 
 @Injectable({
@@ -30,6 +31,7 @@ export class AuthService {
   private router = inject(Router);
 
   private readonly API_BASE = '/api/v1/auth';
+  private readonly ALLAUTH_BASE = '/api/v1/auth/browser/v1/auth';
   private readonly TOKEN_KEY = 'auth_token';
 
   // Reactive state
@@ -41,8 +43,16 @@ export class AuthService {
    */
   login(credentials: LoginRequest): Observable<AuthResponse> {
     return this.http
-      .post<AuthResponse>(`${this.API_BASE}/token/login/`, credentials)
+      .post<{status: number; data: {user: unknown}}>(`${this.ALLAUTH_BASE}/login`, credentials, {
+        withCredentials: true
+      })
       .pipe(
+        switchMap(() => {
+          // After allauth login, get the auth token
+          return this.http.get<AuthResponse>(`${this.API_BASE}/token/`, {
+            withCredentials: true
+          });
+        }),
         tap((response) => {
           this.setToken(response.auth_token);
         }),
@@ -56,7 +66,26 @@ export class AuthService {
    * Register a new user
    */
   signup(data: SignupRequest): Observable<UserResponse> {
-    return this.http.post<UserResponse>(`${this.API_BASE}/users/`, data).pipe(
+    // Remove re_password for allauth (it doesn't require confirmation)
+    const { email, password } = data;
+    return this.http.post<{status: number; data: {user: UserResponse}}>(`${this.ALLAUTH_BASE}/signup`,
+      { email, password },
+      { withCredentials: true }
+    ).pipe(
+      switchMap((response) => {
+        // After allauth signup, get the auth token
+        return this.http.get<AuthResponse>(`${this.API_BASE}/token/`, {
+          withCredentials: true
+        }).pipe(
+          tap((tokenResponse) => {
+            this.setToken(tokenResponse.auth_token);
+          }),
+          switchMap(() => {
+            // Return the user data
+            return [response.data.user];
+          })
+        );
+      }),
       catchError((error) => {
         return throwError(() => this.handleError(error));
       })
@@ -67,14 +96,9 @@ export class AuthService {
    * Logout the current user
    */
   logout(): Observable<void> {
-    const token = this.authToken();
-    if (!token) {
-      this.clearToken();
-      this.router.navigate(['/login']);
-      return throwError(() => new Error('No token found'));
-    }
-
-    return this.http.post<void>(`${this.API_BASE}/token/logout/`, {}).pipe(
+    return this.http.post<void>(`${this.ALLAUTH_BASE}/logout`, {}, {
+      withCredentials: true
+    }).pipe(
       tap(() => {
         this.clearToken();
         this.router.navigate(['/login']);
@@ -154,6 +178,9 @@ export class AuthService {
       }
       if (httpError.status === 400) {
         return new Error('Invalid request. Please check your input.');
+      }
+      if (httpError.status === 409) {
+        return new Error('An account with this email already exists.');
       }
       if (httpError.status === 500) {
         return new Error('Server error. Please try again later.');
