@@ -1,4 +1,41 @@
 /* You can add global styles to this file, and also import other style files */
 
 @import "tailwindcss";
-@import "@fortawesome/fontawesome-free/css/all.min.css";
+
+@theme {
+  /* Electric Blue - Bold primary */
+  --color-electric-50: #e6f0ff;
+  --color-electric-100: #cce0ff;
+  --color-electric-200: #99c2ff;
+  --color-electric-300: #66a3ff;
+  --color-electric-400: #3385ff;
+  --color-electric-500: #0066ff;
+  --color-electric-600: #0052cc;
+  --color-electric-700: #003d99;
+  --color-electric-800: #002966;
+  --color-electric-900: #001433;
+
+  /* Vibrant Orange - Energetic accent */
+  --color-vibrant-50: #fff4ed;
+  --color-vibrant-100: #ffe8db;
+  --color-vibrant-200: #ffd1b7;
+  --color-vibrant-300: #ffba93;
+  --color-vibrant-400: #ffa36f;
+  --color-vibrant-500: #ff6b35;
+  --color-vibrant-600: #e6562a;
+  --color-vibrant-700: #cc401f;
+  --color-vibrant-800: #b32b14;
+  --color-vibrant-900: #99150a;
+
+  /* Electric Purple - Modern accent */
+  --color-neon-50: #f5f3ff;
+  --color-neon-100: #ede9fe;
+  --color-neon-200: #ddd6fe;
+  --color-neon-300: #c4b5fd;
+  --color-neon-400: #a78bfa;
+  --color-neon-500: #8b5cf6;
+  --color-neon-600: #7c3aed;
+  --color-neon-700: #6d28d9;
+  --color-neon-800: #5b21b6;
+  --color-neon-900: #4c1d95;
+}
