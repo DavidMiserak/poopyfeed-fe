@@ -1,0 +1,252 @@
+<div class="min-h-screen relative bg-gradient-to-br from-[#fff5f7] via-[#fffbeb] to-[#fff7ed] px-6 py-12 overflow-hidden">
+  <!-- Decorative background elements -->
+  <div class="absolute inset-0 opacity-20 pointer-events-none">
+    <div class="absolute top-20 left-20 w-64 h-64 bg-gradient-to-br from-purple-400 to-indigo-400 rounded-full blur-3xl animate-pulse"></div>
+    <div class="absolute bottom-20 right-20 w-96 h-96 bg-gradient-to-br from-indigo-400 to-purple-500 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s;"></div>
+  </div>
+
+  <div class="max-w-6xl mx-auto relative z-10">
+    <!-- Loading State -->
+    @if (isLoading()) {
+      <div class="flex items-center justify-center py-20">
+        <div class="text-center">
+          <svg class="w-16 h-16 animate-spin mx-auto mb-4 text-purple-500" aria-hidden="true" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <p class="font-['DM_Sans',sans-serif] text-slate-600">Loading sharing settings...</p>
+        </div>
+      </div>
+    }
+
+    <!-- Error State (Not Owner) -->
+    @if (error() && !child()) {
+      <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-8 border-2 border-red-200">
+        <div class="text-center">
+          <div class="text-6xl mb-4">🔒</div>
+          <h2 class="font-['Fredoka',sans-serif] text-2xl font-bold text-slate-900 mb-2">
+            Access Denied
+          </h2>
+          <p class="font-['DM_Sans',sans-serif] text-slate-600 mb-6">
+            {{ error() }}
+          </p>
+          <button
+            type="button"
+            (click)="navigateToDashboard()"
+            class="group relative inline-flex px-6 py-3 rounded-xl font-['DM_Sans',sans-serif] font-bold text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 overflow-hidden border-2 border-purple-500"
+          >
+            <span class="absolute inset-0 bg-gradient-to-br from-purple-500 via-indigo-500 to-purple-600 transition-transform duration-300 group-hover:scale-110"></span>
+            <span class="relative z-10">Back to Dashboard</span>
+          </button>
+        </div>
+      </div>
+    }
+
+    <!-- Content -->
+    @if (child() && !isLoading()) {
+      <div class="space-y-6">
+        <!-- Header -->
+        <div class="mb-8">
+          <button
+            type="button"
+            (click)="navigateToDashboard()"
+            class="font-['DM_Sans',sans-serif] text-sm text-slate-600 hover:text-purple-500 transition-colors font-medium inline-flex items-center gap-2 mb-2"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to Dashboard
+          </button>
+          <h1 class="font-['Fredoka',sans-serif] text-4xl font-bold text-slate-900">
+            Sharing Settings for {{ child()!.name }}
+          </h1>
+          <p class="font-['DM_Sans',sans-serif] text-slate-600 mt-2">
+            Manage who has access to view and track {{ child()!.name }}'s information
+          </p>
+        </div>
+
+        <!-- Error Message -->
+        @if (error()) {
+          <div class="bg-gradient-to-r from-red-50 to-rose-50 border-l-4 border-red-500 p-4 mb-6 rounded-xl">
+            <p class="font-['DM_Sans',sans-serif] text-red-700 text-sm font-medium flex items-center gap-2">
+              <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" />
+              </svg>
+              {{ error() }}
+            </p>
+          </div>
+        }
+
+        <!-- Current Shares -->
+        <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-6 border-2 border-purple-500/20">
+          <h2 class="font-['Fredoka',sans-serif] text-2xl font-bold text-slate-900 mb-4 flex items-center gap-2">
+            <span class="text-3xl">👥</span>
+            Current Access
+          </h2>
+
+          @if (shares().length === 0) {
+            <div class="text-center py-8">
+              <p class="font-['DM_Sans',sans-serif] text-slate-600">
+                No one else has access yet. Create an invite link below to share access.
+              </p>
+            </div>
+          } @else {
+            <div class="overflow-x-auto">
+              <table class="w-full">
+                <thead>
+                  <tr class="border-b-2 border-slate-200">
+                    <th class="font-['DM_Sans',sans-serif] text-left py-3 px-4 font-bold text-slate-700">Email</th>
+                    <th class="font-['DM_Sans',sans-serif] text-left py-3 px-4 font-bold text-slate-700">Role</th>
+                    <th class="font-['DM_Sans',sans-serif] text-left py-3 px-4 font-bold text-slate-700">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (share of shares(); track share.id) {
+                    <tr class="border-b border-slate-100 hover:bg-slate-50">
+                      <td class="font-['DM_Sans',sans-serif] py-3 px-4">{{ share.user_email }}</td>
+                      <td class="py-3 px-4">
+                        <span [class]="'inline-flex px-3 py-1 rounded-full text-xs font-semibold border ' + getRoleBadgeColor(share.role)">
+                          {{ getRoleLabel(share.role) }}
+                        </span>
+                      </td>
+                      <td class="py-3 px-4">
+                        <button
+                          type="button"
+                          (click)="onRevokeShare(share.id, share.user_email)"
+                          class="px-3 py-1 rounded-lg bg-red-100 hover:bg-red-200 text-red-700 font-['DM_Sans',sans-serif] text-sm font-semibold transition-colors"
+                        >
+                          Revoke
+                        </button>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </div>
+
+        <!-- Invite Links -->
+        <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-6 border-2 border-indigo-500/20">
+          <h2 class="font-['Fredoka',sans-serif] text-2xl font-bold text-slate-900 mb-4 flex items-center gap-2">
+            <span class="text-3xl">🔗</span>
+            Invite Links
+          </h2>
+
+          @if (invites().length === 0) {
+            <div class="text-center py-8">
+              <p class="font-['DM_Sans',sans-serif] text-slate-600 mb-4">
+                No invite links created yet.
+              </p>
+            </div>
+          } @else {
+            <div class="space-y-3 mb-6">
+              @for (invite of invites(); track invite.id) {
+                <div class="p-4 rounded-xl bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200">
+                  <div class="flex items-center justify-between gap-4">
+                    <div class="flex-1 min-w-0">
+                      <div class="flex items-center gap-2 mb-2">
+                        <span [class]="'inline-flex px-3 py-1 rounded-full text-xs font-semibold border ' + getRoleBadgeColor(invite.role)">
+                          {{ getRoleLabel(invite.role) }}
+                        </span>
+                        <span [class]="'inline-flex px-3 py-1 rounded-full text-xs font-semibold ' + (invite.is_active ? 'bg-green-100 text-green-800 border border-green-300' : 'bg-slate-100 text-slate-600 border border-slate-300')">
+                          {{ invite.is_active ? 'Active' : 'Inactive' }}
+                        </span>
+                      </div>
+                      <p class="font-['DM_Sans',sans-serif] text-sm text-slate-600 font-mono truncate">
+                        {{ truncateToken(invite.token) }}
+                      </p>
+                    </div>
+                    <div class="flex items-center gap-2 flex-shrink-0">
+                      <button
+                        type="button"
+                        (click)="onCopyInviteLink(invite.token)"
+                        class="p-2 rounded-lg bg-white hover:bg-indigo-50 text-indigo-600 hover:text-indigo-700 transition-colors border border-indigo-200 hover:border-indigo-300"
+                        [attr.aria-label]="copiedToken() === invite.token ? 'Copied!' : 'Copy invite link'"
+                      >
+                        @if (copiedToken() === invite.token) {
+                          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                          </svg>
+                        } @else {
+                          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                          </svg>
+                        }
+                      </button>
+                      <button
+                        type="button"
+                        (click)="onToggleInvite(invite.id, invite.is_active)"
+                        class="p-2 rounded-lg bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-700 transition-colors border border-slate-200 hover:border-slate-300"
+                        [attr.aria-label]="invite.is_active ? 'Deactivate' : 'Activate'"
+                      >
+                        @if (invite.is_active) {
+                          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                          </svg>
+                        } @else {
+                          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                          </svg>
+                        }
+                      </button>
+                      <button
+                        type="button"
+                        (click)="onDeleteInvite(invite.id)"
+                        class="p-2 rounded-lg bg-white hover:bg-red-50 text-red-600 hover:text-red-700 transition-colors border border-red-200 hover:border-red-300"
+                        aria-label="Delete invite"
+                      >
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+
+          <!-- Create New Invite -->
+          <div class="border-t-2 border-slate-200 pt-6">
+            <h3 class="font-['DM_Sans',sans-serif] text-lg font-bold text-slate-900 mb-4">
+              Create New Invite Link
+            </h3>
+            <form [formGroup]="inviteForm" (ngSubmit)="onCreateInvite()" class="flex flex-col sm:flex-row gap-4">
+              <div class="flex-1">
+                <select
+                  formControlName="role"
+                  class="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 outline-none transition-all font-['DM_Sans',sans-serif]"
+                >
+                  <option value="co-parent">Co-parent (can edit & delete)</option>
+                  <option value="caregiver">Caregiver (can view & add)</option>
+                </select>
+              </div>
+              <button
+                type="submit"
+                [disabled]="isCreatingInvite()"
+                class="group relative px-6 py-3 rounded-xl font-['DM_Sans',sans-serif] font-bold text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 overflow-hidden border-2 border-purple-500"
+              >
+                <span class="absolute inset-0 bg-gradient-to-br from-purple-500 via-indigo-500 to-purple-600 transition-transform duration-300 group-hover:scale-110 group-disabled:scale-100"></span>
+                @if (isCreatingInvite()) {
+                  <span class="relative z-10 flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5 animate-spin" aria-hidden="true" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Creating...
+                  </span>
+                } @else {
+                  <span class="relative z-10">Create Invite Link</span>
+                }
+              </button>
+            </form>
+            <p class="font-['DM_Sans',sans-serif] text-xs text-slate-500 mt-3">
+              💡 Share the invite link with family members or caregivers to give them access to {{ child()!.name }}'s tracking data.
+            </p>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>

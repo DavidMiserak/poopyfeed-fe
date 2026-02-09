@@ -159,6 +159,21 @@ export const routes: Routes = [
           },
         ],
       },
+      {
+        path: ':childId/sharing',
+        loadComponent: () =>
+          import('./children/sharing/sharing-manage').then(
+            (m) => m.SharingManage
+          ),
+        title: 'Manage Sharing - PoopyFeed',
+      },
     ],
+  },
+  {
+    path: 'invites/accept/:token',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./invites/accept/invite-accept').then((m) => m.InviteAccept),
+    title: 'Accept Invite - PoopyFeed',
   },
 ];
