@@ -1,44 +1,35 @@
-<footer class="bg-slate-950 text-white py-12">
+<footer class="bg-slate-950 text-white py-16">
   <div class="max-w-7xl mx-auto px-6 lg:px-12">
-    <div
-      class="grid grid-cols-1 md:grid-cols-3 gap-8 items-center text-center md:text-left"
-    >
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-12 items-start text-center md:text-left">
       <!-- Logo/Brand -->
       <div>
-        <h2
-          class="text-2xl font-extrabold mb-2 flex items-center gap-2 justify-center md:justify-start"
-        >
-          <!-- Heroicon: Heart (solid) -->
-          <svg
-            class="w-6 h-6 text-vibrant-500"
-            aria-hidden="true"
-            fill="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z"
-            />
-          </svg>
-          PoopyFeed
+        <h2 class="font-['Fredoka',sans-serif] text-2xl font-bold mb-3 flex items-center gap-2 justify-center md:justify-start">
+          <span class="text-2xl" aria-hidden="true">🍼</span>
+          <span class="bg-gradient-to-r from-[#fb7185] via-[#fb923c] to-[#fbbf24] bg-clip-text text-transparent">Poopy</span><span class="text-white">Feed</span>
         </h2>
-        <p class="text-slate-400 text-sm">Simple baby care tracking</p>
+        <p class="font-['DM_Sans',sans-serif] text-slate-400 text-sm leading-relaxed">
+          Simple, loving baby care tracking<br />for modern families
+        </p>
       </div>
 
       <!-- Links -->
       <nav aria-label="Footer navigation" class="md:col-span-2">
-        <ul class="flex flex-wrap justify-center md:justify-end gap-6">
+        <ul class="flex flex-wrap justify-center md:justify-end gap-x-8 gap-y-3">
           <li>
             <a
               routerLink="/login"
-              class="text-slate-300 hover:text-electric-400 transition-colors duration-200 focus:ring-2 focus:ring-electric-500 focus:ring-offset-2 focus:ring-offset-slate-950 rounded px-2 py-1 font-medium"
+              class="font-['DM_Sans',sans-serif] text-slate-300 hover:text-[#fb7185] transition-colors duration-200 font-medium inline-flex items-center gap-1 group"
             >
               Log in
+              <svg class="w-4 h-4 opacity-0 -ml-1 group-hover:opacity-100 group-hover:ml-0 transition-all duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              </svg>
             </a>
           </li>
           <li>
             <a
               href="#about"
-              class="text-slate-300 hover:text-electric-400 transition-colors duration-200 focus:ring-2 focus:ring-electric-500 focus:ring-offset-2 focus:ring-offset-slate-950 rounded px-2 py-1 font-medium"
+              class="font-['DM_Sans',sans-serif] text-slate-300 hover:text-[#fb923c] transition-colors duration-200 font-medium"
             >
               About
             </a>
@@ -46,23 +37,23 @@
           <li>
             <a
               href="#privacy"
-              class="text-slate-300 hover:text-electric-400 transition-colors duration-200 focus:ring-2 focus:ring-electric-500 focus:ring-offset-2 focus:ring-offset-slate-950 rounded px-2 py-1 font-medium"
+              class="font-['DM_Sans',sans-serif] text-slate-300 hover:text-[#fbbf24] transition-colors duration-200 font-medium"
             >
-              Privacy Policy
+              Privacy
             </a>
           </li>
           <li>
             <a
               href="#terms"
-              class="text-slate-300 hover:text-electric-400 transition-colors duration-200 focus:ring-2 focus:ring-electric-500 focus:ring-offset-2 focus:ring-offset-slate-950 rounded px-2 py-1 font-medium"
+              class="font-['DM_Sans',sans-serif] text-slate-300 hover:text-[#fb7185] transition-colors duration-200 font-medium"
             >
-              Terms of Service
+              Terms
             </a>
           </li>
           <li>
             <a
               href="#contact"
-              class="text-slate-300 hover:text-electric-400 transition-colors duration-200 focus:ring-2 focus:ring-electric-500 focus:ring-offset-2 focus:ring-offset-slate-950 rounded px-2 py-1 font-medium"
+              class="font-['DM_Sans',sans-serif] text-slate-300 hover:text-[#fb923c] transition-colors duration-200 font-medium"
             >
               Contact
             </a>
@@ -72,9 +63,11 @@
     </div>
 
     <!-- Copyright -->
-    <div class="mt-8 pt-8 border-t border-slate-800 text-center">
-      <p class="text-slate-500 text-sm">
-        © {{ currentYear() }} PoopyFeed. All rights reserved.
+    <div class="mt-12 pt-8 border-t border-slate-800/50 text-center">
+      <p class="font-['DM_Sans',sans-serif] text-slate-500 text-sm flex items-center justify-center gap-2">
+        <span>© {{ currentYear() }} PoopyFeed. Made with</span>
+        <span class="text-[#fb7185] text-lg animate-pulse" aria-label="love">❤️</span>
+        <span>for families</span>
       </p>
     </div>
   </div>
