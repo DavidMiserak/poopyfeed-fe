@@ -1,25 +1,127 @@
-<button
-  type="button"
-  (click)="quickLogNap()"
-  [disabled]="isLoggingNap() || !canEdit()"
-  [attr.aria-busy]="isLoggingNap()"
-  aria-label="Log a nap with current timestamp"
-  class="group relative p-6 rounded-2xl font-['DM_Sans',sans-serif] font-bold text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 overflow-hidden border-2 border-amber-400 no-underline cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
->
-  <span class="absolute inset-0 bg-gradient-to-br from-amber-400 to-amber-500 transition-transform duration-300 group-hover:scale-110 disabled:group-hover:scale-100"></span>
-  <span class="relative z-10 flex flex-col items-center gap-2">
-    @if (isLoggingNap()) {
-      <svg class="w-8 h-8 animate-spin" aria-hidden="true" fill="none" viewBox="0 0 24 24">
-        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-      </svg>
-    } @else {
-      <span class="text-4xl">😴</span>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+  <!-- Nap button -->
+  <div class="flex flex-col items-center">
+    <button
+      type="button"
+      (click)="quickLogNap()"
+      [disabled]="isLoggingNap() || napSuccess() || !canEdit()"
+      [attr.aria-busy]="isLoggingNap()"
+      aria-label="Log a nap with current timestamp"
+      class="group relative p-6 rounded-2xl font-['DM_Sans',sans-serif] font-bold text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 overflow-hidden border-2 border-amber-400 no-underline cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 w-full"
+    >
+      <span class="absolute inset-0 bg-gradient-to-br from-amber-400 to-amber-500 transition-transform duration-300 group-hover:scale-110 disabled:group-hover:scale-100"></span>
+      <span class="relative z-10 flex flex-col items-center gap-2">
+        @if (isLoggingNap()) {
+          <svg class="w-8 h-8 animate-spin" aria-hidden="true" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+        } @else if (napSuccess()) {
+          <span class="text-4xl text-green-500">✅</span>
+        } @else {
+          <span class="text-4xl">😴</span>
+        }
+        <span class="text-lg">Nap</span>
+      </span>
+    </button>
+    @if (napError()) {
+      <p class="text-sm text-red-600 mt-2 text-center" role="alert">{{ napError() }}</p>
     }
-    <span class="text-lg">Log Nap Now</span>
-  </span>
-</button>
+  </div>
 
-@if (napError()) {
-  <p class="text-sm text-red-600 mt-2 text-center" role="alert">{{ napError() }}</p>
-}
+  <!-- Diaper group with border -->
+  <div class="border-2 border-orange-400/20 rounded-3xl p-4 bg-white/50 backdrop-blur-sm">
+    <h6>Quick Diaper Change</h6>
+    <div class="grid grid-cols-3 gap-2">
+      <!-- Wet diaper button -->
+      <div class="flex flex-col items-center">
+        <button
+          type="button"
+          (click)="quickLogWetDiaper()"
+          [disabled]="isLoggingWetDiaper() || wetDiaperSuccess() || !canEdit()"
+          [attr.aria-busy]="isLoggingWetDiaper()"
+          aria-label="Log a wet diaper change with current timestamp"
+          class="group relative p-4 rounded-xl font-['DM_Sans',sans-serif] font-bold text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 overflow-hidden border-2 border-orange-400 no-underline cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 w-full"
+        >
+          <span class="absolute inset-0 bg-gradient-to-br from-orange-400 to-orange-500 transition-transform duration-300 group-hover:scale-110 disabled:group-hover:scale-100"></span>
+          <span class="relative z-10 flex flex-col items-center gap-1">
+            @if (isLoggingWetDiaper()) {
+              <svg class="w-6 h-6 animate-spin" aria-hidden="true" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            } @else if (wetDiaperSuccess()) {
+              <span class="text-3xl text-green-500">✅</span>
+            } @else {
+              <span class="text-3xl">💧</span>
+            }
+            <span class="text-sm">Wet</span>
+          </span>
+        </button>
+        @if (wetDiaperError()) {
+          <p class="text-xs text-red-600 mt-1 text-center" role="alert">{{ wetDiaperError() }}</p>
+        }
+      </div>
+
+      <!-- Dirty diaper button -->
+      <div class="flex flex-col items-center">
+        <button
+          type="button"
+          (click)="quickLogDirtyDiaper()"
+          [disabled]="isLoggingDirtyDiaper() || dirtyDiaperSuccess() || !canEdit()"
+          [attr.aria-busy]="isLoggingDirtyDiaper()"
+          aria-label="Log a dirty diaper change with current timestamp"
+          class="group relative p-4 rounded-xl font-['DM_Sans',sans-serif] font-bold text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 overflow-hidden border-2 border-orange-400 no-underline cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 w-full"
+        >
+          <span class="absolute inset-0 bg-gradient-to-br from-orange-400 to-orange-500 transition-transform duration-300 group-hover:scale-110 disabled:group-hover:scale-100"></span>
+          <span class="relative z-10 flex flex-col items-center gap-1">
+            @if (isLoggingDirtyDiaper()) {
+              <svg class="w-6 h-6 animate-spin" aria-hidden="true" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            } @else if (dirtyDiaperSuccess()) {
+              <span class="text-3xl text-green-500">✅</span>
+            } @else {
+              <span class="text-3xl">💩</span>
+            }
+            <span class="text-sm">Dirty</span>
+          </span>
+        </button>
+        @if (dirtyDiaperError()) {
+          <p class="text-xs text-red-600 mt-1 text-center" role="alert">{{ dirtyDiaperError() }}</p>
+        }
+      </div>
+
+      <!-- Both diaper button -->
+      <div class="flex flex-col items-center">
+        <button
+          type="button"
+          (click)="quickLogBothDiaper()"
+          [disabled]="isLoggingBothDiaper() || bothDiaperSuccess() || !canEdit()"
+          [attr.aria-busy]="isLoggingBothDiaper()"
+          aria-label="Log a wet and dirty diaper change with current timestamp"
+          class="group relative p-4 rounded-xl font-['DM_Sans',sans-serif] font-bold text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 overflow-hidden border-2 border-orange-400 no-underline cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 w-full"
+        >
+          <span class="absolute inset-0 bg-gradient-to-br from-orange-400 to-orange-500 transition-transform duration-300 group-hover:scale-110 disabled:group-hover:scale-100"></span>
+          <span class="relative z-10 flex flex-col items-center gap-1">
+            @if (isLoggingBothDiaper()) {
+              <svg class="w-6 h-6 animate-spin" aria-hidden="true" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            } @else if (bothDiaperSuccess()) {
+              <span class="text-3xl text-green-500">✅</span>
+            } @else {
+              <span class="text-3xl">🧷</span>
+            }
+            <span class="text-sm">Both</span>
+          </span>
+        </button>
+        @if (bothDiaperError()) {
+          <p class="text-xs text-red-600 mt-1 text-center" role="alert">{{ bothDiaperError() }}</p>
+        }
+      </div>
+    </div>
+  </div>
+</div>
