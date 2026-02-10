@@ -38,7 +38,7 @@ describe('Header', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     const loginLink = compiled.querySelector('a[routerLink="/login"]');
     const signupLink = compiled.querySelector('a[routerLink="/signup"]');
-    expect(loginLink?.textContent?.trim()).toBe('Login');
+    expect(loginLink?.textContent?.trim()).toBe('Log in');
     expect(signupLink?.textContent?.trim()).toBe('Get Started');
   });
 
@@ -50,17 +50,17 @@ describe('Header', () => {
 
     const compiled = fixture.nativeElement as HTMLElement;
     const logoutButton = compiled.querySelector('button');
-    expect(logoutButton?.textContent?.trim()).toBe('Logout');
+    expect(logoutButton?.textContent?.trim()).toBe('Log out');
   });
 
-  it('should show "Active" indicator when authenticated', () => {
+  it('should show My Children link when authenticated', () => {
     localStorage.setItem('auth_token', 'test-token');
     authService['authToken'].set('test-token');
     fixture.detectChanges();
 
     const compiled = fixture.nativeElement as HTMLElement;
-    const statusText = compiled.querySelector('.text-sm.font-medium.text-emerald-700');
-    expect(statusText?.textContent).toContain('Active');
+    const childrenLink = compiled.querySelector('a[routerLink="/children"]');
+    expect(childrenLink?.textContent?.trim()).toBe('My Children');
   });
 
   it('should have PoopyFeed brand link', () => {

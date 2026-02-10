@@ -1,88 +1,64 @@
-<header class="relative bg-gradient-to-r from-rose-50 via-orange-50 to-amber-50 border-b-2 border-rose-100 backdrop-blur-sm">
-  <!-- Decorative background overlay -->
-  <div class="absolute inset-0 opacity-30 pointer-events-none" style="background: radial-gradient(circle at 20% 50%, rgba(251, 191, 36, 0.15) 0%, transparent 50%), radial-gradient(circle at 80% 50%, rgba(251, 113, 133, 0.15) 0%, transparent 50%);"></div>
+<header class="header-root sticky top-0 z-50 bg-white/95 backdrop-blur-md">
+  <!-- Thin gradient accent line at top -->
+  <div class="h-0.5 bg-gradient-to-r from-rose-400 via-orange-400 to-amber-300"></div>
 
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative flex justify-between items-center h-20">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
     <!-- Logo/Brand -->
-    <div class="relative">
-      <a
-        routerLink="/"
-        class="flex items-center gap-2.5 relative no-underline group transition-all duration-300 hover:-translate-y-0.5"
-      >
-        <!-- Emoji with wiggle animation -->
-        <span class="text-3xl sm:text-2xl inline-block transition-transform duration-300 group-hover:animate-wiggle" aria-hidden="true">🍼</span>
-
-        <!-- Logo text -->
-        <span class="flex items-baseline gap-0.5 relative z-10">
-          <span class="font-['Fredoka',sans-serif] text-3xl sm:text-2xl font-bold bg-gradient-to-br from-rose-500 via-orange-500 to-amber-500 bg-clip-text text-transparent transition-all duration-300">
-            Poopy
-          </span>
-          <span class="font-['Fredoka',sans-serif] text-3xl sm:text-2xl font-semibold text-slate-700 transition-all duration-300 group-hover:text-rose-600">
-            Feed
-          </span>
+    <a
+      routerLink="/"
+      class="flex items-center gap-2 no-underline group"
+    >
+      <span class="text-2xl inline-block transition-transform duration-300 group-hover:animate-wiggle select-none" aria-hidden="true">🍼</span>
+      <span class="flex items-baseline gap-px">
+        <span class="font-['Fredoka',sans-serif] text-2xl font-bold bg-gradient-to-br from-rose-500 via-orange-500 to-amber-500 bg-clip-text text-transparent">
+          Poopy
         </span>
-
-        <!-- Animated underline -->
-        <span class="absolute -bottom-1 left-0 right-0 h-1 bg-gradient-to-r from-rose-400 via-orange-400 to-amber-400 rounded-full transform scale-x-0 origin-left transition-transform duration-300 ease-out group-hover:scale-x-100"></span>
-      </a>
-    </div>
+        <span class="font-['Fredoka',sans-serif] text-2xl font-semibold text-slate-800 transition-colors duration-200 group-hover:text-rose-500">
+          Feed
+        </span>
+      </span>
+    </a>
 
     <!-- Navigation & Auth -->
-    <nav class="flex items-center gap-3">
+    <nav class="flex items-center gap-2" aria-label="Main navigation">
       @if (authService.isAuthenticated()) {
-        <div class="flex items-center gap-4">
-          <!-- My Children link -->
-          <a
-            routerLink="/children"
-            class="font-['DM_Sans',sans-serif] px-4 py-2 rounded-xl text-sm font-medium text-slate-700 transition-all duration-300 ease-out hover:text-rose-600 hover:bg-white/60 hover:backdrop-blur-sm border border-transparent hover:border-rose-200 no-underline"
-          >
-            My Children
-          </a>
+        <a
+          routerLink="/children"
+          class="nav-link px-3 py-2 rounded-lg text-sm font-medium text-slate-600 transition-colors duration-200 hover:text-rose-600 hover:bg-rose-50 no-underline"
+        >
+          My Children
+        </a>
 
-          <!-- Status badge with pulse animation -->
-          <div class="flex items-center gap-2 px-4 sm:px-3 py-2 rounded-full bg-white/80 backdrop-blur-sm border border-emerald-200 shadow-sm">
-            <span class="relative w-2 h-2 rounded-full bg-emerald-500">
-              <span class="absolute inset-0 rounded-full bg-emerald-400 animate-pulse-ring"></span>
-            </span>
-            <span class="font-['DM_Sans',sans-serif] text-sm font-medium text-emerald-700 sm:hidden">Active</span>
-          </div>
+        <div class="w-px h-5 bg-slate-200 mx-1" aria-hidden="true"></div>
 
-          <!-- Logout button -->
-          <button
-            (click)="logout()"
-            class="flex items-center gap-2 px-4 sm:px-3 py-2.5 sm:py-2 rounded-xl bg-white/60 backdrop-blur-sm border border-slate-200 transition-all duration-300 ease-out shadow-sm hover:shadow-md hover:bg-white hover:border-rose-300 hover:-translate-y-0.5 active:translate-y-0 cursor-pointer group"
-            aria-label="Logout"
-          >
-            <span class="font-['DM_Sans',sans-serif] text-sm font-medium text-slate-700 transition-colors duration-200 group-hover:text-rose-600 sm:hidden">
-              Logout
-            </span>
-            <svg class="w-4 h-4 text-slate-400 transition-all duration-300 group-hover:text-rose-500 group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-            </svg>
-          </button>
-        </div>
+        <button
+          (click)="logout()"
+          class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-slate-500 transition-colors duration-200 hover:text-rose-600 hover:bg-rose-50 cursor-pointer border-none bg-transparent group"
+          aria-label="Log out"
+        >
+          <span class="hidden sm:inline">Log out</span>
+          <svg class="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+        </button>
       } @else {
-        <div class="flex items-center gap-3">
-          <!-- Login link -->
-          <a
-            routerLink="/login"
-            class="font-['DM_Sans',sans-serif] px-5 sm:px-4 py-2.5 sm:py-2 rounded-xl text-sm sm:text-xs font-medium text-slate-700 transition-all duration-300 ease-out hover:text-rose-600 hover:bg-white/60 hover:backdrop-blur-sm border border-transparent hover:border-rose-200 no-underline"
-          >
-            Login
-          </a>
+        <a
+          routerLink="/login"
+          class="nav-link px-3 py-2 rounded-lg text-sm font-medium text-slate-600 transition-colors duration-200 hover:text-rose-600 hover:bg-rose-50 no-underline"
+        >
+          Log in
+        </a>
 
-          <!-- Sign up CTA button -->
-          <a
-            routerLink="/signup"
-            class="relative px-6 sm:px-5 py-2.5 sm:py-2 rounded-xl overflow-hidden transition-all duration-300 ease-out shadow-md hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 cursor-pointer no-underline border-2 border-rose-400 group"
-          >
-            <span class="absolute inset-0 bg-gradient-to-br from-rose-400 via-orange-400 to-amber-400 transition-transform duration-300 ease-out group-hover:scale-110"></span>
-            <span class="font-['DM_Sans',sans-serif] relative z-10 text-sm sm:text-xs font-bold text-white drop-shadow-sm">
-              Get Started
-            </span>
-          </a>
-        </div>
+        <a
+          routerLink="/signup"
+          class="inline-flex items-center px-5 py-2 rounded-lg text-sm font-bold text-white no-underline bg-gradient-to-r from-rose-500 to-orange-400 shadow-sm transition-all duration-200 hover:shadow-md hover:brightness-110 active:brightness-95"
+        >
+          Get Started
+        </a>
       }
     </nav>
   </div>
+
+  <!-- Bottom hairline border -->
+  <div class="h-px bg-slate-200/80"></div>
 </header>

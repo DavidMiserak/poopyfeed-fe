@@ -5,8 +5,6 @@
   display: block;
 }
 
-/* Custom animations that can't be done with Tailwind utilities */
-
 /* Bottle wiggle animation for logo emoji */
 @keyframes wiggle {
   0%, 100% {
@@ -22,20 +20,4 @@
 
 .animate-wiggle {
   animation: wiggle 0.6s ease-in-out;
-}
-
-/* Pulse ring animation for status dot */
-@keyframes pulse-ring {
-  0%, 100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(1.8);
-    opacity: 0;
-  }
-}
-
-.animate-pulse-ring {
-  animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
