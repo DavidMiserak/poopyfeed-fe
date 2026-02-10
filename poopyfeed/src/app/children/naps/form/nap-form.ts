@@ -1,11 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  OnInit,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   FormControl,
@@ -19,7 +12,7 @@ import { ChildrenService } from '../../../services/children.service';
 import { DateTimeService } from '../../../services/datetime.service';
 import { ToastService } from '../../../services/toast.service';
 import { Nap, NapCreate, NAP_VALIDATION } from '../../../models/nap.model';
-import { Child } from '../../../models/child.model';
+import { TrackingFormBase } from '../../../utils/form-base';
 
 @Component({
   selector: 'app-nap-form',
@@ -28,140 +21,62 @@ import { Child } from '../../../models/child.model';
   styleUrl: './nap-form.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class NapForm implements OnInit {
-  private router = inject(Router);
-  private route = inject(ActivatedRoute);
-  private napsService = inject(NapsService);
-  private childrenService = inject(ChildrenService);
-  private datetimeService = inject(DateTimeService);
-  private toast = inject(ToastService);
-
-  childId = signal<number | null>(null);
-  napId = signal<number | null>(null);
-  child = signal<Child | null>(null);
-  isEdit = computed(() => this.napId() !== null);
-  isSubmitting = signal(false);
-  error = signal<string | null>(null);
+export class NapForm
+  extends TrackingFormBase<Nap, NapCreate, NapsService>
+  implements OnInit
+{
+  protected router = inject(Router);
+  protected route = inject(ActivatedRoute);
+  protected service = inject(NapsService);
+  protected childrenService = inject(ChildrenService);
+  protected datetimeService = inject(DateTimeService);
+  protected toast = inject(ToastService);
 
   // Expose validation constants for template
   VALIDATION = NAP_VALIDATION;
 
-  napForm = new FormGroup({
+  protected form = new FormGroup({
     napped_at: new FormControl('', [Validators.required]),
     notes: new FormControl('', [
       Validators.maxLength(NAP_VALIDATION.MAX_NOTES_LENGTH),
     ]),
   });
 
+  protected resourceName = 'nap';
+  protected listRoute = 'naps';
+  protected successMessageCreate = 'Nap recorded successfully';
+  protected successMessageUpdate = 'Nap updated successfully';
+
+  // Expose form to template
+  get napForm() {
+    return this.form;
+  }
+
   ngOnInit() {
-    const childId = this.route.snapshot.paramMap.get('childId');
-    const napId = this.route.snapshot.paramMap.get('id');
-
-    if (childId) {
-      this.childId.set(Number(childId));
-      this.loadChild(Number(childId));
-    }
-
-    if (napId) {
-      this.napId.set(Number(napId));
-      if (childId) {
-        this.loadNap(Number(childId), Number(napId));
-      }
-    } else {
-      // Set default napped_at to current time
-      const now = new Date();
-      this.napForm.patchValue({
-        napped_at: this.datetimeService.toInputFormat(now),
-      });
-    }
+    this.initializeForm();
   }
 
-  loadChild(childId: number) {
-    this.childrenService.get(childId).subscribe({
-      next: (child) => {
-        this.child.set(child);
-      },
-      error: (err: Error) => {
-        this.error.set(err.message);
-      },
+  protected setDefaultDateTime() {
+    const now = new Date();
+    this.form.patchValue({
+      napped_at: this.datetimeService.toInputFormat(now),
     });
   }
 
-  loadNap(childId: number, napId: number) {
-    this.napsService.get(childId, napId).subscribe({
-      next: (nap) => {
-        // Convert UTC time to local datetime-local format
-        const localDate = this.datetimeService.toLocal(nap.napped_at);
-        this.napForm.patchValue({
-          napped_at: this.datetimeService.toInputFormat(localDate),
-          notes: nap.notes || '',
-        });
-      },
-      error: (err: Error) => {
-        this.error.set(err.message);
-      },
-    });
-  }
-
-  onSubmit() {
-    if (this.napForm.invalid || !this.childId()) {
-      Object.keys(this.napForm.controls).forEach((key) => {
-        const control = this.napForm.get(key);
-        control?.markAsTouched();
-      });
-      return;
-    }
-
-    this.isSubmitting.set(true);
-    this.error.set(null);
-
-    const formValue = this.napForm.value;
-    const childId = this.childId()!;
-
-    // Convert local datetime to UTC
-    const localDate = this.datetimeService.fromInputFormat(
-      formValue.napped_at!
-    );
-    const utcDateTime = this.datetimeService.toUTC(localDate);
-
-    const napData: NapCreate = {
-      napped_at: utcDateTime,
+  protected buildCreateDto(): NapCreate {
+    const formValue = this.form.value;
+    const timestamp = this.convertLocalToUtc(formValue.napped_at!);
+    return {
+      napped_at: timestamp,
       notes: formValue.notes || undefined,
     };
-
-    if (this.isEdit()) {
-      this.napsService.update(childId, this.napId()!, napData).subscribe({
-        next: () => {
-          this.isSubmitting.set(false);
-          this.toast.success('Nap updated successfully');
-          this.router.navigate(['/children', childId, 'naps']);
-        },
-        error: (err: Error) => {
-          this.isSubmitting.set(false);
-          this.error.set(err.message);
-          this.toast.error(err.message);
-        },
-      });
-    } else {
-      this.napsService.create(childId, napData).subscribe({
-        next: () => {
-          this.isSubmitting.set(false);
-          this.toast.success('Nap recorded successfully');
-          this.router.navigate(['/children', childId, 'naps']);
-        },
-        error: (err: Error) => {
-          this.isSubmitting.set(false);
-          this.error.set(err.message);
-          this.toast.error(err.message);
-        },
-      });
-    }
   }
 
-  onCancel() {
-    const childId = this.childId();
-    if (childId) {
-      this.router.navigate(['/children', childId, 'naps']);
-    }
+  protected patchFormWithResource(resource: Nap) {
+    const localDate = this.convertUtcToLocal(resource.napped_at);
+    this.form.patchValue({
+      napped_at: this.formatForInput(localDate),
+      notes: resource.notes || '',
+    });
   }
 }

@@ -1,11 +1,9 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  computed,
   effect,
   inject,
   OnInit,
-  signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
@@ -24,7 +22,7 @@ import {
   FeedingCreate,
   FEEDING_VALIDATION,
 } from '../../../models/feeding.model';
-import { Child } from '../../../models/child.model';
+import { TrackingFormBase } from '../../../utils/form-base';
 
 @Component({
   selector: 'app-feeding-form',
@@ -33,25 +31,21 @@ import { Child } from '../../../models/child.model';
   styleUrl: './feeding-form.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class FeedingForm implements OnInit {
-  private router = inject(Router);
-  private route = inject(ActivatedRoute);
-  private feedingsService = inject(FeedingsService);
-  private childrenService = inject(ChildrenService);
-  private datetimeService = inject(DateTimeService);
-  private toast = inject(ToastService);
-
-  childId = signal<number | null>(null);
-  feedingId = signal<number | null>(null);
-  child = signal<Child | null>(null);
-  isEdit = computed(() => this.feedingId() !== null);
-  isSubmitting = signal(false);
-  error = signal<string | null>(null);
+export class FeedingForm
+  extends TrackingFormBase<Feeding, FeedingCreate, FeedingsService>
+  implements OnInit
+{
+  protected router = inject(Router);
+  protected route = inject(ActivatedRoute);
+  protected service = inject(FeedingsService);
+  protected childrenService = inject(ChildrenService);
+  protected datetimeService = inject(DateTimeService);
+  protected toast = inject(ToastService);
 
   // Expose validation constants for template
   VALIDATION = FEEDING_VALIDATION;
 
-  feedingForm = new FormGroup({
+  protected form = new FormGroup({
     feeding_type: new FormControl<'bottle' | 'breast'>('bottle', [
       Validators.required,
     ]),
@@ -64,77 +58,78 @@ export class FeedingForm implements OnInit {
     ]),
   });
 
+  protected resourceName = 'feeding';
+  protected listRoute = 'feedings';
+  protected successMessageCreate = 'Feeding created successfully';
+  protected successMessageUpdate = 'Feeding updated successfully';
+
+  // Expose form to template
+  get feedingForm() {
+    return this.form;
+  }
+
   constructor() {
+    super();
     // Watch for feeding type changes and update validators
     effect(() => {
-      const feedingType = this.feedingForm.get('feeding_type')?.value;
+      const feedingType = this.form.get('feeding_type')?.value;
       this.updateValidators(feedingType || 'bottle');
     });
   }
 
   ngOnInit() {
-    const childId = this.route.snapshot.paramMap.get('childId');
-    const feedingId = this.route.snapshot.paramMap.get('id');
-
-    if (childId) {
-      this.childId.set(Number(childId));
-      this.loadChild(Number(childId));
-    }
-
-    if (feedingId) {
-      this.feedingId.set(Number(feedingId));
-      if (childId) {
-        this.loadFeeding(Number(childId), Number(feedingId));
-      }
-    } else {
-      // Set default fed_at to current time
-      const now = new Date();
-      this.feedingForm.patchValue({
-        fed_at: this.datetimeService.toInputFormat(now),
-      });
-    }
+    this.initializeForm();
 
     // Set up listener for feeding type changes
-    this.feedingForm.get('feeding_type')?.valueChanges.subscribe((type) => {
+    this.form.get('feeding_type')?.valueChanges.subscribe((type) => {
       this.updateValidators(type || 'bottle');
     });
   }
 
-  loadChild(childId: number) {
-    this.childrenService.get(childId).subscribe({
-      next: (child) => {
-        this.child.set(child);
-      },
-      error: (err: Error) => {
-        this.error.set(err.message);
-      },
+  protected setDefaultDateTime() {
+    const now = new Date();
+    this.form.patchValue({
+      fed_at: this.datetimeService.toInputFormat(now),
     });
   }
 
-  loadFeeding(childId: number, feedingId: number) {
-    this.feedingsService.get(childId, feedingId).subscribe({
-      next: (feeding) => {
-        // Convert UTC time to local datetime-local format
-        const localDate = this.datetimeService.toLocal(feeding.fed_at);
-        this.feedingForm.patchValue({
-          feeding_type: feeding.feeding_type,
-          fed_at: this.datetimeService.toInputFormat(localDate),
-          amount_oz: feeding.amount_oz || null,
-          duration_minutes: feeding.duration_minutes || null,
-          side: feeding.side || null,
-          notes: feeding.notes || '',
-        });
-      },
-      error: (err: Error) => {
-        this.error.set(err.message);
-      },
+  protected buildCreateDto(): FeedingCreate {
+    const formValue = this.form.value;
+    const timestamp = this.convertLocalToUtc(formValue.fed_at!);
+
+    const feedingData: FeedingCreate = {
+      feeding_type: formValue.feeding_type!,
+      fed_at: timestamp,
+      notes: formValue.notes || undefined,
+    };
+
+    // Add type-specific fields
+    if (formValue.feeding_type === 'bottle') {
+      feedingData.amount_oz = formValue.amount_oz!;
+    } else {
+      feedingData.duration_minutes = formValue.duration_minutes!;
+      feedingData.side = formValue.side!;
+    }
+
+    return feedingData;
+  }
+
+  protected patchFormWithResource(resource: Feeding) {
+    const localDate = this.convertUtcToLocal(resource.fed_at);
+    this.form.patchValue({
+      feeding_type: resource.feeding_type,
+      fed_at: this.formatForInput(localDate),
+      amount_oz: resource.amount_oz || null,
+      duration_minutes: resource.duration_minutes || null,
+      side: resource.side || null,
+      notes: resource.notes || '',
     });
   }
 
-  updateValidators(feedingType: 'bottle' | 'breast') {
-    const amountControl = this.feedingForm.get('amount_oz');
-    const durationControl = this.feedingForm.get('duration_minutes');
-    const sideControl = this.feedingForm.get('side');
+  private updateValidators(feedingType: 'bottle' | 'breast') {
+    const amountControl = this.form.get('amount_oz');
+    const durationControl = this.form.get('duration_minutes');
+    const sideControl = this.form.get('side');
 
     if (feedingType === 'bottle') {
       // Bottle: amount_oz required, duration/side not required
@@ -167,76 +162,5 @@ export class FeedingForm implements OnInit {
     amountControl?.updateValueAndValidity();
     durationControl?.updateValueAndValidity();
     sideControl?.updateValueAndValidity();
-  }
-
-  onSubmit() {
-    if (this.feedingForm.invalid || !this.childId()) {
-      Object.keys(this.feedingForm.controls).forEach((key) => {
-        const control = this.feedingForm.get(key);
-        control?.markAsTouched();
-      });
-      return;
-    }
-
-    this.isSubmitting.set(true);
-    this.error.set(null);
-
-    const formValue = this.feedingForm.value;
-    const childId = this.childId()!;
-
-    // Convert local datetime to UTC
-    const localDate = this.datetimeService.fromInputFormat(formValue.fed_at!);
-    const utcDateTime = this.datetimeService.toUTC(localDate);
-
-    const feedingData: FeedingCreate = {
-      feeding_type: formValue.feeding_type!,
-      fed_at: utcDateTime,
-      notes: formValue.notes || undefined,
-    };
-
-    // Add type-specific fields
-    if (formValue.feeding_type === 'bottle') {
-      feedingData.amount_oz = formValue.amount_oz!;
-    } else {
-      feedingData.duration_minutes = formValue.duration_minutes!;
-      feedingData.side = formValue.side!;
-    }
-
-    if (this.isEdit()) {
-      this.feedingsService
-        .update(childId, this.feedingId()!, feedingData)
-        .subscribe({
-          next: () => {
-            this.isSubmitting.set(false);
-            this.toast.success('Feeding updated successfully');
-            this.router.navigate(['/children', childId, 'feedings']);
-          },
-          error: (err: Error) => {
-            this.isSubmitting.set(false);
-            this.error.set(err.message);
-            this.toast.error(err.message);
-          },
-        });
-    } else {
-      this.feedingsService.create(childId, feedingData).subscribe({
-        next: () => {
-          this.isSubmitting.set(false);
-          this.toast.success('Feeding created successfully');
-          this.router.navigate(['/children', childId, 'feedings']);
-        },
-        error: (err: Error) => {
-          this.isSubmitting.set(false);
-          this.error.set(err.message);
-          this.toast.error(err.message);
-        },
-      });
-    }
-  }
-
-  onCancel() {
-    const childId = this.childId();
-    if (childId) {
-      this.router.navigate(['/children', childId, 'feedings']);
-    }
   }
 }

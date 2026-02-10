@@ -1,11 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  OnInit,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   FormControl,
@@ -23,7 +16,9 @@ import {
   DiaperChangeCreate,
   DIAPER_VALIDATION,
 } from '../../../models/diaper.model';
-import { Child } from '../../../models/child.model';
+import {
+  TrackingFormBase,
+} from '../../../utils/form-base';
 
 @Component({
   selector: 'app-diaper-form',
@@ -32,25 +27,21 @@ import { Child } from '../../../models/child.model';
   styleUrl: './diaper-form.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DiaperForm implements OnInit {
-  private router = inject(Router);
-  private route = inject(ActivatedRoute);
-  private diapersService = inject(DiapersService);
-  private childrenService = inject(ChildrenService);
-  private datetimeService = inject(DateTimeService);
-  private toast = inject(ToastService);
-
-  childId = signal<number | null>(null);
-  diaperId = signal<number | null>(null);
-  child = signal<Child | null>(null);
-  isEdit = computed(() => this.diaperId() !== null);
-  isSubmitting = signal(false);
-  error = signal<string | null>(null);
+export class DiaperForm
+  extends TrackingFormBase<DiaperChange, DiaperChangeCreate, DiapersService>
+  implements OnInit
+{
+  protected router = inject(Router);
+  protected route = inject(ActivatedRoute);
+  protected service = inject(DiapersService);
+  protected childrenService = inject(ChildrenService);
+  protected datetimeService = inject(DateTimeService);
+  protected toast = inject(ToastService);
 
   // Expose validation constants for template
   VALIDATION = DIAPER_VALIDATION;
 
-  diaperForm = new FormGroup({
+  protected form = new FormGroup({
     change_type: new FormControl<'wet' | 'dirty' | 'both'>('wet', [
       Validators.required,
     ]),
@@ -60,119 +51,43 @@ export class DiaperForm implements OnInit {
     ]),
   });
 
+  protected resourceName = 'diaper';
+  protected listRoute = 'diapers';
+  protected successMessageCreate = 'Diaper change recorded successfully';
+  protected successMessageUpdate = 'Diaper change updated successfully';
+
+  // Expose form to template
+  get diaperForm() {
+    return this.form;
+  }
+
   ngOnInit() {
-    const childId = this.route.snapshot.paramMap.get('childId');
-    const diaperId = this.route.snapshot.paramMap.get('id');
-
-    if (childId) {
-      this.childId.set(Number(childId));
-      this.loadChild(Number(childId));
-    }
-
-    if (diaperId) {
-      this.diaperId.set(Number(diaperId));
-      if (childId) {
-        this.loadDiaper(Number(childId), Number(diaperId));
-      }
-    } else {
-      // Set default changed_at to current time
-      const now = new Date();
-      this.diaperForm.patchValue({
-        changed_at: this.datetimeService.toInputFormat(now),
-      });
-    }
+    this.initializeForm();
   }
 
-  loadChild(childId: number) {
-    this.childrenService.get(childId).subscribe({
-      next: (child) => {
-        this.child.set(child);
-      },
-      error: (err: Error) => {
-        this.error.set(err.message);
-      },
+  protected setDefaultDateTime() {
+    const now = new Date();
+    this.form.patchValue({
+      changed_at: this.datetimeService.toInputFormat(now),
     });
   }
 
-  loadDiaper(childId: number, diaperId: number) {
-    this.diapersService.get(childId, diaperId).subscribe({
-      next: (diaper) => {
-        // Convert UTC time to local datetime-local format
-        const localDate = this.datetimeService.toLocal(diaper.changed_at);
-        this.diaperForm.patchValue({
-          change_type: diaper.change_type,
-          changed_at: this.datetimeService.toInputFormat(localDate),
-          notes: diaper.notes || '',
-        });
-      },
-      error: (err: Error) => {
-        this.error.set(err.message);
-      },
-    });
-  }
-
-  onSubmit() {
-    if (this.diaperForm.invalid || !this.childId()) {
-      Object.keys(this.diaperForm.controls).forEach((key) => {
-        const control = this.diaperForm.get(key);
-        control?.markAsTouched();
-      });
-      return;
-    }
-
-    this.isSubmitting.set(true);
-    this.error.set(null);
-
-    const formValue = this.diaperForm.value;
-    const childId = this.childId()!;
-
-    // Convert local datetime to UTC
-    const localDate = this.datetimeService.fromInputFormat(
-      formValue.changed_at!
-    );
-    const utcDateTime = this.datetimeService.toUTC(localDate);
-
-    const diaperData: DiaperChangeCreate = {
+  protected buildCreateDto(): DiaperChangeCreate {
+    const formValue = this.form.value;
+    const timestamp = this.convertLocalToUtc(formValue.changed_at!);
+    return {
       change_type: formValue.change_type!,
-      changed_at: utcDateTime,
+      changed_at: timestamp,
       notes: formValue.notes || undefined,
     };
-
-    if (this.isEdit()) {
-      this.diapersService
-        .update(childId, this.diaperId()!, diaperData)
-        .subscribe({
-          next: () => {
-            this.isSubmitting.set(false);
-            this.toast.success('Diaper change updated successfully');
-            this.router.navigate(['/children', childId, 'diapers']);
-          },
-          error: (err: Error) => {
-            this.isSubmitting.set(false);
-            this.error.set(err.message);
-            this.toast.error(err.message);
-          },
-        });
-    } else {
-      this.diapersService.create(childId, diaperData).subscribe({
-        next: () => {
-          this.isSubmitting.set(false);
-          this.toast.success('Diaper change recorded successfully');
-          this.router.navigate(['/children', childId, 'diapers']);
-        },
-        error: (err: Error) => {
-          this.isSubmitting.set(false);
-          this.error.set(err.message);
-          this.toast.error(err.message);
-        },
-      });
-    }
   }
 
-  onCancel() {
-    const childId = this.childId();
-    if (childId) {
-      this.router.navigate(['/children', childId, 'diapers']);
-    }
+  protected patchFormWithResource(resource: DiaperChange) {
+    const localDate = this.convertUtcToLocal(resource.changed_at);
+    this.form.patchValue({
+      change_type: resource.change_type,
+      changed_at: this.formatForInput(localDate),
+      notes: resource.notes || '',
+    });
   }
 }
