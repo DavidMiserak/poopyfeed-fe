@@ -15,6 +15,7 @@ import {
 import { Router, RouterLink } from '@angular/router';
 import { AccountService } from '../../services/account.service';
 import { AuthService } from '../../services/auth.service';
+import { ToastService } from '../../services/toast.service';
 import { TIMEZONES } from '../timezones';
 
 @Component({
@@ -27,6 +28,7 @@ export class AccountSettings implements OnInit {
   private accountService = inject(AccountService);
   private authService = inject(AuthService);
   private router = inject(Router);
+  private toast = inject(ToastService);
 
   timezones = TIMEZONES;
   isLoading = signal(true);
@@ -111,10 +113,12 @@ export class AccountSettings implements OnInit {
         next: () => {
           this.profileSubmitting.set(false);
           this.profileSuccess.set('Profile updated successfully.');
+          this.toast.success('Profile updated successfully');
         },
         error: (err: Error) => {
           this.profileSubmitting.set(false);
           this.profileError.set(err.message);
+          this.toast.error(err.message);
         },
       });
   }
@@ -134,10 +138,12 @@ export class AccountSettings implements OnInit {
         next: () => {
           this.timezoneSubmitting.set(false);
           this.timezoneSuccess.set('Timezone updated successfully.');
+          this.toast.success('Timezone updated successfully');
         },
         error: (err: Error) => {
           this.timezoneSubmitting.set(false);
           this.timezoneError.set(err.message);
+          this.toast.error(err.message);
         },
       });
   }
@@ -169,10 +175,12 @@ export class AccountSettings implements OnInit {
           this.passwordSubmitting.set(false);
           this.passwordSuccess.set('Password changed successfully.');
           this.passwordForm.reset();
+          this.toast.success('Password changed successfully');
         },
         error: (err: Error) => {
           this.passwordSubmitting.set(false);
           this.passwordError.set(err.message);
+          this.toast.error(err.message);
         },
       });
   }
@@ -189,11 +197,13 @@ export class AccountSettings implements OnInit {
       })
       .subscribe({
         next: () => {
+          this.toast.success('Account deleted successfully');
           this.authService.clearAuthAndRedirect('/');
         },
         error: (err: Error) => {
           this.deleteSubmitting.set(false);
           this.deleteError.set(err.message);
+          this.toast.error(err.message);
         },
       });
   }

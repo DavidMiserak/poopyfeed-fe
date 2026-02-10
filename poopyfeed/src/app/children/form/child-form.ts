@@ -15,6 +15,7 @@ import {
 } from '@angular/forms';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { ChildrenService } from '../../services/children.service';
+import { ToastService } from '../../services/toast.service';
 import { Child, ChildCreate } from '../../models/child.model';
 
 @Component({
@@ -28,6 +29,7 @@ export class ChildForm implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private childrenService = inject(ChildrenService);
+  private toast = inject(ToastService);
 
   childId = signal<number | null>(null);
   isEdit = computed(() => this.childId() !== null);
@@ -92,11 +94,14 @@ export class ChildForm implements OnInit {
     operation.subscribe({
       next: () => {
         this.isSubmitting.set(false);
+        const actionName = this.isEdit() ? 'updated' : 'created';
+        this.toast.success(`Child ${actionName} successfully`);
         this.router.navigate(['/children']);
       },
       error: (err: Error) => {
         this.isSubmitting.set(false);
         this.error.set(err.message);
+        this.toast.error(err.message);
       },
     });
   }

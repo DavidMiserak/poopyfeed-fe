@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-signup',
@@ -13,6 +14,7 @@ import { AuthService } from '../../services/auth.service';
 export class Signup {
   private router = inject(Router);
   private authService = inject(AuthService);
+  private toast = inject(ToastService);
 
   signupForm = new FormGroup({
     name: new FormControl('', [Validators.required, Validators.minLength(2)]),
@@ -51,11 +53,13 @@ export class Signup {
       .subscribe({
         next: () => {
           this.isSubmitting.set(false);
+          this.toast.success('Account created successfully');
           this.router.navigate(['/children']);
         },
         error: (err: Error) => {
           this.isSubmitting.set(false);
           this.error.set(err.message);
+          this.toast.error(err.message);
         },
       });
   }

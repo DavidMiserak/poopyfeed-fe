@@ -17,6 +17,7 @@ import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { DiapersService } from '../../../services/diapers.service';
 import { ChildrenService } from '../../../services/children.service';
 import { DateTimeService } from '../../../services/datetime.service';
+import { ToastService } from '../../../services/toast.service';
 import {
   DiaperChange,
   DiaperChangeCreate,
@@ -37,6 +38,7 @@ export class DiaperForm implements OnInit {
   private diapersService = inject(DiapersService);
   private childrenService = inject(ChildrenService);
   private datetimeService = inject(DateTimeService);
+  private toast = inject(ToastService);
 
   childId = signal<number | null>(null);
   diaperId = signal<number | null>(null);
@@ -142,22 +144,26 @@ export class DiaperForm implements OnInit {
         .subscribe({
           next: () => {
             this.isSubmitting.set(false);
+            this.toast.success('Diaper change updated successfully');
             this.router.navigate(['/children', childId, 'diapers']);
           },
           error: (err: Error) => {
             this.isSubmitting.set(false);
             this.error.set(err.message);
+            this.toast.error(err.message);
           },
         });
     } else {
       this.diapersService.create(childId, diaperData).subscribe({
         next: () => {
           this.isSubmitting.set(false);
+          this.toast.success('Diaper change recorded successfully');
           this.router.navigate(['/children', childId, 'diapers']);
         },
         error: (err: Error) => {
           this.isSubmitting.set(false);
           this.error.set(err.message);
+          this.toast.error(err.message);
         },
       });
     }

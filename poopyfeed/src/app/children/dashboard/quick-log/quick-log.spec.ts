@@ -4,6 +4,7 @@ import { QuickLog } from './quick-log';
 import { NapsService } from '../../../services/naps.service';
 import { DiapersService } from '../../../services/diapers.service';
 import { DateTimeService } from '../../../services/datetime.service';
+import { ToastService } from '../../../services/toast.service';
 
 describe('QuickLog', () => {
   let component: QuickLog;
@@ -11,6 +12,7 @@ describe('QuickLog', () => {
   let napsService: NapsService;
   let diapersService: DiapersService;
   let dateTimeService: DateTimeService;
+  let toastService: ToastService;
 
   beforeEach(async () => {
     const mockNapsService = {
@@ -22,6 +24,10 @@ describe('QuickLog', () => {
     const mockDateTimeService = {
       toUTC: vi.fn(),
     };
+    const mockToastService = {
+      success: vi.fn(),
+      error: vi.fn(),
+    };
 
     await TestBed.configureTestingModule({
       imports: [QuickLog],
@@ -29,6 +35,7 @@ describe('QuickLog', () => {
         { provide: NapsService, useValue: mockNapsService },
         { provide: DiapersService, useValue: mockDiapersService },
         { provide: DateTimeService, useValue: mockDateTimeService },
+        { provide: ToastService, useValue: mockToastService },
       ],
     }).compileComponents();
 
@@ -37,6 +44,7 @@ describe('QuickLog', () => {
     napsService = TestBed.inject(NapsService);
     diapersService = TestBed.inject(DiapersService);
     dateTimeService = TestBed.inject(DateTimeService);
+    toastService = TestBed.inject(ToastService);
   });
 
   it('should create', () => {
@@ -66,6 +74,18 @@ describe('QuickLog', () => {
       // Subscription callbacks execute synchronously for of()
       expect(component.isLoggingNap()).toBe(false);
       expect(quickLoggedSpy).toHaveBeenCalled();
+      expect(toastService.success).toHaveBeenCalledWith('Nap recorded successfully');
+    });
+
+    it('should show success toast on successful nap log', () => {
+      const mockDate = new Date('2026-02-10T10:30:00Z');
+      const mockNap = { id: 123, child: 1, napped_at: mockDate.toISOString(), created_at: mockDate.toISOString(), updated_at: mockDate.toISOString() };
+      vi.mocked(dateTimeService.toUTC).mockReturnValue(mockDate.toISOString());
+      vi.mocked(napsService.create).mockReturnValue(of(mockNap));
+
+      component.quickLogNap();
+
+      expect(toastService.success).toHaveBeenCalledWith('Nap recorded successfully');
     });
 
     it('should handle errors from nap service', () => {
@@ -78,7 +98,7 @@ describe('QuickLog', () => {
 
       // Error callback executes synchronously for throwError()
       expect(component.isLoggingNap()).toBe(false);
-      expect(component.napError()).toBe('Server error');
+      expect(toastService.error).toHaveBeenCalledWith('Server error');
     });
 
     it('should not log nap when canEdit is false', () => {
@@ -100,87 +120,20 @@ describe('QuickLog', () => {
       expect(napsService.create).not.toHaveBeenCalled();
     });
 
-    it('should show success state and auto-revert after 1.5 seconds', () => {
-      vi.useFakeTimers();
+    it('should set isLoggingNap to true while logging', () => {
       const mockDate = new Date('2026-02-10T10:30:00Z');
       const mockNap = { id: 123, child: 1, napped_at: mockDate.toISOString(), created_at: mockDate.toISOString(), updated_at: mockDate.toISOString() };
       vi.mocked(dateTimeService.toUTC).mockReturnValue(mockDate.toISOString());
-      vi.mocked(napsService.create).mockReturnValue(of(mockNap));
+      let capturedIsLogging = false;
+
+      vi.mocked(napsService.create).mockImplementation(() => {
+        capturedIsLogging = component.isLoggingNap();
+        return of(mockNap);
+      });
 
       component.quickLogNap();
-
-      // After successful log, success signal should be true
-      expect(component.napSuccess()).toBe(true);
+      expect(capturedIsLogging).toBe(true);
       expect(component.isLoggingNap()).toBe(false);
-
-      // Advance timers by 1.5 seconds
-      vi.advanceTimersByTime(1500);
-
-      // Success should revert to false
-      expect(component.napSuccess()).toBe(false);
-
-      vi.useRealTimers();
-    });
-
-    it('should clear nap success exactly after 1500ms (not 1499ms)', () => {
-      vi.useFakeTimers();
-      const mockDate = new Date('2026-02-10T10:30:00Z');
-      const mockNap = { id: 123, child: 1, napped_at: mockDate.toISOString(), created_at: mockDate.toISOString(), updated_at: mockDate.toISOString() };
-      vi.mocked(dateTimeService.toUTC).mockReturnValue(mockDate.toISOString());
-      vi.mocked(napsService.create).mockReturnValue(of(mockNap));
-
-      component.quickLogNap();
-      expect(component.napSuccess()).toBe(true);
-
-      // Advance 1499ms - should still be true
-      vi.advanceTimersByTime(1499);
-      expect(component.napSuccess()).toBe(true);
-
-      // Advance 1 more ms - should be false
-      vi.advanceTimersByTime(1);
-      expect(component.napSuccess()).toBe(false);
-
-      vi.useRealTimers();
-    });
-
-    it('should auto-clear error after 2 seconds', () => {
-      vi.useFakeTimers();
-      vi.mocked(dateTimeService.toUTC).mockReturnValue(new Date().toISOString());
-      vi.mocked(napsService.create).mockReturnValue(
-        throwError(() => new Error('Server error'))
-      );
-
-      component.quickLogNap();
-
-      expect(component.napError()).toBe('Server error');
-      expect(component.isLoggingNap()).toBe(false);
-
-      vi.advanceTimersByTime(2000);
-
-      expect(component.napError()).toBe(null);
-
-      vi.useRealTimers();
-    });
-
-    it('should clear nap error exactly after 2000ms (not 1999ms)', () => {
-      vi.useFakeTimers();
-      vi.mocked(dateTimeService.toUTC).mockReturnValue(new Date().toISOString());
-      vi.mocked(napsService.create).mockReturnValue(
-        throwError(() => new Error('Server error'))
-      );
-
-      component.quickLogNap();
-      expect(component.napError()).toBe('Server error');
-
-      // Advance 1999ms - should still have error
-      vi.advanceTimersByTime(1999);
-      expect(component.napError()).toBe('Server error');
-
-      // Advance 1 more ms - should be null
-      vi.advanceTimersByTime(1);
-      expect(component.napError()).toBe(null);
-
-      vi.useRealTimers();
     });
   });
 
@@ -208,6 +161,18 @@ describe('QuickLog', () => {
       // Subscription callbacks execute synchronously for of()
       expect(component.isLoggingWetDiaper()).toBe(false);
       expect(quickLoggedSpy).toHaveBeenCalled();
+      expect(toastService.success).toHaveBeenCalledWith('Wet diaper recorded successfully');
+    });
+
+    it('should show success toast on successful wet diaper log', () => {
+      const mockDate = new Date('2026-02-10T10:30:00Z');
+      const mockDiaper = { id: 123, child: 1, change_type: 'wet' as const, changed_at: mockDate.toISOString(), created_at: mockDate.toISOString(), updated_at: mockDate.toISOString() };
+      vi.mocked(dateTimeService.toUTC).mockReturnValue(mockDate.toISOString());
+      vi.mocked(diapersService.create).mockReturnValue(of(mockDiaper));
+
+      component.quickLogWetDiaper();
+
+      expect(toastService.success).toHaveBeenCalledWith('Wet diaper recorded successfully');
     });
 
     it('should handle errors from diaper service', () => {
@@ -220,7 +185,7 @@ describe('QuickLog', () => {
 
       // Error callback executes synchronously for throwError()
       expect(component.isLoggingWetDiaper()).toBe(false);
-      expect(component.wetDiaperError()).toBe('Diaper server error');
+      expect(toastService.error).toHaveBeenCalledWith('Diaper server error');
     });
 
     it('should not log wet diaper when canEdit is false', () => {
@@ -242,84 +207,20 @@ describe('QuickLog', () => {
       expect(diapersService.create).not.toHaveBeenCalled();
     });
 
-    it('should show success state and auto-revert after 1.5 seconds for wet diaper', () => {
-      vi.useFakeTimers();
+    it('should set isLoggingWetDiaper to true while logging', () => {
       const mockDate = new Date('2026-02-10T10:30:00Z');
       const mockDiaper = { id: 123, child: 1, change_type: 'wet' as const, changed_at: mockDate.toISOString(), created_at: mockDate.toISOString(), updated_at: mockDate.toISOString() };
       vi.mocked(dateTimeService.toUTC).mockReturnValue(mockDate.toISOString());
-      vi.mocked(diapersService.create).mockReturnValue(of(mockDiaper));
+      let capturedIsLogging = false;
+
+      vi.mocked(diapersService.create).mockImplementation(() => {
+        capturedIsLogging = component.isLoggingWetDiaper();
+        return of(mockDiaper);
+      });
 
       component.quickLogWetDiaper();
-
-      expect(component.wetDiaperSuccess()).toBe(true);
+      expect(capturedIsLogging).toBe(true);
       expect(component.isLoggingWetDiaper()).toBe(false);
-
-      vi.advanceTimersByTime(1500);
-
-      expect(component.wetDiaperSuccess()).toBe(false);
-
-      vi.useRealTimers();
-    });
-
-    it('should clear wet diaper success exactly after 1500ms (not 1499ms)', () => {
-      vi.useFakeTimers();
-      const mockDate = new Date('2026-02-10T10:30:00Z');
-      const mockDiaper = { id: 123, child: 1, change_type: 'wet' as const, changed_at: mockDate.toISOString(), created_at: mockDate.toISOString(), updated_at: mockDate.toISOString() };
-      vi.mocked(dateTimeService.toUTC).mockReturnValue(mockDate.toISOString());
-      vi.mocked(diapersService.create).mockReturnValue(of(mockDiaper));
-
-      component.quickLogWetDiaper();
-      expect(component.wetDiaperSuccess()).toBe(true);
-
-      // Advance 1499ms - should still be true
-      vi.advanceTimersByTime(1499);
-      expect(component.wetDiaperSuccess()).toBe(true);
-
-      // Advance 1 more ms - should be false
-      vi.advanceTimersByTime(1);
-      expect(component.wetDiaperSuccess()).toBe(false);
-
-      vi.useRealTimers();
-    });
-
-    it('should auto-clear wet diaper error after 2 seconds', () => {
-      vi.useFakeTimers();
-      vi.mocked(dateTimeService.toUTC).mockReturnValue(new Date().toISOString());
-      vi.mocked(diapersService.create).mockReturnValue(
-        throwError(() => new Error('Diaper server error'))
-      );
-
-      component.quickLogWetDiaper();
-
-      expect(component.wetDiaperError()).toBe('Diaper server error');
-      expect(component.isLoggingWetDiaper()).toBe(false);
-
-      vi.advanceTimersByTime(2000);
-
-      expect(component.wetDiaperError()).toBe(null);
-
-      vi.useRealTimers();
-    });
-
-    it('should clear wet diaper error exactly after 2000ms (not 1999ms)', () => {
-      vi.useFakeTimers();
-      vi.mocked(dateTimeService.toUTC).mockReturnValue(new Date().toISOString());
-      vi.mocked(diapersService.create).mockReturnValue(
-        throwError(() => new Error('Diaper server error'))
-      );
-
-      component.quickLogWetDiaper();
-      expect(component.wetDiaperError()).toBe('Diaper server error');
-
-      // Advance 1999ms - should still have error
-      vi.advanceTimersByTime(1999);
-      expect(component.wetDiaperError()).toBe('Diaper server error');
-
-      // Advance 1 more ms - should be null
-      vi.advanceTimersByTime(1);
-      expect(component.wetDiaperError()).toBe(null);
-
-      vi.useRealTimers();
     });
   });
 
@@ -346,6 +247,18 @@ describe('QuickLog', () => {
 
       expect(component.isLoggingDirtyDiaper()).toBe(false);
       expect(quickLoggedSpy).toHaveBeenCalled();
+      expect(toastService.success).toHaveBeenCalledWith('Dirty diaper recorded successfully');
+    });
+
+    it('should show success toast on successful dirty diaper log', () => {
+      const mockDate = new Date('2026-02-10T10:30:00Z');
+      const mockDiaper = { id: 123, child: 1, change_type: 'dirty' as const, changed_at: mockDate.toISOString(), created_at: mockDate.toISOString(), updated_at: mockDate.toISOString() };
+      vi.mocked(dateTimeService.toUTC).mockReturnValue(mockDate.toISOString());
+      vi.mocked(diapersService.create).mockReturnValue(of(mockDiaper));
+
+      component.quickLogDirtyDiaper();
+
+      expect(toastService.success).toHaveBeenCalledWith('Dirty diaper recorded successfully');
     });
 
     it('should handle errors from diaper service for dirty diaper', () => {
@@ -357,7 +270,7 @@ describe('QuickLog', () => {
       component.quickLogDirtyDiaper();
 
       expect(component.isLoggingDirtyDiaper()).toBe(false);
-      expect(component.dirtyDiaperError()).toBe('Diaper server error');
+      expect(toastService.error).toHaveBeenCalledWith('Diaper server error');
     });
 
     it('should not log dirty diaper when canEdit is false', () => {
@@ -367,84 +280,20 @@ describe('QuickLog', () => {
       expect(component.isLoggingDirtyDiaper()).toBe(false);
     });
 
-    it('should show success state and auto-revert after 1.5 seconds for dirty diaper', () => {
-      vi.useFakeTimers();
+    it('should set isLoggingDirtyDiaper to true while logging', () => {
       const mockDate = new Date('2026-02-10T10:30:00Z');
       const mockDiaper = { id: 123, child: 1, change_type: 'dirty' as const, changed_at: mockDate.toISOString(), created_at: mockDate.toISOString(), updated_at: mockDate.toISOString() };
       vi.mocked(dateTimeService.toUTC).mockReturnValue(mockDate.toISOString());
-      vi.mocked(diapersService.create).mockReturnValue(of(mockDiaper));
+      let capturedIsLogging = false;
+
+      vi.mocked(diapersService.create).mockImplementation(() => {
+        capturedIsLogging = component.isLoggingDirtyDiaper();
+        return of(mockDiaper);
+      });
 
       component.quickLogDirtyDiaper();
-
-      expect(component.dirtyDiaperSuccess()).toBe(true);
+      expect(capturedIsLogging).toBe(true);
       expect(component.isLoggingDirtyDiaper()).toBe(false);
-
-      vi.advanceTimersByTime(1500);
-
-      expect(component.dirtyDiaperSuccess()).toBe(false);
-
-      vi.useRealTimers();
-    });
-
-    it('should clear dirty diaper success exactly after 1500ms (not 1499ms)', () => {
-      vi.useFakeTimers();
-      const mockDate = new Date('2026-02-10T10:30:00Z');
-      const mockDiaper = { id: 123, child: 1, change_type: 'dirty' as const, changed_at: mockDate.toISOString(), created_at: mockDate.toISOString(), updated_at: mockDate.toISOString() };
-      vi.mocked(dateTimeService.toUTC).mockReturnValue(mockDate.toISOString());
-      vi.mocked(diapersService.create).mockReturnValue(of(mockDiaper));
-
-      component.quickLogDirtyDiaper();
-      expect(component.dirtyDiaperSuccess()).toBe(true);
-
-      // Advance 1499ms - should still be true
-      vi.advanceTimersByTime(1499);
-      expect(component.dirtyDiaperSuccess()).toBe(true);
-
-      // Advance 1 more ms - should be false
-      vi.advanceTimersByTime(1);
-      expect(component.dirtyDiaperSuccess()).toBe(false);
-
-      vi.useRealTimers();
-    });
-
-    it('should auto-clear dirty diaper error after 2 seconds', () => {
-      vi.useFakeTimers();
-      vi.mocked(dateTimeService.toUTC).mockReturnValue(new Date().toISOString());
-      vi.mocked(diapersService.create).mockReturnValue(
-        throwError(() => new Error('Diaper server error'))
-      );
-
-      component.quickLogDirtyDiaper();
-
-      expect(component.dirtyDiaperError()).toBe('Diaper server error');
-      expect(component.isLoggingDirtyDiaper()).toBe(false);
-
-      vi.advanceTimersByTime(2000);
-
-      expect(component.dirtyDiaperError()).toBe(null);
-
-      vi.useRealTimers();
-    });
-
-    it('should clear dirty diaper error exactly after 2000ms (not 1999ms)', () => {
-      vi.useFakeTimers();
-      vi.mocked(dateTimeService.toUTC).mockReturnValue(new Date().toISOString());
-      vi.mocked(diapersService.create).mockReturnValue(
-        throwError(() => new Error('Diaper server error'))
-      );
-
-      component.quickLogDirtyDiaper();
-      expect(component.dirtyDiaperError()).toBe('Diaper server error');
-
-      // Advance 1999ms - should still have error
-      vi.advanceTimersByTime(1999);
-      expect(component.dirtyDiaperError()).toBe('Diaper server error');
-
-      // Advance 1 more ms - should be null
-      vi.advanceTimersByTime(1);
-      expect(component.dirtyDiaperError()).toBe(null);
-
-      vi.useRealTimers();
     });
   });
 
@@ -471,6 +320,18 @@ describe('QuickLog', () => {
 
       expect(component.isLoggingBothDiaper()).toBe(false);
       expect(quickLoggedSpy).toHaveBeenCalled();
+      expect(toastService.success).toHaveBeenCalledWith('Wet and dirty diaper recorded successfully');
+    });
+
+    it('should show success toast on successful both diaper log', () => {
+      const mockDate = new Date('2026-02-10T10:30:00Z');
+      const mockDiaper = { id: 123, child: 1, change_type: 'both' as const, changed_at: mockDate.toISOString(), created_at: mockDate.toISOString(), updated_at: mockDate.toISOString() };
+      vi.mocked(dateTimeService.toUTC).mockReturnValue(mockDate.toISOString());
+      vi.mocked(diapersService.create).mockReturnValue(of(mockDiaper));
+
+      component.quickLogBothDiaper();
+
+      expect(toastService.success).toHaveBeenCalledWith('Wet and dirty diaper recorded successfully');
     });
 
     it('should handle errors from diaper service for both diaper', () => {
@@ -482,7 +343,7 @@ describe('QuickLog', () => {
       component.quickLogBothDiaper();
 
       expect(component.isLoggingBothDiaper()).toBe(false);
-      expect(component.bothDiaperError()).toBe('Diaper server error');
+      expect(toastService.error).toHaveBeenCalledWith('Diaper server error');
     });
 
     it('should not log both diaper when canEdit is false', () => {
@@ -492,84 +353,20 @@ describe('QuickLog', () => {
       expect(component.isLoggingBothDiaper()).toBe(false);
     });
 
-    it('should show success state and auto-revert after 1.5 seconds for both diaper', () => {
-      vi.useFakeTimers();
+    it('should set isLoggingBothDiaper to true while logging', () => {
       const mockDate = new Date('2026-02-10T10:30:00Z');
       const mockDiaper = { id: 123, child: 1, change_type: 'both' as const, changed_at: mockDate.toISOString(), created_at: mockDate.toISOString(), updated_at: mockDate.toISOString() };
       vi.mocked(dateTimeService.toUTC).mockReturnValue(mockDate.toISOString());
-      vi.mocked(diapersService.create).mockReturnValue(of(mockDiaper));
+      let capturedIsLogging = false;
+
+      vi.mocked(diapersService.create).mockImplementation(() => {
+        capturedIsLogging = component.isLoggingBothDiaper();
+        return of(mockDiaper);
+      });
 
       component.quickLogBothDiaper();
-
-      expect(component.bothDiaperSuccess()).toBe(true);
+      expect(capturedIsLogging).toBe(true);
       expect(component.isLoggingBothDiaper()).toBe(false);
-
-      vi.advanceTimersByTime(1500);
-
-      expect(component.bothDiaperSuccess()).toBe(false);
-
-      vi.useRealTimers();
-    });
-
-    it('should clear both diaper success exactly after 1500ms (not 1499ms)', () => {
-      vi.useFakeTimers();
-      const mockDate = new Date('2026-02-10T10:30:00Z');
-      const mockDiaper = { id: 123, child: 1, change_type: 'both' as const, changed_at: mockDate.toISOString(), created_at: mockDate.toISOString(), updated_at: mockDate.toISOString() };
-      vi.mocked(dateTimeService.toUTC).mockReturnValue(mockDate.toISOString());
-      vi.mocked(diapersService.create).mockReturnValue(of(mockDiaper));
-
-      component.quickLogBothDiaper();
-      expect(component.bothDiaperSuccess()).toBe(true);
-
-      // Advance 1499ms - should still be true
-      vi.advanceTimersByTime(1499);
-      expect(component.bothDiaperSuccess()).toBe(true);
-
-      // Advance 1 more ms - should be false
-      vi.advanceTimersByTime(1);
-      expect(component.bothDiaperSuccess()).toBe(false);
-
-      vi.useRealTimers();
-    });
-
-    it('should auto-clear both diaper error after 2 seconds', () => {
-      vi.useFakeTimers();
-      vi.mocked(dateTimeService.toUTC).mockReturnValue(new Date().toISOString());
-      vi.mocked(diapersService.create).mockReturnValue(
-        throwError(() => new Error('Diaper server error'))
-      );
-
-      component.quickLogBothDiaper();
-
-      expect(component.bothDiaperError()).toBe('Diaper server error');
-      expect(component.isLoggingBothDiaper()).toBe(false);
-
-      vi.advanceTimersByTime(2000);
-
-      expect(component.bothDiaperError()).toBe(null);
-
-      vi.useRealTimers();
-    });
-
-    it('should clear both diaper error exactly after 2000ms (not 1999ms)', () => {
-      vi.useFakeTimers();
-      vi.mocked(dateTimeService.toUTC).mockReturnValue(new Date().toISOString());
-      vi.mocked(diapersService.create).mockReturnValue(
-        throwError(() => new Error('Diaper server error'))
-      );
-
-      component.quickLogBothDiaper();
-      expect(component.bothDiaperError()).toBe('Diaper server error');
-
-      // Advance 1999ms - should still have error
-      vi.advanceTimersByTime(1999);
-      expect(component.bothDiaperError()).toBe('Diaper server error');
-
-      // Advance 1 more ms - should be null
-      vi.advanceTimersByTime(1);
-      expect(component.bothDiaperError()).toBe(null);
-
-      vi.useRealTimers();
     });
   });
 
@@ -605,15 +402,6 @@ describe('QuickLog', () => {
 
       const button = fixture.nativeElement.querySelector('button');
       expect(button.disabled).toBe(true);
-    });
-
-    it('should show error message when napError is set', () => {
-      component.napError.set('Test error');
-      fixture.detectChanges();
-
-      const errorElement = fixture.nativeElement.querySelector('.grid > div:first-child p[role="alert"]');
-      expect(errorElement).toBeTruthy();
-      expect(errorElement.textContent).toContain('Test error');
     });
 
     it('should show wet diaper emoji when not loading', () => {
@@ -679,86 +467,6 @@ describe('QuickLog', () => {
       expect(bothButton.disabled).toBe(true);
     });
 
-    it('should show error message when wetDiaperError is set', () => {
-      component.wetDiaperError.set('Wet diaper error');
-      fixture.detectChanges();
-
-      const diaperGroup = fixture.nativeElement.querySelector('.border-2.border-orange-400\\/20');
-      expect(diaperGroup).toBeTruthy();
-      const errorElement = diaperGroup.querySelector('.grid > div:first-child p[role="alert"]');
-      expect(errorElement).toBeTruthy();
-      expect(errorElement.textContent).toContain('Wet diaper error');
-    });
-
-    it('should show error message when dirtyDiaperError is set', () => {
-      component.dirtyDiaperError.set('Dirty diaper error');
-      fixture.detectChanges();
-
-      const diaperGroup = fixture.nativeElement.querySelector('.border-2.border-orange-400\\/20');
-      expect(diaperGroup).toBeTruthy();
-      const errorElement = diaperGroup.querySelector('.grid > div:nth-child(2) p[role="alert"]');
-      expect(errorElement).toBeTruthy();
-      expect(errorElement.textContent).toContain('Dirty diaper error');
-    });
-
-    it('should show error message when bothDiaperError is set', () => {
-      component.bothDiaperError.set('Both diaper error');
-      fixture.detectChanges();
-
-      const diaperGroup = fixture.nativeElement.querySelector('.border-2.border-orange-400\\/20');
-      expect(diaperGroup).toBeTruthy();
-      const errorElement = diaperGroup.querySelector('.grid > div:nth-child(3) p[role="alert"]');
-      expect(errorElement).toBeTruthy();
-      expect(errorElement.textContent).toContain('Both diaper error');
-    });
-
-    it('should show checkmark and disable nap button when nap success is true', () => {
-      component.napSuccess.set(true);
-      fixture.detectChanges();
-
-      const button = fixture.nativeElement.querySelector('button');
-      expect(button.disabled).toBe(true);
-      const checkmark = button.querySelector('span.text-green-500');
-      expect(checkmark).toBeTruthy();
-      expect(checkmark.textContent).toBe('✅');
-    });
-
-    it('should show checkmark and disable wet diaper button when wet diaper success is true', () => {
-      component.wetDiaperSuccess.set(true);
-      fixture.detectChanges();
-
-      const buttons = fixture.nativeElement.querySelectorAll('button');
-      const wetButton = buttons[1];
-      expect(wetButton.disabled).toBe(true);
-      const checkmark = wetButton.querySelector('span.text-green-500');
-      expect(checkmark).toBeTruthy();
-      expect(checkmark.textContent).toBe('✅');
-    });
-
-    it('should show checkmark and disable dirty diaper button when dirty diaper success is true', () => {
-      component.dirtyDiaperSuccess.set(true);
-      fixture.detectChanges();
-
-      const buttons = fixture.nativeElement.querySelectorAll('button');
-      const dirtyButton = buttons[2];
-      expect(dirtyButton.disabled).toBe(true);
-      const checkmark = dirtyButton.querySelector('span.text-green-500');
-      expect(checkmark).toBeTruthy();
-      expect(checkmark.textContent).toBe('✅');
-    });
-
-    it('should show checkmark and disable both diaper button when both diaper success is true', () => {
-      component.bothDiaperSuccess.set(true);
-      fixture.detectChanges();
-
-      const buttons = fixture.nativeElement.querySelectorAll('button');
-      const bothButton = buttons[3];
-      expect(bothButton.disabled).toBe(true);
-      const checkmark = bothButton.querySelector('span.text-green-500');
-      expect(checkmark).toBeTruthy();
-      expect(checkmark.textContent).toBe('✅');
-    });
-
     it('should disable all buttons when canEdit is false', () => {
       fixture.componentRef.setInput('canEdit', false);
       fixture.detectChanges();
@@ -809,71 +517,6 @@ describe('QuickLog', () => {
       expect(bothButton.getAttribute('aria-busy')).toBe('true');
     });
 
-    it('should have role="alert" on nap error messages', () => {
-      component.napError.set('Test error');
-      fixture.detectChanges();
-      const errorElement = fixture.nativeElement.querySelector('.grid > div:first-child p[role="alert"]');
-      expect(errorElement).toBeTruthy();
-      expect(errorElement.getAttribute('role')).toBe('alert');
-    });
-
-    it('should have role="alert" on diaper error messages', () => {
-      component.wetDiaperError.set('Wet diaper error');
-      fixture.detectChanges();
-      const diaperGroup = fixture.nativeElement.querySelector('.border-2.border-orange-400\\/20');
-      const errorElement = diaperGroup.querySelector('.grid > div:first-child p[role="alert"]');
-      expect(errorElement).toBeTruthy();
-      expect(errorElement.getAttribute('role')).toBe('alert');
-    });
-
-    // Visual prominence tests for checkmark
-    it('should show large green checkmark (text-4xl text-green-500) for nap success', () => {
-      component.napSuccess.set(true);
-      fixture.detectChanges();
-      const button = fixture.nativeElement.querySelector('button');
-      const checkmark = button.querySelector('span.text-green-500');
-      expect(checkmark).toBeTruthy();
-      expect(checkmark.classList.contains('text-4xl')).toBe(true);
-      expect(checkmark.classList.contains('text-green-500')).toBe(true);
-      expect(checkmark.textContent).toBe('✅');
-    });
-
-    it('should show medium green checkmark (text-3xl text-green-500) for wet diaper success', () => {
-      component.wetDiaperSuccess.set(true);
-      fixture.detectChanges();
-      const buttons = fixture.nativeElement.querySelectorAll('button');
-      const wetButton = buttons[1];
-      const checkmark = wetButton.querySelector('span.text-green-500');
-      expect(checkmark).toBeTruthy();
-      expect(checkmark.classList.contains('text-3xl')).toBe(true);
-      expect(checkmark.classList.contains('text-green-500')).toBe(true);
-      expect(checkmark.textContent).toBe('✅');
-    });
-
-    it('should show medium green checkmark (text-3xl text-green-500) for dirty diaper success', () => {
-      component.dirtyDiaperSuccess.set(true);
-      fixture.detectChanges();
-      const buttons = fixture.nativeElement.querySelectorAll('button');
-      const dirtyButton = buttons[2];
-      const checkmark = dirtyButton.querySelector('span.text-green-500');
-      expect(checkmark).toBeTruthy();
-      expect(checkmark.classList.contains('text-3xl')).toBe(true);
-      expect(checkmark.classList.contains('text-green-500')).toBe(true);
-      expect(checkmark.textContent).toBe('✅');
-    });
-
-    it('should show medium green checkmark (text-3xl text-green-500) for both diaper success', () => {
-      component.bothDiaperSuccess.set(true);
-      fixture.detectChanges();
-      const buttons = fixture.nativeElement.querySelectorAll('button');
-      const bothButton = buttons[3];
-      const checkmark = bothButton.querySelector('span.text-green-500');
-      expect(checkmark).toBeTruthy();
-      expect(checkmark.classList.contains('text-3xl')).toBe(true);
-      expect(checkmark.classList.contains('text-green-500')).toBe(true);
-      expect(checkmark.textContent).toBe('✅');
-    });
-
     // Loading spinner size tests
     it('should show large spinner (w-8 h-8) when loading nap', () => {
       component.isLoggingNap.set(true);
@@ -916,143 +559,6 @@ describe('QuickLog', () => {
       expect(spinner).toBeTruthy();
       expect(spinner.classList.contains('w-6')).toBe(true);
       expect(spinner.classList.contains('h-6')).toBe(true);
-    });
-
-    // Error message styling tests
-    it('should show red centered error message for nap errors', () => {
-      component.napError.set('Nap error');
-      fixture.detectChanges();
-      const errorElement = fixture.nativeElement.querySelector('.grid > div:first-child p');
-      expect(errorElement).toBeTruthy();
-      expect(errorElement.classList.contains('text-red-600')).toBe(true);
-      expect(errorElement.classList.contains('text-center')).toBe(true);
-      expect(errorElement.textContent).toBe('Nap error');
-    });
-
-    it('should show red centered error message for diaper errors', () => {
-      component.wetDiaperError.set('Diaper error');
-      fixture.detectChanges();
-      const diaperGroup = fixture.nativeElement.querySelector('.border-2.border-orange-400\\/20');
-      const errorElement = diaperGroup.querySelector('.grid > div:first-child p');
-      expect(errorElement).toBeTruthy();
-      expect(errorElement.classList.contains('text-red-600')).toBe(true);
-      expect(errorElement.classList.contains('text-center')).toBe(true);
-      expect(errorElement.textContent).toBe('Diaper error');
-    });
-
-    it('should show nap error with text-sm and mt-2', () => {
-      component.napError.set('Nap error');
-      fixture.detectChanges();
-      const errorElement = fixture.nativeElement.querySelector('.grid > div:first-child p');
-      expect(errorElement).toBeTruthy();
-      expect(errorElement.classList.contains('text-sm')).toBe(true);
-      expect(errorElement.classList.contains('mt-2')).toBe(true);
-    });
-
-    it('should show diaper error with text-xs and mt-1', () => {
-      component.wetDiaperError.set('Diaper error');
-      fixture.detectChanges();
-      const diaperGroup = fixture.nativeElement.querySelector('.border-2.border-orange-400\\/20');
-      const errorElement = diaperGroup.querySelector('.grid > div:first-child p');
-      expect(errorElement).toBeTruthy();
-      expect(errorElement.classList.contains('text-xs')).toBe(true);
-      expect(errorElement.classList.contains('mt-1')).toBe(true);
-    });
-
-    it('should show dirty diaper error with text-xs and mt-1', () => {
-      component.dirtyDiaperError.set('Dirty diaper error');
-      fixture.detectChanges();
-      const diaperGroup = fixture.nativeElement.querySelector('.border-2.border-orange-400\\/20');
-      const errorElement = diaperGroup.querySelector('.grid > div:nth-child(2) p');
-      expect(errorElement).toBeTruthy();
-      expect(errorElement.classList.contains('text-xs')).toBe(true);
-      expect(errorElement.classList.contains('mt-1')).toBe(true);
-    });
-
-    it('should show both diaper error with text-xs and mt-1', () => {
-      component.bothDiaperError.set('Both diaper error');
-      fixture.detectChanges();
-      const diaperGroup = fixture.nativeElement.querySelector('.border-2.border-orange-400\\/20');
-      const errorElement = diaperGroup.querySelector('.grid > div:nth-child(3) p');
-      expect(errorElement).toBeTruthy();
-      expect(errorElement.classList.contains('text-xs')).toBe(true);
-      expect(errorElement.classList.contains('mt-1')).toBe(true);
-    });
-  });
-
-  describe('cleanup', () => {
-    beforeEach(() => {
-      fixture.componentRef.setInput('childId', 1);
-      fixture.componentRef.setInput('canEdit', true);
-    });
-
-    it('should clear all timeouts on ngOnDestroy', () => {
-      vi.useFakeTimers();
-      const mockDate = new Date('2026-02-10T10:30:00Z');
-      vi.mocked(dateTimeService.toUTC).mockReturnValue(mockDate.toISOString());
-      vi.mocked(napsService.create).mockReturnValue(of({
-        id: 123, child: 1, napped_at: mockDate.toISOString(),
-        created_at: mockDate.toISOString(), updated_at: mockDate.toISOString()
-      }));
-      vi.mocked(diapersService.create).mockReturnValue(of({
-        id: 124, child: 1, change_type: 'wet' as const, changed_at: mockDate.toISOString(),
-        created_at: mockDate.toISOString(), updated_at: mockDate.toISOString()
-      }));
-
-      // Trigger a nap log to set success timeout
-      component.quickLogNap();
-      // Trigger a diaper log to set success timeout
-      component.quickLogWetDiaper();
-
-      // Spy on clearTimeout
-      const clearTimeoutSpy = vi.spyOn(globalThis, 'clearTimeout');
-
-      component.ngOnDestroy();
-
-      // Should have cleared at least 2 success timeouts
-      expect(clearTimeoutSpy).toHaveBeenCalledTimes(2);
-      vi.useRealTimers();
-    });
-
-    it('should clear previous success timeout when logging again before auto-revert', () => {
-      vi.useFakeTimers();
-      const mockDate = new Date('2026-02-10T10:30:00Z');
-      vi.mocked(dateTimeService.toUTC).mockReturnValue(mockDate.toISOString());
-      vi.mocked(napsService.create).mockReturnValue(of({
-        id: 123, child: 1, napped_at: mockDate.toISOString(),
-        created_at: mockDate.toISOString(), updated_at: mockDate.toISOString()
-      }));
-
-      // First log
-      component.quickLogNap();
-      expect(component.napSuccess()).toBe(true);
-
-      // Clear timeout spy
-      const clearTimeoutSpy = vi.spyOn(globalThis, 'clearTimeout');
-
-      // Second log while still in success state (button disabled, but we call method directly)
-      component.quickLogNap();
-
-      // Should have cleared previous success timeout
-      expect(clearTimeoutSpy).toHaveBeenCalled();
-      vi.useRealTimers();
-    });
-
-    it('should clear error timeouts on ngOnDestroy', () => {
-      vi.useFakeTimers();
-      vi.mocked(dateTimeService.toUTC).mockReturnValue(new Date().toISOString());
-      vi.mocked(napsService.create).mockReturnValue(
-        throwError(() => new Error('Server error'))
-      );
-
-      component.quickLogNap();
-      expect(component.napError()).toBe('Server error');
-
-      const clearTimeoutSpy = vi.spyOn(globalThis, 'clearTimeout');
-      component.ngOnDestroy();
-
-      expect(clearTimeoutSpy).toHaveBeenCalled();
-      vi.useRealTimers();
     });
   });
 });
