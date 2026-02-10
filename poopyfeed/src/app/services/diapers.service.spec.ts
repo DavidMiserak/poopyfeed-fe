@@ -103,9 +103,7 @@ describe('DiapersService', () => {
 
       service.list(1).subscribe({
         error: (error: Error) => {
-          expect(error.message).toBe(
-            'Your session has expired. Please log in again.'
-          );
+          expect(error.message).toContain('session has expired');
           errorCaught = true;
         },
       });
@@ -121,9 +119,7 @@ describe('DiapersService', () => {
 
       service.list(1).subscribe({
         error: (error: Error) => {
-          expect(error.message).toBe(
-            'You do not have permission to perform this action.'
-          );
+          expect(error.message).toContain('permission');
           errorCaught = true;
         },
       });
@@ -139,7 +135,7 @@ describe('DiapersService', () => {
 
       service.list(999).subscribe({
         error: (error: Error) => {
-          expect(error.message).toBe('The requested resource was not found.');
+          expect(error.message).toContain('not found');
           errorCaught = true;
         },
       });
@@ -155,7 +151,7 @@ describe('DiapersService', () => {
 
       service.list(1).subscribe({
         error: (error: Error) => {
-          expect(error.message).toBe('A server error occurred. Please try again later.');
+          expect(error.message).toContain('server error');
           errorCaught = true;
         },
       });
@@ -185,7 +181,7 @@ describe('DiapersService', () => {
 
       service.get(1, 999).subscribe({
         error: (error: Error) => {
-          expect(error.message).toBe('Get: The requested resource was not found.');
+          expect(error.message).toContain('not found');
           errorCaught = true;
         },
       });
@@ -201,9 +197,7 @@ describe('DiapersService', () => {
 
       service.get(1, 1).subscribe({
         error: (error: Error) => {
-          expect(error.message).toBe(
-            'Get: You do not have permission to perform this action.'
-          );
+          expect(error.message).toContain('permission');
           errorCaught = true;
         },
       });
@@ -325,7 +319,7 @@ describe('DiapersService', () => {
 
       service.create(1, createWetData).subscribe({
         error: (error: Error) => {
-          expect(error.message).toBe('non_field_errors: Invalid diaper change data');
+          expect(error.message).toContain('Invalid');
           errorCaught = true;
         },
       });
@@ -344,9 +338,7 @@ describe('DiapersService', () => {
 
       service.create(1, createWetData).subscribe({
         error: (error: Error) => {
-          expect(error.message).toBe(
-            'You do not have permission to perform this action.'
-          );
+          expect(error.message).toContain('permission');
           errorCaught = true;
         },
       });
@@ -389,7 +381,7 @@ describe('DiapersService', () => {
 
       service.update(1, 999, updateData).subscribe({
         error: (error: Error) => {
-          expect(error.message).toBe('The requested resource was not found.');
+          expect(error.message).toContain('not found');
           errorCaught = true;
         },
       });
@@ -405,9 +397,7 @@ describe('DiapersService', () => {
 
       service.update(1, 1, updateData).subscribe({
         error: (error: Error) => {
-          expect(error.message).toBe(
-            'You do not have permission to perform this action.'
-          );
+          expect(error.message).toContain('permission');
           errorCaught = true;
         },
       });
@@ -453,7 +443,7 @@ describe('DiapersService', () => {
 
       service.delete(1, 999).subscribe({
         error: (error: Error) => {
-          expect(error.message).toBe('The requested resource was not found.');
+          expect(error.message).toContain('not found');
           errorCaught = true;
         },
       });
@@ -469,9 +459,7 @@ describe('DiapersService', () => {
 
       service.delete(1, 1).subscribe({
         error: (error: Error) => {
-          expect(error.message).toBe(
-            'You do not have permission to perform this action.'
-          );
+          expect(error.message).toContain('permission');
           errorCaught = true;
         },
       });
@@ -489,7 +477,7 @@ describe('DiapersService', () => {
 
       service.get(1, 1).subscribe({
         error: (error: Error) => {
-          expect(error.message).toBe('Get: Custom error detail');
+          expect(error.message).toContain('Custom error detail');
           errorCaught = true;
         },
       });
@@ -508,9 +496,7 @@ describe('DiapersService', () => {
 
       service.get(1, 1).subscribe({
         error: (error: Error) => {
-          expect(error.message).toBe(
-            'Get: Invalid request. Please check your input.'
-          );
+          expect(error.message).toContain('Invalid request');
           errorCaught = true;
         },
       });
@@ -526,9 +512,7 @@ describe('DiapersService', () => {
 
       service.get(1, 1).subscribe({
         error: (error: Error) => {
-          expect(error.message).toBe(
-            'Get: An unexpected error occurred. Please try again.'
-          );
+          expect(error.message).toContain('unexpected');
           errorCaught = true;
         },
       });

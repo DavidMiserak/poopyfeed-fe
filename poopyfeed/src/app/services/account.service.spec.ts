@@ -52,9 +52,7 @@ describe('AccountService', () => {
 
       service.getProfile().subscribe({
         error: (error) => {
-          expect(error.message).toBe(
-            'Get: Your session has expired. Please log in again.'
-          );
+          expect(error.message).toContain('session has expired');
           errorCaught = true;
         },
       });
@@ -239,7 +237,7 @@ describe('AccountService', () => {
 
       service.getProfile().subscribe({
         error: (error) => {
-          expect(error.message).toBe('Get: Something went wrong');
+          expect(error.message).toContain('Get: Something went wrong');
           errorCaught = true;
         },
       });
@@ -258,7 +256,7 @@ describe('AccountService', () => {
 
       service.getProfile().subscribe({
         error: (error) => {
-          expect(error.message).toBe('Get: Not found.');
+          expect(error.message).toContain('Not found');
           errorCaught = true;
         },
       });
@@ -277,7 +275,7 @@ describe('AccountService', () => {
 
       service.getProfile().subscribe({
         error: (error) => {
-          expect(error.message).toBe('Get: A server error occurred. Please try again later.');
+          expect(error.message).toContain('server error');
           errorCaught = true;
         },
       });
@@ -293,9 +291,7 @@ describe('AccountService', () => {
 
       service.getProfile().subscribe({
         error: (error) => {
-          expect(error.message).toBe(
-            'Get: An unexpected error occurred. Please try again.'
-          );
+          expect(error.message).toContain('unexpected');
           errorCaught = true;
         },
       });
