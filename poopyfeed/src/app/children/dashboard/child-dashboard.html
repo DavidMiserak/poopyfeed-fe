@@ -88,10 +88,22 @@
           </div>
         </div>
 
-        <!-- Quick Actions -->
+        <!-- Quick Log -->
+        <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-6 border-2 border-amber-400/20">
+          <h2 class="font-['Fredoka',sans-serif] text-2xl font-bold text-slate-900 mb-4">
+            Quick Log
+          </h2>
+          <app-quick-log
+            [childId]="childId()!"
+            [canEdit]="canEdit()"
+            (quickLogged)="onQuickLogged()"
+          />
+        </div>
+
+        <!-- Actions -->
         <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-6 border-2 border-orange-400/20">
           <h2 class="font-['Fredoka',sans-serif] text-2xl font-bold text-slate-900 mb-4">
-            Quick Actions
+            Actions
           </h2>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <!-- Add Feeding Button -->

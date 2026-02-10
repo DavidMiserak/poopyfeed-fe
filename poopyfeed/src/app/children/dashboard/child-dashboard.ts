@@ -17,6 +17,7 @@ import { Child } from '../../models/child.model';
 import { Feeding } from '../../models/feeding.model';
 import { DiaperChange } from '../../models/diaper.model';
 import { Nap } from '../../models/nap.model';
+import { QuickLog } from './quick-log/quick-log';
 
 interface ActivityItem {
   id: number;
@@ -27,7 +28,7 @@ interface ActivityItem {
 
 @Component({
   selector: 'app-child-dashboard',
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, QuickLog],
   templateUrl: './child-dashboard.html',
   styleUrl: './child-dashboard.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -130,6 +131,13 @@ export class ChildDashboard implements OnInit {
         this.isLoading.set(false);
       },
     });
+  }
+
+  onQuickLogged(): void {
+    const childId = this.childId();
+    if (childId) {
+      this.loadDashboardData(childId);
+    }
   }
 
   getChildAge(dateOfBirth: string): string {

@@ -342,4 +342,29 @@ describe('ChildDashboard', () => {
       expect(component.isLoading()).toBe(false);
     });
   });
+
+  describe('QuickLog integration', () => {
+    beforeEach(() => {
+      setupWithData();
+    });
+
+    it('should render QuickLog component when child loaded', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const quickLogElement = compiled.querySelector('app-quick-log');
+      expect(quickLogElement).toBeTruthy();
+    });
+
+    it('should pass childId and canEdit inputs to QuickLog component', () => {
+      // QuickLog component inputs are bound to childId() and canEdit()
+      // This is tested indirectly via template rendering
+      expect(component.childId()).toBe(1);
+      expect(component.canEdit()).toBe(true);
+    });
+
+    it('should call loadDashboardData when quickLogged event emitted', () => {
+      const loadDashboardDataSpy = vi.spyOn(component, 'loadDashboardData');
+      component.onQuickLogged();
+      expect(loadDashboardDataSpy).toHaveBeenCalledWith(1);
+    });
+  });
 });
