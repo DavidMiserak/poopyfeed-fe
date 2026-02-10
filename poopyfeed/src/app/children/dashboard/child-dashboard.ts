@@ -42,6 +42,9 @@ export class ChildDashboard implements OnInit {
 
   childId = signal<number | null>(null);
   child = signal<Child | null>(null);
+  feedings = signal<Feeding[]>([]);
+  diapers = signal<DiaperChange[]>([]);
+  naps = signal<Nap[]>([]);
   recentActivity = signal<ActivityItem[]>([]);
   isLoading = signal(true);
   error = signal<string | null>(null);
@@ -55,6 +58,17 @@ export class ChildDashboard implements OnInit {
   canManageSharing = computed(() => {
     return this.child()?.user_role === 'owner';
   });
+
+  // Today's summary counts
+  todayFeedings = computed(
+    () => this.feedings().filter((f) => this.isToday(f.fed_at)).length,
+  );
+  todayDiapers = computed(
+    () => this.diapers().filter((d) => this.isToday(d.changed_at)).length,
+  );
+  todayNaps = computed(
+    () => this.naps().filter((n) => this.isToday(n.napped_at)).length,
+  );
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('childId');
@@ -76,6 +90,9 @@ export class ChildDashboard implements OnInit {
     }).subscribe({
       next: ({ child, feedings, diapers, naps }) => {
         this.child.set(child);
+        this.feedings.set(feedings);
+        this.diapers.set(diapers);
+        this.naps.set(naps);
 
         // Merge and sort recent activity
         const activity: ActivityItem[] = [
@@ -188,5 +205,15 @@ export class ChildDashboard implements OnInit {
         return 'Nap recorded';
       }
     }
+  }
+
+  isToday(utcTimestamp: string): boolean {
+    const date = new Date(utcTimestamp);
+    const now = new Date();
+    return (
+      date.getFullYear() === now.getFullYear() &&
+      date.getMonth() === now.getMonth() &&
+      date.getDate() === now.getDate()
+    );
   }
 }
