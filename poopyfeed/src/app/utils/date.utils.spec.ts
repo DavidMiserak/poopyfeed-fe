@@ -190,4 +190,52 @@ describe('Date Utilities', () => {
       expect(color).toContain('to-');
     });
   });
+
+  describe('formatActivityAge - edge case for days', () => {
+    it('should return days for activities older than 1440 minutes', () => {
+      const twoDaysAgo = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000);
+      const result = formatActivityAge(twoDaysAgo.toISOString());
+      expect(result).toContain('days ago');
+    });
+
+    it('should use singular day for exactly 1 day old', () => {
+      const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+      const result = formatActivityAge(oneDayAgo.toISOString());
+      expect(result).toContain('1 day ago');
+    });
+  });
+
+  describe('getActivityIcon - default fallback', () => {
+    it('should return fallback emoji for unknown activity type', () => {
+      expect(getActivityIcon('unknown' as any)).toBe('📝');
+    });
+
+    it('should return fallback emoji for empty string', () => {
+      expect(getActivityIcon('' as any)).toBe('📝');
+    });
+  });
+
+  describe('getChildAge - edge cases', () => {
+    it('should handle exactly 1 month old', () => {
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      const result = getChildAge(thirtyDaysAgo.toISOString());
+      expect(['month', 'months'].some(unit => result.includes(unit))).toBe(true);
+    });
+
+    it('should handle exactly 12 months (1 year) old', () => {
+      const oneYearAgo = new Date();
+      oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+      const result = getChildAge(oneYearAgo.toISOString());
+      expect(result).toContain('y');
+    });
+
+    it('should handle age with only years (no months)', () => {
+      const twoYearsAgo = new Date();
+      twoYearsAgo.setFullYear(twoYearsAgo.getFullYear() - 2);
+      twoYearsAgo.setMonth(twoYearsAgo.getMonth()); // Same month
+      const result = getChildAge(twoYearsAgo.toISOString());
+      expect(result).toContain('2 years');
+    });
+  });
 });

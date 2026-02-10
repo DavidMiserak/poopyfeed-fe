@@ -499,4 +499,93 @@ describe('FeedingsService', () => {
       expect(errorCaught).toBe(true);
     });
   });
+
+  describe('state management', () => {
+    it('should update feedings cache when creating', () => {
+      const newFeeding: Feeding = {
+        id: 99,
+        child: 1,
+        feeding_type: 'bottle',
+        fed_at: '2024-01-20T12:00:00Z',
+        amount_oz: 5,
+        notes: 'New feeding',
+        created_at: '2024-01-20T12:00:00Z',
+        updated_at: '2024-01-20T12:00:00Z',
+      };
+
+      service.feedings.set(mockFeedings);
+      expect(service.feedings().length).toBe(2);
+
+      service.create(1, { feeding_type: 'bottle', fed_at: '2024-01-20T12:00:00Z', amount_oz: 5 }).subscribe();
+
+      const req = httpMock.expectOne('/api/v1/children/1/feedings/');
+      req.flush(newFeeding);
+
+      expect(service.feedings().length).toBe(3);
+    });
+
+    it('should remove feeding from cache when deleting', () => {
+      service.feedings.set(mockFeedings);
+      expect(service.feedings().length).toBe(2);
+
+      service.delete(1, 1).subscribe();
+
+      const req = httpMock.expectOne('/api/v1/children/1/feedings/1/');
+      req.flush(null);
+
+      expect(service.feedings().length).toBe(1);
+      expect(service.feedings()[0].id).toBe(2);
+    });
+
+    it('should update feeding in cache when updating', () => {
+      service.feedings.set(mockFeedings);
+      const updatedFeeding = { ...mockBottleFeeding, amount_oz: 6 };
+
+      service.update(1, 1, { feeding_type: 'bottle', fed_at: mockBottleFeeding.fed_at, amount_oz: 6 }).subscribe();
+
+      const req = httpMock.expectOne('/api/v1/children/1/feedings/1/');
+      req.flush(updatedFeeding);
+
+      const cachedFeeding = service.feedings().find(f => f.id === 1);
+      expect(cachedFeeding?.amount_oz).toBe(6);
+    });
+
+    it('should handle deletion when feeding not found in cache', () => {
+      service.feedings.set([mockBreastFeeding]);
+
+      service.delete(1, 999).subscribe({
+        error: () => {
+          // Error expected
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/feedings/999/');
+      req.flush(null, { status: 404, statusText: 'Not Found' });
+
+      // Only mockBreastFeeding should remain
+      expect(service.feedings()[0].id).toBe(2);
+    });
+
+    it('should initialize with empty feedings signal', () => {
+      expect(service.feedings()).toEqual([]);
+    });
+
+    it('should maintain cache after multiple operations', () => {
+      service.feedings.set(mockFeedings);
+      expect(service.feedings().length).toBe(2);
+
+      const newFeeding: Feeding = {
+        ...mockBottleFeeding,
+        id: 3,
+      };
+
+      service.create(1, { feeding_type: 'bottle', fed_at: '2024-01-20T12:00:00Z', amount_oz: 5 }).subscribe();
+
+      const req = httpMock.expectOne('/api/v1/children/1/feedings/');
+      req.flush(newFeeding);
+
+      expect(service.feedings().length).toBe(3);
+      expect(service.feedings()[2].id).toBe(3);
+    });
+  });
 });

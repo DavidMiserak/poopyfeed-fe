@@ -213,3 +213,99 @@ describe('ErrorHandler', () => {
     });
   });
 });
+
+describe('ApiError - isServerError edge cases', () => {
+  it('should return false when status is undefined', () => {
+    const error = new ApiError('Test error');
+    expect(error.isServerError()).toBe(false);
+  });
+
+  it('should return false for non-server error codes', () => {
+    const error = new ApiError('Test error', 400);
+    expect(error.isServerError()).toBe(false);
+  });
+
+  it('should return true for exactly 500', () => {
+    const error = new ApiError('Test error', 500);
+    expect(error.isServerError()).toBe(true);
+  });
+
+  it('should return true for 599', () => {
+    const error = new ApiError('Test error', 599);
+    expect(error.isServerError()).toBe(true);
+  });
+
+  it('should return false for 499', () => {
+    const error = new ApiError('Test error', 499);
+    expect(error.isServerError()).toBe(false);
+  });
+});
+
+describe('ErrorHandler - edge cases with malformed responses', () => {
+  it('should handle response with null error', () => {
+    const httpError = new HttpErrorResponse({
+      error: null,
+      status: 400,
+      statusText: 'Bad Request',
+    });
+    const result = ErrorHandler.handle(httpError);
+    expect(result).toBeInstanceOf(ApiError);
+    expect(result.message).toContain('Invalid request');
+  });
+
+  it('should handle response with undefined error', () => {
+    const httpError = new HttpErrorResponse({
+      error: undefined,
+      status: 500,
+      statusText: 'Server Error',
+    });
+    const result = ErrorHandler.handle(httpError);
+    expect(result).toBeInstanceOf(ApiError);
+    expect(result.message).toContain('server error');
+  });
+
+  it('should handle non_field_errors with empty array', () => {
+    const httpError = new HttpErrorResponse({
+      error: { non_field_errors: [] },
+      status: 400,
+      statusText: 'Bad Request',
+    });
+    const result = ErrorHandler.handle(httpError);
+    expect(result).toBeInstanceOf(ApiError);
+    expect(result.message).toContain('Invalid request');
+  });
+
+  it('should handle field errors with empty array', () => {
+    const httpError = new HttpErrorResponse({
+      error: { email: [] },
+      status: 400,
+      statusText: 'Bad Request',
+    });
+    const result = ErrorHandler.handle(httpError);
+    expect(result).toBeInstanceOf(ApiError);
+    expect(result.message).toContain('Invalid request');
+  });
+
+  it('should handle field errors with non-string values', () => {
+    const httpError = new HttpErrorResponse({
+      error: { age: [123, { value: 'error' }] },
+      status: 400,
+      statusText: 'Bad Request',
+    });
+    const result = ErrorHandler.handle(httpError);
+    expect(result).toBeInstanceOf(ApiError);
+    // Should fall through to HTTP status message since no string errors
+    expect(result.message).toContain('Invalid request');
+  });
+
+  it('should handle object error with detail property', () => {
+    const result = ErrorHandler.handle({ detail: 'Custom error detail' });
+    expect(result).toBeInstanceOf(ApiError);
+    expect(result.message).toContain('Custom error detail');
+  });
+
+  it('should handle null token status', () => {
+    const error = new ApiError('Test', null as unknown as number);
+    expect(error.isServerError()).toBe(false);
+  });
+});

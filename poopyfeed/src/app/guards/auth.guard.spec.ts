@@ -76,4 +76,70 @@ describe('authGuard', () => {
     result = TestBed.runInInjectionContext(() => authGuard({} as any, {} as any));
     expect(result).toBe(true);
   });
+
+  it('should allow navigation during SSR (when window is undefined)', () => {
+    const originalWindow = globalThis.window;
+    Object.defineProperty(globalThis, 'window', {
+      writable: true,
+      configurable: true,
+      value: undefined,
+    });
+
+    const result = TestBed.runInInjectionContext(() => authGuard({} as any, {} as any));
+
+    expect(result).toBe(true);
+    expect(mockRouter.createUrlTree).not.toHaveBeenCalled();
+
+    Object.defineProperty(globalThis, 'window', {
+      writable: true,
+      configurable: true,
+      value: originalWindow,
+    });
+  });
+
+  it('should check localStorage when service authentication is false', () => {
+    mockAuthService.isAuthenticated.set(false);
+    const mockUrlTree = {} as UrlTree;
+    mockRouter.createUrlTree.mockReturnValue(mockUrlTree);
+
+    // No token in localStorage
+    localStorage.removeItem('auth_token');
+
+    const result = TestBed.runInInjectionContext(() => authGuard({} as any, {} as any));
+
+    expect(result).toBe(mockUrlTree);
+    expect(mockRouter.createUrlTree).toHaveBeenCalledWith(['/login']);
+  });
+
+  it('should allow navigation when token exists in localStorage', () => {
+    mockAuthService.isAuthenticated.set(false);
+    localStorage.setItem('auth_token', 'test-token');
+
+    const result = TestBed.runInInjectionContext(() => authGuard({} as any, {} as any));
+
+    expect(result).toBe(true);
+    expect(mockRouter.createUrlTree).not.toHaveBeenCalled();
+
+    localStorage.removeItem('auth_token');
+  });
+
+  it('should prefer service authentication over localStorage', () => {
+    mockAuthService.isAuthenticated.set(true);
+    localStorage.removeItem('auth_token');
+
+    const result = TestBed.runInInjectionContext(() => authGuard({} as any, {} as any));
+
+    expect(result).toBe(true);
+  });
+
+  it('should redirect when both service and localStorage indicate no auth', () => {
+    mockAuthService.isAuthenticated.set(false);
+    localStorage.removeItem('auth_token');
+    const mockUrlTree = {} as UrlTree;
+    mockRouter.createUrlTree.mockReturnValue(mockUrlTree);
+
+    const result = TestBed.runInInjectionContext(() => authGuard({} as any, {} as any));
+
+    expect(result).toBe(mockUrlTree);
+  });
 });

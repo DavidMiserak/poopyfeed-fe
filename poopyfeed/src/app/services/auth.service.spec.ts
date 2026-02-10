@@ -435,5 +435,183 @@ describe('AuthService', () => {
       expect(service.isAuthenticated()).toBe(false);
       expect(localStorage.getItem('auth_token')).toBeNull();
     });
+
+    it('should handle navigating to login page', () => {
+      localStorage.setItem('auth_token', 'test-token');
+      service['authToken'].set('test-token');
+
+      service.clearAuthAndRedirect('/login');
+
+      expect(service.isAuthenticated()).toBe(false);
+    });
+  });
+
+  describe('token storage and retrieval', () => {
+    it('should return null when no token in localStorage', () => {
+      localStorage.removeItem('auth_token');
+      expect(service.getToken()).toBeNull();
+    });
+
+    it('should handle token removal properly', () => {
+      service['setToken']('test-token');
+      service['clearToken']();
+      expect(localStorage.getItem('auth_token')).toBeNull();
+      expect(service.getToken()).toBeNull();
+    });
+
+    it('should update token in all storage locations', () => {
+      service.updateToken('updated-token');
+      expect(service.getToken()).toBe('updated-token');
+      expect(localStorage.getItem('auth_token')).toBe('updated-token');
+      expect(service.isAuthenticated()).toBe(true);
+    });
+
+    it('should handle multiple token updates', () => {
+      service.updateToken('first-token');
+      expect(service.getToken()).toBe('first-token');
+
+      service.updateToken('second-token');
+      expect(service.getToken()).toBe('second-token');
+      expect(localStorage.getItem('auth_token')).toBe('second-token');
+    });
+
+    it('should compute isAuthenticated correctly after token updates', () => {
+      localStorage.removeItem('auth_token');
+      service['authToken'].set(null);
+      expect(service.isAuthenticated()).toBe(false);
+
+      service.updateToken('test-token');
+      expect(service.isAuthenticated()).toBe(true);
+
+      service['clearToken']();
+      expect(service.isAuthenticated()).toBe(false);
+    });
+  });
+
+  describe('signup with token handling', () => {
+    it('should handle signup success and token update', () => {
+      const mockResponse = {
+        status: 200,
+        data: { user: { id: 1, email: 'newuser@example.com' } },
+      };
+      const mockToken = { auth_token: 'new-signup-token' };
+
+      service.signup({ email: 'newuser@example.com', password: 'password123' }).subscribe({
+        next: (user) => {
+          expect(user.email).toBe('newuser@example.com');
+          expect(service.getToken()).toBe('new-signup-token');
+        },
+      });
+
+      const signupReq = httpMock.expectOne('/api/v1/browser/v1/auth/signup');
+      signupReq.flush(mockResponse);
+
+      const tokenReq = httpMock.expectOne('/api/v1/browser/v1/auth/token/');
+      tokenReq.flush(mockToken);
+    });
+
+    it('should handle signup error properly', () => {
+      let errorCaught = false;
+
+      service.signup({ email: 'test@example.com', password: 'password123' }).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toContain('Signup');
+          errorCaught = true;
+        },
+      });
+
+      const signupReq = httpMock.expectOne('/api/v1/browser/v1/auth/signup');
+      signupReq.flush(
+        { email: ['Email already registered'] },
+        { status: 400, statusText: 'Bad Request' }
+      );
+
+      expect(errorCaught).toBe(true);
+    });
+
+    it('should handle getToken returning null then being set', () => {
+      localStorage.removeItem('auth_token');
+      service['authToken'].set(null);
+
+      expect(service.getToken()).toBeNull();
+
+      service['setToken']('test-token');
+      expect(service.getToken()).toBe('test-token');
+    });
+
+    it('should check getStoredToken returns value from localStorage', () => {
+      localStorage.setItem('auth_token', 'stored-test-token');
+      const token = service['getStoredToken']();
+      expect(token).toBe('stored-test-token');
+    });
+
+    it('should handle login with allauth endpoints', () => {
+      service.login({ email: 'test@example.com', password: 'password123' }).subscribe({
+        next: (response) => {
+          expect(response.auth_token).toBe('login-token');
+          expect(service.getToken()).toBe('login-token');
+        },
+      });
+
+      const loginReq = httpMock.expectOne('/api/v1/browser/v1/auth/login');
+      loginReq.flush({ status: 200, data: { user: {} } });
+
+      const tokenReq = httpMock.expectOne('/api/v1/browser/v1/auth/token/');
+      tokenReq.flush({ auth_token: 'login-token' });
+    });
+  });
+
+  describe('afterNextRender hydration', () => {
+    it('should restore token from localStorage after SSR hydration', async () => {
+      // Clear localStorage and set up a token
+      localStorage.clear();
+      localStorage.setItem('auth_token', 'hydrated-token');
+
+      // Create a new service instance to trigger the afterNextRender
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        providers: [
+          provideHttpClient(),
+          provideHttpClientTesting(),
+          provideRouter([]),
+        ],
+      });
+
+      const newService = TestBed.inject(AuthService);
+
+      // The afterNextRender callback should have been triggered
+      // and the token should be restored if it was missing
+      await new Promise((resolve) => {
+        setTimeout(() => {
+          // This allows afterNextRender to execute
+          expect(newService.getToken()).toBeTruthy();
+          resolve(null);
+        }, 0);
+      });
+    });
+
+    it('should not overwrite existing token during hydration', async () => {
+      // Create a new service with SSR scenario where token exists
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        providers: [
+          provideHttpClient(),
+          provideHttpClientTesting(),
+          provideRouter([]),
+        ],
+      });
+
+      localStorage.clear();
+      localStorage.setItem('auth_token', 'ssr-token');
+
+      const newService = TestBed.inject(AuthService);
+
+      await new Promise((resolve) => {
+        setTimeout(() => {
+          expect(newService.getToken()).toBe('ssr-token');
+          resolve(null);
+        }, 0);
+      });
+    });
   });
 });

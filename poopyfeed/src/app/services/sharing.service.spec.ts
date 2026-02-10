@@ -609,6 +609,207 @@ describe('SharingService', () => {
     });
   });
 
+  describe('toggleInvite', () => {
+    it('should toggle invite active status to inactive', () => {
+      const updatedInvite: ShareInvite = { ...mockInvite, is_active: false };
+
+      service.toggleInvite(1, 1, false).subscribe({
+        next: (invite) => {
+          expect(invite.is_active).toBe(false);
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/invites/1/');
+      expect(req.request.method).toBe('PATCH');
+      expect(req.request.body).toEqual({ is_active: false });
+      req.flush(updatedInvite);
+    });
+
+    it('should toggle invite active status to active', () => {
+      const inactiveInvite: ShareInvite = { ...mockInvite, is_active: false };
+      const updatedInvite: ShareInvite = { ...inactiveInvite, is_active: true };
+
+      service.toggleInvite(1, 1, true).subscribe({
+        next: (invite) => {
+          expect(invite.is_active).toBe(true);
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/invites/1/');
+      expect(req.request.body).toEqual({ is_active: true });
+      req.flush(updatedInvite);
+    });
+
+    it('should handle 404 error', () => {
+      let errorCaught = false;
+
+      service.toggleInvite(1, 999, false).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toContain('not found');
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/invites/999/');
+      req.flush(null, { status: 404, statusText: 'Not Found' });
+
+      expect(errorCaught).toBe(true);
+    });
+
+    it('should handle 403 forbidden error', () => {
+      let errorCaught = false;
+
+      service.toggleInvite(1, 1, false).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toContain('permission');
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/invites/1/');
+      req.flush(null, { status: 403, statusText: 'Forbidden' });
+
+      expect(errorCaught).toBe(true);
+    });
+  });
+
+  describe('getInviteUrl', () => {
+    it('should generate invite URL with window location', () => {
+      const token = 'test-token-123';
+      const expectedUrl = `${window.location.origin}/invites/accept/${token}`;
+
+      const url = service.getInviteUrl(token);
+
+      expect(url).toBe(expectedUrl);
+    });
+
+    it('should generate relative URL for SSR (no window)', () => {
+      const token = 'test-token-123';
+      const originalWindow = globalThis.window;
+
+      Object.defineProperty(globalThis, 'window', {
+        writable: true,
+        configurable: true,
+        value: undefined,
+      });
+
+      const url = service.getInviteUrl(token);
+      expect(url).toBe(`/invites/accept/${token}`);
+
+      Object.defineProperty(globalThis, 'window', {
+        writable: true,
+        configurable: true,
+        value: originalWindow,
+      });
+    });
+  });
+
+  describe('state management', () => {
+    it('should update shares signal when fetching shares', () => {
+      service.listShares(1).subscribe();
+
+      expect(service.shares()).toEqual([]);
+
+      const req = httpMock.expectOne('/api/v1/children/1/shares/');
+      req.flush(mockShares);
+
+      expect(service.shares()).toEqual(mockShares);
+    });
+
+    it('should update invites signal when fetching invites', () => {
+      service.listInvites(1).subscribe();
+
+      expect(service.invites()).toEqual([]);
+
+      const req = httpMock.expectOne('/api/v1/children/1/invites/');
+      req.flush(mockInvites);
+
+      expect(service.invites()).toEqual(mockInvites);
+    });
+
+    it('should remove share from cache when revoking', () => {
+      // Set initial shares
+      service.shares.set(mockShares);
+      expect(service.shares().length).toBe(2);
+
+      service.revokeShare(1, 1).subscribe();
+
+      const req = httpMock.expectOne('/api/v1/children/1/shares/1/');
+      req.flush(null);
+
+      expect(service.shares().length).toBe(1);
+      expect(service.shares()[0].id).toBe(2);
+    });
+
+    it('should add new invite to cache when creating', () => {
+      const newInvite: ShareInvite = {
+        id: 5,
+        child: 1,
+        token: 'new-token',
+        role: 'co-parent',
+        is_active: true,
+        created_at: '2024-01-20T10:00:00Z',
+        expires_at: '2024-02-20T10:00:00Z',
+      };
+
+      service.invites.set(mockInvites);
+      expect(service.invites().length).toBe(2);
+
+      service.createInvite(1, { role: 'co-parent' }).subscribe();
+
+      const req = httpMock.expectOne('/api/v1/children/1/invites/');
+      req.flush(newInvite);
+
+      expect(service.invites().length).toBe(3);
+      expect(service.invites()[0]).toEqual(newInvite);
+    });
+
+    it('should remove invite from cache when deleting', () => {
+      service.invites.set(mockInvites);
+      expect(service.invites().length).toBe(2);
+
+      service.deleteInvite(1, 1).subscribe();
+
+      const req = httpMock.expectOne('/api/v1/children/1/invites/1/');
+      req.flush(null);
+
+      expect(service.invites().length).toBe(1);
+      expect(service.invites()[0].id).toBe(2);
+    });
+
+    it('should update invite in cache when toggling', () => {
+      service.invites.set(mockInvites);
+      expect(service.invites()[0].is_active).toBe(true);
+
+      const updatedInvite = { ...mockInvite, is_active: false };
+
+      service.toggleInvite(1, 1, false).subscribe();
+
+      const req = httpMock.expectOne('/api/v1/children/1/invites/1/');
+      req.flush(updatedInvite);
+
+      expect(service.invites()[0].is_active).toBe(false);
+    });
+
+    it('should handle toggle when invite index not found', () => {
+      service.invites.set([mockInvite]);
+
+      const updatedInvite = { ...mockInviteCaregiver, is_active: false };
+
+      service.toggleInvite(1, 999, false).subscribe({
+        error: () => {
+          // Error expected
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/invites/999/');
+      req.flush(null, { status: 404, statusText: 'Not Found' });
+
+      // Invites should remain unchanged since invite wasn't found
+      expect(service.invites()[0].id).toBe(1);
+    });
+  });
+
   describe('error handling', () => {
     it('should handle detail error response for shares', () => {
       let errorCaught = false;
