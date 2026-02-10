@@ -1,8 +1,8 @@
-<div class="min-h-screen relative bg-gradient-to-br from-[#fff5f7] via-[#fffbeb] to-[#fff7ed] px-6 py-12 overflow-hidden">
+<div class="min-h-screen relative bg-gradient-to-br from-rose-50 via-amber-50 to-orange-50 px-6 py-12 overflow-hidden">
   <!-- Decorative background elements -->
   <div class="absolute inset-0 opacity-20 pointer-events-none">
-    <div class="absolute top-20 left-20 w-64 h-64 bg-gradient-to-br from-[#fbbf24] to-amber-500 rounded-full blur-3xl animate-pulse"></div>
-    <div class="absolute bottom-20 right-20 w-96 h-96 bg-gradient-to-br from-amber-400 to-[#fbbf24] rounded-full blur-3xl animate-pulse" style="animation-delay: 1s;"></div>
+    <div class="absolute top-20 left-20 w-64 h-64 bg-gradient-to-br from-amber-400 to-amber-500 rounded-full blur-3xl animate-pulse"></div>
+    <div class="absolute bottom-20 right-20 w-96 h-96 bg-gradient-to-br from-amber-400 to-amber-400 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s;"></div>
   </div>
 
   <div class="max-w-4xl mx-auto relative z-10">
@@ -10,7 +10,7 @@
     @if (isLoading()) {
       <div class="flex items-center justify-center py-20">
         <div class="text-center">
-          <svg class="w-16 h-16 animate-spin mx-auto mb-4 text-[#fbbf24]" aria-hidden="true" fill="none" viewBox="0 0 24 24">
+          <svg class="w-16 h-16 animate-spin mx-auto mb-4 text-amber-400" aria-hidden="true" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
           </svg>
@@ -33,9 +33,9 @@
           <button
             type="button"
             (click)="navigateToDashboard()"
-            class="group relative inline-flex px-6 py-3 rounded-xl font-['DM_Sans',sans-serif] font-bold text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 overflow-hidden border-2 border-[#fbbf24]"
+            class="group relative inline-flex px-6 py-3 rounded-xl font-['DM_Sans',sans-serif] font-bold text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 overflow-hidden border-2 border-amber-400"
           >
-            <span class="absolute inset-0 bg-gradient-to-br from-[#fbbf24] via-amber-500 to-amber-600 transition-transform duration-300 group-hover:scale-110"></span>
+            <span class="absolute inset-0 bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600 transition-transform duration-300 group-hover:scale-110"></span>
             <span class="relative z-10">Back to Dashboard</span>
           </button>
         </div>
@@ -51,7 +51,7 @@
             <button
               type="button"
               (click)="navigateToDashboard()"
-              class="font-['DM_Sans',sans-serif] text-sm text-slate-600 hover:text-[#fbbf24] transition-colors font-medium inline-flex items-center gap-2 mb-2"
+              class="font-['DM_Sans',sans-serif] text-sm text-slate-600 hover:text-amber-400 transition-colors font-medium inline-flex items-center gap-2 mb-2"
             >
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -65,9 +65,9 @@
           <button
             type="button"
             (click)="navigateToCreate()"
-            class="group relative inline-flex px-6 py-3 rounded-xl font-['DM_Sans',sans-serif] font-bold text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 overflow-hidden border-2 border-[#fbbf24]"
+            class="group relative inline-flex px-6 py-3 rounded-xl font-['DM_Sans',sans-serif] font-bold text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 overflow-hidden border-2 border-amber-400"
           >
-            <span class="absolute inset-0 bg-gradient-to-br from-[#fbbf24] via-amber-500 to-amber-600 transition-transform duration-300 group-hover:scale-110"></span>
+            <span class="absolute inset-0 bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600 transition-transform duration-300 group-hover:scale-110"></span>
             <span class="relative z-10 flex items-center gap-2">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -79,7 +79,7 @@
 
         <!-- Naps List -->
         @if (naps().length === 0) {
-          <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-12 border-2 border-[#fbbf24]/20 text-center">
+          <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-12 border-2 border-amber-400/20 text-center">
             <div class="text-6xl mb-4">😴</div>
             <h2 class="font-['Fredoka',sans-serif] text-2xl font-bold text-slate-900 mb-2">
               No naps recorded yet
@@ -90,14 +90,14 @@
             <button
               type="button"
               (click)="navigateToCreate()"
-              class="group relative inline-flex px-6 py-3 rounded-xl font-['DM_Sans',sans-serif] font-bold text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 overflow-hidden border-2 border-[#fbbf24]"
+              class="group relative inline-flex px-6 py-3 rounded-xl font-['DM_Sans',sans-serif] font-bold text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 overflow-hidden border-2 border-amber-400"
             >
-              <span class="absolute inset-0 bg-gradient-to-br from-[#fbbf24] to-amber-500 transition-transform duration-300 group-hover:scale-110"></span>
+              <span class="absolute inset-0 bg-gradient-to-br from-amber-400 to-amber-500 transition-transform duration-300 group-hover:scale-110"></span>
               <span class="relative z-10">Add First Nap</span>
             </button>
           </div>
         } @else {
-          <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-6 border-2 border-[#fbbf24]/20">
+          <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-6 border-2 border-amber-400/20">
             <div class="space-y-4">
               @for (nap of naps(); track nap.id) {
                 <div class="flex items-center gap-4 p-4 rounded-xl bg-gradient-to-r from-amber-50 to-yellow-50 hover:shadow-md transition-all">

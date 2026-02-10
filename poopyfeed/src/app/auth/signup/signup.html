@@ -1,8 +1,8 @@
-<div class="min-h-screen relative bg-gradient-to-br from-[#fff7ed] via-[#fffbeb] to-[#fff5f7] flex items-center justify-center px-6 py-12 overflow-hidden">
+<div class="min-h-screen relative bg-gradient-to-br from-orange-50 via-amber-50 to-rose-50 flex items-center justify-center px-6 py-12 overflow-hidden">
   <!-- Decorative background elements -->
   <div class="absolute inset-0 opacity-20 pointer-events-none">
-    <div class="absolute top-20 right-20 w-64 h-64 bg-gradient-to-br from-[#fb923c] to-[#fbbf24] rounded-full blur-3xl animate-pulse" style="animation-delay: 0.5s;"></div>
-    <div class="absolute bottom-20 left-20 w-96 h-96 bg-gradient-to-br from-[#f43f5e] to-[#fb7185] rounded-full blur-3xl animate-pulse"></div>
+    <div class="absolute top-20 right-20 w-64 h-64 bg-gradient-to-br from-orange-400 to-amber-400 rounded-full blur-3xl animate-pulse" style="animation-delay: 0.5s;"></div>
+    <div class="absolute bottom-20 left-20 w-96 h-96 bg-gradient-to-br from-rose-500 to-rose-400 rounded-full blur-3xl animate-pulse"></div>
   </div>
 
   <div class="w-full max-w-md relative z-10">
@@ -11,13 +11,13 @@
       <a href="/" class="inline-flex items-center gap-2 hover:scale-105 transition-transform duration-300 group">
         <span class="text-4xl animate-bounce group-hover:animate-wiggle" aria-hidden="true">🍼</span>
         <span class="font-['Fredoka',sans-serif] text-3xl font-bold">
-          <span class="bg-gradient-to-r from-[#f43f5e] via-[#f97316] to-[#f59e0b] bg-clip-text text-transparent">Poopy</span><span class="text-slate-800">Feed</span>
+          <span class="bg-gradient-to-r from-rose-500 via-orange-500 to-amber-500 bg-clip-text text-transparent">Poopy</span><span class="text-slate-800">Feed</span>
         </span>
       </a>
     </div>
 
     <!-- Signup Card -->
-    <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-8 border-2 border-[#fed7aa]">
+    <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-8 border-2 border-orange-200">
       <div class="text-center mb-8">
         <h1 class="font-['Fredoka',sans-serif] text-3xl font-bold text-slate-900 mb-2">Join PoopyFeed!</h1>
         <p class="font-['DM_Sans',sans-serif] text-slate-600">Start tracking your baby's care today</p>
@@ -46,7 +46,7 @@
             type="text"
             id="name"
             formControlName="name"
-            class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-[#fb923c] focus:ring-4 focus:ring-[#fed7aa] transition-all outline-none text-slate-900 font-['DM_Sans',sans-serif]"
+            class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-orange-400 focus:ring-4 focus:ring-orange-200 transition-all outline-none text-slate-900 font-['DM_Sans',sans-serif]"
             placeholder="Jane Doe"
           />
           @if (signupForm.controls.name.invalid && signupForm.controls.name.touched) {
@@ -73,7 +73,7 @@
             type="email"
             id="email"
             formControlName="email"
-            class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-[#fb923c] focus:ring-4 focus:ring-[#fed7aa] transition-all outline-none text-slate-900 font-['DM_Sans',sans-serif]"
+            class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-orange-400 focus:ring-4 focus:ring-orange-200 transition-all outline-none text-slate-900 font-['DM_Sans',sans-serif]"
             placeholder="you&#64;example.com"
           />
           @if (signupForm.controls.email.invalid && signupForm.controls.email.touched) {
@@ -100,7 +100,7 @@
             type="password"
             id="password"
             formControlName="password"
-            class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-[#fb923c] focus:ring-4 focus:ring-[#fed7aa] transition-all outline-none text-slate-900 font-['DM_Sans',sans-serif]"
+            class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-orange-400 focus:ring-4 focus:ring-orange-200 transition-all outline-none text-slate-900 font-['DM_Sans',sans-serif]"
             placeholder="At least 8 characters"
           />
           @if (signupForm.controls.password.invalid && signupForm.controls.password.touched) {
@@ -127,7 +127,7 @@
             type="password"
             id="confirmPassword"
             formControlName="confirmPassword"
-            class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-[#fb923c] focus:ring-4 focus:ring-[#fed7aa] transition-all outline-none text-slate-900 font-['DM_Sans',sans-serif]"
+            class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-orange-400 focus:ring-4 focus:ring-orange-200 transition-all outline-none text-slate-900 font-['DM_Sans',sans-serif]"
             placeholder="••••••••"
           />
           @if (signupForm.controls.confirmPassword.invalid && signupForm.controls.confirmPassword.touched) {
@@ -144,9 +144,9 @@
         <button
           type="submit"
           [disabled]="signupForm.invalid || isSubmitting()"
-          class="group relative w-full py-3 px-6 rounded-xl font-['DM_Sans',sans-serif] font-bold text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 overflow-hidden border-2 border-[#fb923c] mt-6"
+          class="group relative w-full py-3 px-6 rounded-xl font-['DM_Sans',sans-serif] font-bold text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 overflow-hidden border-2 border-orange-400 mt-6"
         >
-          <span class="absolute inset-0 bg-gradient-to-br from-[#fb7185] via-[#fb923c] to-[#fbbf24] transition-transform duration-300 group-hover:scale-110 group-disabled:scale-100"></span>
+          <span class="absolute inset-0 bg-gradient-to-br from-rose-400 via-orange-400 to-amber-400 transition-transform duration-300 group-hover:scale-110 group-disabled:scale-100"></span>
           @if (isSubmitting()) {
             <span class="relative z-10 flex items-center justify-center gap-2">
               <svg class="w-5 h-5 animate-spin" aria-hidden="true" fill="none" viewBox="0 0 24 24">
@@ -166,7 +166,7 @@
         Already have an account?
         <a
           routerLink="/login"
-          class="font-bold text-[#fb923c] hover:text-[#f97316] transition-colors"
+          class="font-bold text-orange-400 hover:text-orange-500 transition-colors"
         >
           Sign in
         </a>
@@ -176,9 +176,9 @@
     <!-- Footer Text -->
     <p class="font-['DM_Sans',sans-serif] text-center text-sm text-slate-600 mt-6">
       By creating an account, you agree to our
-      <a href="/terms" class="text-[#fb923c] hover:text-[#f97316] transition-colors font-medium">Terms</a>
+      <a href="/terms" class="text-orange-400 hover:text-orange-500 transition-colors font-medium">Terms</a>
       and
-      <a href="/privacy" class="text-[#fb923c] hover:text-[#f97316] transition-colors font-medium">Privacy</a>
+      <a href="/privacy" class="text-orange-400 hover:text-orange-500 transition-colors font-medium">Privacy</a>
     </p>
   </div>
 </div>

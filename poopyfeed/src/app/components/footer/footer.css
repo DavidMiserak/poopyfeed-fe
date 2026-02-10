@@ -1,6 +1,6 @@
 .footer {
-  background: linear-gradient(to bottom, #ffffff, #f8fafc);
-  border-top: 2px solid #e2e8f0;
+  background: linear-gradient(to bottom, #ffffff, var(--color-neutral-50));
+  border-top: 2px solid var(--color-neutral-200);
   margin-top: 4rem;
 }
 
@@ -31,10 +31,10 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  font-family: 'Nunito', system-ui, sans-serif;
+  font-family: 'Fredoka', system-ui, sans-serif;
   font-size: 1.5rem;
   font-weight: 800;
-  color: #1e293b;
+  color: var(--color-neutral-800);
 }
 
 .logo-icon {
@@ -43,17 +43,17 @@
 }
 
 .logo-text {
-  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  background: linear-gradient(135deg, var(--color-primary-400), var(--color-accent-400));
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 }
 
 .footer-tagline {
-  font-family: 'Open Sans', system-ui, sans-serif;
+  font-family: 'DM Sans', system-ui, sans-serif;
   font-size: 0.9375rem;
   line-height: 1.6;
-  color: #64748b;
+  color: var(--color-neutral-500);
   max-width: 20rem;
 }
 
@@ -71,12 +71,12 @@
 }
 
 .footer-heading {
-  font-family: 'Nunito', system-ui, sans-serif;
+  font-family: 'Fredoka', system-ui, sans-serif;
   font-size: 0.875rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #475569;
+  color: var(--color-neutral-600);
   margin: 0;
 }
 
@@ -90,9 +90,9 @@
 }
 
 .footer-link {
-  font-family: 'Open Sans', system-ui, sans-serif;
+  font-family: 'DM Sans', system-ui, sans-serif;
   font-size: 0.9375rem;
-  color: #64748b;
+  color: var(--color-neutral-500);
   text-decoration: none;
   transition: color 0.2s ease;
   display: inline-block;
@@ -101,18 +101,18 @@
 }
 
 .footer-link:hover {
-  color: #3b82f6;
+  color: var(--color-primary-500);
 }
 
 .footer-link:focus-visible {
-  outline: 2px solid #3b82f6;
+  outline: 2px solid var(--color-primary-500);
   outline-offset: 2px;
   border-radius: 0.25rem;
 }
 
 /* Bottom Bar */
 .footer-bottom {
-  border-top: 1px solid #e2e8f0;
+  border-top: 1px solid var(--color-neutral-200);
   padding: 1.5rem 1.5rem;
   max-width: 80rem;
   margin: 0 auto;
@@ -132,9 +132,9 @@
 
 .footer-copyright,
 .footer-credits {
-  font-family: 'Open Sans', system-ui, sans-serif;
+  font-family: 'DM Sans', system-ui, sans-serif;
   font-size: 0.875rem;
-  color: #94a3b8;
+  color: var(--color-neutral-400);
   margin: 0;
 }
 

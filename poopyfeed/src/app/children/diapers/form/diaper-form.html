@@ -1,17 +1,17 @@
-<div class="min-h-screen relative bg-gradient-to-br from-[#fff5f7] via-[#fffbeb] to-[#fff7ed] px-6 py-12 overflow-hidden">
+<div class="min-h-screen relative bg-gradient-to-br from-rose-50 via-amber-50 to-orange-50 px-6 py-12 overflow-hidden">
   <!-- Decorative background elements -->
   <div class="absolute inset-0 opacity-20 pointer-events-none">
-    <div class="absolute top-20 left-20 w-64 h-64 bg-gradient-to-br from-[#fb923c] to-orange-500 rounded-full blur-3xl animate-pulse"></div>
-    <div class="absolute bottom-20 right-20 w-96 h-96 bg-gradient-to-br from-orange-400 to-[#fb923c] rounded-full blur-3xl animate-pulse" style="animation-delay: 1s;"></div>
+    <div class="absolute top-20 left-20 w-64 h-64 bg-gradient-to-br from-orange-400 to-orange-500 rounded-full blur-3xl animate-pulse"></div>
+    <div class="absolute bottom-20 right-20 w-96 h-96 bg-gradient-to-br from-orange-400 to-orange-400 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s;"></div>
   </div>
 
   <div class="max-w-2xl mx-auto relative z-10">
-    <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-8 border-2 border-[#fb923c]/20">
+    <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-8 border-2 border-orange-400/20">
       <!-- Header -->
       <div class="mb-6">
         <a
           [routerLink]="['/children', childId(), 'diapers']"
-          class="font-['DM_Sans',sans-serif] text-sm text-slate-600 hover:text-[#fb923c] transition-colors font-medium inline-flex items-center gap-2 mb-4"
+          class="font-['DM_Sans',sans-serif] text-sm text-slate-600 hover:text-orange-400 transition-colors font-medium inline-flex items-center gap-2 mb-4"
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -21,7 +21,7 @@
         <h1 class="font-['Fredoka',sans-serif] text-3xl font-bold text-slate-900">
           {{ isEdit() ? 'Edit Diaper Change' : 'Add Diaper Change' }}
           @if (child()) {
-            <span class="text-[#fb923c]">for {{ child()!.name }}</span>
+            <span class="text-orange-400">for {{ child()!.name }}</span>
           }
         </h1>
       </div>
@@ -53,7 +53,7 @@
                 value="wet"
                 class="peer sr-only"
               />
-              <div class="p-4 rounded-xl border-2 border-slate-200 bg-white peer-checked:border-[#fb923c] peer-checked:bg-gradient-to-br peer-checked:from-orange-50 peer-checked:to-amber-50 transition-all hover:shadow-md">
+              <div class="p-4 rounded-xl border-2 border-slate-200 bg-white peer-checked:border-orange-400 peer-checked:bg-gradient-to-br peer-checked:from-orange-50 peer-checked:to-amber-50 transition-all hover:shadow-md">
                 <div class="text-center">
                   <span class="text-4xl block mb-2">💧</span>
                   <span class="font-['DM_Sans',sans-serif] font-semibold text-slate-900">Wet</span>
@@ -67,7 +67,7 @@
                 value="dirty"
                 class="peer sr-only"
               />
-              <div class="p-4 rounded-xl border-2 border-slate-200 bg-white peer-checked:border-[#fb923c] peer-checked:bg-gradient-to-br peer-checked:from-orange-50 peer-checked:to-amber-50 transition-all hover:shadow-md">
+              <div class="p-4 rounded-xl border-2 border-slate-200 bg-white peer-checked:border-orange-400 peer-checked:bg-gradient-to-br peer-checked:from-orange-50 peer-checked:to-amber-50 transition-all hover:shadow-md">
                 <div class="text-center">
                   <span class="text-4xl block mb-2">💩</span>
                   <span class="font-['DM_Sans',sans-serif] font-semibold text-slate-900">Dirty</span>
@@ -81,7 +81,7 @@
                 value="both"
                 class="peer sr-only"
               />
-              <div class="p-4 rounded-xl border-2 border-slate-200 bg-white peer-checked:border-[#fb923c] peer-checked:bg-gradient-to-br peer-checked:from-orange-50 peer-checked:to-amber-50 transition-all hover:shadow-md">
+              <div class="p-4 rounded-xl border-2 border-slate-200 bg-white peer-checked:border-orange-400 peer-checked:bg-gradient-to-br peer-checked:from-orange-50 peer-checked:to-amber-50 transition-all hover:shadow-md">
                 <div class="text-center">
                   <span class="text-4xl block mb-2">🧷</span>
                   <span class="font-['DM_Sans',sans-serif] font-semibold text-slate-900">Both</span>
@@ -100,7 +100,7 @@
             type="datetime-local"
             id="changed_at"
             formControlName="changed_at"
-            class="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-[#fb923c] focus:ring-4 focus:ring-[#fb923c]/10 outline-none transition-all font-['DM_Sans',sans-serif]"
+            class="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-orange-400 focus:ring-4 focus:ring-orange-400/10 outline-none transition-all font-['DM_Sans',sans-serif]"
           />
           @if (diaperForm.get('changed_at')?.invalid && diaperForm.get('changed_at')?.touched) {
             <p class="font-['DM_Sans',sans-serif] text-sm text-red-600 mt-1">
@@ -120,7 +120,7 @@
             rows="3"
             [maxlength]="VALIDATION.MAX_NOTES_LENGTH"
             placeholder="Any additional notes..."
-            class="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-[#fb923c] focus:ring-4 focus:ring-[#fb923c]/10 outline-none transition-all font-['DM_Sans',sans-serif] resize-none"
+            class="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-orange-400 focus:ring-4 focus:ring-orange-400/10 outline-none transition-all font-['DM_Sans',sans-serif] resize-none"
           ></textarea>
           <p class="font-['DM_Sans',sans-serif] text-xs text-slate-500 mt-1">
             {{ diaperForm.get('notes')?.value?.length || 0 }} / {{ VALIDATION.MAX_NOTES_LENGTH }}
@@ -140,9 +140,9 @@
           <button
             type="submit"
             [disabled]="isSubmitting() || diaperForm.invalid"
-            class="flex-1 group relative px-6 py-3 rounded-xl font-['DM_Sans',sans-serif] font-bold text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 overflow-hidden border-2 border-[#fb923c]"
+            class="flex-1 group relative px-6 py-3 rounded-xl font-['DM_Sans',sans-serif] font-bold text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 overflow-hidden border-2 border-orange-400"
           >
-            <span class="absolute inset-0 bg-gradient-to-br from-[#fb923c] via-orange-500 to-orange-600 transition-transform duration-300 group-hover:scale-110 group-disabled:scale-100"></span>
+            <span class="absolute inset-0 bg-gradient-to-br from-orange-400 via-orange-500 to-orange-600 transition-transform duration-300 group-hover:scale-110 group-disabled:scale-100"></span>
             @if (isSubmitting()) {
               <span class="relative z-10 flex items-center justify-center gap-2">
                 <svg class="w-5 h-5 animate-spin" aria-hidden="true" fill="none" viewBox="0 0 24 24">

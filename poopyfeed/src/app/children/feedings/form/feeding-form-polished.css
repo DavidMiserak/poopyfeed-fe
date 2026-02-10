@@ -6,7 +6,7 @@
 /* Layout Container */
 .page-container {
   min-height: 100vh;
-  background: linear-gradient(to bottom, #f8fafc, #e2e8f0);
+  background: linear-gradient(to bottom, var(--color-neutral-50), #e2e8f0);
   padding: 1rem;
 }
 
@@ -33,7 +33,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  font-family: 'Nunito', system-ui, sans-serif;
+  font-family: 'DM Sans', system-ui, sans-serif;
   font-size: 0.9375rem;
   font-weight: 600;
   color: #64748b;
@@ -59,7 +59,7 @@
 }
 
 .page-title {
-  font-family: 'Nunito', system-ui, sans-serif;
+  font-family: 'DM Sans', system-ui, sans-serif;
   font-size: 2rem;
   font-weight: 800;
   color: #1e293b;
@@ -73,7 +73,7 @@
 }
 
 .page-subtitle {
-  font-family: 'Open Sans', system-ui, sans-serif;
+  font-family: 'DM Sans', system-ui, sans-serif;
   font-size: 1.125rem;
   color: #64748b;
   margin: 0;
@@ -130,7 +130,7 @@
 }
 
 .form-label {
-  font-family: 'Nunito', system-ui, sans-serif;
+  font-family: 'DM Sans', system-ui, sans-serif;
   font-size: 0.9375rem;
   font-weight: 700;
   color: #1e293b;
@@ -144,7 +144,7 @@
 
 /* Form Inputs */
 .form-input {
-  font-family: 'Open Sans', system-ui, sans-serif;
+  font-family: 'DM Sans', system-ui, sans-serif;
   font-size: 1rem;
   padding: 0.875rem 1rem;
   min-height: 52px;
@@ -163,7 +163,7 @@
 }
 
 .form-input:disabled {
-  background: #f8fafc;
+  background: var(--color-neutral-50);
   color: #94a3b8;
   cursor: not-allowed;
 }
@@ -178,7 +178,7 @@
 .input-unit {
   position: absolute;
   right: 1rem;
-  font-family: 'Nunito', system-ui, sans-serif;
+  font-family: 'DM Sans', system-ui, sans-serif;
   font-size: 0.875rem;
   font-weight: 600;
   color: #64748b;
@@ -191,14 +191,14 @@
 
 /* Field Help Text */
 .field-help {
-  font-family: 'Open Sans', system-ui, sans-serif;
+  font-family: 'DM Sans', system-ui, sans-serif;
   font-size: 0.875rem;
   color: #64748b;
   margin: 0;
 }
 
 .field-error {
-  font-family: 'Open Sans', system-ui, sans-serif;
+  font-family: 'DM Sans', system-ui, sans-serif;
   font-size: 0.875rem;
   color: #dc2626;
   font-weight: 600;
@@ -257,7 +257,7 @@
 }
 
 .radio-label {
-  font-family: 'Nunito', system-ui, sans-serif;
+  font-family: 'DM Sans', system-ui, sans-serif;
   font-size: 1rem;
   font-weight: 700;
   color: #1e293b;
@@ -297,7 +297,7 @@
 }
 
 .radio-option-label {
-  font-family: 'Nunito', system-ui, sans-serif;
+  font-family: 'DM Sans', system-ui, sans-serif;
   font-size: 1rem;
   font-weight: 600;
   color: #1e293b;
@@ -342,7 +342,7 @@
 }
 
 .tips-heading {
-  font-family: 'Nunito', system-ui, sans-serif;
+  font-family: 'DM Sans', system-ui, sans-serif;
   font-size: 1.125rem;
   font-weight: 700;
   color: #78350f;
@@ -359,7 +359,7 @@
 }
 
 .tips-list li {
-  font-family: 'Open Sans', system-ui, sans-serif;
+  font-family: 'DM Sans', system-ui, sans-serif;
   font-size: 0.9375rem;
   color: #92400e;
   padding-left: 1.5rem;
