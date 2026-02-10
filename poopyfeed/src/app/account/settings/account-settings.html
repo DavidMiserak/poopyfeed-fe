@@ -1,0 +1,323 @@
+<div class="min-h-screen relative bg-gradient-to-br from-rose-50 via-amber-50 to-orange-50 px-6 py-12 overflow-hidden">
+  <!-- Decorative background elements -->
+  <div class="absolute inset-0 opacity-20 pointer-events-none">
+    <div class="absolute top-20 left-20 w-64 h-64 bg-gradient-to-br from-rose-400 to-amber-400 rounded-full blur-3xl animate-pulse"></div>
+    <div class="absolute bottom-20 right-20 w-96 h-96 bg-gradient-to-br from-orange-400 to-rose-500 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s;"></div>
+  </div>
+
+  <div class="w-full max-w-2xl mx-auto relative z-10">
+    <!-- Header -->
+    <div class="text-center mb-8">
+      <h1 class="font-['Fredoka',sans-serif] text-4xl font-bold text-slate-900 mb-2">
+        Account Settings
+      </h1>
+      <p class="font-['DM_Sans',sans-serif] text-slate-600">
+        Manage your profile, timezone, and security
+      </p>
+    </div>
+
+    @if (isLoading()) {
+      <div class="flex justify-center py-12">
+        <svg class="w-8 h-8 animate-spin text-rose-400" fill="none" viewBox="0 0 24 24" aria-label="Loading">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+      </div>
+    } @else if (loadError()) {
+      <div class="bg-gradient-to-r from-red-50 to-rose-50 border-l-4 border-red-500 p-4 rounded-xl">
+        <p class="font-['DM_Sans',sans-serif] text-red-700 text-sm font-medium">{{ loadError() }}</p>
+      </div>
+    } @else {
+      <div class="space-y-6">
+
+        <!-- Profile Card -->
+        <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-8 border-2 border-rose-200">
+          <h2 class="font-['Fredoka',sans-serif] text-2xl font-bold text-slate-900 mb-1">Profile</h2>
+          <p class="font-['DM_Sans',sans-serif] text-slate-500 text-sm mb-6">Update your personal information</p>
+
+          @if (profileError()) {
+            <div class="bg-gradient-to-r from-red-50 to-rose-50 border-l-4 border-red-500 p-4 mb-6 rounded-xl">
+              <p class="font-['DM_Sans',sans-serif] text-red-700 text-sm font-medium">{{ profileError() }}</p>
+            </div>
+          }
+          @if (profileSuccess()) {
+            <div class="bg-gradient-to-r from-green-50 to-emerald-50 border-l-4 border-green-500 p-4 mb-6 rounded-xl">
+              <p class="font-['DM_Sans',sans-serif] text-green-700 text-sm font-medium">{{ profileSuccess() }}</p>
+            </div>
+          }
+
+          <form [formGroup]="profileForm" (ngSubmit)="onProfileSubmit()" class="space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label for="first_name" class="font-['DM_Sans',sans-serif] block text-sm font-bold text-slate-900 mb-2">
+                  First Name
+                </label>
+                <input
+                  type="text"
+                  id="first_name"
+                  formControlName="first_name"
+                  class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-rose-400 focus:ring-4 focus:ring-rose-200 transition-all outline-none text-slate-900 font-['DM_Sans',sans-serif]"
+                  placeholder="First name"
+                />
+              </div>
+              <div>
+                <label for="last_name" class="font-['DM_Sans',sans-serif] block text-sm font-bold text-slate-900 mb-2">
+                  Last Name
+                </label>
+                <input
+                  type="text"
+                  id="last_name"
+                  formControlName="last_name"
+                  class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-rose-400 focus:ring-4 focus:ring-rose-200 transition-all outline-none text-slate-900 font-['DM_Sans',sans-serif]"
+                  placeholder="Last name"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label for="email" class="font-['DM_Sans',sans-serif] block text-sm font-bold text-slate-900 mb-2">
+                Email
+              </label>
+              <input
+                type="email"
+                id="email"
+                formControlName="email"
+                class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-rose-400 focus:ring-4 focus:ring-rose-200 transition-all outline-none text-slate-900 font-['DM_Sans',sans-serif]"
+                placeholder="you@example.com"
+              />
+              @if (profileForm.controls.email.invalid && profileForm.controls.email.touched) {
+                <p class="font-['DM_Sans',sans-serif] text-red-600 text-sm mt-2 font-medium">
+                  Please enter a valid email address
+                </p>
+              }
+            </div>
+
+            <div class="flex justify-end pt-2">
+              <button
+                type="submit"
+                [disabled]="profileForm.invalid || profileSubmitting()"
+                class="group relative px-6 py-3 rounded-xl font-['DM_Sans',sans-serif] font-bold text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 overflow-hidden border-2 border-rose-400"
+              >
+                <span class="absolute inset-0 bg-gradient-to-br from-rose-400 via-orange-400 to-amber-400 transition-transform duration-300 group-hover:scale-110 group-disabled:scale-100"></span>
+                @if (profileSubmitting()) {
+                  <span class="relative z-10 flex items-center gap-2">
+                    <svg class="w-5 h-5 animate-spin" aria-hidden="true" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Saving...
+                  </span>
+                } @else {
+                  <span class="relative z-10">Save Profile</span>
+                }
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Timezone Card -->
+        <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-8 border-2 border-rose-200">
+          <h2 class="font-['Fredoka',sans-serif] text-2xl font-bold text-slate-900 mb-1">Timezone</h2>
+          <p class="font-['DM_Sans',sans-serif] text-slate-500 text-sm mb-6">Set your preferred timezone for activity timestamps</p>
+
+          @if (timezoneError()) {
+            <div class="bg-gradient-to-r from-red-50 to-rose-50 border-l-4 border-red-500 p-4 mb-6 rounded-xl">
+              <p class="font-['DM_Sans',sans-serif] text-red-700 text-sm font-medium">{{ timezoneError() }}</p>
+            </div>
+          }
+          @if (timezoneSuccess()) {
+            <div class="bg-gradient-to-r from-green-50 to-emerald-50 border-l-4 border-green-500 p-4 mb-6 rounded-xl">
+              <p class="font-['DM_Sans',sans-serif] text-green-700 text-sm font-medium">{{ timezoneSuccess() }}</p>
+            </div>
+          }
+
+          <form [formGroup]="timezoneForm" (ngSubmit)="onTimezoneSubmit()" class="space-y-4">
+            <div>
+              <label for="timezone" class="font-['DM_Sans',sans-serif] block text-sm font-bold text-slate-900 mb-2">
+                Timezone
+              </label>
+              <select
+                id="timezone"
+                formControlName="timezone"
+                class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-rose-400 focus:ring-4 focus:ring-rose-200 transition-all outline-none text-slate-900 font-['DM_Sans',sans-serif] bg-white"
+              >
+                @for (tz of timezones; track tz) {
+                  <option [value]="tz">{{ tz }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="flex justify-end pt-2">
+              <button
+                type="submit"
+                [disabled]="timezoneForm.invalid || timezoneSubmitting()"
+                class="group relative px-6 py-3 rounded-xl font-['DM_Sans',sans-serif] font-bold text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 overflow-hidden border-2 border-rose-400"
+              >
+                <span class="absolute inset-0 bg-gradient-to-br from-rose-400 via-orange-400 to-amber-400 transition-transform duration-300 group-hover:scale-110 group-disabled:scale-100"></span>
+                @if (timezoneSubmitting()) {
+                  <span class="relative z-10 flex items-center gap-2">
+                    <svg class="w-5 h-5 animate-spin" aria-hidden="true" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Saving...
+                  </span>
+                } @else {
+                  <span class="relative z-10">Save Timezone</span>
+                }
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Password Card -->
+        <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-8 border-2 border-rose-200">
+          <h2 class="font-['Fredoka',sans-serif] text-2xl font-bold text-slate-900 mb-1">Change Password</h2>
+          <p class="font-['DM_Sans',sans-serif] text-slate-500 text-sm mb-6">Update your password to keep your account secure</p>
+
+          @if (passwordError()) {
+            <div class="bg-gradient-to-r from-red-50 to-rose-50 border-l-4 border-red-500 p-4 mb-6 rounded-xl">
+              <p class="font-['DM_Sans',sans-serif] text-red-700 text-sm font-medium">{{ passwordError() }}</p>
+            </div>
+          }
+          @if (passwordSuccess()) {
+            <div class="bg-gradient-to-r from-green-50 to-emerald-50 border-l-4 border-green-500 p-4 mb-6 rounded-xl">
+              <p class="font-['DM_Sans',sans-serif] text-green-700 text-sm font-medium">{{ passwordSuccess() }}</p>
+            </div>
+          }
+
+          <form [formGroup]="passwordForm" (ngSubmit)="onPasswordSubmit()" class="space-y-4">
+            <div>
+              <label for="current_password" class="font-['DM_Sans',sans-serif] block text-sm font-bold text-slate-900 mb-2">
+                Current Password
+              </label>
+              <input
+                type="password"
+                id="current_password"
+                formControlName="current_password"
+                class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-rose-400 focus:ring-4 focus:ring-rose-200 transition-all outline-none text-slate-900 font-['DM_Sans',sans-serif]"
+                autocomplete="current-password"
+              />
+            </div>
+
+            <div>
+              <label for="new_password" class="font-['DM_Sans',sans-serif] block text-sm font-bold text-slate-900 mb-2">
+                New Password
+              </label>
+              <input
+                type="password"
+                id="new_password"
+                formControlName="new_password"
+                class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-rose-400 focus:ring-4 focus:ring-rose-200 transition-all outline-none text-slate-900 font-['DM_Sans',sans-serif]"
+                autocomplete="new-password"
+              />
+              @if (passwordForm.controls.new_password.invalid && passwordForm.controls.new_password.touched) {
+                <p class="font-['DM_Sans',sans-serif] text-red-600 text-sm mt-2 font-medium">
+                  Password must be at least 8 characters
+                </p>
+              }
+            </div>
+
+            <div>
+              <label for="new_password_confirm" class="font-['DM_Sans',sans-serif] block text-sm font-bold text-slate-900 mb-2">
+                Confirm New Password
+              </label>
+              <input
+                type="password"
+                id="new_password_confirm"
+                formControlName="new_password_confirm"
+                class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-rose-400 focus:ring-4 focus:ring-rose-200 transition-all outline-none text-slate-900 font-['DM_Sans',sans-serif]"
+                autocomplete="new-password"
+              />
+            </div>
+
+            <div class="flex justify-end pt-2">
+              <button
+                type="submit"
+                [disabled]="passwordForm.invalid || passwordSubmitting()"
+                class="group relative px-6 py-3 rounded-xl font-['DM_Sans',sans-serif] font-bold text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 overflow-hidden border-2 border-rose-400"
+              >
+                <span class="absolute inset-0 bg-gradient-to-br from-rose-400 via-orange-400 to-amber-400 transition-transform duration-300 group-hover:scale-110 group-disabled:scale-100"></span>
+                @if (passwordSubmitting()) {
+                  <span class="relative z-10 flex items-center gap-2">
+                    <svg class="w-5 h-5 animate-spin" aria-hidden="true" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Changing...
+                  </span>
+                } @else {
+                  <span class="relative z-10">Change Password</span>
+                }
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Danger Zone Card -->
+        <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-8 border-2 border-red-300">
+          <h2 class="font-['Fredoka',sans-serif] text-2xl font-bold text-red-700 mb-1">Danger Zone</h2>
+          <p class="font-['DM_Sans',sans-serif] text-slate-500 text-sm mb-6">
+            Permanently delete your account and all associated data. This action cannot be undone.
+          </p>
+
+          @if (deleteError()) {
+            <div class="bg-gradient-to-r from-red-50 to-rose-50 border-l-4 border-red-500 p-4 mb-6 rounded-xl">
+              <p class="font-['DM_Sans',sans-serif] text-red-700 text-sm font-medium">{{ deleteError() }}</p>
+            </div>
+          }
+
+          <form [formGroup]="deleteForm" (ngSubmit)="onDeleteSubmit()" class="space-y-4">
+            <div>
+              <label for="delete_password" class="font-['DM_Sans',sans-serif] block text-sm font-bold text-slate-900 mb-2">
+                Confirm your password to delete
+              </label>
+              <input
+                type="password"
+                id="delete_password"
+                formControlName="current_password"
+                class="w-full px-4 py-3 border-2 border-red-200 rounded-xl focus:border-red-400 focus:ring-4 focus:ring-red-200 transition-all outline-none text-slate-900 font-['DM_Sans',sans-serif]"
+                autocomplete="current-password"
+              />
+            </div>
+
+            <div class="flex justify-end pt-2">
+              <button
+                type="submit"
+                [disabled]="deleteForm.invalid || deleteSubmitting()"
+                class="group relative px-6 py-3 rounded-xl font-['DM_Sans',sans-serif] font-bold text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 overflow-hidden border-2 border-red-500"
+              >
+                <span class="absolute inset-0 bg-gradient-to-br from-red-500 via-red-600 to-red-700 transition-transform duration-300 group-hover:scale-110 group-disabled:scale-100"></span>
+                @if (deleteSubmitting()) {
+                  <span class="relative z-10 flex items-center gap-2">
+                    <svg class="w-5 h-5 animate-spin" aria-hidden="true" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Deleting...
+                  </span>
+                } @else {
+                  <span class="relative z-10">Delete Account</span>
+                }
+              </button>
+            </div>
+          </form>
+        </div>
+
+      </div>
+
+      <!-- Back Link -->
+      <div class="text-center mt-8">
+        <a
+          routerLink="/children"
+          class="font-['DM_Sans',sans-serif] text-sm text-slate-600 hover:text-rose-400 transition-colors font-medium inline-flex items-center gap-2"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          Back to My Children
+        </a>
+      </div>
+    }
+  </div>
+</div>

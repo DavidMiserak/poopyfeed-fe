@@ -410,4 +410,30 @@ describe('AuthService', () => {
       expect(localStorage.getItem('auth_token')).toBeNull();
     });
   });
+
+  describe('updateToken', () => {
+    it('should replace the stored token', () => {
+      localStorage.setItem('auth_token', 'old-token');
+      service['authToken'].set('old-token');
+
+      service.updateToken('new-token');
+
+      expect(service.getToken()).toBe('new-token');
+      expect(localStorage.getItem('auth_token')).toBe('new-token');
+      expect(service.isAuthenticated()).toBe(true);
+    });
+  });
+
+  describe('clearAuthAndRedirect', () => {
+    it('should clear auth and navigate to given path', () => {
+      localStorage.setItem('auth_token', 'test-token');
+      service['authToken'].set('test-token');
+
+      service.clearAuthAndRedirect('/');
+
+      expect(service.getToken()).toBeNull();
+      expect(service.isAuthenticated()).toBe(false);
+      expect(localStorage.getItem('auth_token')).toBeNull();
+    });
+  });
 });

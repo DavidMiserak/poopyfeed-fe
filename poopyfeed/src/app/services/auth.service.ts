@@ -129,6 +129,21 @@ export class AuthService {
   }
 
   /**
+   * Replace the stored token (e.g. after password change rotates the token)
+   */
+  updateToken(newToken: string): void {
+    this.setToken(newToken);
+  }
+
+  /**
+   * Clear auth state and redirect (e.g. after account deletion)
+   */
+  clearAuthAndRedirect(path: string): void {
+    this.clearToken();
+    this.router.navigate([path]);
+  }
+
+  /**
    * Set the auth token in memory and localStorage
    */
   private setToken(token: string): void {

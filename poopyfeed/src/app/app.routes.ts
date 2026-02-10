@@ -19,6 +19,15 @@ export const routes: Routes = [
     title: 'Sign Up - PoopyFeed',
   },
   {
+    path: 'account',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./account/settings/account-settings').then(
+        (m) => m.AccountSettings
+      ),
+    title: 'Account Settings - PoopyFeed',
+  },
+  {
     path: 'children',
     canActivate: [authGuard],
     children: [
