@@ -114,7 +114,7 @@ describe('SharingService', () => {
       service.listShares(1).subscribe({
         error: (error: Error) => {
           expect(error.message).toBe(
-            'You must be logged in to perform this action.'
+            'List: Your session has expired. Please log in again.'
           );
           errorCaught = true;
         },
@@ -132,7 +132,7 @@ describe('SharingService', () => {
       service.listShares(1).subscribe({
         error: (error: Error) => {
           expect(error.message).toBe(
-            'Only the child owner can manage sharing and invites.'
+            'List: You do not have permission to perform this action.'
           );
           errorCaught = true;
         },
@@ -149,7 +149,7 @@ describe('SharingService', () => {
 
       service.listShares(999).subscribe({
         error: (error: Error) => {
-          expect(error.message).toBe('Invite not found or has expired.');
+          expect(error.message).toBe('List: The requested resource was not found.');
           errorCaught = true;
         },
       });
@@ -165,7 +165,7 @@ describe('SharingService', () => {
 
       service.listShares(1).subscribe({
         error: (error: Error) => {
-          expect(error.message).toBe('Server error. Please try again later.');
+          expect(error.message).toBe('List: A server error occurred. Please try again later.');
           errorCaught = true;
         },
       });
@@ -191,7 +191,7 @@ describe('SharingService', () => {
 
       service.revokeShare(1, 999).subscribe({
         error: (error: Error) => {
-          expect(error.message).toBe('Invite not found or has expired.');
+          expect(error.message).toBe('Delete: The requested resource was not found.');
           errorCaught = true;
         },
       });
@@ -208,7 +208,7 @@ describe('SharingService', () => {
       service.revokeShare(1, 1).subscribe({
         error: (error: Error) => {
           expect(error.message).toBe(
-            'Only the child owner can manage sharing and invites.'
+            'Delete: You do not have permission to perform this action.'
           );
           errorCaught = true;
         },
@@ -252,7 +252,7 @@ describe('SharingService', () => {
       service.listInvites(1).subscribe({
         error: (error: Error) => {
           expect(error.message).toBe(
-            'You must be logged in to perform this action.'
+            'Your session has expired. Please log in again.'
           );
           errorCaught = true;
         },
@@ -270,7 +270,7 @@ describe('SharingService', () => {
       service.listInvites(1).subscribe({
         error: (error: Error) => {
           expect(error.message).toBe(
-            'Only the child owner can manage sharing and invites.'
+            'List: You do not have permission to perform this action.'
           );
           errorCaught = true;
         },
@@ -287,7 +287,7 @@ describe('SharingService', () => {
 
       service.listInvites(999).subscribe({
         error: (error: Error) => {
-          expect(error.message).toBe('Invite not found or has expired.');
+          expect(error.message).toBe('List: The requested resource was not found.');
           errorCaught = true;
         },
       });
@@ -303,7 +303,7 @@ describe('SharingService', () => {
 
       service.listInvites(1).subscribe({
         error: (error: Error) => {
-          expect(error.message).toBe('Server error. Please try again later.');
+          expect(error.message).toBe('A server error occurred. Please try again later.');
           errorCaught = true;
         },
       });
@@ -439,7 +439,7 @@ describe('SharingService', () => {
       service.createInvite(1, createCoParentData).subscribe({
         error: (error: Error) => {
           expect(error.message).toBe(
-            'Only the child owner can manage sharing and invites.'
+            'You do not have permission to perform this action.'
           );
           errorCaught = true;
         },
@@ -456,7 +456,7 @@ describe('SharingService', () => {
 
       service.createInvite(999, createCoParentData).subscribe({
         error: (error: Error) => {
-          expect(error.message).toBe('Invite not found or has expired.');
+          expect(error.message).toBe('The requested resource was not found.');
           errorCaught = true;
         },
       });
@@ -482,7 +482,7 @@ describe('SharingService', () => {
 
       service.deleteInvite(1, 999).subscribe({
         error: (error: Error) => {
-          expect(error.message).toBe('Invite not found or has expired.');
+          expect(error.message).toBe('Delete: The requested resource was not found.');
           errorCaught = true;
         },
       });
@@ -499,7 +499,7 @@ describe('SharingService', () => {
       service.deleteInvite(1, 1).subscribe({
         error: (error: Error) => {
           expect(error.message).toBe(
-            'Only the child owner can manage sharing and invites.'
+            'Delete: You do not have permission to perform this action.'
           );
           errorCaught = true;
         },
@@ -557,7 +557,7 @@ describe('SharingService', () => {
 
       service.acceptInvite(validToken).subscribe({
         error: (error: Error) => {
-          expect(error.message).toBe('Invite not found or has expired.');
+          expect(error.message).toBe('The requested resource was not found.');
           errorCaught = true;
         },
       });
@@ -574,7 +574,7 @@ describe('SharingService', () => {
       service.acceptInvite(validToken).subscribe({
         error: (error: Error) => {
           expect(error.message).toBe(
-            'You must be logged in to perform this action.'
+            'Your session has expired. Please log in again.'
           );
           errorCaught = true;
         },

@@ -87,7 +87,7 @@ describe('FeedingsService', () => {
       service.list(1).subscribe({
         error: (error: Error) => {
           expect(error.message).toBe(
-            'You must be logged in to perform this action.'
+            'Your session has expired. Please log in again.'
           );
           errorCaught = true;
         },
@@ -122,7 +122,7 @@ describe('FeedingsService', () => {
 
       service.list(999).subscribe({
         error: (error: Error) => {
-          expect(error.message).toBe('Feeding not found.');
+          expect(error.message).toBe('List: The requested resource was not found.');
           errorCaught = true;
         },
       });
@@ -138,7 +138,7 @@ describe('FeedingsService', () => {
 
       service.list(1).subscribe({
         error: (error: Error) => {
-          expect(error.message).toBe('Server error. Please try again later.');
+          expect(error.message).toBe('List: A server error occurred. Please try again later.');
           errorCaught = true;
         },
       });
@@ -168,7 +168,7 @@ describe('FeedingsService', () => {
 
       service.get(1, 999).subscribe({
         error: (error: Error) => {
-          expect(error.message).toBe('Feeding not found.');
+          expect(error.message).toBe('Get: The requested resource was not found.');
           errorCaught = true;
         },
       });
@@ -185,7 +185,7 @@ describe('FeedingsService', () => {
       service.get(1, 1).subscribe({
         error: (error: Error) => {
           expect(error.message).toBe(
-            'You do not have permission to perform this action.'
+            'Get: You do not have permission to perform this action.'
           );
           errorCaught = true;
         },
@@ -301,7 +301,7 @@ describe('FeedingsService', () => {
 
       service.create(1, createBottleData).subscribe({
         error: (error: Error) => {
-          expect(error.message).toBe('non_field_errors: Invalid feeding data');
+          expect(error.message).toBe('Invalid feeding data');
           errorCaught = true;
         },
       });
@@ -365,7 +365,7 @@ describe('FeedingsService', () => {
 
       service.update(1, 999, updateData).subscribe({
         error: (error: Error) => {
-          expect(error.message).toBe('Feeding not found.');
+          expect(error.message).toBe('Update: The requested resource was not found.');
           errorCaught = true;
         },
       });
@@ -429,7 +429,7 @@ describe('FeedingsService', () => {
 
       service.delete(1, 999).subscribe({
         error: (error: Error) => {
-          expect(error.message).toBe('Feeding not found.');
+          expect(error.message).toBe('Delete: The requested resource was not found.');
           errorCaught = true;
         },
       });
@@ -465,7 +465,7 @@ describe('FeedingsService', () => {
 
       service.get(1, 1).subscribe({
         error: (error: Error) => {
-          expect(error.message).toBe('Custom error detail');
+          expect(error.message).toBe('Get: Custom error detail');
           errorCaught = true;
         },
       });
@@ -485,7 +485,7 @@ describe('FeedingsService', () => {
       service.get(1, 1).subscribe({
         error: (error: Error) => {
           expect(error.message).toBe(
-            'Invalid request. Please check your input.'
+            'Get: Invalid request. Please check your input.'
           );
           errorCaught = true;
         },
@@ -503,7 +503,7 @@ describe('FeedingsService', () => {
       service.get(1, 1).subscribe({
         error: (error: Error) => {
           expect(error.message).toBe(
-            'An unexpected error occurred. Please try again.'
+            'Get: An unexpected error occurred. Please try again.'
           );
           errorCaught = true;
         },

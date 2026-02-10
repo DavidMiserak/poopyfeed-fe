@@ -1,5 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
+import { ErrorHandler } from './error.utils';
 import { Observable, tap, catchError, throwError } from 'rxjs';
 import {
   UserProfile,
@@ -21,7 +22,7 @@ export class AccountService {
   getProfile(): Observable<UserProfile> {
     return this.http.get<UserProfile>(`${this.API_BASE}/profile/`).pipe(
       tap((profile) => this.profile.set(profile)),
-      catchError((error) => throwError(() => this.handleError(error)))
+      catchError((error) => throwError(() => ErrorHandler.handle(error, 'Get')))
     );
   }
 
@@ -30,7 +31,7 @@ export class AccountService {
       .patch<UserProfile>(`${this.API_BASE}/profile/`, data)
       .pipe(
         tap((profile) => this.profile.set(profile)),
-        catchError((error) => throwError(() => this.handleError(error)))
+        catchError((error) => throwError(() => ErrorHandler.handle(error, 'Update')))
       );
   }
 
@@ -40,7 +41,7 @@ export class AccountService {
     return this.http
       .post<ChangePasswordResponse>(`${this.API_BASE}/password/`, data)
       .pipe(
-        catchError((error) => throwError(() => this.handleError(error)))
+        catchError((error) => throwError(() => ErrorHandler.handle(error, 'Update')))
       );
   }
 
@@ -48,47 +49,7 @@ export class AccountService {
     return this.http
       .post<void>(`${this.API_BASE}/delete/`, data)
       .pipe(
-        catchError((error) => throwError(() => this.handleError(error)))
+        catchError((error) => throwError(() => ErrorHandler.handle(error, 'Delete')))
       );
-  }
-
-  private handleError(error: unknown): Error {
-    if (error && typeof error === 'object' && 'error' in error) {
-      const httpError = error as HttpErrorResponse;
-
-      if (httpError.error && typeof httpError.error === 'object') {
-        const errorObj = httpError.error as Record<string, unknown>;
-
-        const firstKey = Object.keys(errorObj)[0];
-        if (firstKey && Array.isArray(errorObj[firstKey])) {
-          const messages = errorObj[firstKey] as string[];
-          return new Error(`${firstKey}: ${messages.join(', ')}`);
-        }
-
-        if (
-          'non_field_errors' in errorObj &&
-          Array.isArray(errorObj['non_field_errors'])
-        ) {
-          return new Error(
-            (errorObj['non_field_errors'] as string[]).join(', ')
-          );
-        }
-        if ('detail' in errorObj && typeof errorObj['detail'] === 'string') {
-          return new Error(errorObj['detail'] as string);
-        }
-      }
-
-      if (httpError.status === 400) {
-        return new Error('Invalid request. Please check your input.');
-      }
-      if (httpError.status === 401) {
-        return new Error('You must be logged in to perform this action.');
-      }
-      if (httpError.status === 500) {
-        return new Error('Server error. Please try again later.');
-      }
-    }
-
-    return new Error('An unexpected error occurred. Please try again.');
   }
 }

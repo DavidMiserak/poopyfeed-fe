@@ -66,7 +66,7 @@ describe('AuthService', () => {
 
       service.login(credentials).subscribe({
         error: (error) => {
-          expect(error.message).toBe('Invalid credentials');
+          expect(error.message).toBe('Login: Invalid credentials');
           errorCaught = true;
         },
       });
@@ -84,7 +84,7 @@ describe('AuthService', () => {
 
       service.login(credentials).subscribe({
         error: (error) => {
-          expect(error.message).toBe('Server error. Please try again later.');
+          expect(error.message).toBe('A server error occurred. Please try again later.');
           errorCaught = true;
         },
       });
@@ -137,7 +137,7 @@ describe('AuthService', () => {
 
       service.signup(signupData).subscribe({
         error: (error) => {
-          expect(error.message).toBe('email: User with this email already exists.');
+          expect(error.message).toBe('Signup: email: User with this email already exists.');
         },
       });
 
@@ -158,7 +158,7 @@ describe('AuthService', () => {
 
       service.signup(signupData).subscribe({
         error: (error) => {
-          expect(error.message).toBe('Server error. Please try again later.');
+          expect(error.message).toBe('A server error occurred. Please try again later.');
           errorCaught = true;
         },
       });
@@ -274,7 +274,7 @@ describe('AuthService', () => {
 
       const req = httpMock.expectOne('/api/v1/browser/v1/auth/login');
       req.flush(
-        { non_field_errors: ['Invalid credentials', 'Please try again'] },
+        { non_field_errors: ['Login: Invalid credentials', 'Please try again'] },
         { status: 400, statusText: 'Bad Request' }
       );
 
@@ -286,13 +286,13 @@ describe('AuthService', () => {
 
       service.login({ email: 'test@example.com', password: 'wrong' }).subscribe({
         error: (error) => {
-          expect(error.message).toBe('Unable to authenticate');
+          expect(error.message).toBe('Login: Unable to authenticate');
           errorCaught = true;
         },
       });
 
       const req = httpMock.expectOne('/api/v1/browser/v1/auth/login');
-      req.flush({ detail: 'Unable to authenticate' }, { status: 401, statusText: 'Unauthorized' });
+      req.flush({ detail: 'Login: Unable to authenticate' }, { status: 401, statusText: 'Unauthorized' });
 
       expect(errorCaught).toBe(true);
     });
@@ -302,7 +302,7 @@ describe('AuthService', () => {
 
       service.login({ email: 'test@example.com', password: 'wrong' }).subscribe({
         error: (error) => {
-          expect(error.message).toBe('Invalid email or password');
+          expect(error.message).toBe('Login: Your session has expired. Please log in again.');
           errorCaught = true;
         },
       });
@@ -318,7 +318,7 @@ describe('AuthService', () => {
 
       service.signup({ email: 'test', password: 'short' }).subscribe({
         error: (error) => {
-          expect(error.message).toBe('Invalid request. Please check your input.');
+          expect(error.message).toBe('Signup: Invalid request. Please check your input.');
           errorCaught = true;
         },
       });
@@ -334,7 +334,7 @@ describe('AuthService', () => {
 
       service.signup({ email: 'existing@example.com', password: 'password123' }).subscribe({
         error: (error) => {
-          expect(error.message).toBe('An account with this email already exists.');
+          expect(error.message).toBe('Signup: This resource already exists. Please check your input.');
           errorCaught = true;
         },
       });
@@ -350,7 +350,7 @@ describe('AuthService', () => {
 
       service.login({ email: 'test@example.com', password: 'password' }).subscribe({
         error: (error) => {
-          expect(error.message).toBe('Server error. Please try again later.');
+          expect(error.message).toBe('A server error occurred. Please try again later.');
           errorCaught = true;
         },
       });
@@ -366,7 +366,7 @@ describe('AuthService', () => {
 
       service.login({ email: 'test@example.com', password: 'password' }).subscribe({
         error: (error) => {
-          expect(error.message).toBe('An unexpected error occurred. Please try again.');
+          expect(error.message).toBe('Login: An unexpected error occurred. Please try again.');
           errorCaught = true;
         },
       });

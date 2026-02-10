@@ -3,7 +3,8 @@
  */
 
 import { Injectable, inject, signal } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
+import { ErrorHandler } from './error.utils';
 import { Observable, tap, catchError, throwError } from 'rxjs';
 import {
   ChildShare,
@@ -34,7 +35,7 @@ export class SharingService {
           this.shares.set(shares);
         }),
         catchError((error) => {
-          return throwError(() => this.handleError(error));
+          return throwError(() => ErrorHandler.handle(error, 'List'));
         })
       );
   }
@@ -52,7 +53,7 @@ export class SharingService {
           this.shares.set(currentShares.filter((s) => s.id !== shareId));
         }),
         catchError((error) => {
-          return throwError(() => this.handleError(error));
+          return throwError(() => ErrorHandler.handle(error, 'Delete'));
         })
       );
   }
@@ -68,7 +69,7 @@ export class SharingService {
           this.invites.set(invites);
         }),
         catchError((error) => {
-          return throwError(() => this.handleError(error));
+          return throwError(() => ErrorHandler.handle(error, 'List'));
         })
       );
   }
@@ -89,7 +90,7 @@ export class SharingService {
           this.invites.set([invite, ...currentInvites]);
         }),
         catchError((error) => {
-          return throwError(() => this.handleError(error));
+          return throwError(() => ErrorHandler.handle(error, 'Create'));
         })
       );
   }
@@ -118,7 +119,7 @@ export class SharingService {
           }
         }),
         catchError((error) => {
-          return throwError(() => this.handleError(error));
+          return throwError(() => ErrorHandler.handle(error, 'Update'));
         })
       );
   }
@@ -136,7 +137,7 @@ export class SharingService {
           this.invites.set(currentInvites.filter((i) => i.id !== inviteId));
         }),
         catchError((error) => {
-          return throwError(() => this.handleError(error));
+          return throwError(() => ErrorHandler.handle(error, 'Delete'));
         })
       );
   }
@@ -151,7 +152,7 @@ export class SharingService {
       })
       .pipe(
         catchError((error) => {
-          return throwError(() => this.handleError(error));
+          return throwError(() => ErrorHandler.handle(error, 'Accept'));
         })
       );
   }
@@ -165,63 +166,5 @@ export class SharingService {
       return `/invites/accept/${token}`;
     }
     return `${window.location.origin}/invites/accept/${token}`;
-  }
-
-  /**
-   * Handle HTTP errors and return user-friendly messages
-   */
-  private handleError(error: unknown): Error {
-    if (error && typeof error === 'object' && 'error' in error) {
-      const httpError = error as HttpErrorResponse;
-
-      // Handle field-specific errors from Django
-      if (httpError.error && typeof httpError.error === 'object') {
-        const errorObj = httpError.error as Record<string, unknown>;
-
-        // Handle field-specific errors
-        const firstKey = Object.keys(errorObj)[0];
-        if (firstKey && Array.isArray(errorObj[firstKey])) {
-          const messages = errorObj[firstKey] as string[];
-          return new Error(`${firstKey}: ${messages.join(', ')}`);
-        }
-
-        // Handle non_field_errors or detail
-        if (
-          'non_field_errors' in errorObj &&
-          Array.isArray(errorObj['non_field_errors'])
-        ) {
-          return new Error(
-            (errorObj['non_field_errors'] as string[]).join(', ')
-          );
-        }
-        if ('detail' in errorObj && typeof errorObj['detail'] === 'string') {
-          return new Error(errorObj['detail'] as string);
-        }
-      }
-
-      // Handle HTTP status codes with sharing-specific messages
-      if (httpError.status === 400) {
-        return new Error('Invalid request. Please check your input.');
-      }
-      if (httpError.status === 401) {
-        return new Error('You must be logged in to perform this action.');
-      }
-      if (httpError.status === 403) {
-        return new Error(
-          'Only the child owner can manage sharing and invites.'
-        );
-      }
-      if (httpError.status === 404) {
-        return new Error('Invite not found or has expired.');
-      }
-      if (httpError.status === 410) {
-        return new Error('This invite has expired and is no longer valid.');
-      }
-      if (httpError.status === 500) {
-        return new Error('Server error. Please try again later.');
-      }
-    }
-
-    return new Error('An unexpected error occurred. Please try again.');
   }
 }

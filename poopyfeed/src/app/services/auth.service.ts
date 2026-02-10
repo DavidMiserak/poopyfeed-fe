@@ -1,5 +1,6 @@
 import { Injectable, inject, signal, computed, afterNextRender } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { ErrorHandler } from './error.utils';
 import { Router } from '@angular/router';
 import { Observable, tap, catchError, throwError, switchMap } from 'rxjs';
 
@@ -66,7 +67,7 @@ export class AuthService {
           this.setToken(response.auth_token);
         }),
         catchError((error) => {
-          return throwError(() => this.handleError(error));
+          return throwError(() => ErrorHandler.handle(error, 'Login'));
         })
       );
   }
@@ -96,7 +97,7 @@ export class AuthService {
         );
       }),
       catchError((error) => {
-        return throwError(() => this.handleError(error));
+        return throwError(() => ErrorHandler.handle(error, 'Signup'));
       })
     );
   }
@@ -116,7 +117,7 @@ export class AuthService {
         // Clear token even if logout fails
         this.clearToken();
         this.router.navigate(['/login']);
-        return throwError(() => this.handleError(error));
+        return throwError(() => ErrorHandler.handle(error, 'Logout'));
       })
     );
   }
@@ -167,50 +168,5 @@ export class AuthService {
       return null;
     }
     return localStorage.getItem(this.TOKEN_KEY);
-  }
-
-  /**
-   * Handle HTTP errors and return user-friendly messages
-   */
-  private handleError(error: unknown): Error {
-    if (error && typeof error === 'object' && 'error' in error) {
-      const httpError = error as { error: Record<string, unknown>; status?: number };
-
-      // Handle different error response formats from Django
-      if (httpError.error && typeof httpError.error === 'object') {
-        const errorObj = httpError.error as Record<string, unknown>;
-
-        // Handle field-specific errors (e.g., {"email": ["This field is required"]})
-        const firstKey = Object.keys(errorObj)[0];
-        if (firstKey && Array.isArray(errorObj[firstKey])) {
-          const messages = errorObj[firstKey] as string[];
-          return new Error(`${firstKey}: ${messages.join(', ')}`);
-        }
-
-        // Handle non_field_errors or detail
-        if ('non_field_errors' in errorObj && Array.isArray(errorObj['non_field_errors'])) {
-          return new Error((errorObj['non_field_errors'] as string[]).join(', '));
-        }
-        if ('detail' in errorObj && typeof errorObj['detail'] === 'string') {
-          return new Error(errorObj['detail'] as string);
-        }
-      }
-
-      // Handle HTTP status codes
-      if (httpError.status === 401) {
-        return new Error('Invalid email or password');
-      }
-      if (httpError.status === 400) {
-        return new Error('Invalid request. Please check your input.');
-      }
-      if (httpError.status === 409) {
-        return new Error('An account with this email already exists.');
-      }
-      if (httpError.status === 500) {
-        return new Error('Server error. Please try again later.');
-      }
-    }
-
-    return new Error('An unexpected error occurred. Please try again.');
   }
 }

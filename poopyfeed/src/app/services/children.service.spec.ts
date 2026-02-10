@@ -491,7 +491,7 @@ describe('ChildrenService', () => {
       service.get(1).subscribe({
         error: (error: Error) => {
           expect(error.message).toBe(
-            'An unexpected error occurred. Please try again.'
+            'Get child: An unexpected error occurred. Please try again.'
           );
           errorCaught = true;
         },

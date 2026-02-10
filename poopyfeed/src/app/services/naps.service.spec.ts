@@ -90,7 +90,7 @@ describe('NapsService', () => {
       service.list(1).subscribe({
         error: (error: Error) => {
           expect(error.message).toBe(
-            'You must be logged in to perform this action.'
+            'Your session has expired. Please log in again.'
           );
           errorCaught = true;
         },
@@ -125,7 +125,7 @@ describe('NapsService', () => {
 
       service.list(999).subscribe({
         error: (error: Error) => {
-          expect(error.message).toBe('Nap not found.');
+          expect(error.message).toBe('The requested resource was not found.');
           errorCaught = true;
         },
       });
@@ -141,7 +141,7 @@ describe('NapsService', () => {
 
       service.list(1).subscribe({
         error: (error: Error) => {
-          expect(error.message).toBe('Server error. Please try again later.');
+          expect(error.message).toBe('A server error occurred. Please try again later.');
           errorCaught = true;
         },
       });
@@ -171,7 +171,7 @@ describe('NapsService', () => {
 
       service.get(1, 999).subscribe({
         error: (error: Error) => {
-          expect(error.message).toBe('Nap not found.');
+          expect(error.message).toBe('Get: The requested resource was not found.');
           errorCaught = true;
         },
       });
@@ -188,7 +188,7 @@ describe('NapsService', () => {
       service.get(1, 1).subscribe({
         error: (error: Error) => {
           expect(error.message).toBe(
-            'You do not have permission to perform this action.'
+            'Get: You do not have permission to perform this action.'
           );
           errorCaught = true;
         },
@@ -316,7 +316,7 @@ describe('NapsService', () => {
 
       service.update(1, 999, updateData).subscribe({
         error: (error: Error) => {
-          expect(error.message).toBe('Nap not found.');
+          expect(error.message).toBe('The requested resource was not found.');
           errorCaught = true;
         },
       });
@@ -380,7 +380,7 @@ describe('NapsService', () => {
 
       service.delete(1, 999).subscribe({
         error: (error: Error) => {
-          expect(error.message).toBe('Nap not found.');
+          expect(error.message).toBe('The requested resource was not found.');
           errorCaught = true;
         },
       });
@@ -416,7 +416,7 @@ describe('NapsService', () => {
 
       service.get(1, 1).subscribe({
         error: (error: Error) => {
-          expect(error.message).toBe('Custom error detail');
+          expect(error.message).toBe('Get: Custom error detail');
           errorCaught = true;
         },
       });
@@ -436,7 +436,7 @@ describe('NapsService', () => {
       service.get(1, 1).subscribe({
         error: (error: Error) => {
           expect(error.message).toBe(
-            'Invalid request. Please check your input.'
+            'Get: Invalid request. Please check your input.'
           );
           errorCaught = true;
         },
@@ -454,7 +454,7 @@ describe('NapsService', () => {
       service.get(1, 1).subscribe({
         error: (error: Error) => {
           expect(error.message).toBe(
-            'An unexpected error occurred. Please try again.'
+            'Get: An unexpected error occurred. Please try again.'
           );
           errorCaught = true;
         },
