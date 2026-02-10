@@ -18,6 +18,13 @@ import { Feeding } from '../../models/feeding.model';
 import { DiaperChange } from '../../models/diaper.model';
 import { Nap } from '../../models/nap.model';
 import { QuickLog } from './quick-log/quick-log';
+import {
+  getChildAgeLong,
+  formatActivityAge,
+  getGenderIconDetailed,
+  getActivityIcon,
+  isToday,
+} from '../../utils/date.utils';
 
 interface ActivityItem {
   id: number;
@@ -140,57 +147,13 @@ export class ChildDashboard implements OnInit {
     }
   }
 
-  getChildAge(dateOfBirth: string): string {
-    const today = new Date();
-    const birthDate = new Date(dateOfBirth);
-    const diffMs = today.getTime() - birthDate.getTime();
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  getChildAge = (dateOfBirth: string) => getChildAgeLong(dateOfBirth);
 
-    if (diffDays < 60) {
-      return `${diffDays} ${diffDays === 1 ? 'day' : 'days'} old`;
-    } else if (diffDays < 730) {
-      const months = Math.floor(diffDays / 30);
-      return `${months} ${months === 1 ? 'month' : 'months'} old`;
-    } else {
-      const years = Math.floor(diffDays / 365);
-      return `${years} ${years === 1 ? 'year' : 'years'} old`;
-    }
-  }
+  getGenderIcon = (gender: 'M' | 'F' | 'O') => getGenderIconDetailed(gender);
 
-  getGenderIcon(gender: 'M' | 'F' | 'O'): string {
-    const icons = {
-      M: '👦',
-      F: '👧',
-      O: '👶',
-    };
-    return icons[gender];
-  }
+  formatTimestamp = (timestamp: string) => formatActivityAge(timestamp);
 
-  formatTimestamp(timestamp: string): string {
-    const date = new Date(timestamp);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffMins = Math.floor(diffMs / (1000 * 60));
-
-    if (diffMins < 60) {
-      return `${diffMins} ${diffMins === 1 ? 'min' : 'mins'} ago`;
-    } else if (diffMins < 1440) {
-      const hours = Math.floor(diffMins / 60);
-      return `${hours} ${hours === 1 ? 'hour' : 'hours'} ago`;
-    } else {
-      const days = Math.floor(diffMins / 1440);
-      return `${days} ${days === 1 ? 'day' : 'days'} ago`;
-    }
-  }
-
-  getActivityIcon(type: 'feeding' | 'diaper' | 'nap'): string {
-    const icons = {
-      feeding: '🍼',
-      diaper: '🧷',
-      nap: '😴',
-    };
-    return icons[type];
-  }
+  getActivityIcon = (type: 'feeding' | 'diaper' | 'nap') => getActivityIcon(type);
 
   getActivityTitle(item: ActivityItem): string {
     switch (item.type) {
@@ -215,13 +178,5 @@ export class ChildDashboard implements OnInit {
     }
   }
 
-  isToday(utcTimestamp: string): boolean {
-    const date = new Date(utcTimestamp);
-    const now = new Date();
-    return (
-      date.getFullYear() === now.getFullYear() &&
-      date.getMonth() === now.getMonth() &&
-      date.getDate() === now.getDate()
-    );
-  }
+  isToday = (utcTimestamp: string) => isToday(utcTimestamp);
 }
