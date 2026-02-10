@@ -43,14 +43,14 @@ describe('Header', () => {
   });
 
   it('should show logout button when authenticated', () => {
-    // Set a token to simulate authenticated state
     localStorage.setItem('auth_token', 'test-token');
     authService['authToken'].set('test-token');
     fixture.detectChanges();
 
     const compiled = fixture.nativeElement as HTMLElement;
-    const logoutButton = compiled.querySelector('button');
-    expect(logoutButton?.textContent?.trim()).toBe('Log out');
+    const logoutButton = compiled.querySelector('button[aria-label="Log out"]');
+    expect(logoutButton).toBeTruthy();
+    expect(logoutButton?.textContent).toContain('Log out');
   });
 
   it('should show My Children link when authenticated', () => {
@@ -71,6 +71,51 @@ describe('Header', () => {
     expect(brandLink?.textContent).toContain('Feed');
   });
 
+  describe('Mobile menu', () => {
+    it('should start with menu closed', () => {
+      expect(component.menuOpen()).toBe(false);
+    });
+
+    it('should toggle menu open and closed', () => {
+      component.toggleMenu();
+      expect(component.menuOpen()).toBe(true);
+
+      component.toggleMenu();
+      expect(component.menuOpen()).toBe(false);
+    });
+
+    it('should render hamburger button', () => {
+      fixture.detectChanges();
+      const compiled = fixture.nativeElement as HTMLElement;
+      const hamburger = compiled.querySelector('button[aria-label="Toggle navigation menu"]');
+      expect(hamburger).toBeTruthy();
+    });
+
+    it('should update aria-expanded when toggled', () => {
+      fixture.detectChanges();
+      const compiled = fixture.nativeElement as HTMLElement;
+      const hamburger = compiled.querySelector('button[aria-label="Toggle navigation menu"]');
+      expect(hamburger?.getAttribute('aria-expanded')).toBe('false');
+
+      component.toggleMenu();
+      fixture.detectChanges();
+      expect(hamburger?.getAttribute('aria-expanded')).toBe('true');
+    });
+
+    it('should close menu on logout', () => {
+      localStorage.setItem('auth_token', 'test-token');
+      authService['authToken'].set('test-token');
+
+      component.menuOpen.set(true);
+      const logoutSpy = vi.spyOn(authService, 'logout').mockReturnValue(of(undefined));
+
+      component.logout();
+
+      expect(component.menuOpen()).toBe(false);
+      expect(logoutSpy).toHaveBeenCalledOnce();
+    });
+  });
+
   describe('Logout functionality', () => {
     it('should call authService.logout() when logout button clicked', () => {
       localStorage.setItem('auth_token', 'test-token');
@@ -79,7 +124,9 @@ describe('Header', () => {
 
       const logoutSpy = vi.spyOn(authService, 'logout').mockReturnValue(of(undefined));
 
-      const logoutButton = fixture.nativeElement.querySelector('button') as HTMLButtonElement;
+      const logoutButton = fixture.nativeElement.querySelector(
+        'button[aria-label="Log out"]',
+      ) as HTMLButtonElement;
       logoutButton.click();
 
       expect(logoutSpy).toHaveBeenCalledOnce();

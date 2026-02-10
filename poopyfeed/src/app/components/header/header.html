@@ -19,12 +19,12 @@
       </span>
     </a>
 
-    <!-- Navigation & Auth -->
-    <nav class="flex items-center gap-2" aria-label="Main navigation">
+    <!-- Desktop Navigation -->
+    <nav class="hidden sm:flex items-center gap-2" aria-label="Main navigation">
       @if (authService.isAuthenticated()) {
         <a
           routerLink="/children"
-          class="nav-link px-3 py-2 rounded-lg text-sm font-medium text-slate-600 transition-colors duration-200 hover:text-rose-600 hover:bg-rose-50 no-underline"
+          class="px-3 py-2 rounded-lg text-sm font-medium text-slate-600 transition-colors duration-200 hover:text-rose-600 hover:bg-rose-50 no-underline"
         >
           My Children
         </a>
@@ -36,7 +36,7 @@
           class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-slate-500 transition-colors duration-200 hover:text-rose-600 hover:bg-rose-50 cursor-pointer border-none bg-transparent group"
           aria-label="Log out"
         >
-          <span class="hidden sm:inline">Log out</span>
+          Log out
           <svg class="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
           </svg>
@@ -44,7 +44,7 @@
       } @else {
         <a
           routerLink="/login"
-          class="nav-link px-3 py-2 rounded-lg text-sm font-medium text-slate-600 transition-colors duration-200 hover:text-rose-600 hover:bg-rose-50 no-underline"
+          class="px-3 py-2 rounded-lg text-sm font-medium text-slate-600 transition-colors duration-200 hover:text-rose-600 hover:bg-rose-50 no-underline"
         >
           Log in
         </a>
@@ -57,7 +57,72 @@
         </a>
       }
     </nav>
+
+    <!-- Hamburger button (mobile only) -->
+    <button
+      class="sm:hidden flex items-center justify-center w-10 h-10 rounded-lg transition-colors duration-200 hover:bg-rose-50 cursor-pointer border-none bg-transparent"
+      (click)="toggleMenu()"
+      [attr.aria-expanded]="menuOpen()"
+      aria-controls="mobile-menu"
+      aria-label="Toggle navigation menu"
+    >
+      <div class="hamburger-icon" [class.open]="menuOpen()">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </button>
   </div>
+
+  <!-- Mobile menu panel -->
+  <nav
+    id="mobile-menu"
+    class="sm:hidden overflow-hidden transition-[max-height,opacity] duration-300 ease-in-out bg-white/95 backdrop-blur-md"
+    [class.max-h-0]="!menuOpen()"
+    [class.opacity-0]="!menuOpen()"
+    [class.max-h-64]="menuOpen()"
+    [class.opacity-100]="menuOpen()"
+    [attr.aria-hidden]="!menuOpen()"
+    aria-label="Mobile navigation"
+  >
+    <div class="max-w-7xl mx-auto px-4 pb-4 pt-2 flex flex-col gap-1">
+      @if (authService.isAuthenticated()) {
+        <a
+          routerLink="/children"
+          class="px-3 py-3 rounded-lg text-base font-medium text-slate-700 transition-colors duration-200 hover:text-rose-600 hover:bg-rose-50 no-underline"
+        >
+          My Children
+        </a>
+
+        <div class="h-px bg-slate-100 mx-3" aria-hidden="true"></div>
+
+        <button
+          (click)="logout()"
+          class="flex items-center gap-2 px-3 py-3 rounded-lg text-base font-medium text-slate-500 transition-colors duration-200 hover:text-rose-600 hover:bg-rose-50 cursor-pointer border-none bg-transparent text-left"
+          aria-label="Log out"
+        >
+          Log out
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+        </button>
+      } @else {
+        <a
+          routerLink="/login"
+          class="px-3 py-3 rounded-lg text-base font-medium text-slate-700 transition-colors duration-200 hover:text-rose-600 hover:bg-rose-50 no-underline"
+        >
+          Log in
+        </a>
+
+        <a
+          routerLink="/signup"
+          class="mx-3 mt-1 inline-flex items-center justify-center px-5 py-3 rounded-lg text-base font-bold text-white no-underline bg-gradient-to-r from-rose-500 to-orange-400 shadow-sm transition-all duration-200 hover:shadow-md hover:brightness-110 active:brightness-95"
+        >
+          Get Started
+        </a>
+      }
+    </div>
+  </nav>
 
   <!-- Bottom hairline border -->
   <div class="h-px bg-slate-200/80"></div>
