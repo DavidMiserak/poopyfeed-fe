@@ -14,7 +14,7 @@ pre-commit-setup:
 	pre-commit run --all-files
 
 .PHONY: image-build-prod
-image-build: Containerfile
+image-build-prod: Containerfile
 	$(RUNTIME) build -t $(REGISTRY)/$(IMAGE_NAME):$(IMAGE_TAG) -f Containerfile --target production .
 
 .PHONY: image-build-dev
