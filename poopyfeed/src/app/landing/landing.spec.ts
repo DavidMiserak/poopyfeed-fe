@@ -29,7 +29,6 @@ describe('Landing', () => {
     expect(compiled.querySelector('app-features')).toBeTruthy();
     expect(compiled.querySelector('app-benefits')).toBeTruthy();
     expect(compiled.querySelector('app-cta')).toBeTruthy();
-    expect(compiled.querySelector('app-footer')).toBeTruthy();
   });
 
   it('should wrap sections in main element', () => {
@@ -44,13 +43,4 @@ describe('Landing', () => {
     expect(main?.querySelector('app-cta')).toBeTruthy();
   });
 
-  it('should render footer outside main', () => {
-    fixture.detectChanges();
-    const compiled = fixture.nativeElement as HTMLElement;
-    const footer = compiled.querySelector('app-footer');
-    const main = compiled.querySelector('main');
-
-    expect(footer).toBeTruthy();
-    expect(main?.contains(footer!)).toBe(false);
-  });
 });

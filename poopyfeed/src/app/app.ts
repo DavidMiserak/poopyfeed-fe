@@ -13,21 +13,5 @@ import { Toast } from './components/toast/toast';
   styleUrl: './app.css',
 })
 export class App {
-  private router = inject(Router);
   protected readonly title = signal('poopyfeed');
-
-  // Track current URL to conditionally show footer
-  private currentUrl = toSignal(
-    this.router.events.pipe(
-      filter((event): event is NavigationEnd => event instanceof NavigationEnd),
-      map(event => event.urlAfterRedirects)
-    ),
-    { initialValue: this.router.url }
-  );
-
-  // Show universal footer on all pages EXCEPT landing page
-  protected showUniversalFooter = computed(() => {
-    const url = this.currentUrl();
-    return url !== '/' && !url.startsWith('/?');
-  });
 }
