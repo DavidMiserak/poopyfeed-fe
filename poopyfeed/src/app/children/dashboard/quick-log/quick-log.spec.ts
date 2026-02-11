@@ -628,22 +628,24 @@ describe('QuickLog', () => {
     });
 
     it('should show nap emoji when not loading', () => {
-      const button = fixture.nativeElement.querySelector('button');
-      const emoji = button.querySelector('span.text-4xl');
+      const buttons = fixture.nativeElement.querySelectorAll('button');
+      const napButton = buttons[3];
+      const emoji = napButton.querySelector('span.text-6xl');
       expect(emoji.textContent).toBe('😴');
-      expect(button.disabled).toBe(false);
+      expect(napButton.disabled).toBe(false);
     });
 
     it('should show spinner when loading', () => {
       component.isLoggingNap.set(true);
       fixture.detectChanges();
 
-      const button = fixture.nativeElement.querySelector('button');
-      const spinner = button.querySelector('svg.animate-spin');
+      const buttons = fixture.nativeElement.querySelectorAll('button');
+      const napButton = buttons[3];
+      const spinner = napButton.querySelector('svg.animate-spin');
       expect(spinner).toBeTruthy();
-      const emoji = button.querySelector('span.text-4xl');
+      const emoji = napButton.querySelector('span.text-6xl');
       expect(emoji).toBeFalsy();
-      expect(button.disabled).toBe(true);
+      expect(napButton.disabled).toBe(true);
     });
 
     it('should disable nap button when canEdit is false', () => {
@@ -656,24 +658,24 @@ describe('QuickLog', () => {
 
     it('should show wet diaper emoji when not loading', () => {
       const buttons = fixture.nativeElement.querySelectorAll('button');
-      const wetButton = buttons[2];
-      const emoji = wetButton.querySelector('span.text-3xl');
+      const wetButton = buttons[0];
+      const emoji = wetButton.querySelector('span.text-5xl');
       expect(emoji.textContent).toBe('💧');
       expect(wetButton.disabled).toBe(false);
     });
 
     it('should show dirty diaper emoji when not loading', () => {
       const buttons = fixture.nativeElement.querySelectorAll('button');
-      const dirtyButton = buttons[3];
-      const emoji = dirtyButton.querySelector('span.text-3xl');
+      const dirtyButton = buttons[1];
+      const emoji = dirtyButton.querySelector('span.text-5xl');
       expect(emoji.textContent).toBe('💩');
       expect(dirtyButton.disabled).toBe(false);
     });
 
     it('should show both diaper emoji when not loading', () => {
       const buttons = fixture.nativeElement.querySelectorAll('button');
-      const bothButton = buttons[4];
-      const emoji = bothButton.querySelector('span.text-3xl');
+      const bothButton = buttons[2];
+      const emoji = bothButton.querySelector('span.text-5xl');
       expect(emoji.textContent).toBe('🧷');
       expect(bothButton.disabled).toBe(false);
     });
@@ -683,10 +685,10 @@ describe('QuickLog', () => {
       fixture.detectChanges();
 
       const buttons = fixture.nativeElement.querySelectorAll('button');
-      const wetButton = buttons[2];
+      const wetButton = buttons[0];
       const spinner = wetButton.querySelector('svg.animate-spin');
       expect(spinner).toBeTruthy();
-      const emoji = wetButton.querySelector('span.text-3xl');
+      const emoji = wetButton.querySelector('span.text-5xl');
       expect(emoji).toBeFalsy();
       expect(wetButton.disabled).toBe(true);
     });
@@ -696,10 +698,10 @@ describe('QuickLog', () => {
       fixture.detectChanges();
 
       const buttons = fixture.nativeElement.querySelectorAll('button');
-      const dirtyButton = buttons[3];
+      const dirtyButton = buttons[1];
       const spinner = dirtyButton.querySelector('svg.animate-spin');
       expect(spinner).toBeTruthy();
-      const emoji = dirtyButton.querySelector('span.text-3xl');
+      const emoji = dirtyButton.querySelector('span.text-5xl');
       expect(emoji).toBeFalsy();
       expect(dirtyButton.disabled).toBe(true);
     });
@@ -709,10 +711,10 @@ describe('QuickLog', () => {
       fixture.detectChanges();
 
       const buttons = fixture.nativeElement.querySelectorAll('button');
-      const bothButton = buttons[4];
+      const bothButton = buttons[2];
       const spinner = bothButton.querySelector('svg.animate-spin');
       expect(spinner).toBeTruthy();
-      const emoji = bothButton.querySelector('span.text-3xl');
+      const emoji = bothButton.querySelector('span.text-5xl');
       expect(emoji).toBeFalsy();
       expect(bothButton.disabled).toBe(true);
     });
@@ -737,9 +739,9 @@ describe('QuickLog', () => {
 
     it('should show bottle emoji when not loading', () => {
       const buttons = fixture.nativeElement.querySelectorAll('button');
-      // Bottle button is second in the left column (after nap)
-      const bottleButton = buttons[1];
-      const emoji = bottleButton.querySelector('span.text-4xl');
+      // Bottle button is now at index 4 (after diapers on left, nap on right)
+      const bottleButton = buttons[4];
+      const emoji = bottleButton.querySelector('span.text-6xl');
       expect(emoji.textContent).toBe('🍼');
       expect(bottleButton.disabled).toBe(false);
     });
@@ -749,17 +751,17 @@ describe('QuickLog', () => {
       fixture.detectChanges();
 
       const buttons = fixture.nativeElement.querySelectorAll('button');
-      const bottleButton = buttons[1];
+      const bottleButton = buttons[4];
       const spinner = bottleButton.querySelector('svg.animate-spin');
       expect(spinner).toBeTruthy();
-      const emoji = bottleButton.querySelector('span.text-4xl');
+      const emoji = bottleButton.querySelector('span.text-6xl');
       expect(emoji).toBeFalsy();
       expect(bottleButton.disabled).toBe(true);
     });
 
     it('should have bottle button with rose gradient', () => {
       const buttons = fixture.nativeElement.querySelectorAll('button');
-      const bottleButton = buttons[1];
+      const bottleButton = buttons[4];
       expect(bottleButton.classList.contains('border-rose-400')).toBe(true);
     });
 
@@ -767,15 +769,16 @@ describe('QuickLog', () => {
     it('should have aria-busy="true" when loading nap', () => {
       component.isLoggingNap.set(true);
       fixture.detectChanges();
-      const button = fixture.nativeElement.querySelector('button');
-      expect(button.getAttribute('aria-busy')).toBe('true');
+      const buttons = fixture.nativeElement.querySelectorAll('button');
+      const napButton = buttons[3];
+      expect(napButton.getAttribute('aria-busy')).toBe('true');
     });
 
     it('should have aria-busy="true" when loading wet diaper', () => {
       component.isLoggingWetDiaper.set(true);
       fixture.detectChanges();
       const buttons = fixture.nativeElement.querySelectorAll('button');
-      const wetButton = buttons[2];
+      const wetButton = buttons[0];
       expect(wetButton.getAttribute('aria-busy')).toBe('true');
     });
 
@@ -783,7 +786,7 @@ describe('QuickLog', () => {
       component.isLoggingDirtyDiaper.set(true);
       fixture.detectChanges();
       const buttons = fixture.nativeElement.querySelectorAll('button');
-      const dirtyButton = buttons[3];
+      const dirtyButton = buttons[1];
       expect(dirtyButton.getAttribute('aria-busy')).toBe('true');
     });
 
@@ -791,71 +794,72 @@ describe('QuickLog', () => {
       component.isLoggingBothDiaper.set(true);
       fixture.detectChanges();
       const buttons = fixture.nativeElement.querySelectorAll('button');
-      const bothButton = buttons[4];
+      const bothButton = buttons[2];
       expect(bothButton.getAttribute('aria-busy')).toBe('true');
     });
 
     // Loading spinner size tests
-    it('should show large spinner (w-8 h-8) when loading nap', () => {
+    it('should show large spinner (w-10 h-10) when loading nap', () => {
       component.isLoggingNap.set(true);
       fixture.detectChanges();
-      const button = fixture.nativeElement.querySelector('button');
-      const spinner = button.querySelector('svg.animate-spin');
+      const buttons = fixture.nativeElement.querySelectorAll('button');
+      const napButton = buttons[3];
+      const spinner = napButton.querySelector('svg.animate-spin');
+      expect(spinner).toBeTruthy();
+      expect(spinner.classList.contains('w-10')).toBe(true);
+      expect(spinner.classList.contains('h-10')).toBe(true);
+    });
+
+    it('should show medium spinner (w-8 h-8) when loading wet diaper', () => {
+      component.isLoggingWetDiaper.set(true);
+      fixture.detectChanges();
+      const buttons = fixture.nativeElement.querySelectorAll('button');
+      const wetButton = buttons[0];
+      const spinner = wetButton.querySelector('svg.animate-spin');
       expect(spinner).toBeTruthy();
       expect(spinner.classList.contains('w-8')).toBe(true);
       expect(spinner.classList.contains('h-8')).toBe(true);
     });
 
-    it('should show medium spinner (w-6 h-6) when loading wet diaper', () => {
-      component.isLoggingWetDiaper.set(true);
-      fixture.detectChanges();
-      const buttons = fixture.nativeElement.querySelectorAll('button');
-      const wetButton = buttons[2];
-      const spinner = wetButton.querySelector('svg.animate-spin');
-      expect(spinner).toBeTruthy();
-      expect(spinner.classList.contains('w-6')).toBe(true);
-      expect(spinner.classList.contains('h-6')).toBe(true);
-    });
-
-    it('should show medium spinner (w-6 h-6) when loading dirty diaper', () => {
+    it('should show medium spinner (w-8 h-8) when loading dirty diaper', () => {
       component.isLoggingDirtyDiaper.set(true);
       fixture.detectChanges();
       const buttons = fixture.nativeElement.querySelectorAll('button');
-      const dirtyButton = buttons[3];
+      const dirtyButton = buttons[1];
       const spinner = dirtyButton.querySelector('svg.animate-spin');
       expect(spinner).toBeTruthy();
-      expect(spinner.classList.contains('w-6')).toBe(true);
-      expect(spinner.classList.contains('h-6')).toBe(true);
+      expect(spinner.classList.contains('w-8')).toBe(true);
+      expect(spinner.classList.contains('h-8')).toBe(true);
     });
 
-    it('should show medium spinner (w-6 h-6) when loading both diaper', () => {
+    it('should show medium spinner (w-8 h-8) when loading both diaper', () => {
       component.isLoggingBothDiaper.set(true);
       fixture.detectChanges();
       const buttons = fixture.nativeElement.querySelectorAll('button');
-      const bothButton = buttons[4];
+      const bothButton = buttons[2];
       const spinner = bothButton.querySelector('svg.animate-spin');
       expect(spinner).toBeTruthy();
-      expect(spinner.classList.contains('w-6')).toBe(true);
-      expect(spinner.classList.contains('h-6')).toBe(true);
+      expect(spinner.classList.contains('w-8')).toBe(true);
+      expect(spinner.classList.contains('h-8')).toBe(true);
     });
 
     it('should have aria-busy="true" when loading bottle', () => {
       component.isLoggingBottle.set(true);
       fixture.detectChanges();
       const buttons = fixture.nativeElement.querySelectorAll('button');
-      const bottleButton = buttons[1];
+      const bottleButton = buttons[4];
       expect(bottleButton.getAttribute('aria-busy')).toBe('true');
     });
 
-    it('should show large spinner (w-8 h-8) when loading bottle', () => {
+    it('should show large spinner (w-10 h-10) when loading bottle', () => {
       component.isLoggingBottle.set(true);
       fixture.detectChanges();
       const buttons = fixture.nativeElement.querySelectorAll('button');
-      const bottleButton = buttons[1];
+      const bottleButton = buttons[4];
       const spinner = bottleButton.querySelector('svg.animate-spin');
       expect(spinner).toBeTruthy();
-      expect(spinner.classList.contains('w-8')).toBe(true);
-      expect(spinner.classList.contains('h-8')).toBe(true);
+      expect(spinner.classList.contains('w-10')).toBe(true);
+      expect(spinner.classList.contains('h-10')).toBe(true);
     });
 
     it('should calculate and display bottle amount from child date of birth', () => {
@@ -898,8 +902,8 @@ describe('QuickLog', () => {
       fixture.detectChanges();
 
       const buttons = fixture.nativeElement.querySelectorAll('button');
-      const bottleButton = buttons[1];
-      const amountText = bottleButton.querySelector('span.text-sm');
+      const bottleButton = buttons[4];
+      const amountText = bottleButton.querySelector('span.text-base');
       expect(amountText?.textContent).toContain('2 oz');
     });
 
@@ -910,8 +914,8 @@ describe('QuickLog', () => {
       fixture.detectChanges();
 
       const buttons = fixture.nativeElement.querySelectorAll('button');
-      const bottleButton = buttons[1];
-      const amountText = bottleButton.querySelector('span.text-sm');
+      const bottleButton = buttons[4];
+      const amountText = bottleButton.querySelector('span.text-base');
       expect(amountText).toBeFalsy();
     });
 
@@ -969,7 +973,7 @@ describe('QuickLog', () => {
       fixture.detectChanges();
 
       const buttons = fixture.nativeElement.querySelectorAll('button');
-      const bottleButton = buttons[1];
+      const bottleButton = buttons[4];
       expect(bottleButton.getAttribute('aria-label')).toBe('Log a bottle feeding with 5 oz');
     });
   });
