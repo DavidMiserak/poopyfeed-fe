@@ -96,8 +96,10 @@ export class ChildDashboard implements OnInit {
     }
   }
 
-  loadDashboardData(childId: number) {
-    this.isLoading.set(true);
+  loadDashboardData(childId: number, showLoading = true) {
+    if (showLoading) {
+      this.isLoading.set(true);
+    }
     this.error.set(null);
 
     forkJoin({
@@ -153,7 +155,7 @@ export class ChildDashboard implements OnInit {
   onQuickLogged(): void {
     const childId = this.childId();
     if (childId) {
-      this.loadDashboardData(childId);
+      this.loadDashboardData(childId, false);
     }
   }
 

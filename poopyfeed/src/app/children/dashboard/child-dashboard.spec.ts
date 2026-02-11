@@ -364,7 +364,7 @@ describe('ChildDashboard', () => {
     it('should call loadDashboardData when quickLogged event emitted', () => {
       const loadDashboardDataSpy = vi.spyOn(component, 'loadDashboardData');
       component.onQuickLogged();
-      expect(loadDashboardDataSpy).toHaveBeenCalledWith(1);
+      expect(loadDashboardDataSpy).toHaveBeenCalledWith(1, false);
     });
   });
 
