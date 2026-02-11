@@ -63,6 +63,11 @@ export class ChildDashboard implements OnInit {
   isNavigatingToNap = signal(false);
 
   // Computed for permissions
+  canAdd = computed(() => {
+    const role = this.child()?.user_role;
+    return role === 'owner' || role === 'co-parent' || role === 'caregiver';
+  });
+
   canEdit = computed(() => {
     const role = this.child()?.user_role;
     return role === 'owner' || role === 'co-parent';
