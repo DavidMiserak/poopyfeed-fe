@@ -1,9 +1,11 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './guards/auth.guard';
+import { publicOnlyGuard } from './guards/public-only.guard';
 
 export const routes: Routes = [
   {
     path: '',
+    canActivate: [publicOnlyGuard],
     loadComponent: () =>
       import('./landing/landing').then((m) => m.Landing),
     title: 'PoopyFeed - Simple Baby Care Tracking',
