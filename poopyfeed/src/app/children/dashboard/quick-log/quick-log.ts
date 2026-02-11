@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   inject,
   input,
   output,
@@ -9,10 +10,15 @@ import {
 import { CommonModule } from '@angular/common';
 import { NapsService } from '../../../services/naps.service';
 import { DiapersService } from '../../../services/diapers.service';
+import { FeedingsService } from '../../../services/feedings.service';
 import { DateTimeService } from '../../../services/datetime.service';
 import { ToastService } from '../../../services/toast.service';
 import { NapCreate } from '../../../models/nap.model';
 import { DiaperChangeCreate } from '../../../models/diaper.model';
+import { FeedingCreate } from '../../../models/feeding.model';
+import { Child } from '../../../models/child.model';
+import { getAgeInWeeks } from '../../../utils/date.utils';
+import { getRecommendedBottleAmount } from '../../../utils/bottle-feeding.utils';
 
 @Component({
   selector: 'app-quick-log',
@@ -23,17 +29,27 @@ import { DiaperChangeCreate } from '../../../models/diaper.model';
 export class QuickLog {
   private napsService = inject(NapsService);
   private diapersService = inject(DiapersService);
+  private feedingsService = inject(FeedingsService);
   private datetimeService = inject(DateTimeService);
   private toast = inject(ToastService);
 
   childId = input.required<number>();
   canEdit = input.required<boolean>();
+  child = input<Child | null>(null);
   quickLogged = output<void>();
 
   isLoggingNap = signal(false);
   isLoggingWetDiaper = signal(false);
   isLoggingDirtyDiaper = signal(false);
   isLoggingBothDiaper = signal(false);
+  isLoggingBottle = signal(false);
+
+  bottleAmount = computed(() => {
+    const childData = this.child();
+    if (!childData?.date_of_birth) return null;
+    const ageInWeeks = getAgeInWeeks(childData.date_of_birth);
+    return getRecommendedBottleAmount(ageInWeeks);
+  });
 
   quickLogNap(): void {
     const childId = this.childId();
@@ -121,6 +137,34 @@ export class QuickLog {
       },
       error: (err: Error) => {
         this.isLoggingBothDiaper.set(false);
+        this.toast.error(err.message);
+      },
+    });
+  }
+
+  quickLogBottle(): void {
+    const childId = this.childId();
+    const childData = this.child();
+    if (!childId || this.isLoggingBottle() || !this.canEdit() || !childData?.date_of_birth) return;
+
+    this.isLoggingBottle.set(true);
+    const ageInWeeks = getAgeInWeeks(childData.date_of_birth);
+    const amount = getRecommendedBottleAmount(ageInWeeks);
+
+    const feedingData: FeedingCreate = {
+      feeding_type: 'bottle',
+      fed_at: this.datetimeService.toUTC(new Date()),
+      amount_oz: amount,
+    };
+
+    this.feedingsService.create(childId, feedingData).subscribe({
+      next: () => {
+        this.isLoggingBottle.set(false);
+        this.toast.success(`Bottle feeding recorded: ${amount} oz`);
+        this.quickLogged.emit();
+      },
+      error: (err: Error) => {
+        this.isLoggingBottle.set(false);
         this.toast.error(err.message);
       },
     });

@@ -3,6 +3,32 @@
  */
 
 /**
+ * Calculate child's age in numeric weeks
+ * Used for precise age-based calculations for young infants
+ */
+export function getAgeInWeeks(dateOfBirth: string): number {
+  const birthDate = new Date(dateOfBirth);
+  const today = new Date();
+  const diffMs = today.getTime() - birthDate.getTime();
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  return Math.floor(diffDays / 7);
+}
+
+/**
+ * Calculate child's age in numeric months
+ * Used for age-based calculations like feeding amounts
+ */
+export function getAgeInMonths(dateOfBirth: string): number {
+  const birthDate = new Date(dateOfBirth);
+  const today = new Date();
+  return (
+    (today.getFullYear() - birthDate.getFullYear()) * 12 +
+    today.getMonth() -
+    birthDate.getMonth()
+  );
+}
+
+/**
  * Format child's age in human-readable format (months and years)
  * Best for lists where compact format is needed (e.g., "3y 2m", "8 months")
  */

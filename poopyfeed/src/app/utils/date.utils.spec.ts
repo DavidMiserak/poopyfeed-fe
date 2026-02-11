@@ -1,5 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import {
+  getAgeInWeeks,
+  getAgeInMonths,
   getChildAge,
   getChildAgeLong,
   formatTimestamp,
@@ -12,6 +14,112 @@ import {
 } from './date.utils';
 
 describe('Date Utilities', () => {
+  describe('getAgeInWeeks', () => {
+    it('should return 0 for newborn (less than 7 days old)', () => {
+      const birthDate = new Date();
+      birthDate.setDate(birthDate.getDate() - 3);
+      expect(getAgeInWeeks(birthDate.toISOString())).toBe(0);
+    });
+
+    it('should return 1 for baby 1 week old', () => {
+      const birthDate = new Date();
+      birthDate.setDate(birthDate.getDate() - 7);
+      expect(getAgeInWeeks(birthDate.toISOString())).toBe(1);
+    });
+
+    it('should return 2 for baby 2 weeks old', () => {
+      const birthDate = new Date();
+      birthDate.setDate(birthDate.getDate() - 14);
+      expect(getAgeInWeeks(birthDate.toISOString())).toBe(2);
+    });
+
+    it('should return 4 for baby 4 weeks old (1 month)', () => {
+      const birthDate = new Date();
+      birthDate.setDate(birthDate.getDate() - 28);
+      expect(getAgeInWeeks(birthDate.toISOString())).toBe(4);
+    });
+
+    it('should return 8 for baby 8 weeks old (2 months)', () => {
+      const birthDate = new Date();
+      birthDate.setDate(birthDate.getDate() - 56);
+      expect(getAgeInWeeks(birthDate.toISOString())).toBe(8);
+    });
+
+    it('should return 12 for baby 12 weeks old (3 months)', () => {
+      const birthDate = new Date();
+      birthDate.setDate(birthDate.getDate() - 84);
+      expect(getAgeInWeeks(birthDate.toISOString())).toBe(12);
+    });
+
+    it('should return 26 for baby 26 weeks old (6 months)', () => {
+      const birthDate = new Date();
+      birthDate.setDate(birthDate.getDate() - 182);
+      expect(getAgeInWeeks(birthDate.toISOString())).toBe(26);
+    });
+
+    it('should return 52 for baby 52 weeks old (1 year)', () => {
+      const birthDate = new Date();
+      birthDate.setFullYear(birthDate.getFullYear() - 1);
+      const ageInWeeks = getAgeInWeeks(birthDate.toISOString());
+      expect(ageInWeeks).toBeGreaterThanOrEqual(52);
+      expect(ageInWeeks).toBeLessThanOrEqual(53);
+    });
+  });
+
+  describe('getAgeInMonths', () => {
+    it('should return 0 for newborn (less than 1 month old)', () => {
+      const birthDate = new Date();
+      birthDate.setDate(birthDate.getDate() - 10);
+      expect(getAgeInMonths(birthDate.toISOString())).toBe(0);
+    });
+
+    it('should return 1 for 1-month-old', () => {
+      const birthDate = new Date();
+      birthDate.setMonth(birthDate.getMonth() - 1);
+      expect(getAgeInMonths(birthDate.toISOString())).toBe(1);
+    });
+
+    it('should return 3 for 3-month-old', () => {
+      const birthDate = new Date();
+      birthDate.setMonth(birthDate.getMonth() - 3);
+      expect(getAgeInMonths(birthDate.toISOString())).toBe(3);
+    });
+
+    it('should return 6 for 6-month-old', () => {
+      const birthDate = new Date();
+      birthDate.setMonth(birthDate.getMonth() - 6);
+      expect(getAgeInMonths(birthDate.toISOString())).toBe(6);
+    });
+
+    it('should return 8 for 8-month-old', () => {
+      const birthDate = new Date();
+      birthDate.setMonth(birthDate.getMonth() - 8);
+      expect(getAgeInMonths(birthDate.toISOString())).toBe(8);
+    });
+
+    it('should return 12 for 1-year-old', () => {
+      const birthDate = new Date();
+      birthDate.setFullYear(birthDate.getFullYear() - 1);
+      expect(getAgeInMonths(birthDate.toISOString())).toBe(12);
+    });
+
+    it('should return 24 for 2-year-old', () => {
+      const birthDate = new Date();
+      birthDate.setFullYear(birthDate.getFullYear() - 2);
+      expect(getAgeInMonths(birthDate.toISOString())).toBe(24);
+    });
+
+    it('should handle birth across year boundary (born last year, different month)', () => {
+      const birthDate = new Date();
+      birthDate.setFullYear(birthDate.getFullYear() - 1);
+      birthDate.setMonth(0); // January
+      const result = getAgeInMonths(birthDate.toISOString());
+      // Should be around 11-13 months depending on current month
+      expect(result).toBeGreaterThanOrEqual(11);
+      expect(result).toBeLessThanOrEqual(13);
+    });
+  });
+
   describe('getChildAge', () => {
     it('should contain days, months, or years', () => {
       const tenDaysAgo = new Date(Date.now() - 10 * 24 * 60 * 60 * 1000);
