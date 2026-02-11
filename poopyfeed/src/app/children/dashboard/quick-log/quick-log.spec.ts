@@ -378,18 +378,18 @@ describe('QuickLog', () => {
     });
   });
 
-  describe('quickLogBottle()', () => {
+  describe('quickLogBottleLow()', () => {
     beforeEach(() => {
       fixture.componentRef.setInput('childId', 1);
       fixture.componentRef.setInput('canEdit', true);
     });
 
-    it('should log bottle feeding with age-based amount for newborn', () => {
+    it('should log bottle with recommended - 1 oz', () => {
       const mockDate = new Date('2026-02-10T10:30:00Z');
       const mockChild: Child = {
         id: 1,
         name: 'Baby',
-        date_of_birth: '2026-02-05', // Newborn (5 days old) -> 2 oz
+        date_of_birth: '2025-11-15', // ~12 weeks -> 5 oz recommended
         gender: 'M',
         user_role: 'owner',
         created_at: mockDate.toISOString(),
@@ -398,60 +398,105 @@ describe('QuickLog', () => {
         last_diaper_change: null,
         last_nap: null,
       };
-      const mockFeeding = { id: 123, child: 1, feeding_type: 'bottle' as const, fed_at: mockDate.toISOString(), amount_oz: 2, created_at: mockDate.toISOString(), updated_at: mockDate.toISOString() };
+      const mockFeeding = { id: 123, child: 1, feeding_type: 'bottle' as const, fed_at: mockDate.toISOString(), amount_oz: 4, created_at: mockDate.toISOString(), updated_at: mockDate.toISOString() };
 
       fixture.componentRef.setInput('child', mockChild);
       vi.mocked(dateTimeService.toUTC).mockReturnValue(mockDate.toISOString());
       vi.mocked(feedingsService.create).mockReturnValue(of(mockFeeding));
       const quickLoggedSpy = vi.spyOn(component.quickLogged, 'emit');
 
-      component.quickLogBottle();
+      component.quickLogBottleLow();
 
       expect(feedingsService.create).toHaveBeenCalledWith(1, {
         feeding_type: 'bottle',
         fed_at: mockDate.toISOString(),
-        amount_oz: 2,
+        amount_oz: 4, // 5 - 1 = 4
       });
-      expect(component.isLoggingBottle()).toBe(false);
+      expect(component.isLoggingBottleLow()).toBe(false);
       expect(quickLoggedSpy).toHaveBeenCalled();
-      expect(toastService.success).toHaveBeenCalledWith('Bottle feeding recorded: 2 oz');
+      expect(toastService.success).toHaveBeenCalledWith('Bottle feeding recorded: 4 oz');
     });
 
-    it('should calculate age-based amount correctly for 3-month-old (5 oz)', () => {
-      const mockDate = new Date('2026-02-10T10:30:00Z');
+    it('should handle errors from feeding service', () => {
       const mockChild: Child = {
         id: 1,
         name: 'Baby',
-        date_of_birth: '2025-11-15', // ~3 months old -> 5 oz
-        gender: 'F',
+        date_of_birth: '2025-12-10',
+        gender: 'M',
         user_role: 'owner',
-        created_at: mockDate.toISOString(),
-        updated_at: mockDate.toISOString(),
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
         last_feeding: null,
         last_diaper_change: null,
         last_nap: null,
       };
-      const mockFeeding = { id: 123, child: 1, feeding_type: 'bottle' as const, fed_at: mockDate.toISOString(), amount_oz: 5, created_at: mockDate.toISOString(), updated_at: mockDate.toISOString() };
 
       fixture.componentRef.setInput('child', mockChild);
-      vi.mocked(dateTimeService.toUTC).mockReturnValue(mockDate.toISOString());
-      vi.mocked(feedingsService.create).mockReturnValue(of(mockFeeding));
+      vi.mocked(dateTimeService.toUTC).mockReturnValue(new Date().toISOString());
+      vi.mocked(feedingsService.create).mockReturnValue(
+        throwError(() => new Error('Feed server error'))
+      );
 
-      component.quickLogBottle();
+      component.quickLogBottleLow();
 
-      expect(feedingsService.create).toHaveBeenCalledWith(1, {
-        feeding_type: 'bottle',
-        fed_at: mockDate.toISOString(),
-        amount_oz: 5,
-      });
+      expect(component.isLoggingBottleLow()).toBe(false);
+      expect(toastService.error).toHaveBeenCalledWith('Feed server error');
     });
 
-    it('should calculate age-based amount correctly for 8-month-old (7 oz)', () => {
+    it('should not log bottle when canEdit is false', () => {
+      const mockChild: Child = {
+        id: 1,
+        name: 'Baby',
+        date_of_birth: '2025-12-10',
+        gender: 'M',
+        user_role: 'caregiver',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        last_feeding: null,
+        last_diaper_change: null,
+        last_nap: null,
+      };
+
+      fixture.componentRef.setInput('child', mockChild);
+      fixture.componentRef.setInput('canEdit', false);
+      component.quickLogBottleLow();
+
+      expect(feedingsService.create).not.toHaveBeenCalled();
+      expect(component.isLoggingBottleLow()).toBe(false);
+    });
+
+    it('should not log bottle when amount is below minimum', () => {
+      // Newborn with 2 oz -> 2 - 1 = 1 oz (still valid as >= 0.1)
+      const mockChild: Child = {
+        id: 1,
+        name: 'Baby',
+        date_of_birth: '2026-02-10', // Newborn -> 2 oz recommended
+        gender: 'M',
+        user_role: 'owner',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        last_feeding: null,
+        last_diaper_change: null,
+        last_nap: null,
+      };
+
+      fixture.componentRef.setInput('child', mockChild);
+      expect(component.bottleAmountLow()).toBe(1); // 2 - 1 = 1, which is >= 0.1
+    });
+  });
+
+  describe('quickLogBottleMid()', () => {
+    beforeEach(() => {
+      fixture.componentRef.setInput('childId', 1);
+      fixture.componentRef.setInput('canEdit', true);
+    });
+
+    it('should log bottle with recommended amount', () => {
       const mockDate = new Date('2026-02-10T10:30:00Z');
       const mockChild: Child = {
         id: 1,
         name: 'Baby',
-        date_of_birth: '2025-06-15', // ~8 months old -> 7 oz
+        date_of_birth: '2025-11-15', // ~12 weeks -> 5 oz recommended
         gender: 'M',
         user_role: 'owner',
         created_at: mockDate.toISOString(),
@@ -460,43 +505,22 @@ describe('QuickLog', () => {
         last_diaper_change: null,
         last_nap: null,
       };
-      const mockFeeding = { id: 123, child: 1, feeding_type: 'bottle' as const, fed_at: mockDate.toISOString(), amount_oz: 7, created_at: mockDate.toISOString(), updated_at: mockDate.toISOString() };
-
-      fixture.componentRef.setInput('child', mockChild);
-      vi.mocked(dateTimeService.toUTC).mockReturnValue(mockDate.toISOString());
-      vi.mocked(feedingsService.create).mockReturnValue(of(mockFeeding));
-
-      component.quickLogBottle();
-
-      expect(feedingsService.create).toHaveBeenCalledWith(1, {
-        feeding_type: 'bottle',
-        fed_at: mockDate.toISOString(),
-        amount_oz: 7,
-      });
-    });
-
-    it('should show success toast on successful bottle log', () => {
-      const mockDate = new Date('2026-02-10T10:30:00Z');
-      const mockChild: Child = {
-        id: 1,
-        name: 'Baby',
-        date_of_birth: '2025-12-10',
-        gender: 'O',
-        user_role: 'owner',
-        created_at: mockDate.toISOString(),
-        updated_at: mockDate.toISOString(),
-        last_feeding: null,
-        last_diaper_change: null,
-        last_nap: null,
-      };
       const mockFeeding = { id: 123, child: 1, feeding_type: 'bottle' as const, fed_at: mockDate.toISOString(), amount_oz: 5, created_at: mockDate.toISOString(), updated_at: mockDate.toISOString() };
 
       fixture.componentRef.setInput('child', mockChild);
       vi.mocked(dateTimeService.toUTC).mockReturnValue(mockDate.toISOString());
       vi.mocked(feedingsService.create).mockReturnValue(of(mockFeeding));
+      const quickLoggedSpy = vi.spyOn(component.quickLogged, 'emit');
 
-      component.quickLogBottle();
+      component.quickLogBottleMid();
 
+      expect(feedingsService.create).toHaveBeenCalledWith(1, {
+        feeding_type: 'bottle',
+        fed_at: mockDate.toISOString(),
+        amount_oz: 5, // Recommended
+      });
+      expect(component.isLoggingBottleMid()).toBe(false);
+      expect(quickLoggedSpy).toHaveBeenCalled();
       expect(toastService.success).toHaveBeenCalledWith('Bottle feeding recorded: 5 oz');
     });
 
@@ -520,9 +544,9 @@ describe('QuickLog', () => {
         throwError(() => new Error('Feed server error'))
       );
 
-      component.quickLogBottle();
+      component.quickLogBottleMid();
 
-      expect(component.isLoggingBottle()).toBe(false);
+      expect(component.isLoggingBottleMid()).toBe(false);
       expect(toastService.error).toHaveBeenCalledWith('Feed server error');
     });
 
@@ -542,59 +566,25 @@ describe('QuickLog', () => {
 
       fixture.componentRef.setInput('child', mockChild);
       fixture.componentRef.setInput('canEdit', false);
-      component.quickLogBottle();
+      component.quickLogBottleMid();
 
       expect(feedingsService.create).not.toHaveBeenCalled();
-      expect(component.isLoggingBottle()).toBe(false);
+      expect(component.isLoggingBottleMid()).toBe(false);
+    });
+  });
+
+  describe('quickLogBottleHigh()', () => {
+    beforeEach(() => {
+      fixture.componentRef.setInput('childId', 1);
+      fixture.componentRef.setInput('canEdit', true);
     });
 
-    it('should not log bottle when childId is not set', () => {
-      const mockChild: Child = {
-        id: 1,
-        name: 'Baby',
-        date_of_birth: '2025-12-10',
-        gender: 'M',
-        user_role: 'owner',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        last_feeding: null,
-        last_diaper_change: null,
-        last_nap: null,
-      };
-
-      fixture.componentRef.setInput('child', mockChild);
-      fixture.componentRef.setInput('childId', null);
-      component.quickLogBottle();
-
-      expect(feedingsService.create).not.toHaveBeenCalled();
-    });
-
-    it('should not log bottle when child date_of_birth is missing', () => {
-      const mockChild: Child = {
-        id: 1,
-        name: 'Baby',
-        date_of_birth: '', // Empty date_of_birth
-        gender: 'M',
-        user_role: 'owner',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        last_feeding: null,
-        last_diaper_change: null,
-        last_nap: null,
-      };
-
-      fixture.componentRef.setInput('child', mockChild);
-      component.quickLogBottle();
-
-      expect(feedingsService.create).not.toHaveBeenCalled();
-    });
-
-    it('should set isLoggingBottle to true while logging', () => {
+    it('should log bottle with recommended + 1 oz', () => {
       const mockDate = new Date('2026-02-10T10:30:00Z');
       const mockChild: Child = {
         id: 1,
         name: 'Baby',
-        date_of_birth: '2025-12-10',
+        date_of_birth: '2025-11-15', // ~12 weeks -> 5 oz recommended
         gender: 'M',
         user_role: 'owner',
         created_at: mockDate.toISOString(),
@@ -603,20 +593,91 @@ describe('QuickLog', () => {
         last_diaper_change: null,
         last_nap: null,
       };
-      const mockFeeding = { id: 123, child: 1, feeding_type: 'bottle' as const, fed_at: mockDate.toISOString(), amount_oz: 5, created_at: mockDate.toISOString(), updated_at: mockDate.toISOString() };
+      const mockFeeding = { id: 123, child: 1, feeding_type: 'bottle' as const, fed_at: mockDate.toISOString(), amount_oz: 6, created_at: mockDate.toISOString(), updated_at: mockDate.toISOString() };
 
       fixture.componentRef.setInput('child', mockChild);
       vi.mocked(dateTimeService.toUTC).mockReturnValue(mockDate.toISOString());
-      let capturedIsLogging = false;
+      vi.mocked(feedingsService.create).mockReturnValue(of(mockFeeding));
+      const quickLoggedSpy = vi.spyOn(component.quickLogged, 'emit');
 
-      vi.mocked(feedingsService.create).mockImplementation(() => {
-        capturedIsLogging = component.isLoggingBottle();
-        return of(mockFeeding);
+      component.quickLogBottleHigh();
+
+      expect(feedingsService.create).toHaveBeenCalledWith(1, {
+        feeding_type: 'bottle',
+        fed_at: mockDate.toISOString(),
+        amount_oz: 6, // 5 + 1 = 6
       });
+      expect(component.isLoggingBottleHigh()).toBe(false);
+      expect(quickLoggedSpy).toHaveBeenCalled();
+      expect(toastService.success).toHaveBeenCalledWith('Bottle feeding recorded: 6 oz');
+    });
 
-      component.quickLogBottle();
-      expect(capturedIsLogging).toBe(true);
-      expect(component.isLoggingBottle()).toBe(false);
+    it('should not exceed maximum bottle amount', () => {
+      // Very old baby (12 months) would get 8 oz, + 1 = 9 oz (< 50 max)
+      const mockChild: Child = {
+        id: 1,
+        name: 'Baby',
+        date_of_birth: '2025-02-10', // ~1 year old -> 8 oz
+        gender: 'M',
+        user_role: 'owner',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        last_feeding: null,
+        last_diaper_change: null,
+        last_nap: null,
+      };
+
+      fixture.componentRef.setInput('child', mockChild);
+      const high = component.bottleAmountHigh();
+      expect(high).toBeLessThanOrEqual(50);
+    });
+
+    it('should handle errors from feeding service', () => {
+      const mockChild: Child = {
+        id: 1,
+        name: 'Baby',
+        date_of_birth: '2025-12-10',
+        gender: 'M',
+        user_role: 'owner',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        last_feeding: null,
+        last_diaper_change: null,
+        last_nap: null,
+      };
+
+      fixture.componentRef.setInput('child', mockChild);
+      vi.mocked(dateTimeService.toUTC).mockReturnValue(new Date().toISOString());
+      vi.mocked(feedingsService.create).mockReturnValue(
+        throwError(() => new Error('Feed server error'))
+      );
+
+      component.quickLogBottleHigh();
+
+      expect(component.isLoggingBottleHigh()).toBe(false);
+      expect(toastService.error).toHaveBeenCalledWith('Feed server error');
+    });
+
+    it('should not log bottle when canEdit is false', () => {
+      const mockChild: Child = {
+        id: 1,
+        name: 'Baby',
+        date_of_birth: '2025-12-10',
+        gender: 'M',
+        user_role: 'caregiver',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        last_feeding: null,
+        last_diaper_change: null,
+        last_nap: null,
+      };
+
+      fixture.componentRef.setInput('child', mockChild);
+      fixture.componentRef.setInput('canEdit', false);
+      component.quickLogBottleHigh();
+
+      expect(feedingsService.create).not.toHaveBeenCalled();
+      expect(component.isLoggingBottleHigh()).toBe(false);
     });
   });
 
@@ -724,7 +785,7 @@ describe('QuickLog', () => {
       fixture.detectChanges();
 
       const buttons = fixture.nativeElement.querySelectorAll('button');
-      expect(buttons.length).toBe(5);
+      expect(buttons.length).toBe(7); // 3 diaper + 1 nap + 3 bottle
       buttons.forEach((button: HTMLButtonElement) => {
         expect(button.disabled).toBe(true);
       });
@@ -737,32 +798,90 @@ describe('QuickLog', () => {
       expect(diaperGroup.classList.contains('border-orange-400/20')).toBe(true);
     });
 
-    it('should show bottle emoji when not loading', () => {
-      const buttons = fixture.nativeElement.querySelectorAll('button');
-      // Bottle button is now at index 4 (after diapers on left, nap on right)
-      const bottleButton = buttons[4];
-      const emoji = bottleButton.querySelector('span.text-6xl');
-      expect(emoji.textContent).toBe('🍼');
-      expect(bottleButton.disabled).toBe(false);
-    });
+    it('should show 3 bottle buttons with bottle emoji when not loading', () => {
+      const mockChild: Child = {
+        id: 1,
+        name: 'Baby',
+        date_of_birth: '2025-11-15', // ~3 months -> 5 oz
+        gender: 'M',
+        user_role: 'owner',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        last_feeding: null,
+        last_diaper_change: null,
+        last_nap: null,
+      };
 
-    it('should show spinner when loading bottle', () => {
-      component.isLoggingBottle.set(true);
+      fixture.componentRef.setInput('child', mockChild);
       fixture.detectChanges();
 
       const buttons = fixture.nativeElement.querySelectorAll('button');
-      const bottleButton = buttons[4];
-      const spinner = bottleButton.querySelector('svg.animate-spin');
-      expect(spinner).toBeTruthy();
-      const emoji = bottleButton.querySelector('span.text-6xl');
-      expect(emoji).toBeFalsy();
-      expect(bottleButton.disabled).toBe(true);
+      // Bottle buttons are at indices 4, 5, 6 (after diapers on left, nap on right)
+      const bottleLowButton = buttons[4];
+      const bottleMidButton = buttons[5];
+      const bottleHighButton = buttons[6];
+
+      const lowEmoji = bottleLowButton.querySelector('span.text-5xl');
+      const midEmoji = bottleMidButton.querySelector('span.text-5xl');
+      const highEmoji = bottleHighButton.querySelector('span.text-5xl');
+
+      expect(lowEmoji.textContent).toBe('🍼');
+      expect(midEmoji.textContent).toBe('🍼');
+      expect(highEmoji.textContent).toBe('🍼');
+
+      expect(bottleLowButton.disabled).toBe(false);
+      expect(bottleMidButton.disabled).toBe(false);
+      expect(bottleHighButton.disabled).toBe(false);
     });
 
-    it('should have bottle button with rose gradient', () => {
+    it('should show spinner when loading bottle low', () => {
+      component.isLoggingBottleLow.set(true);
+      fixture.detectChanges();
+
       const buttons = fixture.nativeElement.querySelectorAll('button');
-      const bottleButton = buttons[4];
-      expect(bottleButton.classList.contains('border-rose-400')).toBe(true);
+      const bottleLowButton = buttons[4];
+      const spinner = bottleLowButton.querySelector('svg.animate-spin');
+      expect(spinner).toBeTruthy();
+      const emoji = bottleLowButton.querySelector('span.text-5xl');
+      expect(emoji).toBeFalsy();
+      expect(bottleLowButton.disabled).toBe(true);
+    });
+
+    it('should show spinner when loading bottle mid', () => {
+      component.isLoggingBottleMid.set(true);
+      fixture.detectChanges();
+
+      const buttons = fixture.nativeElement.querySelectorAll('button');
+      const bottleMidButton = buttons[5];
+      const spinner = bottleMidButton.querySelector('svg.animate-spin');
+      expect(spinner).toBeTruthy();
+      const emoji = bottleMidButton.querySelector('span.text-5xl');
+      expect(emoji).toBeFalsy();
+      expect(bottleMidButton.disabled).toBe(true);
+    });
+
+    it('should show spinner when loading bottle high', () => {
+      component.isLoggingBottleHigh.set(true);
+      fixture.detectChanges();
+
+      const buttons = fixture.nativeElement.querySelectorAll('button');
+      const bottleHighButton = buttons[6];
+      const spinner = bottleHighButton.querySelector('svg.animate-spin');
+      expect(spinner).toBeTruthy();
+      const emoji = bottleHighButton.querySelector('span.text-5xl');
+      expect(emoji).toBeFalsy();
+      expect(bottleHighButton.disabled).toBe(true);
+    });
+
+    it('should have bottle buttons with rose gradient', () => {
+      const buttons = fixture.nativeElement.querySelectorAll('button');
+      const bottleLowButton = buttons[4];
+      const bottleMidButton = buttons[5];
+      const bottleHighButton = buttons[6];
+
+      expect(bottleLowButton.classList.contains('border-rose-400')).toBe(true);
+      expect(bottleMidButton.classList.contains('border-rose-400')).toBe(true);
+      expect(bottleHighButton.classList.contains('border-rose-400')).toBe(true);
     });
 
     // Accessibility tests for visual confirmation
@@ -843,23 +962,61 @@ describe('QuickLog', () => {
       expect(spinner.classList.contains('h-8')).toBe(true);
     });
 
-    it('should have aria-busy="true" when loading bottle', () => {
-      component.isLoggingBottle.set(true);
+    it('should have aria-busy="true" when loading bottle low', () => {
+      component.isLoggingBottleLow.set(true);
       fixture.detectChanges();
       const buttons = fixture.nativeElement.querySelectorAll('button');
-      const bottleButton = buttons[4];
-      expect(bottleButton.getAttribute('aria-busy')).toBe('true');
+      const bottleLowButton = buttons[4];
+      expect(bottleLowButton.getAttribute('aria-busy')).toBe('true');
     });
 
-    it('should show large spinner (w-10 h-10) when loading bottle', () => {
-      component.isLoggingBottle.set(true);
+    it('should have aria-busy="true" when loading bottle mid', () => {
+      component.isLoggingBottleMid.set(true);
       fixture.detectChanges();
       const buttons = fixture.nativeElement.querySelectorAll('button');
-      const bottleButton = buttons[4];
-      const spinner = bottleButton.querySelector('svg.animate-spin');
+      const bottleMidButton = buttons[5];
+      expect(bottleMidButton.getAttribute('aria-busy')).toBe('true');
+    });
+
+    it('should have aria-busy="true" when loading bottle high', () => {
+      component.isLoggingBottleHigh.set(true);
+      fixture.detectChanges();
+      const buttons = fixture.nativeElement.querySelectorAll('button');
+      const bottleHighButton = buttons[6];
+      expect(bottleHighButton.getAttribute('aria-busy')).toBe('true');
+    });
+
+    it('should show medium spinner (w-8 h-8) when loading bottle low', () => {
+      component.isLoggingBottleLow.set(true);
+      fixture.detectChanges();
+      const buttons = fixture.nativeElement.querySelectorAll('button');
+      const bottleLowButton = buttons[4];
+      const spinner = bottleLowButton.querySelector('svg.animate-spin');
       expect(spinner).toBeTruthy();
-      expect(spinner.classList.contains('w-10')).toBe(true);
-      expect(spinner.classList.contains('h-10')).toBe(true);
+      expect(spinner.classList.contains('w-8')).toBe(true);
+      expect(spinner.classList.contains('h-8')).toBe(true);
+    });
+
+    it('should show medium spinner (w-8 h-8) when loading bottle mid', () => {
+      component.isLoggingBottleMid.set(true);
+      fixture.detectChanges();
+      const buttons = fixture.nativeElement.querySelectorAll('button');
+      const bottleMidButton = buttons[5];
+      const spinner = bottleMidButton.querySelector('svg.animate-spin');
+      expect(spinner).toBeTruthy();
+      expect(spinner.classList.contains('w-8')).toBe(true);
+      expect(spinner.classList.contains('h-8')).toBe(true);
+    });
+
+    it('should show medium spinner (w-8 h-8) when loading bottle high', () => {
+      component.isLoggingBottleHigh.set(true);
+      fixture.detectChanges();
+      const buttons = fixture.nativeElement.querySelectorAll('button');
+      const bottleHighButton = buttons[6];
+      const spinner = bottleHighButton.querySelector('svg.animate-spin');
+      expect(spinner).toBeTruthy();
+      expect(spinner.classList.contains('w-8')).toBe(true);
+      expect(spinner.classList.contains('h-8')).toBe(true);
     });
 
     it('should calculate and display bottle amount from child date of birth', () => {
@@ -882,11 +1039,11 @@ describe('QuickLog', () => {
       expect(component.bottleAmount()).toBe(5);
     });
 
-    it('should display bottle amount on button', () => {
+    it('should display 3 bottle amounts on buttons', () => {
       const mockChild: Child = {
         id: 1,
         name: 'Baby',
-        date_of_birth: '2026-02-05', // Newborn -> 2 oz
+        date_of_birth: '2026-02-05', // Newborn -> 2 oz recommended
         gender: 'M',
         user_role: 'owner',
         created_at: new Date().toISOString(),
@@ -902,24 +1059,43 @@ describe('QuickLog', () => {
       fixture.detectChanges();
 
       const buttons = fixture.nativeElement.querySelectorAll('button');
-      const bottleButton = buttons[4];
-      const amountText = bottleButton.querySelector('span.text-base');
-      expect(amountText?.textContent).toContain('2 oz');
+      const bottleLowButton = buttons[4];
+      const bottleMidButton = buttons[5];
+      const bottleHighButton = buttons[6];
+
+      // Check that bottle amounts are displayed in the buttons
+      // Format is now: emoji, number (text-2xl), oz (text-sm)
+      expect(bottleLowButton.textContent).toContain('1');
+      expect(bottleLowButton.textContent).toContain('oz');
+
+      expect(bottleMidButton.textContent).toContain('2');
+      expect(bottleMidButton.textContent).toContain('oz');
+
+      expect(bottleHighButton.textContent).toContain('3');
+      expect(bottleHighButton.textContent).toContain('oz');
     });
 
-    it('should not display bottle amount when child is null', () => {
+    it('should not display bottle amounts when child is null', () => {
       fixture.componentRef.setInput('child', null);
       fixture.componentRef.setInput('childId', 1);
       fixture.componentRef.setInput('canEdit', true);
       fixture.detectChanges();
 
       const buttons = fixture.nativeElement.querySelectorAll('button');
-      const bottleButton = buttons[4];
-      const amountText = bottleButton.querySelector('span.text-base');
-      expect(amountText).toBeFalsy();
+      const bottleLowButton = buttons[4];
+      const bottleMidButton = buttons[5];
+      const bottleHighButton = buttons[6];
+
+      const lowText = bottleLowButton.querySelector('span.text-base');
+      const midText = bottleMidButton.querySelector('span.text-base');
+      const highText = bottleHighButton.querySelector('span.text-base');
+
+      expect(lowText).toBeFalsy();
+      expect(midText).toBeFalsy();
+      expect(highText).toBeFalsy();
     });
 
-    it('should update bottle amount when child changes', () => {
+    it('should update bottle amounts when child changes', () => {
       const mockChild1: Child = {
         id: 1,
         name: 'Baby1',
@@ -947,13 +1123,17 @@ describe('QuickLog', () => {
       };
 
       fixture.componentRef.setInput('child', mockChild1);
-      expect(component.bottleAmount()).toBe(2);
+      expect(component.bottleAmountLow()).toBe(1); // 2 - 1
+      expect(component.bottleAmountMid()).toBe(2); // 2
+      expect(component.bottleAmountHigh()).toBe(3); // 2 + 1
 
       fixture.componentRef.setInput('child', mockChild2);
-      expect(component.bottleAmount()).toBe(7);
+      expect(component.bottleAmountLow()).toBe(6); // 7 - 1
+      expect(component.bottleAmountMid()).toBe(7); // 7
+      expect(component.bottleAmountHigh()).toBe(8); // 7 + 1
     });
 
-    it('should have descriptive aria-label with bottle amount', () => {
+    it('should have descriptive aria-labels with bottle amounts', () => {
       const mockChild: Child = {
         id: 1,
         name: 'Baby',
@@ -973,8 +1153,13 @@ describe('QuickLog', () => {
       fixture.detectChanges();
 
       const buttons = fixture.nativeElement.querySelectorAll('button');
-      const bottleButton = buttons[4];
-      expect(bottleButton.getAttribute('aria-label')).toBe('Log a bottle feeding with 5 oz');
+      const bottleLowButton = buttons[4];
+      const bottleMidButton = buttons[5];
+      const bottleHighButton = buttons[6];
+
+      expect(bottleLowButton.getAttribute('aria-label')).toBe('Log a bottle feeding with 4 oz');
+      expect(bottleMidButton.getAttribute('aria-label')).toBe('Log a bottle feeding with 5 oz (recommended)');
+      expect(bottleHighButton.getAttribute('aria-label')).toBe('Log a bottle feeding with 6 oz');
     });
   });
 });

@@ -107,32 +107,94 @@
       </button>
     </div>
 
-    <!-- Bottle button -->
-    <div class="flex flex-col items-center">
-      <button
-        type="button"
-        (click)="quickLogBottle()"
-        [disabled]="isLoggingBottle() || !canEdit()"
-        [attr.aria-busy]="isLoggingBottle()"
-        [attr.aria-label]="bottleAmount() ? `Log a bottle feeding with ${bottleAmount()} oz` : 'Log a bottle feeding'"
-        class="group relative p-8 rounded-2xl font-['DM_Sans',sans-serif] font-bold text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 overflow-hidden border-2 border-rose-400 no-underline cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 w-full"
-      >
-        <span class="absolute inset-0 bg-gradient-to-br from-rose-400 to-rose-500 transition-transform duration-300 group-hover:scale-110 disabled:group-hover:scale-100"></span>
-        <span class="relative z-10 flex flex-col items-center gap-2">
-          @if (isLoggingBottle()) {
-            <svg class="w-10 h-10 animate-spin" aria-hidden="true" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-          } @else {
-            <span class="text-6xl">🍼</span>
-          }
-          <span class="text-xl">Bottle</span>
-          @if (bottleAmount()) {
-            <span class="text-base font-normal opacity-90">{{ bottleAmount() }} oz</span>
-          }
-        </span>
-      </button>
+    <!-- Bottle amount options (3 buttons in horizontal row) -->
+    <div class="border-2 border-rose-400/20 rounded-3xl p-6 bg-white/50 backdrop-blur-sm">
+      <h6 class="font-['Fredoka',sans-serif] text-lg font-bold text-slate-900 mb-3">Quick Bottle Feed</h6>
+      <div class="grid grid-cols-3 gap-3">
+        <!-- Low amount button (recommended - 1) -->
+        <div class="flex flex-col items-center">
+          <button
+            type="button"
+            (click)="quickLogBottleLow()"
+            [disabled]="isLoggingBottleLow() || !canEdit() || !bottleAmountLow()"
+            [attr.aria-busy]="isLoggingBottleLow()"
+            [attr.aria-label]="bottleAmountLow() ? `Log a bottle feeding with ${bottleAmountLow()} oz` : 'Bottle amount not available'"
+            class="group relative p-6 rounded-xl font-['DM_Sans',sans-serif] font-bold text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 overflow-hidden border-2 border-rose-400 no-underline cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 w-full"
+          >
+            <span class="absolute inset-0 bg-gradient-to-br from-rose-300 to-rose-400 transition-transform duration-300 group-hover:scale-110 disabled:group-hover:scale-100"></span>
+            <span class="relative z-10 flex flex-col items-center gap-1">
+              @if (isLoggingBottleLow()) {
+                <svg class="w-8 h-8 animate-spin" aria-hidden="true" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+              } @else {
+                <span class="text-5xl">🍼</span>
+              }
+              @if (bottleAmountLow()) {
+                <span class="text-2xl font-bold">{{ bottleAmountLow() }}</span>
+                <span class="text-sm opacity-90">oz</span>
+              }
+            </span>
+          </button>
+        </div>
+
+        <!-- Recommended amount button (middle, emphasized) -->
+        <div class="flex flex-col items-center">
+          <button
+            type="button"
+            (click)="quickLogBottleMid()"
+            [disabled]="isLoggingBottleMid() || !canEdit() || !bottleAmountMid()"
+            [attr.aria-busy]="isLoggingBottleMid()"
+            [attr.aria-label]="bottleAmountMid() ? `Log a bottle feeding with ${bottleAmountMid()} oz (recommended)` : 'Bottle amount not available'"
+            class="group relative p-6 rounded-xl font-['DM_Sans',sans-serif] font-bold text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 overflow-hidden border-2 border-rose-400 no-underline cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 w-full"
+          >
+            <span class="absolute inset-0 bg-gradient-to-br from-rose-400 to-rose-500 transition-transform duration-300 group-hover:scale-110 disabled:group-hover:scale-100"></span>
+            <span class="relative z-10 flex flex-col items-center gap-1">
+              @if (isLoggingBottleMid()) {
+                <svg class="w-8 h-8 animate-spin" aria-hidden="true" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+              } @else {
+                <span class="text-5xl">🍼</span>
+              }
+              @if (bottleAmountMid()) {
+                <span class="text-2xl font-bold">{{ bottleAmountMid() }}</span>
+                <span class="text-sm opacity-90">oz</span>
+              }
+            </span>
+          </button>
+        </div>
+
+        <!-- High amount button (recommended + 1) -->
+        <div class="flex flex-col items-center">
+          <button
+            type="button"
+            (click)="quickLogBottleHigh()"
+            [disabled]="isLoggingBottleHigh() || !canEdit() || !bottleAmountHigh()"
+            [attr.aria-busy]="isLoggingBottleHigh()"
+            [attr.aria-label]="bottleAmountHigh() ? `Log a bottle feeding with ${bottleAmountHigh()} oz` : 'Bottle amount not available'"
+            class="group relative p-6 rounded-xl font-['DM_Sans',sans-serif] font-bold text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 overflow-hidden border-2 border-rose-400 no-underline cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 w-full"
+          >
+            <span class="absolute inset-0 bg-gradient-to-br from-rose-300 to-rose-400 transition-transform duration-300 group-hover:scale-110 disabled:group-hover:scale-100"></span>
+            <span class="relative z-10 flex flex-col items-center gap-1">
+              @if (isLoggingBottleHigh()) {
+                <svg class="w-8 h-8 animate-spin" aria-hidden="true" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+              } @else {
+                <span class="text-5xl">🍼</span>
+              }
+              @if (bottleAmountHigh()) {
+                <span class="text-2xl font-bold">{{ bottleAmountHigh() }}</span>
+                <span class="text-sm opacity-90">oz</span>
+              }
+            </span>
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </div>

@@ -42,13 +42,32 @@ export class QuickLog {
   isLoggingWetDiaper = signal(false);
   isLoggingDirtyDiaper = signal(false);
   isLoggingBothDiaper = signal(false);
-  isLoggingBottle = signal(false);
+  isLoggingBottleLow = signal(false);
+  isLoggingBottleMid = signal(false);
+  isLoggingBottleHigh = signal(false);
 
   bottleAmount = computed(() => {
     const childData = this.child();
     if (!childData?.date_of_birth) return null;
     const ageInWeeks = getAgeInWeeks(childData.date_of_birth);
     return getRecommendedBottleAmount(ageInWeeks);
+  });
+
+  // Three bottle amount options: recommended - 1, recommended, recommended + 1
+  bottleAmountLow = computed(() => {
+    const base = this.bottleAmount();
+    if (!base) return null;
+    const lowAmount = base - 1;
+    return lowAmount >= 0.1 ? lowAmount : null; // Respect MIN_BOTTLE_OZ
+  });
+
+  bottleAmountMid = computed(() => this.bottleAmount()); // Recommended (already exists)
+
+  bottleAmountHigh = computed(() => {
+    const base = this.bottleAmount();
+    if (!base) return null;
+    const highAmount = base + 1;
+    return highAmount <= 50 ? highAmount : null; // Respect MAX_BOTTLE_OZ
   });
 
   quickLogNap(): void {
@@ -142,15 +161,24 @@ export class QuickLog {
     });
   }
 
-  quickLogBottle(): void {
+  quickLogBottleLow(): void {
+    this.quickLogBottleWithAmount(this.bottleAmountLow(), this.isLoggingBottleLow);
+  }
+
+  quickLogBottleMid(): void {
+    this.quickLogBottleWithAmount(this.bottleAmountMid(), this.isLoggingBottleMid);
+  }
+
+  quickLogBottleHigh(): void {
+    this.quickLogBottleWithAmount(this.bottleAmountHigh(), this.isLoggingBottleHigh);
+  }
+
+  // Shared helper method (DRY principle)
+  private quickLogBottleWithAmount(amount: number | null, loadingSignal: ReturnType<typeof signal<boolean>>): void {
     const childId = this.childId();
-    const childData = this.child();
-    if (!childId || this.isLoggingBottle() || !this.canEdit() || !childData?.date_of_birth) return;
+    if (!childId || loadingSignal() || !this.canEdit() || !amount) return;
 
-    this.isLoggingBottle.set(true);
-    const ageInWeeks = getAgeInWeeks(childData.date_of_birth);
-    const amount = getRecommendedBottleAmount(ageInWeeks);
-
+    loadingSignal.set(true);
     const feedingData: FeedingCreate = {
       feeding_type: 'bottle',
       fed_at: this.datetimeService.toUTC(new Date()),
@@ -159,12 +187,12 @@ export class QuickLog {
 
     this.feedingsService.create(childId, feedingData).subscribe({
       next: () => {
-        this.isLoggingBottle.set(false);
+        loadingSignal.set(false);
         this.toast.success(`Bottle feeding recorded: ${amount} oz`);
         this.quickLogged.emit();
       },
       error: (err: Error) => {
-        this.isLoggingBottle.set(false);
+        loadingSignal.set(false);
         this.toast.error(err.message);
       },
     });
