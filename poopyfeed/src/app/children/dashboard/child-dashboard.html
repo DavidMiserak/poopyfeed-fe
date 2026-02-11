@@ -88,6 +88,65 @@
           </div>
         </div>
 
+        <!-- Last Activity -->
+        <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-6 border-2 border-amber-400/20">
+          <div class="flex items-center gap-2 mb-4">
+            <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <h2 class="font-['Fredoka',sans-serif] text-2xl font-bold text-slate-900">
+              Last Activity
+            </h2>
+          </div>
+
+          <div class="space-y-3">
+            <!-- Feeding -->
+            <div class="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-rose-50 to-rose-100/50">
+              <div class="flex items-center gap-3">
+                <span class="text-2xl">🍼</span>
+                <span class="font-['DM_Sans',sans-serif] font-semibold text-slate-900">Feeding</span>
+              </div>
+              <span class="font-['DM_Sans',sans-serif] text-sm text-slate-600">
+                @if (child()?.last_feeding) {
+                  {{ formatTimestamp(child()!.last_feeding!) }}
+                } @else {
+                  <span class="italic text-slate-500">None yet</span>
+                }
+              </span>
+            </div>
+
+            <!-- Diaper -->
+            <div class="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-orange-50 to-orange-100/50">
+              <div class="flex items-center gap-3">
+                <span class="text-2xl">🧷</span>
+                <span class="font-['DM_Sans',sans-serif] font-semibold text-slate-900">Diaper</span>
+              </div>
+              <span class="font-['DM_Sans',sans-serif] text-sm text-slate-600">
+                @if (child()?.last_diaper_change) {
+                  {{ formatTimestamp(child()!.last_diaper_change!) }}
+                } @else {
+                  <span class="italic text-slate-500">None yet</span>
+                }
+              </span>
+            </div>
+
+            <!-- Nap -->
+            <div class="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-amber-50 to-amber-100/50">
+              <div class="flex items-center gap-3">
+                <span class="text-2xl">😴</span>
+                <span class="font-['DM_Sans',sans-serif] font-semibold text-slate-900">Nap</span>
+              </div>
+              <span class="font-['DM_Sans',sans-serif] text-sm text-slate-600">
+                @if (child()?.last_nap) {
+                  {{ formatTimestamp(child()!.last_nap!) }}
+                } @else {
+                  <span class="italic text-slate-500">None yet</span>
+                }
+              </span>
+            </div>
+          </div>
+        </div>
+
         <!-- Quick Log -->
         <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-6 border-2 border-amber-400/20">
           <h2 class="font-['Fredoka',sans-serif] text-2xl font-bold text-slate-900 mb-4">
@@ -99,6 +158,51 @@
             [child]="child()"
             (quickLogged)="onQuickLogged()"
           />
+        </div>
+
+        <!-- Today's Summary -->
+        <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-6 border-2 border-rose-400/20">
+          <h2 class="font-['Fredoka',sans-serif] text-2xl font-bold text-slate-900 mb-4">
+            Today's Summary
+          </h2>
+          @if (todayFeedings() === 0 && todayDiapers() === 0 && todayNaps() === 0) {
+            <div class="text-center py-8">
+              <div class="text-5xl mb-3">🌅</div>
+              <p class="font-['DM_Sans',sans-serif] text-slate-600">
+                No activity recorded today
+              </p>
+            </div>
+          } @else {
+            <div class="grid grid-cols-3 gap-2 sm:gap-4">
+              <div class="text-center p-2 sm:p-4 rounded-2xl bg-rose-50/80">
+                <div class="text-2xl sm:text-3xl mb-1">🍼</div>
+                <div class="font-['Fredoka',sans-serif] text-2xl sm:text-4xl font-bold text-rose-500">
+                  {{ todayFeedings() }}
+                </div>
+                <div class="font-['DM_Sans',sans-serif] text-sm font-medium text-slate-600 mt-1">
+                  Feedings
+                </div>
+              </div>
+              <div class="text-center p-2 sm:p-4 rounded-2xl bg-orange-50/80">
+                <div class="text-2xl sm:text-3xl mb-1">🧷</div>
+                <div class="font-['Fredoka',sans-serif] text-2xl sm:text-4xl font-bold text-orange-500">
+                  {{ todayDiapers() }}
+                </div>
+                <div class="font-['DM_Sans',sans-serif] text-sm font-medium text-slate-600 mt-1">
+                  Diapers
+                </div>
+              </div>
+              <div class="text-center p-2 sm:p-4 rounded-2xl bg-amber-50/80">
+                <div class="text-2xl sm:text-3xl mb-1">😴</div>
+                <div class="font-['Fredoka',sans-serif] text-2xl sm:text-4xl font-bold text-amber-500">
+                  {{ todayNaps() }}
+                </div>
+                <div class="font-['DM_Sans',sans-serif] text-sm font-medium text-slate-600 mt-1">
+                  Naps
+                </div>
+              </div>
+            </div>
+          }
         </div>
 
         <!-- Actions -->
@@ -160,110 +264,6 @@
                 }
               </span>
             </button>
-          </div>
-        </div>
-
-        <!-- Today's Summary -->
-        <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-6 border-2 border-rose-400/20">
-          <h2 class="font-['Fredoka',sans-serif] text-2xl font-bold text-slate-900 mb-4">
-            Today's Summary
-          </h2>
-          @if (todayFeedings() === 0 && todayDiapers() === 0 && todayNaps() === 0) {
-            <div class="text-center py-8">
-              <div class="text-5xl mb-3">🌅</div>
-              <p class="font-['DM_Sans',sans-serif] text-slate-600">
-                No activity recorded today
-              </p>
-            </div>
-          } @else {
-            <div class="grid grid-cols-3 gap-2 sm:gap-4">
-              <div class="text-center p-2 sm:p-4 rounded-2xl bg-rose-50/80">
-                <div class="text-2xl sm:text-3xl mb-1">🍼</div>
-                <div class="font-['Fredoka',sans-serif] text-2xl sm:text-4xl font-bold text-rose-500">
-                  {{ todayFeedings() }}
-                </div>
-                <div class="font-['DM_Sans',sans-serif] text-sm font-medium text-slate-600 mt-1">
-                  Feedings
-                </div>
-              </div>
-              <div class="text-center p-2 sm:p-4 rounded-2xl bg-orange-50/80">
-                <div class="text-2xl sm:text-3xl mb-1">🧷</div>
-                <div class="font-['Fredoka',sans-serif] text-2xl sm:text-4xl font-bold text-orange-500">
-                  {{ todayDiapers() }}
-                </div>
-                <div class="font-['DM_Sans',sans-serif] text-sm font-medium text-slate-600 mt-1">
-                  Diapers
-                </div>
-              </div>
-              <div class="text-center p-2 sm:p-4 rounded-2xl bg-amber-50/80">
-                <div class="text-2xl sm:text-3xl mb-1">😴</div>
-                <div class="font-['Fredoka',sans-serif] text-2xl sm:text-4xl font-bold text-amber-500">
-                  {{ todayNaps() }}
-                </div>
-                <div class="font-['DM_Sans',sans-serif] text-sm font-medium text-slate-600 mt-1">
-                  Naps
-                </div>
-              </div>
-            </div>
-          }
-        </div>
-
-        <!-- Last Activity -->
-        <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-6 border-2 border-amber-400/20">
-          <div class="flex items-center gap-2 mb-4">
-            <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <h2 class="font-['Fredoka',sans-serif] text-2xl font-bold text-slate-900">
-              Last Activity
-            </h2>
-          </div>
-
-          <div class="space-y-3">
-            <!-- Feeding -->
-            <div class="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-rose-50 to-rose-100/50">
-              <div class="flex items-center gap-3">
-                <span class="text-2xl">🍼</span>
-                <span class="font-['DM_Sans',sans-serif] font-semibold text-slate-900">Feeding</span>
-              </div>
-              <span class="font-['DM_Sans',sans-serif] text-sm text-slate-600">
-                @if (child()?.last_feeding) {
-                  {{ formatTimestamp(child()!.last_feeding!) }}
-                } @else {
-                  <span class="italic text-slate-500">None yet</span>
-                }
-              </span>
-            </div>
-
-            <!-- Diaper -->
-            <div class="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-orange-50 to-orange-100/50">
-              <div class="flex items-center gap-3">
-                <span class="text-2xl">🧷</span>
-                <span class="font-['DM_Sans',sans-serif] font-semibold text-slate-900">Diaper</span>
-              </div>
-              <span class="font-['DM_Sans',sans-serif] text-sm text-slate-600">
-                @if (child()?.last_diaper_change) {
-                  {{ formatTimestamp(child()!.last_diaper_change!) }}
-                } @else {
-                  <span class="italic text-slate-500">None yet</span>
-                }
-              </span>
-            </div>
-
-            <!-- Nap -->
-            <div class="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-amber-50 to-amber-100/50">
-              <div class="flex items-center gap-3">
-                <span class="text-2xl">😴</span>
-                <span class="font-['DM_Sans',sans-serif] font-semibold text-slate-900">Nap</span>
-              </div>
-              <span class="font-['DM_Sans',sans-serif] text-sm text-slate-600">
-                @if (child()?.last_nap) {
-                  {{ formatTimestamp(child()!.last_nap!) }}
-                } @else {
-                  <span class="italic text-slate-500">None yet</span>
-                }
-              </span>
-            </div>
           </div>
         </div>
 
