@@ -19,6 +19,7 @@ import {
 export class SharingService {
   private http = inject(HttpClient);
   private readonly API_BASE = '/api/v1/children';
+  private readonly INVITES_BASE = '/api/v1/invites';
 
   // Reactive state
   shares = signal<ChildShare[]>([]);
@@ -147,7 +148,7 @@ export class SharingService {
    */
   acceptInvite(token: string): Observable<InviteAcceptResponse> {
     return this.http
-      .post<InviteAcceptResponse>(`${this.API_BASE}/accept-invite/`, {
+      .post<InviteAcceptResponse>(`${this.INVITES_BASE}/accept/`, {
         token,
       })
       .pipe(

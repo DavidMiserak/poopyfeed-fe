@@ -510,7 +510,7 @@ describe('SharingService', () => {
         },
       });
 
-      const req = httpMock.expectOne('/api/v1/children/accept-invite/');
+      const req = httpMock.expectOne('/api/v1/invites/accept/');
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual({ token: validToken });
       req.flush(mockInviteAcceptResponse);
@@ -529,7 +529,7 @@ describe('SharingService', () => {
         },
       });
 
-      const req = httpMock.expectOne('/api/v1/children/accept-invite/');
+      const req = httpMock.expectOne('/api/v1/invites/accept/');
       req.flush(
         { token: ['Invalid or expired invite token'] },
         { status: 400, statusText: 'Bad Request' }
@@ -548,7 +548,7 @@ describe('SharingService', () => {
         },
       });
 
-      const req = httpMock.expectOne('/api/v1/children/accept-invite/');
+      const req = httpMock.expectOne('/api/v1/invites/accept/');
       req.flush(null, { status: 404, statusText: 'Not Found' });
 
       expect(errorCaught).toBe(true);
@@ -564,7 +564,7 @@ describe('SharingService', () => {
         },
       });
 
-      const req = httpMock.expectOne('/api/v1/children/accept-invite/');
+      const req = httpMock.expectOne('/api/v1/invites/accept/');
       req.flush(null, { status: 401, statusText: 'Unauthorized' });
 
       expect(errorCaught).toBe(true);
@@ -580,7 +580,7 @@ describe('SharingService', () => {
         },
       });
 
-      const req = httpMock.expectOne('/api/v1/children/accept-invite/');
+      const req = httpMock.expectOne('/api/v1/invites/accept/');
       req.flush(
         { non_field_errors: ['You already have access to this child'] },
         { status: 400, statusText: 'Bad Request' }
@@ -599,7 +599,7 @@ describe('SharingService', () => {
         },
       });
 
-      const req = httpMock.expectOne('/api/v1/children/accept-invite/');
+      const req = httpMock.expectOne('/api/v1/invites/accept/');
       req.flush(
         { detail: 'Invite has been deactivated' },
         { status: 400, statusText: 'Bad Request' }
