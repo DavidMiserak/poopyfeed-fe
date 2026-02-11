@@ -24,8 +24,8 @@ FROM docker.io/nginx:alpine AS production
 # Copy built assets from build stage
 COPY --from=build /app/dist/poopyfeed/browser /usr/share/nginx/html
 
-# Copy nginx configuration if exists
-COPY poopyfeed/nginx.conf /etc/nginx/conf.d/default.conf 2>/dev/null || true
+# Copy nginx configuration
+COPY poopyfeed/nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
 
