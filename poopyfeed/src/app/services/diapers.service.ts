@@ -1,5 +1,17 @@
 /**
- * Service for managing diaper changes via the PoopyFeed API
+ * Service for managing diaper changes via the PoopyFeed API.
+ *
+ * Provides CRUD operations for diaper change records (wet, dirty, or both).
+ * Automatically caches diaper changes list in reactive signal for efficient updates.
+ *
+ * Change types:
+ * - **wet**: Urine only
+ * - **dirty**: Feces/stool only
+ * - **both**: Both urine and feces
+ *
+ * All operations require the child to be accessible (owner/co-parent can add,
+ * caregiver can add/view). API endpoints are nested under children:
+ * `/api/v1/children/{childId}/diapers/`
  */
 
 import { Injectable, inject, signal } from '@angular/core';
@@ -27,18 +39,35 @@ export class DiapersService {
   private http = inject(HttpClient);
   private readonly API_BASE = '/api/v1/children';
 
-  // Reactive state
+  /**
+   * Cached list of diaper changes from last list() call.
+   *
+   * Automatically updated after create/update/delete operations.
+   * Use in templates with async pipe or in computed() functions.
+   */
   diapers = signal<DiaperChange[]>([]);
 
   /**
-   * Get base URL for diaper operations
+   * Get base URL for diaper operations for a specific child.
+   *
+   * @param childId Child's unique identifier
+   * @returns Base URL for this child's diaper change endpoints
    */
   private baseUrl(childId: number): string {
     return `${this.API_BASE}/${childId}/diapers`;
   }
 
   /**
-   * List all diaper changes for a child
+   * List all diaper changes for a child.
+   *
+   * Returns diaper changes sorted by changed_at descending (newest first).
+   * Results are paginated (default 50 per page). Only diaper changes for accessible
+   * children can be fetched (owner/co-parent/caregiver all have view access).
+   *
+   * @param childId Child whose diaper changes to fetch
+   * @returns Observable<DiaperChange[]> Array of diaper changes for this child
+   *
+   * @throws ApiError if child not found or user lacks access
    */
   list(childId: number): Observable<DiaperChange[]> {
     return this.http.get<PaginatedResponse<DiaperChange>>(`${this.baseUrl(childId)}/`).pipe(

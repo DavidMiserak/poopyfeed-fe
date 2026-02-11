@@ -1,5 +1,13 @@
 /**
- * Service for managing naps via the PoopyFeed API
+ * Service for managing naps via the PoopyFeed API.
+ *
+ * Provides CRUD operations for nap records. Naps track when a child took a nap,
+ * storing only the start time (napped_at). Duration can be calculated by comparing
+ * with next activity. Automatically caches naps list in reactive signal.
+ *
+ * All operations require the child to be accessible (owner/co-parent can add,
+ * caregiver can add/view). API endpoints are nested under children:
+ * `/api/v1/children/{childId}/naps/`
  */
 
 import { Injectable, inject, signal } from '@angular/core';
@@ -23,18 +31,35 @@ export class NapsService {
   private http = inject(HttpClient);
   private readonly API_BASE = '/api/v1/children';
 
-  // Reactive state
+  /**
+   * Cached list of naps from last list() call.
+   *
+   * Automatically updated after create/update/delete operations.
+   * Use in templates with async pipe or in computed() functions.
+   */
   naps = signal<Nap[]>([]);
 
   /**
-   * Get base URL for nap operations
+   * Get base URL for nap operations for a specific child.
+   *
+   * @param childId Child's unique identifier
+   * @returns Base URL for this child's nap endpoints
    */
   private baseUrl(childId: number): string {
     return `${this.API_BASE}/${childId}/naps`;
   }
 
   /**
-   * List all naps for a child
+   * List all naps for a child.
+   *
+   * Returns naps sorted by napped_at descending (newest first).
+   * Results are paginated (default 50 per page). Only naps for accessible
+   * children can be fetched (owner/co-parent/caregiver all have view access).
+   *
+   * @param childId Child whose naps to fetch
+   * @returns Observable<Nap[]> Array of naps for this child
+   *
+   * @throws ApiError if child not found or user lacks access
    */
   list(childId: number): Observable<Nap[]> {
     return this.http.get<PaginatedResponse<Nap>>(`${this.baseUrl(childId)}/`).pipe(
