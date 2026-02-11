@@ -58,12 +58,12 @@
         </div>
 
         <!-- Child Info Card -->
-        <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-8 border-2 border-rose-400/20">
-          <div class="flex items-start justify-between">
+        <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-6 sm:p-8 border-2 border-rose-400/20">
+          <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
             <div class="flex items-center gap-4">
-              <div class="text-6xl">{{ getGenderIcon(child()!.gender) }}</div>
+              <div class="text-5xl sm:text-6xl">{{ getGenderIcon(child()!.gender) }}</div>
               <div>
-                <h1 class="font-['Fredoka',sans-serif] text-4xl font-bold text-slate-900 mb-1">
+                <h1 class="font-['Fredoka',sans-serif] text-2xl sm:text-4xl font-bold text-slate-900 mb-1">
                   {{ child()!.name }}
                 </h1>
                 <p class="font-['DM_Sans',sans-serif] text-slate-600 text-lg">
@@ -176,28 +176,28 @@
               </p>
             </div>
           } @else {
-            <div class="grid grid-cols-3 gap-4">
-              <div class="text-center p-4 rounded-2xl bg-rose-50/80">
-                <div class="text-3xl mb-1">🍼</div>
-                <div class="font-['Fredoka',sans-serif] text-4xl font-bold text-rose-500">
+            <div class="grid grid-cols-3 gap-2 sm:gap-4">
+              <div class="text-center p-2 sm:p-4 rounded-2xl bg-rose-50/80">
+                <div class="text-2xl sm:text-3xl mb-1">🍼</div>
+                <div class="font-['Fredoka',sans-serif] text-2xl sm:text-4xl font-bold text-rose-500">
                   {{ todayFeedings() }}
                 </div>
                 <div class="font-['DM_Sans',sans-serif] text-sm font-medium text-slate-600 mt-1">
                   Feedings
                 </div>
               </div>
-              <div class="text-center p-4 rounded-2xl bg-orange-50/80">
-                <div class="text-3xl mb-1">🧷</div>
-                <div class="font-['Fredoka',sans-serif] text-4xl font-bold text-orange-500">
+              <div class="text-center p-2 sm:p-4 rounded-2xl bg-orange-50/80">
+                <div class="text-2xl sm:text-3xl mb-1">🧷</div>
+                <div class="font-['Fredoka',sans-serif] text-2xl sm:text-4xl font-bold text-orange-500">
                   {{ todayDiapers() }}
                 </div>
                 <div class="font-['DM_Sans',sans-serif] text-sm font-medium text-slate-600 mt-1">
                   Diapers
                 </div>
               </div>
-              <div class="text-center p-4 rounded-2xl bg-amber-50/80">
-                <div class="text-3xl mb-1">😴</div>
-                <div class="font-['Fredoka',sans-serif] text-4xl font-bold text-amber-500">
+              <div class="text-center p-2 sm:p-4 rounded-2xl bg-amber-50/80">
+                <div class="text-2xl sm:text-3xl mb-1">😴</div>
+                <div class="font-['Fredoka',sans-serif] text-2xl sm:text-4xl font-bold text-amber-500">
                   {{ todayNaps() }}
                 </div>
                 <div class="font-['DM_Sans',sans-serif] text-sm font-medium text-slate-600 mt-1">
