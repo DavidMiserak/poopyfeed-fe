@@ -13,13 +13,13 @@ pre-commit-setup:
 	pre-commit install --install-hooks
 	pre-commit run --all-files
 
-.PHONY: image-build
-image-build: Containerfile
-	$(RUNTIME) build -t $(REGISTRY)/$(IMAGE_NAME):$(IMAGE_TAG) -f Containerfile --target development .
-
 .PHONY: image-build-prod
-image-build-prod: Containerfile
-	$(RUNTIME) build -t $(REGISTRY)/$(IMAGE_NAME):prod -f Containerfile --target production .
+image-build: Containerfile
+	$(RUNTIME) build -t $(REGISTRY)/$(IMAGE_NAME):$(IMAGE_TAG) -f Containerfile --target production .
+
+.PHONY: image-build-dev
+image-build-dev: Containerfile
+	$(RUNTIME) build -t $(REGISTRY)/$(IMAGE_NAME):dev -f Containerfile --target development .
 
 .PHONY: stop
 stop:
