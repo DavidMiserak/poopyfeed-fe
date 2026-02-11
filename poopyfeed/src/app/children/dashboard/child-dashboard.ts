@@ -57,6 +57,11 @@ export class ChildDashboard implements OnInit {
   isLoading = signal(true);
   error = signal<string | null>(null);
 
+  // Action navigation loading states
+  isNavigatingToFeeding = signal(false);
+  isNavigatingToDiaper = signal(false);
+  isNavigatingToNap = signal(false);
+
   // Computed for permissions
   canEdit = computed(() => {
     const role = this.child()?.user_role;
@@ -144,6 +149,30 @@ export class ChildDashboard implements OnInit {
     const childId = this.childId();
     if (childId) {
       this.loadDashboardData(childId);
+    }
+  }
+
+  navigateToFeedings(): void {
+    const childId = this.child()?.id;
+    if (childId) {
+      this.isNavigatingToFeeding.set(true);
+      this.router.navigate(['/children', childId, 'feedings', 'create']);
+    }
+  }
+
+  navigateToDiapers(): void {
+    const childId = this.child()?.id;
+    if (childId) {
+      this.isNavigatingToDiaper.set(true);
+      this.router.navigate(['/children', childId, 'diapers', 'create']);
+    }
+  }
+
+  navigateToNaps(): void {
+    const childId = this.child()?.id;
+    if (childId) {
+      this.isNavigatingToNap.set(true);
+      this.router.navigate(['/children', childId, 'naps', 'create']);
     }
   }
 

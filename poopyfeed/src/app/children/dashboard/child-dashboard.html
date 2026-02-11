@@ -107,40 +107,58 @@
           </h2>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <!-- Add Feeding Button -->
-            <a
-              [routerLink]="['/children', child()!.id, 'feedings', 'create']"
-              class="group relative p-6 rounded-2xl font-['DM_Sans',sans-serif] font-bold text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 overflow-hidden border-2 border-rose-400 no-underline cursor-pointer"
+            <button
+              (click)="navigateToFeedings()"
+              [disabled]="isNavigatingToFeeding()"
+              class="group relative p-6 rounded-2xl font-['DM_Sans',sans-serif] font-bold text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 overflow-hidden border-2 border-rose-400 cursor-pointer disabled:opacity-75 disabled:cursor-wait"
+              [attr.aria-busy]="isNavigatingToFeeding()"
             >
               <span class="absolute inset-0 bg-gradient-to-br from-rose-400 to-rose-500 transition-transform duration-300 group-hover:scale-110"></span>
               <span class="relative z-10 flex flex-col items-center gap-2">
-                <span class="text-4xl">🍼</span>
-                <span class="text-lg">Add Feeding</span>
+                @if (isNavigatingToFeeding()) {
+                  <span class="inline-block w-10 h-10 border-4 border-white border-t-transparent rounded-full animate-spin"></span>
+                } @else {
+                  <span class="text-4xl">🍼</span>
+                  <span class="text-lg">Add Feeding</span>
+                }
               </span>
-            </a>
+            </button>
 
             <!-- Add Diaper Change Button -->
-            <a
-              [routerLink]="['/children', child()!.id, 'diapers', 'create']"
-              class="group relative p-6 rounded-2xl font-['DM_Sans',sans-serif] font-bold text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 overflow-hidden border-2 border-orange-400 no-underline cursor-pointer"
+            <button
+              (click)="navigateToDiapers()"
+              [disabled]="isNavigatingToDiaper()"
+              class="group relative p-6 rounded-2xl font-['DM_Sans',sans-serif] font-bold text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 overflow-hidden border-2 border-orange-400 cursor-pointer disabled:opacity-75 disabled:cursor-wait"
+              [attr.aria-busy]="isNavigatingToDiaper()"
             >
               <span class="absolute inset-0 bg-gradient-to-br from-orange-400 to-orange-500 transition-transform duration-300 group-hover:scale-110"></span>
               <span class="relative z-10 flex flex-col items-center gap-2">
-                <span class="text-4xl">🧷</span>
-                <span class="text-lg">Add Diaper</span>
+                @if (isNavigatingToDiaper()) {
+                  <span class="inline-block w-10 h-10 border-4 border-white border-t-transparent rounded-full animate-spin"></span>
+                } @else {
+                  <span class="text-4xl">🧷</span>
+                  <span class="text-lg">Add Diaper</span>
+                }
               </span>
-            </a>
+            </button>
 
             <!-- Add Nap Button -->
-            <a
-              [routerLink]="['/children', child()!.id, 'naps', 'create']"
-              class="group relative p-6 rounded-2xl font-['DM_Sans',sans-serif] font-bold text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 overflow-hidden border-2 border-amber-400 no-underline cursor-pointer"
+            <button
+              (click)="navigateToNaps()"
+              [disabled]="isNavigatingToNap()"
+              class="group relative p-6 rounded-2xl font-['DM_Sans',sans-serif] font-bold text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 overflow-hidden border-2 border-amber-400 cursor-pointer disabled:opacity-75 disabled:cursor-wait"
+              [attr.aria-busy]="isNavigatingToNap()"
             >
               <span class="absolute inset-0 bg-gradient-to-br from-amber-400 to-amber-500 transition-transform duration-300 group-hover:scale-110"></span>
               <span class="relative z-10 flex flex-col items-center gap-2">
-                <span class="text-4xl">😴</span>
-                <span class="text-lg">Add Nap</span>
+                @if (isNavigatingToNap()) {
+                  <span class="inline-block w-10 h-10 border-4 border-white border-t-transparent rounded-full animate-spin"></span>
+                } @else {
+                  <span class="text-4xl">😴</span>
+                  <span class="text-lg">Add Nap</span>
+                }
               </span>
-            </a>
+            </button>
           </div>
         </div>
 

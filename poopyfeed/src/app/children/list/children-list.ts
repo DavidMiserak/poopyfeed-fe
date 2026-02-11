@@ -25,6 +25,7 @@ export class ChildrenList implements OnInit {
   children = signal<Child[]>([]);
   isLoading = signal(true);
   error = signal<string | null>(null);
+  navigatingToChildId = signal<number | null>(null);
 
   // Expose helpers for template
   GENDER_LABELS = GENDER_LABELS;
@@ -51,6 +52,7 @@ export class ChildrenList implements OnInit {
   }
 
   navigateToChild(childId: number) {
+    this.navigatingToChildId.set(childId);
     this.router.navigate(['/children', childId, 'dashboard']);
   }
 

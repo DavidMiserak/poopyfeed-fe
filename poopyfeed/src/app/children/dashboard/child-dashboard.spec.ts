@@ -367,4 +367,49 @@ describe('ChildDashboard', () => {
       expect(loadDashboardDataSpy).toHaveBeenCalledWith(1);
     });
   });
+
+  describe('action button navigation', () => {
+    beforeEach(() => {
+      setupWithData();
+    });
+
+    it('should set isNavigatingToFeeding signal and navigate when navigateToFeedings called', () => {
+      const routerSpy = vi.spyOn(component['router'], 'navigate');
+      expect(component.isNavigatingToFeeding()).toBe(false);
+
+      component.navigateToFeedings();
+
+      expect(component.isNavigatingToFeeding()).toBe(true);
+      expect(routerSpy).toHaveBeenCalledWith(['/children', 1, 'feedings', 'create']);
+    });
+
+    it('should set isNavigatingToDiaper signal and navigate when navigateToDiapers called', () => {
+      const routerSpy = vi.spyOn(component['router'], 'navigate');
+      expect(component.isNavigatingToDiaper()).toBe(false);
+
+      component.navigateToDiapers();
+
+      expect(component.isNavigatingToDiaper()).toBe(true);
+      expect(routerSpy).toHaveBeenCalledWith(['/children', 1, 'diapers', 'create']);
+    });
+
+    it('should set isNavigatingToNap signal and navigate when navigateToNaps called', () => {
+      const routerSpy = vi.spyOn(component['router'], 'navigate');
+      expect(component.isNavigatingToNap()).toBe(false);
+
+      component.navigateToNaps();
+
+      expect(component.isNavigatingToNap()).toBe(true);
+      expect(routerSpy).toHaveBeenCalledWith(['/children', 1, 'naps', 'create']);
+    });
+
+    it('should not navigate if child is not loaded', () => {
+      component.child.set(null);
+      const routerSpy = vi.spyOn(component['router'], 'navigate');
+
+      component.navigateToFeedings();
+
+      expect(routerSpy).not.toHaveBeenCalled();
+    });
+  });
 });

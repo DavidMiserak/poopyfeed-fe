@@ -98,8 +98,17 @@
         @for (child of children(); track child.id) {
           <div
             (click)="navigateToChild(child.id)"
-            class="group bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl hover:shadow-2xl p-6 border-2 border-rose-200 hover:border-rose-400 transition-all duration-300 cursor-pointer hover:-translate-y-2"
+            [attr.aria-busy]="navigatingToChildId() === child.id"
+            class="group relative bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl hover:shadow-2xl p-6 border-2 border-rose-200 hover:border-rose-400 transition-all duration-300 cursor-pointer hover:-translate-y-2"
+            [class.opacity-75]="navigatingToChildId() === child.id"
           >
+            <!-- Loading Spinner Overlay -->
+            @if (navigatingToChildId() === child.id) {
+              <div class="absolute inset-0 flex items-center justify-center rounded-3xl bg-white/40 backdrop-blur-sm">
+                <div class="w-12 h-12 border-4 border-rose-200 border-t-rose-400 rounded-full animate-spin"></div>
+              </div>
+            }
+
             <!-- Role Badge -->
             <div class="flex justify-end mb-4">
               <span
