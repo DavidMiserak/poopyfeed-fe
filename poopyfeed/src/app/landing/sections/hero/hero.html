@@ -35,31 +35,47 @@
 
         <!-- CTAs -->
         <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-4">
-          <a
-            routerLink="/signup"
-            class="group relative px-8 py-4 rounded-xl font-['DM_Sans',sans-serif] font-bold text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 overflow-hidden border-2 border-rose-400 inline-flex items-center justify-center"
-            aria-label="Sign up for PoopyFeed"
-          >
-            <span class="absolute inset-0 bg-gradient-to-br from-rose-400 via-orange-400 to-amber-400 transition-transform duration-300 group-hover:scale-110"></span>
-            <span class="relative z-10 flex items-center gap-2">
-              Get Started Free
-              <svg class="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-              </svg>
-            </span>
-          </a>
+          @if (authService.isAuthenticated()) {
+            <a
+              routerLink="/children"
+              class="group relative px-8 py-4 rounded-xl font-['DM_Sans',sans-serif] font-bold text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 overflow-hidden border-2 border-rose-400 inline-flex items-center justify-center"
+              aria-label="Go to My Children"
+            >
+              <span class="absolute inset-0 bg-gradient-to-br from-rose-400 via-orange-400 to-amber-400 transition-transform duration-300 group-hover:scale-110"></span>
+              <span class="relative z-10 flex items-center gap-2">
+                My Children
+                <svg class="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </span>
+            </a>
+          } @else {
+            <a
+              routerLink="/signup"
+              class="group relative px-8 py-4 rounded-xl font-['DM_Sans',sans-serif] font-bold text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 overflow-hidden border-2 border-rose-400 inline-flex items-center justify-center"
+              aria-label="Sign up for PoopyFeed"
+            >
+              <span class="absolute inset-0 bg-gradient-to-br from-rose-400 via-orange-400 to-amber-400 transition-transform duration-300 group-hover:scale-110"></span>
+              <span class="relative z-10 flex items-center gap-2">
+                Get Started Free
+                <svg class="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </span>
+            </a>
 
-          <a
-            href="#features"
-            class="group px-8 py-4 rounded-xl font-['DM_Sans',sans-serif] font-bold bg-white hover:bg-slate-50 text-slate-700 border-2 border-slate-200 hover:border-rose-300 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 inline-flex items-center justify-center"
-          >
-            <span class="flex items-center gap-2">
-              See How It Works
-              <svg class="w-5 h-5 transition-transform duration-300 group-hover:translate-y-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-              </svg>
-            </span>
-          </a>
+            <a
+              href="#features"
+              class="group px-8 py-4 rounded-xl font-['DM_Sans',sans-serif] font-bold bg-white hover:bg-slate-50 text-slate-700 border-2 border-slate-200 hover:border-rose-300 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 inline-flex items-center justify-center"
+            >
+              <span class="flex items-center gap-2">
+                See How It Works
+                <svg class="w-5 h-5 transition-transform duration-300 group-hover:translate-y-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </span>
+            </a>
+          }
         </div>
       </div>
 
