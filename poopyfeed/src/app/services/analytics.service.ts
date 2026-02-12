@@ -259,8 +259,7 @@ export class AnalyticsService {
     const params = new HttpParams().set('days', days.toString());
 
     return this.http
-      .get(`${this.API_BASE}/${childId}/export/csv/`, {
-        params,
+      .post(`${this.API_BASE}/${childId}/export-csv/`, { days }, {
         responseType: 'blob',
       })
       .pipe(
@@ -294,7 +293,7 @@ export class AnalyticsService {
    */
   exportPDFAsync(childId: number, days: number = 30): Observable<ExportJobResponse> {
     return this.http
-      .post<ExportJobResponse>(`${this.API_BASE}/${childId}/export/pdf/`, { days })
+      .post<ExportJobResponse>(`${this.API_BASE}/${childId}/export-pdf/`, { days })
       .pipe(
         catchError((error) => throwError(() => ErrorHandler.handle(error, 'Export PDF')))
       );
@@ -328,8 +327,8 @@ export class AnalyticsService {
    *     }
    *   });
    */
-  getPDFJobStatus(taskId: string): Observable<JobStatusResponse> {
-    return this.http.get<JobStatusResponse>(`/api/v1/analytics/jobs/${taskId}/status/`).pipe(
+  getPDFJobStatus(childId: number, taskId: string): Observable<JobStatusResponse> {
+    return this.http.get<JobStatusResponse>(`${this.API_BASE}/${childId}/export-status/${taskId}/`).pipe(
       catchError((error) =>
         throwError(() => ErrorHandler.handle(error, 'Get PDF job status'))
       )

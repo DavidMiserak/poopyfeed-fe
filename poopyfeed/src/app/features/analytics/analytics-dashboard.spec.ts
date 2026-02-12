@@ -5,7 +5,7 @@
  */
 
 import { TestBed, ComponentFixture } from '@angular/core/testing';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { AnalyticsDashboard } from './analytics-dashboard';
 import { AnalyticsService } from '../../services/analytics.service';
@@ -271,13 +271,74 @@ describe('AnalyticsDashboard', () => {
     });
   });
 
-  describe('Utility Methods', () => {
+    describe('Utility Methods', () => {
     it('should format minutes correctly', () => {
       expect(component.formatMinutes(30)).toBe('30m');
       expect(component.formatMinutes(60)).toBe('1h');
       expect(component.formatMinutes(90)).toBe('1h 30m');
       expect(component.formatMinutes(120)).toBe('2h');
       expect(component.formatMinutes(150)).toBe('2h 30m');
+    });
+  });
+
+  describe('Export Functionality', () => {
+    let router: Router;
+
+    beforeEach(() => {
+      router = TestBed.inject(Router);
+      component.childId.set(1);
+      analyticsService.feedingTrends.set(mockFeedingTrends);
+      analyticsService.diaperPatterns.set(mockDiaperPatterns);
+      analyticsService.sleepSummary.set(mockSleepSummary);
+    });
+
+    it('should show export button when hasAnyData is true', () => {
+      component.isLoading.set(false);
+      component.error.set(null);
+      // Verify hasAnyData is true
+      expect(component.hasAnyData()).toBe(true);
+      // Verify button conditions are met
+      expect(component.isLoading()).toBe(false);
+      expect(component.error()).toBeNull();
+    });
+
+    it('should hide export button when no data', () => {
+      analyticsService.feedingTrends.set({
+        ...mockFeedingTrends,
+        daily_data: [{ date: '2024-01-01', count: 0, average_duration: null, total_oz: null }],
+      });
+      analyticsService.diaperPatterns.set({
+        ...mockDiaperPatterns,
+        daily_data: [{ date: '2024-01-01', count: 0, average_duration: null, total_oz: null }],
+      });
+      analyticsService.sleepSummary.set({
+        ...mockSleepSummary,
+        daily_data: [{ date: '2024-01-01', count: 0, average_duration: null, total_oz: null }],
+      });
+
+      fixture.detectChanges();
+      const compiled = fixture.nativeElement as HTMLElement;
+      const button = Array.from(compiled.querySelectorAll('button')).find((btn) =>
+        btn.textContent?.includes('Export Data')
+      );
+      expect(button).toBeFalsy();
+    });
+
+    it('should navigate to export page on export button click', () => {
+      vi.spyOn(router, 'navigate');
+
+      component.onExportClick();
+
+      expect(router.navigate).toHaveBeenCalledWith(['/children/1/analytics/export']);
+    });
+
+    it('should not navigate if childId is null', () => {
+      vi.spyOn(router, 'navigate');
+      component.childId.set(null);
+
+      component.onExportClick();
+
+      expect(router.navigate).not.toHaveBeenCalled();
     });
   });
 });

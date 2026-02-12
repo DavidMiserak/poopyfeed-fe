@@ -331,9 +331,10 @@ describe('AnalyticsService', () => {
       });
 
       const req = httpMock.expectOne(
-        '/api/v1/analytics/children/1/export/csv/?days=30'
+        '/api/v1/analytics/children/1/export-csv/'
       );
-      expect(req.request.method).toBe('GET');
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body).toEqual({ days: 30 });
       expect(req.request.responseType).toBe('blob');
       req.flush(mockCSVBlob);
     });
@@ -344,8 +345,9 @@ describe('AnalyticsService', () => {
       service.exportCSV(1).subscribe();
 
       const req = httpMock.expectOne(
-        '/api/v1/analytics/children/1/export/csv/?days=30'
+        '/api/v1/analytics/children/1/export-csv/'
       );
+      expect(req.request.body).toEqual({ days: 30 });
       req.flush(mockCSVBlob);
     });
 
@@ -355,8 +357,9 @@ describe('AnalyticsService', () => {
       service.exportCSV(1, 60).subscribe();
 
       const req = httpMock.expectOne(
-        '/api/v1/analytics/children/1/export/csv/?days=60'
+        '/api/v1/analytics/children/1/export-csv/'
       );
+      expect(req.request.body).toEqual({ days: 60 });
       req.flush(mockCSVBlob);
     });
 
@@ -371,7 +374,7 @@ describe('AnalyticsService', () => {
       });
 
       const req = httpMock.expectOne(
-        '/api/v1/analytics/children/999/export/csv/?days=30'
+        '/api/v1/analytics/children/999/export-csv/'
       );
       req.flush(null, { status: 404, statusText: 'Not Found' });
 
@@ -389,7 +392,7 @@ describe('AnalyticsService', () => {
       });
 
       const req = httpMock.expectOne(
-        '/api/v1/analytics/children/1/export/csv/?days=30'
+        '/api/v1/analytics/children/1/export-csv/'
       );
       req.flush(null, { status: 403, statusText: 'Forbidden' });
 
@@ -416,8 +419,9 @@ describe('AnalyticsService', () => {
       });
 
       const req = httpMock.expectOne(
-        '/api/v1/analytics/children/1/export/pdf/'
+        '/api/v1/analytics/children/1/export-pdf/'
       );
+      expect(req.request.method).toBe('POST');
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual({ days: 30 });
       req.flush(mockExportJobResponse);
@@ -427,7 +431,7 @@ describe('AnalyticsService', () => {
       service.exportPDFAsync(1).subscribe();
 
       const req = httpMock.expectOne(
-        '/api/v1/analytics/children/1/export/pdf/'
+        '/api/v1/analytics/children/1/export-pdf/'
       );
       expect(req.request.body).toEqual({ days: 30 });
       req.flush(mockExportJobResponse);
@@ -437,7 +441,7 @@ describe('AnalyticsService', () => {
       service.exportPDFAsync(1, 60).subscribe();
 
       const req = httpMock.expectOne(
-        '/api/v1/analytics/children/1/export/pdf/'
+        '/api/v1/analytics/children/1/export-pdf/'
       );
       expect(req.request.body).toEqual({ days: 60 });
       req.flush(mockExportJobResponse);
@@ -454,7 +458,7 @@ describe('AnalyticsService', () => {
       });
 
       const req = httpMock.expectOne(
-        '/api/v1/analytics/children/1/export/pdf/'
+        '/api/v1/analytics/children/1/export-pdf/'
       );
       req.flush(
         { detail: 'Export service unavailable' },
@@ -473,7 +477,7 @@ describe('AnalyticsService', () => {
         progress: 0,
       };
 
-      service.getPDFJobStatus('abc123def456').subscribe({
+      service.getPDFJobStatus(1, 'abc123def456').subscribe({
         next: (response) => {
           expect(response.status).toBe('pending');
           expect(response.progress).toBe(0);
@@ -481,7 +485,7 @@ describe('AnalyticsService', () => {
       });
 
       const req = httpMock.expectOne(
-        '/api/v1/analytics/jobs/abc123def456/status/'
+        '/api/v1/analytics/children/1/export-status/abc123def456/'
       );
       expect(req.request.method).toBe('GET');
       req.flush(mockPendingStatus);
@@ -494,7 +498,7 @@ describe('AnalyticsService', () => {
         progress: 45,
       };
 
-      service.getPDFJobStatus('abc123def456').subscribe({
+      service.getPDFJobStatus(1, 'abc123def456').subscribe({
         next: (response) => {
           expect(response.status).toBe('processing');
           expect(response.progress).toBe(45);
@@ -502,7 +506,7 @@ describe('AnalyticsService', () => {
       });
 
       const req = httpMock.expectOne(
-        '/api/v1/analytics/jobs/abc123def456/status/'
+        '/api/v1/analytics/children/1/export-status/abc123def456/'
       );
       req.flush(mockProcessingStatus);
     });
@@ -520,7 +524,7 @@ describe('AnalyticsService', () => {
         },
       };
 
-      service.getPDFJobStatus('abc123def456').subscribe({
+      service.getPDFJobStatus(1, 'abc123def456').subscribe({
         next: (response) => {
           expect(response.status).toBe('completed');
           expect(response.progress).toBe(100);
@@ -530,7 +534,7 @@ describe('AnalyticsService', () => {
       });
 
       const req = httpMock.expectOne(
-        '/api/v1/analytics/jobs/abc123def456/status/'
+        '/api/v1/analytics/children/1/export-status/abc123def456/'
       );
       req.flush(mockCompletedStatus);
     });
@@ -542,7 +546,7 @@ describe('AnalyticsService', () => {
         error: 'PDF generation failed due to invalid data',
       };
 
-      service.getPDFJobStatus('abc123def456').subscribe({
+      service.getPDFJobStatus(1, 'abc123def456').subscribe({
         next: (response) => {
           expect(response.status).toBe('failed');
           expect(response.error).toBe(
@@ -552,7 +556,7 @@ describe('AnalyticsService', () => {
       });
 
       const req = httpMock.expectOne(
-        '/api/v1/analytics/jobs/abc123def456/status/'
+        '/api/v1/analytics/children/1/export-status/abc123def456/'
       );
       req.flush(mockFailedStatus);
     });
@@ -560,7 +564,7 @@ describe('AnalyticsService', () => {
     it('should handle job polling timeout (404 expired task)', () => {
       let errorCaught = false;
 
-      service.getPDFJobStatus('expired-task-id').subscribe({
+      service.getPDFJobStatus(1, 'expired-task-id').subscribe({
         error: (error: Error) => {
           expect(error.message).toBeTruthy();
           errorCaught = true;
@@ -568,7 +572,7 @@ describe('AnalyticsService', () => {
       });
 
       const req = httpMock.expectOne(
-        '/api/v1/analytics/jobs/expired-task-id/status/'
+        '/api/v1/analytics/children/1/export-status/expired-task-id/'
       );
       req.flush(
         { detail: 'Task not found (expired)' },

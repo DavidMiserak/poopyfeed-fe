@@ -24,7 +24,7 @@ import {
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 
@@ -48,12 +48,25 @@ import { SleepSummaryChart } from './sleep-summary-chart';
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <!-- Header -->
       <div class="mb-8">
-        <h1 class="font-['Fredoka',sans-serif] text-4xl font-bold text-gray-900 mb-2">
-          Analytics Dashboard
-        </h1>
-        <p class="text-lg text-gray-600">
-          View trends and insights for your baby's activities
-        </p>
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <h1 class="font-['Fredoka',sans-serif] text-4xl font-bold text-gray-900 mb-2">
+              Analytics Dashboard
+            </h1>
+            <p class="text-lg text-gray-600">
+              View trends and insights for your baby's activities
+            </p>
+          </div>
+          @if (!isLoading() && !error() && hasAnyData()) {
+            <button
+              (click)="onExportClick()"
+              class="flex-shrink-0 mt-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-medium transition-colors flex items-center gap-2"
+            >
+              <span>📥</span>
+              Export Data
+            </button>
+          }
+        </div>
       </div>
 
       @if (isLoading()) {
@@ -184,6 +197,7 @@ import { SleepSummaryChart } from './sleep-summary-chart';
 })
 export class AnalyticsDashboard implements OnInit {
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private analyticsService = inject(AnalyticsService);
   private toast = inject(ToastService);
 
@@ -276,5 +290,15 @@ export class AnalyticsDashboard implements OnInit {
     }
 
     return `${hours}h ${mins}m`;
+  }
+
+  /**
+   * Navigate to the export page.
+   */
+  onExportClick(): void {
+    const childIdValue = this.childId();
+    if (childIdValue) {
+      this.router.navigate([`/children/${childIdValue}/analytics/export`]);
+    }
   }
 }

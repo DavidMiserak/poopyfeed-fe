@@ -268,7 +268,7 @@ export class ExportJobStatusComponent implements OnInit, OnDestroy {
   private startPolling(): void {
     timer(0, this.POLL_INTERVAL_MS)
       .pipe(
-        switchMap(() => this.analyticsService.getPDFJobStatus(this.taskId())),
+        switchMap(() => this.analyticsService.getPDFJobStatus(this.childId(), this.taskId())),
         finalize(() => this.isPolling.set(false)),
         takeUntil(this.destroy$)
       )

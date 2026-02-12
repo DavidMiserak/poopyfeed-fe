@@ -67,11 +67,24 @@ export const routes: Routes = [
       },
       {
         path: ':childId/analytics',
-        loadComponent: () =>
-          import('./features/analytics/analytics-dashboard').then(
-            (m) => m.AnalyticsDashboard
-          ),
-        title: 'Analytics - PoopyFeed',
+        children: [
+          {
+            path: '',
+            loadComponent: () =>
+              import('./features/analytics/analytics-dashboard').then(
+                (m) => m.AnalyticsDashboard
+              ),
+            title: 'Analytics - PoopyFeed',
+          },
+          {
+            path: 'export',
+            loadComponent: () =>
+              import('./features/analytics/export-page').then(
+                (m) => m.ExportPage
+              ),
+            title: 'Export Data - PoopyFeed',
+          },
+        ],
       },
       {
         path: ':childId/feedings',
