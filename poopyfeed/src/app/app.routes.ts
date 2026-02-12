@@ -66,6 +66,14 @@ export const routes: Routes = [
         title: 'Dashboard - PoopyFeed',
       },
       {
+        path: ':childId/analytics',
+        loadComponent: () =>
+          import('./features/analytics/analytics-dashboard').then(
+            (m) => m.AnalyticsDashboard
+          ),
+        title: 'Analytics - PoopyFeed',
+      },
+      {
         path: ':childId/feedings',
         children: [
           {
