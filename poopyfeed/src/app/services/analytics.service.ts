@@ -338,21 +338,28 @@ export class AnalyticsService {
   /**
    * Trigger browser download of a PDF file.
    *
-   * Creates a temporary anchor element and triggers download.
-   * Safe for use in browser environments with blob URLs.
+   * Fetches the PDF file from the download URL and triggers browser download.
+   * Uses blob URL approach for better browser compatibility.
    *
-   * @param downloadUrl URL or blob URL of the file to download
+   * @param downloadUrl URL of the PDF file to download
    *
    * @example
    * this.analyticsService.downloadPDF(status.result?.download_url!);
    */
   downloadPDF(downloadUrl: string): void {
-    const link = document.createElement('a');
-    link.href = downloadUrl;
-    link.download = downloadUrl.split('/').pop() || 'export.pdf';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    // Fetch the file as a blob
+    this.http.get(downloadUrl, { responseType: 'blob' }).pipe(
+      tap((blob) => {
+        // Extract filename from URL
+        const filename = downloadUrl.split('/').pop() || 'export.pdf';
+        // Download the blob
+        this.downloadFile(blob, filename);
+      }),
+      catchError((error) => {
+        console.error('PDF download failed:', error);
+        throw error;
+      })
+    ).subscribe();
   }
 
   /**

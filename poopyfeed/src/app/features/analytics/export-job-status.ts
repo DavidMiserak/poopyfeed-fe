@@ -180,9 +180,9 @@ import { JobStatusResponse } from '../../models/analytics.model';
             class="flex-1 px-4 py-3 bg-green-500 text-white rounded-lg font-semibold hover:bg-green-600 transition-colors flex items-center justify-center gap-2"
             aria-label="Download PDF export file"
           >
-            <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
+            <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
               <path
-                d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"
+                d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"
               ></path>
             </svg>
             <span>Download PDF</span>
@@ -239,8 +239,9 @@ export class ExportJobStatusComponent implements OnInit, OnDestroy {
       !this.isPolling()
   );
 
-  // Cleanup subject for subscriptions
+  // Cleanup subjects for subscriptions
   private destroy$ = new Subject<void>();
+  private stopPolling$ = new Subject<void>();
 
   // Polling configuration
   private readonly POLL_INTERVAL_MS = 2000;
@@ -253,6 +254,8 @@ export class ExportJobStatusComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.stopPolling$.next();
+    this.stopPolling$.complete();
     this.destroy$.next();
     this.destroy$.complete();
   }
@@ -270,6 +273,7 @@ export class ExportJobStatusComponent implements OnInit, OnDestroy {
       .pipe(
         switchMap(() => this.analyticsService.getPDFJobStatus(this.childId(), this.taskId())),
         finalize(() => this.isPolling.set(false)),
+        takeUntil(this.stopPolling$),
         takeUntil(this.destroy$)
       )
       .subscribe({
@@ -282,6 +286,7 @@ export class ExportJobStatusComponent implements OnInit, OnDestroy {
 
           // Handle completion
           if (response.status === 'completed' && response.result) {
+            this.progress.set(100);
             this.downloadUrl.set(response.result.download_url);
             this.expiresAt.set(new Date(response.result.expires_at));
             this.toast.success('PDF export ready for download!');
@@ -318,9 +323,11 @@ export class ExportJobStatusComponent implements OnInit, OnDestroy {
    * Stop polling and cleanup.
    *
    * Called when job completes, fails, or times out.
+   * Emits to stopPolling$ subject to unsubscribe from timer.
    */
   private stopPolling(): void {
     this.isPolling.set(false);
+    this.stopPolling$.next();
   }
 
   /**
