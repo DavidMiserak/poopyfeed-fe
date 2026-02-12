@@ -18,7 +18,7 @@
 
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpParams, HttpErrorResponse } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
+import { Observable, throwError, map } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 import { ErrorHandler } from './error.utils';
 import {
@@ -259,7 +259,8 @@ export class AnalyticsService {
     const params = new HttpParams().set('days', days.toString());
 
     return this.http
-      .post(`${this.API_BASE}/${childId}/export-csv/`, { days }, {
+      .post(`${this.API_BASE}/${childId}/export-csv/`, {}, {
+        params,
         responseType: 'blob',
       })
       .pipe(
@@ -342,24 +343,24 @@ export class AnalyticsService {
    * Uses blob URL approach for better browser compatibility.
    *
    * @param downloadUrl URL of the PDF file to download
+   * @returns Observable<void> Completes when download is triggered
    *
    * @example
-   * this.analyticsService.downloadPDF(status.result?.download_url!);
+   * this.analyticsService.downloadPDF(status.result?.download_url!).subscribe();
    */
-  downloadPDF(downloadUrl: string): void {
-    // Fetch the file as a blob
-    this.http.get(downloadUrl, { responseType: 'blob' }).pipe(
+  downloadPDF(downloadUrl: string): Observable<void> {
+    return this.http.get(downloadUrl, { responseType: 'blob' }).pipe(
       tap((blob) => {
         // Extract filename from URL
         const filename = downloadUrl.split('/').pop() || 'export.pdf';
         // Download the blob
         this.downloadFile(blob, filename);
       }),
-      catchError((error) => {
-        console.error('PDF download failed:', error);
-        throw error;
-      })
-    ).subscribe();
+      map(() => undefined),
+      catchError((error) =>
+        throwError(() => ErrorHandler.handle(error, 'PDF download failed'))
+      )
+    );
   }
 
   /**

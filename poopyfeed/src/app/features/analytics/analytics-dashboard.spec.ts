@@ -60,9 +60,24 @@ describe('AnalyticsDashboard', () => {
   const mockWeeklySummary = {
     child_id: 1,
     period: 'Last 7 days',
-    feedings: {},
-    diapers: {},
-    sleep: {},
+    feedings: {
+      count: 35,
+      total_oz: 280,
+      bottle: 35,
+      breast: 0,
+      avg_duration: 12.5,
+    },
+    diapers: {
+      count: 42,
+      wet: 28,
+      dirty: 7,
+      both: 7,
+    },
+    sleep: {
+      naps: 14,
+      total_minutes: 1260,
+      avg_duration: 90,
+    },
     last_updated: '2024-01-30T12:00:00Z',
   };
 

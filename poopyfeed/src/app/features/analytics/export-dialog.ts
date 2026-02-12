@@ -13,40 +13,37 @@
  *
  * Usage in parent component:
  * ```typescript
- * export class AnalyticsDashboard {
- *   showExportDialog = signal(false);
- *
- *   onExportClick() {
- *     this.showExportDialog.set(true);
- *   }
+ * export class ExportPage {
+ *   childId = signal<number | null>(null);
+ *   showExportDialog = signal(true);
  *
  *   onExportDialogSubmit(options: ExportOptions) {
- *     this.showExportDialog.set(false);
- *     // Handle export with options.format and options.days
+ *     const childIdValue = this.childId();
+ *     if (options.format === 'csv') {
+ *       this.handleCSVExport(childIdValue, options.days);
+ *     } else {
+ *       this.handlePDFExport(childIdValue, options.days);
+ *     }
  *   }
  *
  *   onExportDialogCancel() {
- *     this.showExportDialog.set(false);
+ *     this.goBack();
  *   }
  * }
  * ```
  *
  * ```html
- * @if (showExportDialog()) {
- *   <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
- *     <app-export-dialog
- *       (submit)="onExportDialogSubmit($event)"
- *       (cancel)="onExportDialogCancel()"
- *     />
- *   </div>
- * }
+ * <app-export-dialog
+ *   (submitEvent)="onExportDialogSubmit($event)"
+ *   (cancelEvent)="onExportDialogCancel()"
+ * />
  * ```
  *
  * @component
  * Selector: app-export-dialog
  * Outputs:
- * - submit: ExportOptions - Emitted when user submits export options
- * - cancel: void - Emitted when user cancels the dialog
+ * - submitEvent: ExportOptions - Emitted when user submits export options (format and days)
+ * - cancelEvent: void - Emitted when user cancels the dialog
  */
 
 import {
@@ -265,7 +262,6 @@ export class ExportDialogComponent implements OnInit {
     const options: ExportOptions = {
       format: formValue.format,
       days: formValue.days,
-      childId: 0, // Will be set by parent component
     };
 
     // Emit options to parent component

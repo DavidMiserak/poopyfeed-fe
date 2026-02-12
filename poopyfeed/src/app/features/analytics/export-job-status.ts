@@ -338,7 +338,14 @@ export class ExportJobStatusComponent implements OnInit, OnDestroy {
    * @param downloadUrl URL of the PDF file to download
    */
   onDownloadClick(downloadUrl: string): void {
-    this.analyticsService.downloadPDF(downloadUrl);
+    this.analyticsService
+      .downloadPDF(downloadUrl)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        error: (err: Error) => {
+          this.toast.error(`Download failed: ${err.message}`);
+        },
+      });
   }
 
   /**

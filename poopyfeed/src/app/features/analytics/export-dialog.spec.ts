@@ -121,7 +121,6 @@ describe('ExportDialogComponent', () => {
         expect.objectContaining({
           format: 'csv',
           days: 30,
-          childId: 0,
         })
       );
 
@@ -137,7 +136,6 @@ describe('ExportDialogComponent', () => {
         expect.objectContaining({
           format: 'pdf',
           days: 60,
-          childId: 0,
         })
       );
 
@@ -152,7 +150,7 @@ describe('ExportDialogComponent', () => {
       const callArg = submitSpy.mock.calls[0][0];
       expect(callArg).toHaveProperty('format');
       expect(callArg).toHaveProperty('days');
-      expect(callArg).toHaveProperty('childId');
+      expect(Object.keys(callArg).length).toBe(2);
 
       submitSpy.mockRestore();
     });

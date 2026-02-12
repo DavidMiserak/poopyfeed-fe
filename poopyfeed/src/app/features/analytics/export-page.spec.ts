@@ -58,7 +58,7 @@ describe('ExportPage', () => {
       component.childId.set(null);
       vi.spyOn(toastService, 'error');
 
-      component.onExportDialogSubmit({ format: 'csv', days: 30, childId: 1 });
+      component.onExportDialogSubmit({ format: 'csv', days: 30 });
 
       expect(toastService.error).toHaveBeenCalledWith('Child ID is missing');
     });
@@ -80,7 +80,7 @@ describe('ExportPage', () => {
       vi.spyOn(toastService, 'success');
       vi.spyOn(router, 'navigate');
 
-      component.onExportDialogSubmit({ format: 'csv', days: 30, childId: 1 });
+      component.onExportDialogSubmit({ format: 'csv', days: 30 });
 
       await new Promise((resolve) => setTimeout(resolve, 10));
       expect(analyticsService.exportCSV).toHaveBeenCalledWith(1, 30);
@@ -93,7 +93,7 @@ describe('ExportPage', () => {
       vi.spyOn(analyticsService, 'exportCSV').mockReturnValue(throwError(() => testError));
       vi.spyOn(toastService, 'error');
 
-      component.onExportDialogSubmit({ format: 'csv', days: 30, childId: 1 });
+      component.onExportDialogSubmit({ format: 'csv', days: 30 });
 
       await new Promise((resolve) => setTimeout(resolve, 10));
       expect(toastService.error).toHaveBeenCalledWith('CSV export failed');
@@ -111,7 +111,7 @@ describe('ExportPage', () => {
 
       vi.spyOn(analyticsService, 'exportPDFAsync').mockReturnValue(of(mockJobResponse));
 
-      component.onExportDialogSubmit({ format: 'pdf', days: 30, childId: 1 });
+      component.onExportDialogSubmit({ format: 'pdf', days: 30 });
 
       await new Promise((resolve) => setTimeout(resolve, 10));
       expect(analyticsService.exportPDFAsync).toHaveBeenCalledWith(1, 30);
@@ -124,7 +124,7 @@ describe('ExportPage', () => {
       vi.spyOn(analyticsService, 'exportPDFAsync').mockReturnValue(throwError(() => testError));
       vi.spyOn(toastService, 'error');
 
-      component.onExportDialogSubmit({ format: 'pdf', days: 30, childId: 1 });
+      component.onExportDialogSubmit({ format: 'pdf', days: 30 });
 
       await new Promise((resolve) => setTimeout(resolve, 10));
       expect(toastService.error).toHaveBeenCalledWith('PDF export failed');
@@ -163,7 +163,7 @@ describe('ExportPage', () => {
       vi.spyOn(toastService, 'error');
       component.childId.set(null);
 
-      component.onExportDialogSubmit({ format: 'csv', days: 30, childId: 1 });
+      component.onExportDialogSubmit({ format: 'csv', days: 30 });
 
       expect(toastService.error).toHaveBeenCalledWith('Child ID is missing');
     });

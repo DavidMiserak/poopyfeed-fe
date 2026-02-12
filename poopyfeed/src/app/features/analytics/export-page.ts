@@ -15,11 +15,14 @@ import {
   Component,
   inject,
   OnInit,
+  OnDestroy,
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { signal } from '@angular/core';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 import { ExportDialogComponent } from './export-dialog';
 import { ExportJobStatusComponent } from './export-job-status';
@@ -66,11 +69,13 @@ import { ExportOptions } from '../../models/analytics.model';
     </div>
   `,
 })
-export class ExportPage implements OnInit {
+export class ExportPage implements OnInit, OnDestroy {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private analyticsService = inject(AnalyticsService);
   private toast = inject(ToastService);
+
+  private destroy$ = new Subject<void>();
 
   childId = signal<number | null>(null);
   showJobStatus = signal(false);
@@ -132,15 +137,18 @@ export class ExportPage implements OnInit {
    * @param days Number of days to export
    */
   private handleCSVExport(childId: number, days: number): void {
-    this.analyticsService.exportCSV(childId, days).subscribe({
-      next: () => {
-        this.toast.success('CSV downloaded successfully');
-        this.goBack();
-      },
-      error: (err: Error) => {
-        this.toast.error(err.message);
-      },
-    });
+    this.analyticsService
+      .exportCSV(childId, days)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.toast.success('CSV downloaded successfully');
+          this.goBack();
+        },
+        error: (err: Error) => {
+          this.toast.error(err.message);
+        },
+      });
   }
 
   /**
@@ -152,15 +160,18 @@ export class ExportPage implements OnInit {
    * @param days Number of days to export
    */
   private handlePDFExport(childId: number, days: number): void {
-    this.analyticsService.exportPDFAsync(childId, days).subscribe({
-      next: (response) => {
-        this.jobTaskId.set(response.task_id);
-        this.showJobStatus.set(true);
-      },
-      error: (err: Error) => {
-        this.toast.error(err.message);
-      },
-    });
+    this.analyticsService
+      .exportPDFAsync(childId, days)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          this.jobTaskId.set(response.task_id);
+          this.showJobStatus.set(true);
+        },
+        error: (err: Error) => {
+          this.toast.error(err.message);
+        },
+      });
   }
 
   /**
@@ -180,5 +191,15 @@ export class ExportPage implements OnInit {
     } else {
       this.router.navigate(['/children']);
     }
+  }
+
+  /**
+   * Cleanup on component destroy.
+   *
+   * Unsubscribes from all pending subscriptions.
+   */
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

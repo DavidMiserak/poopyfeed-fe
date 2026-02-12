@@ -199,13 +199,49 @@ export interface WeeklySummaryData {
   period: string;
 
   /** Feeding statistics for the week */
-  feedings: Record<string, unknown>;
+  feedings: {
+    /** Total number of feeding sessions in the week */
+    count: number;
+
+    /** Total ounces consumed in the week */
+    total_oz: number;
+
+    /** Number of bottle feedings */
+    bottle: number;
+
+    /** Number of breast feedings */
+    breast: number;
+
+    /** Average feeding duration in minutes */
+    avg_duration: number | null;
+  };
 
   /** Diaper statistics for the week */
-  diapers: Record<string, unknown>;
+  diapers: {
+    /** Total number of diaper changes in the week */
+    count: number;
+
+    /** Number of wet diapers */
+    wet: number;
+
+    /** Number of dirty diapers */
+    dirty: number;
+
+    /** Number of wet & dirty diapers */
+    both: number;
+  };
 
   /** Sleep statistics for the week */
-  sleep: Record<string, unknown>;
+  sleep: {
+    /** Total number of naps in the week */
+    naps: number;
+
+    /** Total sleep duration in minutes */
+    total_minutes: number;
+
+    /** Average nap duration in minutes */
+    avg_duration: number;
+  };
 
   /** Timestamp of last data update (ISO 8601) */
   last_updated: string;
@@ -280,6 +316,7 @@ export interface JobStatusResponse {
  * Export options for analytics data.
  *
  * Used when user initiates an export from the UI.
+ * Child ID is provided by the parent component (ExportPage).
  */
 export interface ExportOptions {
   /** Export format: 'csv' for immediate download, 'pdf' for async generation */
@@ -287,7 +324,4 @@ export interface ExportOptions {
 
   /** Number of days to include in export (1-90) */
   days: number;
-
-  /** Child ID to export data for */
-  childId: number;
 }

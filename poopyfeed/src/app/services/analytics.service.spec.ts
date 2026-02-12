@@ -103,9 +103,24 @@ describe('AnalyticsService', () => {
   const mockWeeklySummary: WeeklySummaryData = {
     child_id: 1,
     period: 'Last 7 days',
-    feedings: {},
-    diapers: {},
-    sleep: {},
+    feedings: {
+      count: 35,
+      total_oz: 280,
+      bottle: 35,
+      breast: 0,
+      avg_duration: 12.5,
+    },
+    diapers: {
+      count: 42,
+      wet: 28,
+      dirty: 7,
+      both: 7,
+    },
+    sleep: {
+      naps: 14,
+      total_minutes: 1260,
+      avg_duration: 90,
+    },
     last_updated: '2024-01-30T12:00:00Z',
   };
 
@@ -331,10 +346,10 @@ describe('AnalyticsService', () => {
       });
 
       const req = httpMock.expectOne(
-        '/api/v1/analytics/children/1/export-csv/'
+        '/api/v1/analytics/children/1/export-csv/?days=30'
       );
       expect(req.request.method).toBe('POST');
-      expect(req.request.body).toEqual({ days: 30 });
+      expect(req.request.body).toEqual({});
       expect(req.request.responseType).toBe('blob');
       req.flush(mockCSVBlob);
     });
@@ -345,9 +360,9 @@ describe('AnalyticsService', () => {
       service.exportCSV(1).subscribe();
 
       const req = httpMock.expectOne(
-        '/api/v1/analytics/children/1/export-csv/'
+        '/api/v1/analytics/children/1/export-csv/?days=30'
       );
-      expect(req.request.body).toEqual({ days: 30 });
+      expect(req.request.body).toEqual({});
       req.flush(mockCSVBlob);
     });
 
@@ -357,9 +372,9 @@ describe('AnalyticsService', () => {
       service.exportCSV(1, 60).subscribe();
 
       const req = httpMock.expectOne(
-        '/api/v1/analytics/children/1/export-csv/'
+        '/api/v1/analytics/children/1/export-csv/?days=60'
       );
-      expect(req.request.body).toEqual({ days: 60 });
+      expect(req.request.body).toEqual({});
       req.flush(mockCSVBlob);
     });
 
@@ -374,7 +389,7 @@ describe('AnalyticsService', () => {
       });
 
       const req = httpMock.expectOne(
-        '/api/v1/analytics/children/999/export-csv/'
+        '/api/v1/analytics/children/999/export-csv/?days=30'
       );
       req.flush(null, { status: 404, statusText: 'Not Found' });
 
@@ -392,7 +407,7 @@ describe('AnalyticsService', () => {
       });
 
       const req = httpMock.expectOne(
-        '/api/v1/analytics/children/1/export-csv/'
+        '/api/v1/analytics/children/1/export-csv/?days=30'
       );
       req.flush(null, { status: 403, statusText: 'Forbidden' });
 
@@ -585,11 +600,15 @@ describe('AnalyticsService', () => {
 
   describe('downloadPDF', () => {
     it('should trigger browser download with correct filename', () => {
+      const mockPDFBlob = new Blob(['pdf data'], { type: 'application/pdf' });
       const createElementSpy = vi.spyOn(document, 'createElement');
       const appendChildSpy = vi.spyOn(document.body, 'appendChild');
       const removeChildSpy = vi.spyOn(document.body, 'removeChild');
 
-      service.downloadPDF('/api/v1/analytics/download/analytics-1-2026-02-12.pdf');
+      service.downloadPDF('/api/v1/analytics/download/analytics-1-2026-02-12.pdf').subscribe();
+
+      const req = httpMock.expectOne('/api/v1/analytics/download/analytics-1-2026-02-12.pdf');
+      req.flush(mockPDFBlob);
 
       // Verify anchor element was created
       expect(createElementSpy).toHaveBeenCalledWith('a');
@@ -604,11 +623,15 @@ describe('AnalyticsService', () => {
     });
 
     it('should fallback to default filename if URL has no path component', () => {
+      const mockPDFBlob = new Blob(['pdf data'], { type: 'application/pdf' });
       const createElementSpy = vi.spyOn(document, 'createElement');
       const appendChildSpy = vi.spyOn(document.body, 'appendChild');
       const removeChildSpy = vi.spyOn(document.body, 'removeChild');
 
-      service.downloadPDF('http://example.com');
+      service.downloadPDF('http://example.com').subscribe();
+
+      const req = httpMock.expectOne('http://example.com');
+      req.flush(mockPDFBlob);
 
       expect(createElementSpy).toHaveBeenCalledWith('a');
 
