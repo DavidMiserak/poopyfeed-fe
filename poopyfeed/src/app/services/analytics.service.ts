@@ -17,7 +17,7 @@
  */
 
 import { Injectable, inject, signal } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 import { ErrorHandler } from './error.utils';
@@ -27,6 +27,8 @@ import {
   SleepSummary,
   TodaySummaryData,
   WeeklySummaryData,
+  ExportJobResponse,
+  JobStatusResponse,
 } from '../models/analytics.model';
 
 /**
@@ -229,5 +231,159 @@ export class AnalyticsService {
         throwError(() => ErrorHandler.handle(error, 'Get weekly summary'))
       )
     );
+  }
+
+  /**
+   * Export analytics data as CSV (immediate download).
+   *
+   * Fetches pre-computed CSV data from the backend and triggers browser download.
+   * No polling required—response is immediate.
+   *
+   * @param childId Child's unique identifier
+   * @param days Number of days to include (default 30, max 90)
+   * @returns Observable<Blob> CSV file as blob (auto-downloads when subscription completes)
+   *
+   * @throws ApiError if child not found, user lacks access, or export fails
+   *
+   * @example
+   * this.analyticsService.exportCSV(1, 30).subscribe({
+   *   next: () => {
+   *     this.toast.success('CSV downloaded successfully');
+   *   },
+   *   error: (err: Error) => {
+   *     this.toast.error(err.message);
+   *   }
+   * });
+   */
+  exportCSV(childId: number, days: number = 30): Observable<Blob> {
+    const params = new HttpParams().set('days', days.toString());
+
+    return this.http
+      .get(`${this.API_BASE}/${childId}/export/csv/`, {
+        params,
+        responseType: 'blob',
+      })
+      .pipe(
+        tap((blob) => this.downloadFile(blob, this.generateCSVFilename(childId))),
+        catchError((error) => throwError(() => ErrorHandler.handle(error, 'Export CSV')))
+      );
+  }
+
+  /**
+   * Initiate async PDF export (long-running task with polling).
+   *
+   * Queues a background job to generate a PDF with charts and summaries.
+   * Returns a task ID for polling job status. Use `getPDFJobStatus()` to monitor progress.
+   *
+   * @param childId Child's unique identifier
+   * @param days Number of days to include (default 30, max 90)
+   * @returns Observable<ExportJobResponse> Task ID and initial status
+   *
+   * @throws ApiError if child not found, user lacks access, or job fails to queue
+   *
+   * @example
+   * this.analyticsService.exportPDFAsync(1, 30).subscribe({
+   *   next: (response) => {
+   *     console.log(`PDF job queued: ${response.task_id}`);
+   *     // Start polling with: getPDFJobStatus(response.task_id)
+   *   },
+   *   error: (err: Error) => {
+   *     this.toast.error(err.message);
+   *   }
+   * });
+   */
+  exportPDFAsync(childId: number, days: number = 30): Observable<ExportJobResponse> {
+    return this.http
+      .post<ExportJobResponse>(`${this.API_BASE}/${childId}/export/pdf/`, { days })
+      .pipe(
+        catchError((error) => throwError(() => ErrorHandler.handle(error, 'Export PDF')))
+      );
+  }
+
+  /**
+   * Poll the status of an async PDF export job.
+   *
+   * Used to monitor progress of background PDF generation tasks.
+   * Call repeatedly until status becomes 'completed' or 'failed'.
+   * Typically polled every 2 seconds via interval() in components.
+   *
+   * @param taskId Task identifier from exportPDFAsync() response
+   * @returns Observable<JobStatusResponse> Current job status, progress, and result URL
+   *
+   * @throws ApiError if task not found or status check fails
+   *
+   * @example
+   * interval(2000)
+   *   .pipe(
+   *     switchMap(() => this.analyticsService.getPDFJobStatus(taskId)),
+   *     takeUntil(this.destroy$)
+   *   )
+   *   .subscribe({
+   *     next: (status) => {
+   *       console.log(`Job progress: ${status.progress}%`);
+   *       if (status.status === 'completed') {
+   *         // Download is ready
+   *         console.log(status.result?.download_url);
+   *       }
+   *     }
+   *   });
+   */
+  getPDFJobStatus(taskId: string): Observable<JobStatusResponse> {
+    return this.http.get<JobStatusResponse>(`/api/v1/analytics/jobs/${taskId}/status/`).pipe(
+      catchError((error) =>
+        throwError(() => ErrorHandler.handle(error, 'Get PDF job status'))
+      )
+    );
+  }
+
+  /**
+   * Trigger browser download of a PDF file.
+   *
+   * Creates a temporary anchor element and triggers download.
+   * Safe for use in browser environments with blob URLs.
+   *
+   * @param downloadUrl URL or blob URL of the file to download
+   *
+   * @example
+   * this.analyticsService.downloadPDF(status.result?.download_url!);
+   */
+  downloadPDF(downloadUrl: string): void {
+    const link = document.createElement('a');
+    link.href = downloadUrl;
+    link.download = downloadUrl.split('/').pop() || 'export.pdf';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  /**
+   * Generate a standardized CSV filename.
+   *
+   * @param childId Child's unique identifier
+   * @returns Filename string (e.g., "analytics-1-2026-02-12.csv")
+   */
+  private generateCSVFilename(childId: number): string {
+    const date = new Date().toISOString().split('T')[0];
+    return `analytics-${childId}-${date}.csv`;
+  }
+
+  /**
+   * Trigger browser download of a blob file.
+   *
+   * Used internally for CSV downloads. Creates temporary anchor element.
+   * Cleans up blob URL after download completes.
+   *
+   * @param blob File data as Blob
+   * @param filename Filename for the download
+   */
+  private downloadFile(blob: Blob, filename: string): void {
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
   }
 }

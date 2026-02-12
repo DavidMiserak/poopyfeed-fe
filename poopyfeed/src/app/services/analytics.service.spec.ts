@@ -5,6 +5,7 @@
  * Uses HttpTestingController for request mocking.
  */
 
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import {
@@ -18,6 +19,8 @@ import {
   SleepSummary,
   TodaySummaryData,
   WeeklySummaryData,
+  ExportJobResponse,
+  JobStatusResponse,
 } from '../models/analytics.model';
 
 describe('AnalyticsService', () => {
@@ -312,6 +315,302 @@ describe('AnalyticsService', () => {
       expect(service.feedingTrends()).toEqual(mockFeedingTrends);
       expect(service.diaperPatterns()).toEqual(mockDiaperPatterns);
       expect(service.sleepSummary()).toEqual(mockSleepSummary);
+    });
+  });
+
+  describe('exportCSV', () => {
+    it('should export CSV and trigger download', () => {
+      const mockCSVBlob = new Blob(['Date,Count\n2024-01-01,5'], {
+        type: 'text/csv',
+      });
+
+      service.exportCSV(1, 30).subscribe({
+        next: (blob) => {
+          expect(blob).toEqual(mockCSVBlob);
+        },
+      });
+
+      const req = httpMock.expectOne(
+        '/api/v1/analytics/children/1/export/csv/?days=30'
+      );
+      expect(req.request.method).toBe('GET');
+      expect(req.request.responseType).toBe('blob');
+      req.flush(mockCSVBlob);
+    });
+
+    it('should use default 30 days if not specified', () => {
+      const mockCSVBlob = new Blob(['test'], { type: 'text/csv' });
+
+      service.exportCSV(1).subscribe();
+
+      const req = httpMock.expectOne(
+        '/api/v1/analytics/children/1/export/csv/?days=30'
+      );
+      req.flush(mockCSVBlob);
+    });
+
+    it('should support custom days parameter', () => {
+      const mockCSVBlob = new Blob(['test'], { type: 'text/csv' });
+
+      service.exportCSV(1, 60).subscribe();
+
+      const req = httpMock.expectOne(
+        '/api/v1/analytics/children/1/export/csv/?days=60'
+      );
+      req.flush(mockCSVBlob);
+    });
+
+    it('should handle 404 error for non-existent child', () => {
+      let errorCaught = false;
+
+      service.exportCSV(999, 30).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toBeTruthy();
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne(
+        '/api/v1/analytics/children/999/export/csv/?days=30'
+      );
+      req.flush(null, { status: 404, statusText: 'Not Found' });
+
+      expect(errorCaught).toBe(true);
+    });
+
+    it('should handle 403 unauthorized error', () => {
+      let errorCaught = false;
+
+      service.exportCSV(1, 30).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toBeTruthy();
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne(
+        '/api/v1/analytics/children/1/export/csv/?days=30'
+      );
+      req.flush(null, { status: 403, statusText: 'Forbidden' });
+
+      expect(errorCaught).toBe(true);
+    });
+  });
+
+  describe('exportPDFAsync', () => {
+    const mockExportJobResponse: ExportJobResponse = {
+      task_id: 'abc123def456',
+      status: 'pending',
+      created_at: '2026-02-12T10:00:00Z',
+      expires_at: '2026-02-13T10:00:00Z',
+    };
+
+    it('should initiate async PDF export and return task ID', () => {
+      service.exportPDFAsync(1, 30).subscribe({
+        next: (response) => {
+          expect(response.task_id).toBe('abc123def456');
+          expect(response.status).toBe('pending');
+          expect(response.created_at).toBeDefined();
+          expect(response.expires_at).toBeDefined();
+        },
+      });
+
+      const req = httpMock.expectOne(
+        '/api/v1/analytics/children/1/export/pdf/'
+      );
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body).toEqual({ days: 30 });
+      req.flush(mockExportJobResponse);
+    });
+
+    it('should use default 30 days if not specified', () => {
+      service.exportPDFAsync(1).subscribe();
+
+      const req = httpMock.expectOne(
+        '/api/v1/analytics/children/1/export/pdf/'
+      );
+      expect(req.request.body).toEqual({ days: 30 });
+      req.flush(mockExportJobResponse);
+    });
+
+    it('should support custom days parameter', () => {
+      service.exportPDFAsync(1, 60).subscribe();
+
+      const req = httpMock.expectOne(
+        '/api/v1/analytics/children/1/export/pdf/'
+      );
+      expect(req.request.body).toEqual({ days: 60 });
+      req.flush(mockExportJobResponse);
+    });
+
+    it('should handle export job queue failure', () => {
+      let errorCaught = false;
+
+      service.exportPDFAsync(1, 30).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toBeTruthy();
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne(
+        '/api/v1/analytics/children/1/export/pdf/'
+      );
+      req.flush(
+        { detail: 'Export service unavailable' },
+        { status: 503, statusText: 'Service Unavailable' }
+      );
+
+      expect(errorCaught).toBe(true);
+    });
+  });
+
+  describe('getPDFJobStatus', () => {
+    it('should poll pending job status', () => {
+      const mockPendingStatus: JobStatusResponse = {
+        task_id: 'abc123def456',
+        status: 'pending',
+        progress: 0,
+      };
+
+      service.getPDFJobStatus('abc123def456').subscribe({
+        next: (response) => {
+          expect(response.status).toBe('pending');
+          expect(response.progress).toBe(0);
+        },
+      });
+
+      const req = httpMock.expectOne(
+        '/api/v1/analytics/jobs/abc123def456/status/'
+      );
+      expect(req.request.method).toBe('GET');
+      req.flush(mockPendingStatus);
+    });
+
+    it('should poll processing job status with progress', () => {
+      const mockProcessingStatus: JobStatusResponse = {
+        task_id: 'abc123def456',
+        status: 'processing',
+        progress: 45,
+      };
+
+      service.getPDFJobStatus('abc123def456').subscribe({
+        next: (response) => {
+          expect(response.status).toBe('processing');
+          expect(response.progress).toBe(45);
+        },
+      });
+
+      const req = httpMock.expectOne(
+        '/api/v1/analytics/jobs/abc123def456/status/'
+      );
+      req.flush(mockProcessingStatus);
+    });
+
+    it('should return completed job with download URL', () => {
+      const mockCompletedStatus: JobStatusResponse = {
+        task_id: 'abc123def456',
+        status: 'completed',
+        progress: 100,
+        result: {
+          download_url: '/api/v1/analytics/download/abc123def456.pdf',
+          filename: 'analytics-1-2026-02-12.pdf',
+          created_at: '2026-02-12T10:05:00Z',
+          expires_at: '2026-02-13T10:05:00Z',
+        },
+      };
+
+      service.getPDFJobStatus('abc123def456').subscribe({
+        next: (response) => {
+          expect(response.status).toBe('completed');
+          expect(response.progress).toBe(100);
+          expect(response.result?.download_url).toBeDefined();
+          expect(response.result?.filename).toBeDefined();
+        },
+      });
+
+      const req = httpMock.expectOne(
+        '/api/v1/analytics/jobs/abc123def456/status/'
+      );
+      req.flush(mockCompletedStatus);
+    });
+
+    it('should return failed job with error message', () => {
+      const mockFailedStatus: JobStatusResponse = {
+        task_id: 'abc123def456',
+        status: 'failed',
+        error: 'PDF generation failed due to invalid data',
+      };
+
+      service.getPDFJobStatus('abc123def456').subscribe({
+        next: (response) => {
+          expect(response.status).toBe('failed');
+          expect(response.error).toBe(
+            'PDF generation failed due to invalid data'
+          );
+        },
+      });
+
+      const req = httpMock.expectOne(
+        '/api/v1/analytics/jobs/abc123def456/status/'
+      );
+      req.flush(mockFailedStatus);
+    });
+
+    it('should handle job polling timeout (404 expired task)', () => {
+      let errorCaught = false;
+
+      service.getPDFJobStatus('expired-task-id').subscribe({
+        error: (error: Error) => {
+          expect(error.message).toBeTruthy();
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne(
+        '/api/v1/analytics/jobs/expired-task-id/status/'
+      );
+      req.flush(
+        { detail: 'Task not found (expired)' },
+        { status: 404, statusText: 'Not Found' }
+      );
+
+      expect(errorCaught).toBe(true);
+    });
+  });
+
+  describe('downloadPDF', () => {
+    it('should trigger browser download with correct filename', () => {
+      const createElementSpy = vi.spyOn(document, 'createElement');
+      const appendChildSpy = vi.spyOn(document.body, 'appendChild');
+      const removeChildSpy = vi.spyOn(document.body, 'removeChild');
+
+      service.downloadPDF('/api/v1/analytics/download/analytics-1-2026-02-12.pdf');
+
+      // Verify anchor element was created
+      expect(createElementSpy).toHaveBeenCalledWith('a');
+
+      // Verify child was appended and removed
+      expect(appendChildSpy).toHaveBeenCalled();
+      expect(removeChildSpy).toHaveBeenCalled();
+
+      createElementSpy.mockRestore();
+      appendChildSpy.mockRestore();
+      removeChildSpy.mockRestore();
+    });
+
+    it('should fallback to default filename if URL has no path component', () => {
+      const createElementSpy = vi.spyOn(document, 'createElement');
+      const appendChildSpy = vi.spyOn(document.body, 'appendChild');
+      const removeChildSpy = vi.spyOn(document.body, 'removeChild');
+
+      service.downloadPDF('http://example.com');
+
+      expect(createElementSpy).toHaveBeenCalledWith('a');
+
+      createElementSpy.mockRestore();
+      appendChildSpy.mockRestore();
+      removeChildSpy.mockRestore();
     });
   });
 });

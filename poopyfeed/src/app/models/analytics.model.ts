@@ -220,3 +220,74 @@ export interface AnalyticsQuery {
   /** Number of days to include (1-90, default 30) */
   days?: number;
 }
+
+/**
+ * Response from initiating an async PDF export job.
+ *
+ * Used for long-running export tasks that require polling.
+ * Endpoint: POST /api/v1/analytics/children/{child_id}/export/pdf/
+ */
+export interface ExportJobResponse {
+  /** Unique task identifier for polling job status */
+  task_id: string;
+
+  /** Initial job status ('pending', 'processing', 'completed', 'failed') */
+  status: 'pending' | 'processing' | 'completed' | 'failed';
+
+  /** Timestamp when job was created (ISO 8601) */
+  created_at: string;
+
+  /** Timestamp when download link expires (ISO 8601, 24 hours from creation) */
+  expires_at: string;
+}
+
+/**
+ * Status response when polling a PDF export job.
+ *
+ * Used to track progress of async export tasks.
+ * Endpoint: GET /api/v1/analytics/jobs/{task_id}/status/
+ */
+export interface JobStatusResponse {
+  /** Unique task identifier */
+  task_id: string;
+
+  /** Current job status */
+  status: 'pending' | 'processing' | 'completed' | 'failed';
+
+  /** Completion result with download details (only if status === 'completed') */
+  result?: {
+    /** Download URL for the generated PDF file */
+    download_url: string;
+
+    /** Original filename of the PDF */
+    filename: string;
+
+    /** Timestamp when PDF was generated (ISO 8601) */
+    created_at: string;
+
+    /** Timestamp when download link expires (ISO 8601) */
+    expires_at: string;
+  };
+
+  /** Error message if job failed */
+  error?: string;
+
+  /** Job progress percentage (0-100) for UI display */
+  progress?: number;
+}
+
+/**
+ * Export options for analytics data.
+ *
+ * Used when user initiates an export from the UI.
+ */
+export interface ExportOptions {
+  /** Export format: 'csv' for immediate download, 'pdf' for async generation */
+  format: 'csv' | 'pdf';
+
+  /** Number of days to include in export (1-90) */
+  days: number;
+
+  /** Child ID to export data for */
+  childId: number;
+}
