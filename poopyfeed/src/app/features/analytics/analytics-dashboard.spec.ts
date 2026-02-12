@@ -206,6 +206,71 @@ describe('AnalyticsDashboard', () => {
     });
   });
 
+  describe('Empty State', () => {
+    it('should have hasAnyData false when no service data exists', () => {
+      expect(component.hasAnyData()).toBe(false);
+    });
+
+    it('should have hasAnyData false when all daily counts are zero', () => {
+      analyticsService.feedingTrends.set({
+        ...mockFeedingTrends,
+        daily_data: [{ date: '2024-01-01', count: 0, average_duration: null, total_oz: null }],
+      });
+      analyticsService.diaperPatterns.set({
+        ...mockDiaperPatterns,
+        daily_data: [{ date: '2024-01-01', count: 0, average_duration: null, total_oz: null }],
+      });
+      analyticsService.sleepSummary.set({
+        ...mockSleepSummary,
+        daily_data: [{ date: '2024-01-01', count: 0, average_duration: null, total_oz: null }],
+      });
+
+      expect(component.hasAnyData()).toBe(false);
+    });
+
+    it('should have hasAnyData true when any daily count is non-zero', () => {
+      analyticsService.feedingTrends.set(mockFeedingTrends);
+      analyticsService.diaperPatterns.set({
+        ...mockDiaperPatterns,
+        daily_data: [{ date: '2024-01-01', count: 0, average_duration: null, total_oz: null }],
+      });
+      analyticsService.sleepSummary.set({
+        ...mockSleepSummary,
+        daily_data: [{ date: '2024-01-01', count: 0, average_duration: null, total_oz: null }],
+      });
+
+      expect(component.hasAnyData()).toBe(true);
+    });
+
+    it('should show empty state message when no data exists', async () => {
+      const emptyFeedingTrends = {
+        ...mockFeedingTrends,
+        daily_data: [{ date: '2024-01-01', count: 0, average_duration: null, total_oz: null }],
+      };
+      const emptyDiaperPatterns = {
+        ...mockDiaperPatterns,
+        daily_data: [{ date: '2024-01-01', count: 0, average_duration: null, total_oz: null }],
+      };
+      const emptySleepSummary = {
+        ...mockSleepSummary,
+        daily_data: [{ date: '2024-01-01', count: 0, average_duration: null, total_oz: null }],
+      };
+
+      vi.spyOn(analyticsService, 'getFeedingTrends').mockReturnValue(of(emptyFeedingTrends));
+      vi.spyOn(analyticsService, 'getDiaperPatterns').mockReturnValue(of(emptyDiaperPatterns));
+      vi.spyOn(analyticsService, 'getSleepSummary').mockReturnValue(of(emptySleepSummary));
+      vi.spyOn(analyticsService, 'getTodaySummary').mockReturnValue(of(mockTodaySummary));
+      vi.spyOn(analyticsService, 'getWeeklySummary').mockReturnValue(of(mockWeeklySummary));
+
+      fixture.detectChanges();
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      expect(compiled.textContent).toContain('No Activity Data Yet');
+    });
+  });
+
   describe('Utility Methods', () => {
     it('should format minutes correctly', () => {
       expect(component.formatMinutes(30)).toBe('30m');

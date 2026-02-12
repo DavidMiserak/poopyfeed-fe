@@ -403,6 +403,16 @@ describe('ChildDashboard', () => {
       expect(routerSpy).toHaveBeenCalledWith(['/children', 1, 'naps', 'create']);
     });
 
+    it('should set isNavigatingToAnalytics signal and navigate when navigateToAnalytics called', () => {
+      const routerSpy = vi.spyOn(component['router'], 'navigate');
+      expect(component.isNavigatingToAnalytics()).toBe(false);
+
+      component.navigateToAnalytics();
+
+      expect(component.isNavigatingToAnalytics()).toBe(true);
+      expect(routerSpy).toHaveBeenCalledWith(['/children', 1, 'analytics']);
+    });
+
     it('should not navigate if child is not loaded', () => {
       component.child.set(null);
       const routerSpy = vi.spyOn(component['router'], 'navigate');

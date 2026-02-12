@@ -16,7 +16,9 @@ import {
   Component,
   input,
   signal,
+  computed,
   effect,
+  untracked,
   viewChild,
   ElementRef,
   OnDestroy,
@@ -62,6 +64,12 @@ Chart.register(...registerables);
             ></path>
           </svg>
         </div>
+      } @else if (!hasData()) {
+        <div class="flex flex-col items-center justify-center py-12 text-gray-400">
+          <span class="text-5xl mb-3">💩</span>
+          <p class="font-['Fredoka',sans-serif] text-lg font-medium text-gray-500">No diaper data yet</p>
+          <p class="text-sm text-gray-400 mt-1">Start logging diaper changes to see patterns here</p>
+        </div>
       } @else {
         <canvas #chartCanvas></canvas>
       }
@@ -75,6 +83,11 @@ export class DiaperPatternsChart implements OnDestroy {
   /** Loading state indicator */
   isLoading = input(false);
 
+  hasData = computed(() => {
+    const d = this.data();
+    return d?.daily_data?.some((item) => item.count > 0) ?? false;
+  });
+
   private chart = signal<Chart | null>(null);
   private chartCanvas = viewChild<ElementRef<HTMLCanvasElement>>('chartCanvas');
 
@@ -83,9 +96,10 @@ export class DiaperPatternsChart implements OnDestroy {
     effect(() => {
       const patternsData = this.data();
       const canvas = this.chartCanvas();
+      const loading = this.isLoading();
 
-      if (patternsData && canvas && !this.isLoading()) {
-        this.renderChart(patternsData, canvas.nativeElement);
+      if (patternsData && canvas && !loading) {
+        untracked(() => this.renderChart(patternsData, canvas.nativeElement));
       }
     });
   }
@@ -93,6 +107,11 @@ export class DiaperPatternsChart implements OnDestroy {
   private renderChart(patterns: DiaperPatterns, canvas: HTMLCanvasElement): void {
     // Destroy old chart instance
     this.chart()?.destroy();
+
+    // Guard against missing or invalid data
+    if (!patterns || !patterns.daily_data || !Array.isArray(patterns.daily_data)) {
+      return;
+    }
 
     const config: ChartConfiguration = {
       type: 'bar',
@@ -150,7 +169,11 @@ export class DiaperPatternsChart implements OnDestroy {
       },
     };
 
-    this.chart.set(new Chart(canvas, config));
+    try {
+      this.chart.set(new Chart(canvas, config));
+    } catch (error) {
+      console.error('Failed to render diaper patterns chart:', error);
+    }
   }
 
   ngOnDestroy(): void {

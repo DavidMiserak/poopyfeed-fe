@@ -134,13 +134,71 @@ describe('FeedingTrendsChart', () => {
       expect(canvas).toBeFalsy();
     });
 
-    it('should show canvas when isLoading is false', () => {
+    it('should show canvas when isLoading is false and has data', () => {
       fixture.componentRef.setInput('data', mockData);
       fixture.componentRef.setInput('isLoading', false);
       fixture.detectChanges();
 
       const canvas = fixture.nativeElement.querySelector('canvas');
       expect(canvas).toBeTruthy();
+    });
+  });
+
+  describe('Empty State', () => {
+    it('should show empty state when data is null', () => {
+      fixture.componentRef.setInput('data', null);
+      fixture.componentRef.setInput('isLoading', false);
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      expect(compiled.textContent).toContain('No feeding data yet');
+      expect(compiled.querySelector('canvas')).toBeFalsy();
+    });
+
+    it('should show empty state when all daily_data counts are zero', () => {
+      const emptyData: FeedingTrends = {
+        ...mockData,
+        daily_data: [
+          { date: '2024-01-01', count: 0, average_duration: null, total_oz: null },
+          { date: '2024-01-02', count: 0, average_duration: null, total_oz: null },
+        ],
+      };
+      fixture.componentRef.setInput('data', emptyData);
+      fixture.componentRef.setInput('isLoading', false);
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      expect(compiled.textContent).toContain('No feeding data yet');
+      expect(compiled.querySelector('canvas')).toBeFalsy();
+    });
+
+    it('should have hasData false when data is null', () => {
+      expect(component.hasData()).toBe(false);
+    });
+
+    it('should have hasData false when all counts are zero', () => {
+      fixture.componentRef.setInput('data', {
+        ...mockData,
+        daily_data: [{ date: '2024-01-01', count: 0, average_duration: null, total_oz: null }],
+      });
+      expect(component.hasData()).toBe(false);
+    });
+
+    it('should have hasData true when any count is non-zero', () => {
+      fixture.componentRef.setInput('data', mockData);
+      expect(component.hasData()).toBe(true);
+    });
+
+    it('should not render chart when data has all zero counts', () => {
+      vi.clearAllMocks();
+      fixture.componentRef.setInput('data', {
+        ...mockData,
+        daily_data: [{ date: '2024-01-01', count: 0, average_duration: null, total_oz: null }],
+      });
+      fixture.componentRef.setInput('isLoading', false);
+      fixture.detectChanges();
+
+      expect(vi.mocked(Chart)).not.toHaveBeenCalled();
     });
   });
 
@@ -169,9 +227,6 @@ describe('FeedingTrendsChart', () => {
       fixture.detectChanges();
 
       const firstChartInstance = vi.mocked(Chart).mock.results[0].value;
-      const destroySpy = firstChartInstance.destroy;
-
-      vi.clearAllMocks();
 
       const newData: FeedingTrends = {
         ...mockData,
@@ -181,7 +236,7 @@ describe('FeedingTrendsChart', () => {
       fixture.componentRef.setInput('data', newData);
       fixture.detectChanges();
 
-      expect(destroySpy).toHaveBeenCalled();
+      expect(firstChartInstance.destroy).toHaveBeenCalled();
     });
   });
 
@@ -218,8 +273,8 @@ describe('FeedingTrendsChart', () => {
     it('should have proper styling classes', () => {
       fixture.detectChanges();
 
-      const container = fixture.nativeElement.querySelector('.bg-white');
-      expect(container?.classList.contains('rounded-3xl')).toBe(true);
+      const container = fixture.nativeElement.querySelector('.rounded-3xl');
+      expect(container).toBeTruthy();
       expect(container?.classList.contains('shadow-lg')).toBe(true);
     });
   });

@@ -16,7 +16,9 @@ import {
   Component,
   input,
   signal,
+  computed,
   effect,
+  untracked,
   viewChild,
   ElementRef,
   OnDestroy,
@@ -62,6 +64,12 @@ Chart.register(...registerables);
             ></path>
           </svg>
         </div>
+      } @else if (!hasData()) {
+        <div class="flex flex-col items-center justify-center py-12 text-gray-400">
+          <span class="text-5xl mb-3">😴</span>
+          <p class="font-['Fredoka',sans-serif] text-lg font-medium text-gray-500">No sleep data yet</p>
+          <p class="text-sm text-gray-400 mt-1">Start logging naps to see sleep trends here</p>
+        </div>
       } @else {
         <canvas #chartCanvas></canvas>
       }
@@ -75,6 +83,11 @@ export class SleepSummaryChart implements OnDestroy {
   /** Loading state indicator */
   isLoading = input(false);
 
+  hasData = computed(() => {
+    const d = this.data();
+    return d?.daily_data?.some((item) => item.count > 0) ?? false;
+  });
+
   private chart = signal<Chart | null>(null);
   private chartCanvas = viewChild<ElementRef<HTMLCanvasElement>>('chartCanvas');
 
@@ -83,9 +96,10 @@ export class SleepSummaryChart implements OnDestroy {
     effect(() => {
       const summaryData = this.data();
       const canvas = this.chartCanvas();
+      const loading = this.isLoading();
 
-      if (summaryData && canvas && !this.isLoading()) {
-        this.renderChart(summaryData, canvas.nativeElement);
+      if (summaryData && canvas && !loading) {
+        untracked(() => this.renderChart(summaryData, canvas.nativeElement));
       }
     });
   }
@@ -93,6 +107,11 @@ export class SleepSummaryChart implements OnDestroy {
   private renderChart(summary: SleepSummary, canvas: HTMLCanvasElement): void {
     // Destroy old chart instance
     this.chart()?.destroy();
+
+    // Guard against missing or invalid data
+    if (!summary || !summary.daily_data || !Array.isArray(summary.daily_data)) {
+      return;
+    }
 
     const config: ChartConfiguration = {
       type: 'line',
@@ -136,7 +155,7 @@ export class SleepSummaryChart implements OnDestroy {
               label: (context) => `Naps: ${context.parsed.y}`,
               afterLabel: (context) => {
                 const data = summary.daily_data[context.dataIndex];
-                if (data.average_duration) {
+                if (data && data.average_duration) {
                   return `Avg duration: ${data.average_duration.toFixed(1)} min`;
                 }
                 return '';
@@ -161,7 +180,11 @@ export class SleepSummaryChart implements OnDestroy {
       },
     };
 
-    this.chart.set(new Chart(canvas, config));
+    try {
+      this.chart.set(new Chart(canvas, config));
+    } catch (error) {
+      console.error('Failed to render sleep summary chart:', error);
+    }
   }
 
   ngOnDestroy(): void {

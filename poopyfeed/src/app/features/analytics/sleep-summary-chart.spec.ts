@@ -90,4 +90,37 @@ describe('SleepSummaryChart', () => {
 
     expect(destroySpy).toHaveBeenCalled();
   });
+
+  describe('Empty State', () => {
+    it('should show empty state when data is null', () => {
+      fixture.componentRef.setInput('data', null);
+      fixture.componentRef.setInput('isLoading', false);
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      expect(compiled.textContent).toContain('No sleep data yet');
+      expect(compiled.querySelector('canvas')).toBeFalsy();
+    });
+
+    it('should show empty state when all counts are zero', () => {
+      fixture.componentRef.setInput('data', {
+        ...mockData,
+        daily_data: [{ date: '2024-01-01', count: 0, average_duration: null, total_oz: null }],
+      });
+      fixture.componentRef.setInput('isLoading', false);
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      expect(compiled.textContent).toContain('No sleep data yet');
+    });
+
+    it('should have hasData false when data is null', () => {
+      expect(component.hasData()).toBe(false);
+    });
+
+    it('should have hasData true when data has non-zero counts', () => {
+      fixture.componentRef.setInput('data', mockData);
+      expect(component.hasData()).toBe(true);
+    });
+  });
 });

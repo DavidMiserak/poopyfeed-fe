@@ -92,79 +92,92 @@ import { SleepSummaryChart } from './sleep-summary-chart';
       } @else {
         <!-- Content -->
 
-        <!-- Quick Stats Cards -->
-        @if (todaySummary(); as today) {
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <!-- Feedings Card -->
-            <div
-              class="bg-gradient-to-br from-amber-50 to-amber-100 rounded-3xl p-6 border-2 border-amber-200 shadow-md"
-            >
-              <div class="flex items-center justify-between">
-                <div>
-                  <p class="text-sm font-medium text-amber-700 mb-1">Feedings Today</p>
-                  <p class="font-['Fredoka',sans-serif] text-4xl font-bold text-amber-800">
-                    {{ today.feedings.count }}
-                  </p>
-                  <p class="text-xs text-amber-600 mt-1">
-                    {{ today.feedings.total_oz }} oz total
-                  </p>
-                </div>
-                <div class="text-4xl">🍼</div>
-              </div>
-            </div>
-
-            <!-- Diapers Card -->
-            <div
-              class="bg-gradient-to-br from-rose-50 to-rose-100 rounded-3xl p-6 border-2 border-rose-200 shadow-md"
-            >
-              <div class="flex items-center justify-between">
-                <div>
-                  <p class="text-sm font-medium text-rose-700 mb-1">Diapers Today</p>
-                  <p class="font-['Fredoka',sans-serif] text-4xl font-bold text-rose-800">
-                    {{ today.diapers.count }}
-                  </p>
-                  <p class="text-xs text-rose-600 mt-1">
-                    {{ today.diapers.wet }} wet, {{ today.diapers.dirty }} dirty
-                  </p>
-                </div>
-                <div class="text-4xl">💩</div>
-              </div>
-            </div>
-
-            <!-- Sleep Card -->
-            <div
-              class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-3xl p-6 border-2 border-blue-200 shadow-md"
-            >
-              <div class="flex items-center justify-between">
-                <div>
-                  <p class="text-sm font-medium text-blue-700 mb-1">Naps Today</p>
-                  <p class="font-['Fredoka',sans-serif] text-4xl font-bold text-blue-800">
-                    {{ today.sleep.naps }}
-                  </p>
-                  <p class="text-xs text-blue-600 mt-1">
-                    {{ formatMinutes(today.sleep.total_minutes) }} total
-                  </p>
-                </div>
-                <div class="text-4xl">😴</div>
-              </div>
-            </div>
+        @if (!hasAnyData()) {
+          <!-- Empty State -->
+          <div class="flex flex-col items-center justify-center py-16 mb-8">
+            <span class="text-6xl mb-4">📊</span>
+            <h2 class="font-['Fredoka',sans-serif] text-2xl font-semibold text-gray-700 mb-2">
+              No Activity Data Yet
+            </h2>
+            <p class="text-gray-500 text-center max-w-md">
+              Start logging feedings, diaper changes, and naps to see trends and insights here.
+            </p>
           </div>
+        } @else {
+          <!-- Quick Stats Cards -->
+          @if (todaySummary(); as today) {
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              <!-- Feedings Card -->
+              <div
+                class="bg-gradient-to-br from-amber-50 to-amber-100 rounded-3xl p-6 border-2 border-amber-200 shadow-md"
+              >
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-sm font-medium text-amber-700 mb-1">Feedings Today</p>
+                    <p class="font-['Fredoka',sans-serif] text-4xl font-bold text-amber-800">
+                      {{ today.feedings.count }}
+                    </p>
+                    <p class="text-xs text-amber-600 mt-1">
+                      {{ today.feedings.total_oz }} oz total
+                    </p>
+                  </div>
+                  <div class="text-4xl">🍼</div>
+                </div>
+              </div>
+
+              <!-- Diapers Card -->
+              <div
+                class="bg-gradient-to-br from-rose-50 to-rose-100 rounded-3xl p-6 border-2 border-rose-200 shadow-md"
+              >
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-sm font-medium text-rose-700 mb-1">Diapers Today</p>
+                    <p class="font-['Fredoka',sans-serif] text-4xl font-bold text-rose-800">
+                      {{ today.diapers.count }}
+                    </p>
+                    <p class="text-xs text-rose-600 mt-1">
+                      {{ today.diapers.wet }} wet, {{ today.diapers.dirty }} dirty
+                    </p>
+                  </div>
+                  <div class="text-4xl">💩</div>
+                </div>
+              </div>
+
+              <!-- Sleep Card -->
+              <div
+                class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-3xl p-6 border-2 border-blue-200 shadow-md"
+              >
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-sm font-medium text-blue-700 mb-1">Naps Today</p>
+                    <p class="font-['Fredoka',sans-serif] text-4xl font-bold text-blue-800">
+                      {{ today.sleep.naps }}
+                    </p>
+                    <p class="text-xs text-blue-600 mt-1">
+                      {{ formatMinutes(today.sleep.total_minutes) }} total
+                    </p>
+                  </div>
+                  <div class="text-4xl">😴</div>
+                </div>
+              </div>
+            </div>
+          }
+
+          <!-- Charts Grid -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <app-feeding-trends-chart
+              [data]="feedingTrends()"
+              [isLoading]="isLoading()"
+            />
+            <app-diaper-patterns-chart
+              [data]="diaperPatterns()"
+              [isLoading]="isLoading()"
+            />
+          </div>
+
+          <!-- Full-width sleep chart -->
+          <app-sleep-summary-chart [data]="sleepSummary()" [isLoading]="isLoading()" />
         }
-
-        <!-- Charts Grid -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          <app-feeding-trends-chart
-            [data]="feedingTrends()"
-            [isLoading]="isLoading()"
-          />
-          <app-diaper-patterns-chart
-            [data]="diaperPatterns()"
-            [isLoading]="isLoading()"
-          />
-        </div>
-
-        <!-- Full-width sleep chart -->
-        <app-sleep-summary-chart [data]="sleepSummary()" [isLoading]="isLoading()" />
       }
     </div>
   `,
@@ -183,6 +196,16 @@ export class AnalyticsDashboard implements OnInit {
   diaperPatterns = computed(() => this.analyticsService.diaperPatterns());
   sleepSummary = computed(() => this.analyticsService.sleepSummary());
   todaySummary = computed(() => this.analyticsService.todaySummary());
+
+  hasAnyData = computed(() => {
+    const feeding = this.feedingTrends();
+    const diaper = this.diaperPatterns();
+    const sleep = this.sleepSummary();
+    const feedingHasData = feeding?.daily_data?.some((d) => d.count > 0) ?? false;
+    const diaperHasData = diaper?.daily_data?.some((d) => d.count > 0) ?? false;
+    const sleepHasData = sleep?.daily_data?.some((d) => d.count > 0) ?? false;
+    return feedingHasData || diaperHasData || sleepHasData;
+  });
 
   ngOnInit(): void {
     const idParam = this.route.snapshot.paramMap.get('childId');

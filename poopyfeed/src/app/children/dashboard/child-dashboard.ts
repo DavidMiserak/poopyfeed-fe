@@ -119,6 +119,7 @@ export class ChildDashboard implements OnInit {
   isNavigatingToFeeding = signal(false);
   isNavigatingToDiaper = signal(false);
   isNavigatingToNap = signal(false);
+  isNavigatingToAnalytics = signal(false);
 
   /**
    * Computed permission: Can current user add tracking records?
@@ -331,6 +332,20 @@ export class ChildDashboard implements OnInit {
     if (childId) {
       this.isNavigatingToNap.set(true);
       this.router.navigate(['/children', childId, 'naps', 'create']);
+    }
+  }
+
+  /**
+   * Navigate to analytics dashboard.
+   *
+   * Sets loading spinner on button and navigates to:
+   * /children/:childId/analytics
+   */
+  navigateToAnalytics(): void {
+    const childId = this.child()?.id;
+    if (childId) {
+      this.isNavigatingToAnalytics.set(true);
+      this.router.navigate(['/children', childId, 'analytics']);
     }
   }
 

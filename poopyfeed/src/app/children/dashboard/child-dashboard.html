@@ -266,16 +266,22 @@
             </button>
 
             <!-- Analytics Button -->
-            <a
-              [routerLink]="['/children', child()!.id, 'analytics']"
-              class="group relative p-6 rounded-2xl font-['DM_Sans',sans-serif] font-bold text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 overflow-hidden border-2 border-blue-400 cursor-pointer no-underline flex items-center justify-center"
+            <button
+              (click)="navigateToAnalytics()"
+              [disabled]="isNavigatingToAnalytics()"
+              class="group relative p-6 rounded-2xl font-['DM_Sans',sans-serif] font-bold text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 overflow-hidden border-2 border-purple-400 cursor-pointer disabled:opacity-75 disabled:cursor-wait"
+              [attr.aria-busy]="isNavigatingToAnalytics()"
             >
-              <span class="absolute inset-0 bg-gradient-to-br from-blue-400 to-blue-500 transition-transform duration-300 group-hover:scale-110"></span>
+              <span class="absolute inset-0 bg-gradient-to-br from-purple-400 to-purple-500 transition-transform duration-300 group-hover:scale-110"></span>
               <span class="relative z-10 flex flex-col items-center gap-2">
-                <span class="text-4xl">📊</span>
-                <span class="text-lg">Analytics</span>
+                @if (isNavigatingToAnalytics()) {
+                  <span class="inline-block w-10 h-10 border-4 border-white border-t-transparent rounded-full animate-spin"></span>
+                } @else {
+                  <span class="text-4xl">📊</span>
+                  <span class="text-lg">Analytics</span>
+                }
               </span>
-            </a>
+            </button>
           </div>
         </div>
 
