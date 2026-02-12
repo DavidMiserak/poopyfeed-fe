@@ -101,12 +101,12 @@
 
           <div class="space-y-3">
             <!-- Feeding -->
-            <div class="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-rose-50 to-rose-100/50">
-              <div class="flex items-center gap-3">
+            <div class="p-4 rounded-xl bg-gradient-to-r from-rose-50 to-rose-100/50">
+              <div class="flex items-center gap-3 mb-2">
                 <span class="text-2xl">🍼</span>
                 <span class="font-['DM_Sans',sans-serif] font-semibold text-slate-900">Feeding</span>
               </div>
-              <span class="font-['DM_Sans',sans-serif] text-sm text-slate-600">
+              <span class="font-['DM_Sans',sans-serif] text-sm text-slate-600 block pl-11">
                 @if (child()?.last_feeding) {
                   {{ formatTimestamp(child()!.last_feeding!) }}
                 } @else {
@@ -116,12 +116,12 @@
             </div>
 
             <!-- Diaper -->
-            <div class="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-orange-50 to-orange-100/50">
-              <div class="flex items-center gap-3">
+            <div class="p-4 rounded-xl bg-gradient-to-r from-orange-50 to-orange-100/50">
+              <div class="flex items-center gap-3 mb-2">
                 <span class="text-2xl">🧷</span>
                 <span class="font-['DM_Sans',sans-serif] font-semibold text-slate-900">Diaper</span>
               </div>
-              <span class="font-['DM_Sans',sans-serif] text-sm text-slate-600">
+              <span class="font-['DM_Sans',sans-serif] text-sm text-slate-600 block pl-11">
                 @if (child()?.last_diaper_change) {
                   {{ formatTimestamp(child()!.last_diaper_change!) }}
                 } @else {
@@ -131,12 +131,12 @@
             </div>
 
             <!-- Nap -->
-            <div class="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-amber-50 to-amber-100/50">
-              <div class="flex items-center gap-3">
+            <div class="p-4 rounded-xl bg-gradient-to-r from-amber-50 to-amber-100/50">
+              <div class="flex items-center gap-3 mb-2">
                 <span class="text-2xl">😴</span>
                 <span class="font-['DM_Sans',sans-serif] font-semibold text-slate-900">Nap</span>
               </div>
-              <span class="font-['DM_Sans',sans-serif] text-sm text-slate-600">
+              <span class="font-['DM_Sans',sans-serif] text-sm text-slate-600 block pl-11">
                 @if (child()?.last_nap) {
                   {{ formatTimestamp(child()!.last_nap!) }}
                 } @else {
