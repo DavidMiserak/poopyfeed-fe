@@ -74,7 +74,6 @@ import { JobStatusResponse } from '../../models/analytics.model';
 
 @Component({
   selector: 'app-export-job-status',
-  standalone: true,
   imports: [CommonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -109,7 +108,7 @@ import { JobStatusResponse } from '../../models/analytics.model';
         @switch (status()) {
           @case ('pending') {
             <div class="flex items-center gap-2">
-              <svg class="w-4 h-4 animate-spin" xmlns="http://www.w3.org/2000/svg">
+              <svg class="w-4 h-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle
                   class="opacity-25"
                   cx="12"
@@ -117,15 +116,19 @@ import { JobStatusResponse } from '../../models/analytics.model';
                   r="10"
                   stroke="currentColor"
                   stroke-width="4"
-                  fill="none"
                 ></circle>
+                <path
+                  class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
               </svg>
               <span>Queued for processing...</span>
             </div>
           }
           @case ('processing') {
             <div class="flex items-center gap-2">
-              <svg class="w-4 h-4 animate-spin" xmlns="http://www.w3.org/2000/svg">
+              <svg class="w-4 h-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle
                   class="opacity-25"
                   cx="12"
@@ -133,15 +136,19 @@ import { JobStatusResponse } from '../../models/analytics.model';
                   r="10"
                   stroke="currentColor"
                   stroke-width="4"
-                  fill="none"
                 ></circle>
+                <path
+                  class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
               </svg>
               <span>Generating PDF with charts and summaries...</span>
             </div>
           }
           @case ('completed') {
             <div class="flex items-center gap-2 text-green-600 font-semibold">
-              <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
+              <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
                 <path
                   d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"
                 ></path>
@@ -151,7 +158,7 @@ import { JobStatusResponse } from '../../models/analytics.model';
           }
           @case ('failed') {
             <div class="flex items-center gap-2 text-red-600 font-semibold">
-              <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
+              <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
                 <path
                   d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"
                 ></path>

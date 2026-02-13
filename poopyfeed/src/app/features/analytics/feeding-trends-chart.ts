@@ -33,7 +33,6 @@ Chart.register(...registerables);
 
 @Component({
   selector: 'app-feeding-trends-chart',
-  standalone: true,
   imports: [CommonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `

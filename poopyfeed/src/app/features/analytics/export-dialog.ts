@@ -48,8 +48,7 @@
 
 import {
   Component,
-  inject,
-  signal,
+  input,
   output,
   ChangeDetectionStrategy,
   OnInit,
@@ -65,7 +64,6 @@ import { ExportOptions } from '../../models/analytics.model';
 
 @Component({
   selector: 'app-export-dialog',
-  standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -221,7 +219,7 @@ import { ExportOptions } from '../../models/analytics.model';
   `,
 })
 export class ExportDialogComponent implements OnInit {
-  isSubmitting = signal(false);
+  isSubmitting = input(false);
 
   // Output events for parent component
   submitEvent = output<ExportOptions>();

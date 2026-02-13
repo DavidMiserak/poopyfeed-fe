@@ -22,7 +22,7 @@ import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { signal } from '@angular/core';
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { finalize, takeUntil } from 'rxjs/operators';
 
 import { ExportDialogComponent } from './export-dialog';
 import { ExportJobStatusComponent } from './export-job-status';
@@ -32,7 +32,6 @@ import { ExportOptions } from '../../models/analytics.model';
 
 @Component({
   selector: 'app-export-page',
-  standalone: true,
   imports: [CommonModule, ExportDialogComponent, ExportJobStatusComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -52,6 +51,7 @@ import { ExportOptions } from '../../models/analytics.model';
         <!-- Export Dialog (full page) -->
         <div class="flex justify-center">
           <app-export-dialog
+            [isSubmitting]="isExporting()"
             (submitEvent)="onExportDialogSubmit($event)"
             (cancelEvent)="onExportDialogCancel()"
           />
@@ -80,6 +80,7 @@ export class ExportPage implements OnInit, OnDestroy {
   childId = signal<number | null>(null);
   showJobStatus = signal(false);
   jobTaskId = signal<string | null>(null);
+  isExporting = signal(false);
 
   ngOnInit(): void {
     const idParam = this.route.snapshot.paramMap.get('childId');
@@ -137,9 +138,13 @@ export class ExportPage implements OnInit, OnDestroy {
    * @param days Number of days to export
    */
   private handleCSVExport(childId: number, days: number): void {
+    this.isExporting.set(true);
     this.analyticsService
       .exportCSV(childId, days)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(
+        finalize(() => this.isExporting.set(false)),
+        takeUntil(this.destroy$),
+      )
       .subscribe({
         next: () => {
           this.toast.success('CSV downloaded successfully');
@@ -160,9 +165,13 @@ export class ExportPage implements OnInit, OnDestroy {
    * @param days Number of days to export
    */
   private handlePDFExport(childId: number, days: number): void {
+    this.isExporting.set(true);
     this.analyticsService
       .exportPDFAsync(childId, days)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(
+        finalize(() => this.isExporting.set(false)),
+        takeUntil(this.destroy$),
+      )
       .subscribe({
         next: (response) => {
           this.jobTaskId.set(response.task_id);

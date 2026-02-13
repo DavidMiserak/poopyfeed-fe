@@ -197,7 +197,7 @@ describe('ExportDialogComponent', () => {
     });
 
     it('should disable all buttons during submission', () => {
-      component.isSubmitting.set(true);
+      fixture.componentRef.setInput('isSubmitting', true);
       fixture.detectChanges();
 
       const submitButton = fixture.nativeElement.querySelector(
@@ -212,10 +212,10 @@ describe('ExportDialogComponent', () => {
     });
 
     it('should enable buttons when submission completes', () => {
-      component.isSubmitting.set(true);
+      fixture.componentRef.setInput('isSubmitting', true);
       fixture.detectChanges();
 
-      component.isSubmitting.set(false);
+      fixture.componentRef.setInput('isSubmitting', false);
       fixture.detectChanges();
 
       const submitButton = fixture.nativeElement.querySelector(
@@ -267,7 +267,7 @@ describe('ExportDialogComponent', () => {
     });
 
     it('should show loading spinner during submission', () => {
-      component.isSubmitting.set(true);
+      fixture.componentRef.setInput('isSubmitting', true);
       fixture.detectChanges();
 
       const spinner = fixture.nativeElement.querySelector('.animate-spin');
@@ -278,10 +278,10 @@ describe('ExportDialogComponent', () => {
     });
 
     it('should hide spinner when submission completes', () => {
-      component.isSubmitting.set(true);
+      fixture.componentRef.setInput('isSubmitting', true);
       fixture.detectChanges();
 
-      component.isSubmitting.set(false);
+      fixture.componentRef.setInput('isSubmitting', false);
       fixture.detectChanges();
 
       const spinner = fixture.nativeElement.querySelector('.animate-spin');
@@ -325,7 +325,7 @@ describe('ExportDialogComponent', () => {
     });
 
     it('should have proper role and aria-busy on submit button during loading', () => {
-      component.isSubmitting.set(true);
+      fixture.componentRef.setInput('isSubmitting', true);
       fixture.detectChanges();
 
       const submitButton = fixture.nativeElement.querySelector(
