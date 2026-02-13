@@ -73,6 +73,8 @@ function makeNap(overrides: Partial<Nap> = {}): Nap {
     id: 1,
     child: 1,
     napped_at: makeTodayTimestamp(),
+    ended_at: null,
+    duration_minutes: null,
     notes: '',
     created_at: makeTodayTimestamp(),
     updated_at: makeTodayTimestamp(),

@@ -45,8 +45,8 @@
     <!-- Content -->
     @if (child() && !isLoading()) {
       <div class="space-y-6">
-        <!-- Header -->
-        <div class="flex items-center justify-between mb-8">
+        <!-- Header - Desktop -->
+        <div class="hidden sm:flex items-center justify-between mb-8">
           <div>
             <button
               type="button"
@@ -66,6 +66,36 @@
             type="button"
             (click)="navigateToCreate()"
             class="group relative inline-flex px-6 py-3 rounded-xl font-['DM_Sans',sans-serif] font-bold text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 overflow-hidden border-2 border-rose-400"
+          >
+            <span class="absolute inset-0 bg-gradient-to-br from-rose-400 via-rose-500 to-rose-600 transition-transform duration-300 group-hover:scale-110"></span>
+            <span class="relative z-10 flex items-center gap-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+              Add Feeding
+            </span>
+          </button>
+        </div>
+
+        <!-- Header - Mobile -->
+        <div class="sm:hidden space-y-4 mb-8">
+          <button
+            type="button"
+            (click)="navigateToDashboard()"
+            class="font-['DM_Sans',sans-serif] text-sm text-slate-600 hover:text-rose-400 transition-colors font-medium inline-flex items-center gap-2"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to Dashboard
+          </button>
+          <h1 class="font-['Fredoka',sans-serif] text-3xl font-bold text-slate-900">
+            Feedings for {{ child()!.name }}
+          </h1>
+          <button
+            type="button"
+            (click)="navigateToCreate()"
+            class="group relative w-full inline-flex px-6 py-3 rounded-xl font-['DM_Sans',sans-serif] font-bold text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 overflow-hidden border-2 border-rose-400 justify-center"
           >
             <span class="absolute inset-0 bg-gradient-to-br from-rose-400 via-rose-500 to-rose-600 transition-transform duration-300 group-hover:scale-110"></span>
             <span class="relative z-10 flex items-center gap-2">
@@ -100,7 +130,8 @@
           <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-6 border-2 border-rose-400/20">
             <div class="space-y-4">
               @for (feeding of feedings(); track feeding.id) {
-                <div class="flex items-center gap-4 p-4 rounded-xl bg-gradient-to-r from-rose-50 to-pink-50 hover:shadow-md transition-all">
+                <!-- Desktop view -->
+                <div class="hidden sm:flex items-center gap-4 p-4 rounded-xl bg-gradient-to-r from-rose-50 to-pink-50 hover:shadow-md transition-all">
                   <!-- Icon -->
                   <div class="text-4xl flex-shrink-0">{{ getFeedingIcon(feeding) }}</div>
 
@@ -109,12 +140,12 @@
                     <h3 class="font-['DM_Sans',sans-serif] font-bold text-slate-900 text-lg">
                       {{ getFeedingTitle(feeding) }}
                     </h3>
-                    <div class="flex flex-col sm:flex-row sm:items-center sm:gap-3 gap-1 text-sm text-slate-600">
-                      <span class="font-['DM_Sans',sans-serif]">
+                    <div class="flex items-center gap-3 text-sm">
+                      <span class="font-['DM_Sans',sans-serif] text-slate-500">
                         {{ formatDateTime(feeding.fed_at) }}
                       </span>
-                      <span class="hidden sm:inline text-slate-400">•</span>
-                      <span class="font-['DM_Sans',sans-serif] text-slate-500">
+                      <span class="text-slate-400">•</span>
+                      <span class="font-['DM_Sans',sans-serif] font-semibold text-slate-700">
                         {{ formatTimeAgo(feeding.fed_at) }}
                       </span>
                     </div>
@@ -147,6 +178,58 @@
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                         </svg>
+                      </button>
+                    </div>
+                  }
+                </div>
+
+                <!-- Mobile view -->
+                <div class="sm:hidden p-4 rounded-xl bg-gradient-to-r from-rose-50 to-pink-50">
+                  <!-- Header with icon and title -->
+                  <div class="flex items-start gap-3 mb-3">
+                    <div class="text-3xl flex-shrink-0">{{ getFeedingIcon(feeding) }}</div>
+                    <div class="flex-1">
+                      <h3 class="font-['DM_Sans',sans-serif] font-bold text-slate-900">
+                        {{ getFeedingTitle(feeding) }}
+                      </h3>
+                    </div>
+                  </div>
+
+                  <!-- Time info -->
+                  <div class="mb-3 flex flex-col gap-1 text-sm">
+                    <span class="font-['DM_Sans',sans-serif] font-semibold text-slate-700">
+                      {{ formatTimeAgo(feeding.fed_at) }}
+                    </span>
+                    <span class="font-['DM_Sans',sans-serif] text-slate-500">
+                      {{ formatDateTime(feeding.fed_at) }}
+                    </span>
+                  </div>
+
+                  <!-- Notes -->
+                  @if (feeding.notes) {
+                    <p class="font-['DM_Sans',sans-serif] text-sm text-slate-600 mb-3 italic">
+                      "{{ feeding.notes }}"
+                    </p>
+                  }
+
+                  <!-- Actions -->
+                  @if (canEdit()) {
+                    <div class="flex gap-2 w-full">
+                      <button
+                        type="button"
+                        (click)="navigateToEdit(feeding.id)"
+                        class="flex-1 p-2 rounded-lg bg-white hover:bg-blue-50 text-blue-600 hover:text-blue-700 transition-colors border border-blue-200 hover:border-blue-300 font-['DM_Sans',sans-serif] text-sm font-medium"
+                        aria-label="Edit feeding"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        type="button"
+                        (click)="navigateToDelete(feeding.id)"
+                        class="flex-1 p-2 rounded-lg bg-white hover:bg-red-50 text-red-600 hover:text-red-700 transition-colors border border-red-200 hover:border-red-300 font-['DM_Sans',sans-serif] text-sm font-medium"
+                        aria-label="Delete feeding"
+                      >
+                        Delete
                       </button>
                     </div>
                   }

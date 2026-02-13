@@ -67,7 +67,7 @@ describe('QuickLog', () => {
 
     it('should log nap with current timestamp when canEdit is true', () => {
       const mockDate = new Date('2026-02-10T10:30:00Z');
-      const mockNap = { id: 123, child: 1, napped_at: mockDate.toISOString(), created_at: mockDate.toISOString(), updated_at: mockDate.toISOString() };
+      const mockNap = { id: 123, child: 1, napped_at: mockDate.toISOString(), ended_at: null, duration_minutes: null, created_at: mockDate.toISOString(), updated_at: mockDate.toISOString() };
       vi.mocked(dateTimeService.toUTC).mockReturnValue(mockDate.toISOString());
       vi.mocked(napsService.create).mockReturnValue(of(mockNap));
       const quickLoggedSpy = vi.spyOn(component.quickLogged, 'emit');
@@ -87,7 +87,7 @@ describe('QuickLog', () => {
 
     it('should show success toast on successful nap log', () => {
       const mockDate = new Date('2026-02-10T10:30:00Z');
-      const mockNap = { id: 123, child: 1, napped_at: mockDate.toISOString(), created_at: mockDate.toISOString(), updated_at: mockDate.toISOString() };
+      const mockNap = { id: 123, child: 1, napped_at: mockDate.toISOString(), ended_at: null, duration_minutes: null, created_at: mockDate.toISOString(), updated_at: mockDate.toISOString() };
       vi.mocked(dateTimeService.toUTC).mockReturnValue(mockDate.toISOString());
       vi.mocked(napsService.create).mockReturnValue(of(mockNap));
 
@@ -130,7 +130,7 @@ describe('QuickLog', () => {
 
     it('should set isLoggingNap to true while logging', () => {
       const mockDate = new Date('2026-02-10T10:30:00Z');
-      const mockNap = { id: 123, child: 1, napped_at: mockDate.toISOString(), created_at: mockDate.toISOString(), updated_at: mockDate.toISOString() };
+      const mockNap = { id: 123, child: 1, napped_at: mockDate.toISOString(), ended_at: null, duration_minutes: null, created_at: mockDate.toISOString(), updated_at: mockDate.toISOString() };
       vi.mocked(dateTimeService.toUTC).mockReturnValue(mockDate.toISOString());
       let capturedIsLogging = false;
 

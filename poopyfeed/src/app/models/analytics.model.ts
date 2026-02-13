@@ -27,6 +27,9 @@ export interface DailyData {
 
   /** Total volume in ounces (optional, null for diapers and sleep) */
   total_oz: number | null;
+
+  /** Total nap minutes (optional, only for sleep summary) */
+  total_minutes?: number | null;
 }
 
 /**

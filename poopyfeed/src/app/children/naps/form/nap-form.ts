@@ -87,6 +87,7 @@ export class NapForm
    */
   protected form = new FormGroup({
     napped_at: new FormControl('', [Validators.required]),
+    ended_at: new FormControl(''),
     notes: new FormControl('', [
       Validators.maxLength(NAP_VALIDATION.MAX_NOTES_LENGTH),
     ]),
@@ -166,10 +167,14 @@ export class NapForm
   protected buildCreateDto(): NapCreate {
     const formValue = this.form.value;
     const timestamp = this.convertLocalToUtc(formValue.napped_at!);
-    return {
+    const dto: NapCreate = {
       napped_at: timestamp,
       notes: formValue.notes || undefined,
     };
+    if (formValue.ended_at) {
+      dto.ended_at = this.convertLocalToUtc(formValue.ended_at);
+    }
+    return dto;
   }
 
   /**
@@ -206,6 +211,9 @@ export class NapForm
     const localDate = this.convertUtcToLocal(resource.napped_at);
     this.form.patchValue({
       napped_at: this.formatForInput(localDate),
+      ended_at: resource.ended_at
+        ? this.formatForInput(this.convertUtcToLocal(resource.ended_at))
+        : '',
       notes: resource.notes || '',
     });
   }

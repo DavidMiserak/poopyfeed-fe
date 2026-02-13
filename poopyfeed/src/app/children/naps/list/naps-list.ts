@@ -130,4 +130,25 @@ export class NapsList implements OnInit {
       return `${days} ${days === 1 ? 'day' : 'days'} ago`;
     }
   }
+
+  formatDuration(minutes: number | null): string {
+    if (minutes === null) {
+      return '';
+    }
+    const hours = Math.floor(minutes / 60);
+    const mins = Math.round(minutes % 60);
+    if (hours > 0) {
+      return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
+    }
+    return `${mins}m`;
+  }
+
+  formatTimeOnly(dateTimeStr: string): string {
+    const date = new Date(dateTimeStr);
+    return date.toLocaleString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    });
+  }
 }

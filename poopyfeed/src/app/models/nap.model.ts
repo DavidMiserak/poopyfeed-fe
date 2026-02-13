@@ -1,15 +1,14 @@
 /**
  * Nap model interfaces for the PoopyFeed API.
  *
- * Tracks when a child took a nap. Currently stores only the start time (napped_at).
- * Nap duration can be calculated by comparing with next activity or using
- * explicit nap end times if implemented in future versions.
+ * Tracks when a child took a nap, with optional end time for duration tracking.
+ * End time can be set manually or auto-filled when the next activity is recorded.
  */
 
 /**
  * Complete nap object returned from the API.
  *
- * Records a single nap event with timestamp and optional notes.
+ * Records a single nap event with start/end timestamps and optional notes.
  * All timestamps are in UTC (ISO 8601 format).
  */
 export interface Nap {
@@ -21,6 +20,12 @@ export interface Nap {
 
   /** When nap started (ISO 8601, UTC) */
   napped_at: string;
+
+  /** When nap ended (ISO 8601, UTC), null if still ongoing */
+  ended_at: string | null;
+
+  /** Nap duration in minutes (computed from napped_at and ended_at), null if ongoing */
+  duration_minutes: number | null;
 
   /** Optional notes about nap (max 500 characters) */
   notes?: string;
@@ -41,6 +46,9 @@ export interface Nap {
 export interface NapCreate {
   /** When nap started (required, ISO 8601, UTC) */
   napped_at: string;
+
+  /** When nap ended (optional, ISO 8601, UTC) */
+  ended_at?: string;
 
   /** Optional notes about nap (optional, max 500 characters) */
   notes?: string;
