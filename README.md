@@ -1,5 +1,18 @@
 # PoopyFeed - Angular Frontend
 
+<p align="center">
+  <img src="https://img.shields.io/badge/node-20+-green.svg" alt="Node 20+" />
+  <img src="https://img.shields.io/badge/angular-21-red.svg" alt="Angular 21" />
+  <img src="https://img.shields.io/badge/typescript-5.9+-blue.svg" alt="TypeScript 5.9+" />
+  <img src="https://img.shields.io/badge/tailwind%20css-4.1-38B2AC.svg" alt="Tailwind CSS 4.1" />
+  <a href="https://github.com/pre-commit/pre-commit">
+    <img src="https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit" alt="pre-commit" />
+  </a>
+  <a href="https://www.conventionalcommits.org/">
+    <img src="https://img.shields.io/badge/Conventional%20Commits-1.0.0-%23FE5196?logo=conventionalcommits" alt="Conventional Commits" />
+  </a>
+</p>
+
 A modern baby care tracking web application built with Angular 21, TypeScript, and Tailwind CSS. Track feedings, diaper changes, naps, and share access with co-parents and caregivers.
 
 ## Features
