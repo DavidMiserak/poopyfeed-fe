@@ -175,6 +175,33 @@ export class ChildDashboard implements OnInit {
   );
 
   /**
+   * Computed summary: Count of wet diaper changes today.
+   *
+   * Filters to wet changes only from today.
+   */
+  todayDiapersWet = computed(
+    () => this.diapers().filter((d) => this.isToday(d.changed_at) && d.change_type === 'wet').length,
+  );
+
+  /**
+   * Computed summary: Count of dirty diaper changes today.
+   *
+   * Filters to dirty changes only from today.
+   */
+  todayDiapersDirty = computed(
+    () => this.diapers().filter((d) => this.isToday(d.changed_at) && d.change_type === 'dirty').length,
+  );
+
+  /**
+   * Computed summary: Count of both (wet & dirty) diaper changes today.
+   *
+   * Filters to both type changes only from today.
+   */
+  todayDiapersBoth = computed(
+    () => this.diapers().filter((d) => this.isToday(d.changed_at) && d.change_type === 'both').length,
+  );
+
+  /**
    * Computed summary: Count of naps recorded today.
    *
    * Filters naps to those with napped_at timestamp from today.

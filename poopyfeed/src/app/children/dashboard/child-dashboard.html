@@ -188,8 +188,13 @@
                 <div class="font-['Fredoka',sans-serif] text-2xl sm:text-4xl font-bold text-orange-500">
                   {{ todayDiapers() }}
                 </div>
-                <div class="font-['DM_Sans',sans-serif] text-sm font-medium text-slate-600 mt-1">
-                  Diapers
+                <div class="font-['DM_Sans',sans-serif] text-xs sm:text-sm font-medium text-slate-600 mt-1 space-y-0.5">
+                  <div>Diapers</div>
+                  @if (todayDiapers() > 0) {
+                    <div class="text-slate-500 text-xs">
+                      {{ todayDiapersWet() }}💧 {{ todayDiapersDirty() }}💩 {{ todayDiapersBoth() }}🔄
+                    </div>
+                  }
                 </div>
               </div>
               <div class="text-center p-2 sm:p-4 rounded-2xl bg-amber-50/80">

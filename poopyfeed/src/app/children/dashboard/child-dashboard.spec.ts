@@ -220,6 +220,148 @@ describe('ChildDashboard', () => {
     });
   });
 
+  describe('diaper breakdown', () => {
+    it('should count wet diapers today', () => {
+      const wetDiaper1 = makeDiaper({
+        id: 1,
+        change_type: 'wet',
+        changed_at: makeTodayTimestamp(480),
+      });
+      const wetDiaper2 = makeDiaper({
+        id: 2,
+        change_type: 'wet',
+        changed_at: makeTodayTimestamp(600),
+      });
+      const dirtyDiaper = makeDiaper({
+        id: 3,
+        change_type: 'dirty',
+        changed_at: makeTodayTimestamp(540),
+      });
+      setupWithData([], [wetDiaper1, wetDiaper2, dirtyDiaper]);
+
+      expect(component.todayDiapersWet()).toBe(2);
+      expect(component.todayDiapersDirty()).toBe(1);
+      expect(component.todayDiapersBoth()).toBe(0);
+    });
+
+    it('should count dirty diapers today', () => {
+      const dirtyDiaper1 = makeDiaper({
+        id: 1,
+        change_type: 'dirty',
+        changed_at: makeTodayTimestamp(480),
+      });
+      const dirtyDiaper2 = makeDiaper({
+        id: 2,
+        change_type: 'dirty',
+        changed_at: makeTodayTimestamp(600),
+      });
+      setupWithData([], [dirtyDiaper1, dirtyDiaper2]);
+
+      expect(component.todayDiapersDirty()).toBe(2);
+      expect(component.todayDiapersWet()).toBe(0);
+      expect(component.todayDiapersBoth()).toBe(0);
+    });
+
+    it('should count both diapers today', () => {
+      const bothDiaper1 = makeDiaper({
+        id: 1,
+        change_type: 'both',
+        changed_at: makeTodayTimestamp(480),
+      });
+      const bothDiaper2 = makeDiaper({
+        id: 2,
+        change_type: 'both',
+        changed_at: makeTodayTimestamp(600),
+      });
+      const wetDiaper = makeDiaper({
+        id: 3,
+        change_type: 'wet',
+        changed_at: makeTodayTimestamp(540),
+      });
+      setupWithData([], [bothDiaper1, bothDiaper2, wetDiaper]);
+
+      expect(component.todayDiapersBoth()).toBe(2);
+      expect(component.todayDiapersWet()).toBe(1);
+      expect(component.todayDiapersDirty()).toBe(0);
+    });
+
+    it('should count breakdown correctly with mixed types today', () => {
+      setupWithData(
+        [],
+        [
+          makeDiaper({
+            id: 1,
+            change_type: 'wet',
+            changed_at: makeTodayTimestamp(480),
+          }),
+          makeDiaper({
+            id: 2,
+            change_type: 'wet',
+            changed_at: makeTodayTimestamp(520),
+          }),
+          makeDiaper({
+            id: 3,
+            change_type: 'dirty',
+            changed_at: makeTodayTimestamp(540),
+          }),
+          makeDiaper({
+            id: 4,
+            change_type: 'both',
+            changed_at: makeTodayTimestamp(600),
+          }),
+          makeDiaper({
+            id: 5,
+            change_type: 'dirty',
+            changed_at: makeTodayTimestamp(660),
+          }),
+        ],
+      );
+
+      expect(component.todayDiapersWet()).toBe(2);
+      expect(component.todayDiapersDirty()).toBe(2);
+      expect(component.todayDiapersBoth()).toBe(1);
+      expect(component.todayDiapers()).toBe(5);
+    });
+
+    it('should not count yesterday diapers in breakdown', () => {
+      const todayWet = makeDiaper({
+        id: 1,
+        change_type: 'wet',
+        changed_at: makeTodayTimestamp(480),
+      });
+      const yesterdayWet = makeDiaper({
+        id: 2,
+        change_type: 'wet',
+        changed_at: makeYesterdayTimestamp(),
+      });
+      setupWithData([], [todayWet, yesterdayWet]);
+
+      expect(component.todayDiapersWet()).toBe(1);
+      expect(component.todayDiapers()).toBe(1);
+    });
+
+    it('should return zero breakdown when no diapers today', () => {
+      const yesterdayDiapers = [
+        makeDiaper({
+          id: 1,
+          change_type: 'wet',
+          changed_at: makeYesterdayTimestamp(),
+        }),
+        makeDiaper({
+          id: 2,
+          change_type: 'dirty',
+          changed_at: makeYesterdayTimestamp(),
+        }),
+      ];
+      setupWithData([], yesterdayDiapers);
+
+      expect(component.todayDiapersWet()).toBe(0);
+      expect(component.todayDiapersDirty()).toBe(0);
+      expect(component.todayDiapersBoth()).toBe(0);
+      expect(component.todayDiapers()).toBe(0);
+    });
+  });
+
   describe('template rendering', () => {
     it('should show empty state when no activity today', () => {
       setupWithData();

@@ -158,7 +158,7 @@ import { SleepSummaryChart } from './sleep-summary-chart';
                       {{ today.diapers.count }}
                     </p>
                     <p class="text-xs text-rose-600 mt-1">
-                      {{ today.diapers.wet }} wet, {{ today.diapers.dirty }} dirty
+                      {{ today.diapers.wet }} wet, {{ today.diapers.dirty }} dirty, {{ today.diapers.both }} both (wet + dirty)
                     </p>
                   </div>
                   <div class="text-4xl">💩</div>
