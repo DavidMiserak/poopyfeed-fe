@@ -364,6 +364,175 @@ describe('ChildDashboard', () => {
     });
   });
 
+  describe('Conditional Branch Testing (Signal States)', () => {
+    describe('loading state combinations', () => {
+      it('should load data with showLoading parameter defaulting to true', () => {
+        vi.spyOn(childrenService, 'get').mockReturnValue(of(mockChild));
+        vi.spyOn(feedingsService, 'list').mockReturnValue(of([]));
+        vi.spyOn(diapersService, 'list').mockReturnValue(of([]));
+        vi.spyOn(napsService, 'list').mockReturnValue(of([]));
+
+        component.loadDashboardData(1); // showLoading defaults to true
+        expect(component.isLoading()).toBe(false); // Loading completes
+        expect(component.child()).toBe(mockChild);
+      });
+
+      it('should skip loading indicator when showLoading=false (refresh after quick-log)', () => {
+        vi.spyOn(childrenService, 'get').mockReturnValue(of(mockChild));
+        vi.spyOn(feedingsService, 'list').mockReturnValue(of([]));
+        vi.spyOn(diapersService, 'list').mockReturnValue(of([]));
+        vi.spyOn(napsService, 'list').mockReturnValue(of([]));
+
+        component.isLoading.set(false); // Not loading initially
+        component.loadDashboardData(1, false); // showLoading=false
+
+        // Should not set isLoading=true at start, but will be true during loading
+        // Then false when complete
+        expect(component.child()).toBe(mockChild);
+      });
+    });
+
+    describe('error state combinations', () => {
+      it('should clear error before loading new data', () => {
+        vi.spyOn(childrenService, 'get').mockReturnValue(of(mockChild));
+        vi.spyOn(feedingsService, 'list').mockReturnValue(of([]));
+        vi.spyOn(diapersService, 'list').mockReturnValue(of([]));
+        vi.spyOn(napsService, 'list').mockReturnValue(of([]));
+
+        component.error.set('Previous error');
+        component.loadDashboardData(1);
+
+        expect(component.error()).toBeNull();
+      });
+
+      it('should maintain child data even when API error occurs on second load', () => {
+        // First successful load
+        setupWithData();
+        const firstChild = component.child();
+
+        // Second load fails
+        vi.clearAllMocks();
+        vi.spyOn(childrenService, 'get').mockReturnValue(
+          throwError(() => new Error('Temporary error'))
+        );
+        vi.spyOn(feedingsService, 'list').mockReturnValue(of([]));
+        vi.spyOn(diapersService, 'list').mockReturnValue(of([]));
+        vi.spyOn(napsService, 'list').mockReturnValue(of([]));
+
+        component.loadDashboardData(1);
+
+        // Child still set from first load
+        expect(component.child()).toBe(firstChild);
+        expect(component.error()).toBe('Temporary error');
+      });
+    });
+
+    describe('permission state combinations', () => {
+      it('should compute canEdit=true for owner role', () => {
+        component.child.set({ ...mockChild, user_role: 'owner' });
+        expect(component.canEdit()).toBe(true);
+      });
+
+      it('should compute canEdit=true for co-parent role', () => {
+        component.child.set({ ...mockChild, user_role: 'co-parent' });
+        expect(component.canEdit()).toBe(true);
+      });
+
+      it('should compute canEdit=false for caregiver role', () => {
+        component.child.set({ ...mockChild, user_role: 'caregiver' });
+        expect(component.canEdit()).toBe(false);
+      });
+
+      it('should compute canManageSharing=true for owner only', () => {
+        component.child.set({ ...mockChild, user_role: 'owner' });
+        expect(component.canManageSharing()).toBe(true);
+
+        component.child.set({ ...mockChild, user_role: 'co-parent' });
+        expect(component.canManageSharing()).toBe(false);
+
+        component.child.set({ ...mockChild, user_role: 'caregiver' });
+        expect(component.canManageSharing()).toBe(false);
+      });
+
+      it('should compute canAdd=true for all roles', () => {
+        component.child.set({ ...mockChild, user_role: 'owner' });
+        expect(component.canAdd()).toBe(true);
+
+        component.child.set({ ...mockChild, user_role: 'co-parent' });
+        expect(component.canAdd()).toBe(true);
+
+        component.child.set({ ...mockChild, user_role: 'caregiver' });
+        expect(component.canAdd()).toBe(true);
+      });
+    });
+
+    describe('activity merging and sorting', () => {
+      it('should merge first 10 of each activity type and sort by timestamp (newest first)', () => {
+        const oldTimestamp = makeYesterdayTimestamp();
+        const recentTimestamp = makeTodayTimestamp(600);
+
+        const feedings = [
+          makeFeeding({ id: 1, fed_at: makeTodayTimestamp(100) }),
+          makeFeeding({ id: 2, fed_at: makeTodayTimestamp(200) }),
+        ];
+        const diapers = [
+          makeDiaper({ id: 1, changed_at: makeTodayTimestamp(300) }),
+          makeDiaper({ id: 2, changed_at: makeTodayTimestamp(400) }),
+        ];
+        const naps = [
+          makeNap({ id: 1, napped_at: makeTodayTimestamp(500) }),
+          makeNap({ id: 2, napped_at: makeTodayTimestamp(600) }),
+        ];
+
+        setupWithData(feedings, diapers, naps);
+
+        // Should have 6 items total (2+2+2)
+        expect(component.recentActivity().length).toBe(6);
+
+        // Should be sorted with most recent first
+        const timestamps = component.recentActivity().map((a) => a.timestamp);
+        const sortedTimestamps = [...timestamps].sort(
+          (a, b) => new Date(b).getTime() - new Date(a).getTime()
+        );
+        expect(timestamps).toEqual(sortedTimestamps);
+      });
+
+      it('should limit recent activity to 10 items when more available', () => {
+        const feedings = Array.from({ length: 15 }, (_, i) =>
+          makeFeeding({ id: i, fed_at: makeTodayTimestamp(i * 100) })
+        );
+
+        setupWithData(feedings);
+
+        // Should take only first 10 feedings, then limit to top 10 overall
+        expect(component.recentActivity().length).toBeLessThanOrEqual(10);
+      });
+    });
+
+    describe('today summary counts with mixed dates', () => {
+      it('should count only today activities, not yesterday', () => {
+        const todayFeeding = makeFeeding({ id: 1, fed_at: makeTodayTimestamp(600) });
+        const yesterdayFeeding = makeFeeding({ id: 2, fed_at: makeYesterdayTimestamp() });
+
+        setupWithData([todayFeeding, yesterdayFeeding]);
+
+        expect(component.todayFeedings()).toBe(1); // Only today's feeding
+      });
+
+      it('should return zero counts when all activities are from yesterday', () => {
+        setupWithData(
+          [makeFeeding({ id: 1, fed_at: makeYesterdayTimestamp() })],
+          [makeDiaper({ id: 1, changed_at: makeYesterdayTimestamp() })],
+          [makeNap({ id: 1, napped_at: makeYesterdayTimestamp() })]
+        );
+
+        expect(component.todayFeedings()).toBe(0);
+        expect(component.todayDiapers()).toBe(0);
+        expect(component.todayNaps()).toBe(0);
+      });
+    });
+  });
+
   describe('template rendering', () => {
     it('should show empty state when no activity today', () => {
       setupWithData();

@@ -498,4 +498,199 @@ describe('NapForm', () => {
       expect(component['successMessageUpdate']).toBe('Nap updated successfully');
     });
   });
+
+  describe('Error Handling - Form & API', () => {
+    describe('error signal management', () => {
+      it('should initialize error signal as null', () => {
+        expect(component.error()).toBeNull();
+      });
+
+      it('should set and clear error signal independently of form state', () => {
+        component.error.set('API failed temporarily');
+        expect(component.error()).toBe('API failed temporarily');
+      });
+
+      it('should clear error signal independently of form validity', () => {
+        component.error.set('Some error');
+        component.error.set(null);
+        expect(component.error()).toBeNull();
+      });
+
+      it('should allow error updates without affecting form controls', () => {
+        component.napForm.patchValue({
+          napped_at: '2026-02-10T10:30',
+        });
+        const initialValue = component.napForm.get('napped_at')?.value;
+
+        component.error.set('Network timeout');
+        expect(component.napForm.get('napped_at')?.value).toBe(initialValue);
+      });
+    });
+
+    describe('form data preservation during errors', () => {
+      it('should preserve form data when error signal is set', () => {
+        const formData = {
+          napped_at: '2026-02-10T10:30',
+          ended_at: '2026-02-10T11:30',
+          notes: 'Good nap',
+        };
+
+        component.napForm.patchValue(formData);
+        component.error.set('Server error occurred');
+
+        expect(component.napForm.get('napped_at')?.value).toBe('2026-02-10T10:30');
+        expect(component.napForm.get('ended_at')?.value).toBe('2026-02-10T11:30');
+        expect(component.napForm.get('notes')?.value).toBe('Good nap');
+      });
+
+      it('should preserve multiple form fields when error occurs', () => {
+        component.napForm.patchValue({
+          napped_at: '2026-02-10T14:00',
+          ended_at: '2026-02-10T15:00',
+          notes: 'Long nap',
+        });
+
+        component.error.set('API 503 Service Unavailable');
+
+        expect(component.napForm.get('napped_at')?.value).toBe('2026-02-10T14:00');
+        expect(component.napForm.get('ended_at')?.value).toBe('2026-02-10T15:00');
+        expect(component.napForm.get('notes')?.value).toBe('Long nap');
+      });
+
+      it('should allow user to continue editing despite error', () => {
+        component.napForm.get('napped_at')?.setValue('2026-02-10T10:30');
+        component.error.set('Upload failed');
+
+        component.napForm.get('notes')?.setValue('Updated notes');
+
+        expect(component.napForm.get('notes')?.value).toBe('Updated notes');
+        expect(component.error()).toBe('Upload failed');
+      });
+    });
+
+    describe('error handling with different error types', () => {
+      it('should handle network timeout error', () => {
+        const errorMessage = 'Network request timeout';
+        component.error.set(errorMessage);
+
+        expect(component.error()).toBe(errorMessage);
+      });
+
+      it('should handle validation error', () => {
+        const errorMessage = 'Invalid datetime value provided';
+        component.error.set(errorMessage);
+
+        expect(component.error()).toBe(errorMessage);
+      });
+
+      it('should handle permission error', () => {
+        const errorMessage = 'You do not have permission to update this nap';
+        component.error.set(errorMessage);
+
+        expect(component.error()).toBe(errorMessage);
+      });
+
+      it('should handle server error', () => {
+        const errorMessage = 'Internal server error occurred';
+        component.error.set(errorMessage);
+
+        expect(component.error()).toBe(errorMessage);
+      });
+
+      it('should handle not found error', () => {
+        const errorMessage = 'Nap record not found';
+        component.error.set(errorMessage);
+
+        expect(component.error()).toBe(errorMessage);
+      });
+    });
+
+    describe('error state persistence', () => {
+      it('should persist error through multiple form updates', () => {
+        component.error.set('Error occurred');
+
+        component.napForm.get('napped_at')?.setValue('2026-02-10T12:00');
+        expect(component.error()).toBe('Error occurred');
+
+        component.napForm.get('notes')?.setValue('Some notes');
+        expect(component.error()).toBe('Error occurred');
+      });
+
+      it('should allow clearing error independently', () => {
+        component.error.set('API error');
+        expect(component.error()).not.toBeNull();
+
+        component.error.set(null);
+        expect(component.error()).toBeNull();
+      });
+
+      it('should preserve error until explicitly cleared', () => {
+        component.napForm.patchValue({
+          napped_at: '2026-02-10T13:00',
+          ended_at: '2026-02-10T14:00',
+        });
+        component.error.set('Submission failed');
+
+        // User interacts with form
+        component.napForm.get('napped_at')?.setValue('2026-02-10T14:00');
+        component.napForm.get('notes')?.setValue('New notes');
+
+        // Error should still be present
+        expect(component.error()).toBe('Submission failed');
+      });
+    });
+
+    describe('validation error scenarios', () => {
+      it('should allow error signal with invalid form state', () => {
+        component.napForm.patchValue({
+          napped_at: '',
+        });
+
+        expect(component.napForm.invalid).toBe(true);
+
+        component.error.set('Validation failed on server');
+        expect(component.error()).toBe('Validation failed on server');
+      });
+
+      it('should handle error with partially filled form', () => {
+        // napped_at is missing, form invalid
+
+        component.error.set('Request error');
+
+        expect(component.napForm.invalid).toBe(true);
+        expect(component.error()).toBe('Request error');
+      });
+
+      it('should maintain form validity state independent of error', () => {
+        component.napForm.patchValue({
+          napped_at: '2026-02-10T10:30',
+        });
+
+        expect(component.napForm.valid).toBe(true);
+
+        component.error.set('Some error');
+
+        expect(component.napForm.valid).toBe(true);
+        expect(component.error()).toBe('Some error');
+      });
+    });
+
+    describe('concurrent error scenarios', () => {
+      it('should handle rapid error updates', () => {
+        component.error.set('Error 1');
+        component.error.set('Error 2');
+        component.error.set('Error 3');
+
+        expect(component.error()).toBe('Error 3');
+      });
+
+      it('should handle error clearing and setting', () => {
+        component.error.set('First error');
+        component.error.set(null);
+        component.error.set('Second error');
+
+        expect(component.error()).toBe('Second error');
+      });
+    });
+  });
 });

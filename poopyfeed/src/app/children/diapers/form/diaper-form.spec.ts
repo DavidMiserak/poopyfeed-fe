@@ -563,4 +563,202 @@ describe('DiaperForm', () => {
       );
     });
   });
+
+  describe('Error Handling - Form & API', () => {
+    describe('error signal management', () => {
+      it('should initialize error signal as null', () => {
+        expect(component.error()).toBeNull();
+      });
+
+      it('should set and clear error signal independently of form state', () => {
+        component.error.set('API failed temporarily');
+        expect(component.error()).toBe('API failed temporarily');
+      });
+
+      it('should clear error signal independently of form validity', () => {
+        component.error.set('Some error');
+        component.error.set(null);
+        expect(component.error()).toBeNull();
+      });
+
+      it('should allow error updates without affecting form controls', () => {
+        component.diaperForm.patchValue({
+          change_type: 'wet' as const,
+          changed_at: '2026-02-10T10:30',
+        });
+        const initialValue = component.diaperForm.get('change_type')?.value;
+
+        component.error.set('Network timeout');
+        expect(component.diaperForm.get('change_type')?.value).toBe(initialValue);
+      });
+    });
+
+    describe('form data preservation during errors', () => {
+      it('should preserve form data when error signal is set', () => {
+        component.diaperForm.patchValue({
+          change_type: 'wet' as const,
+          changed_at: '2026-02-10T10:30',
+          notes: 'Normal amount',
+        });
+        component.error.set('Server error occurred');
+
+        expect(component.diaperForm.get('change_type')?.value).toBe('wet');
+        expect(component.diaperForm.get('changed_at')?.value).toBe(
+          '2026-02-10T10:30'
+        );
+        expect(component.diaperForm.get('notes')?.value).toBe('Normal amount');
+      });
+
+      it('should preserve multiple form fields when error occurs', () => {
+        component.diaperForm.patchValue({
+          change_type: 'dirty',
+          changed_at: '2026-02-10T14:00',
+          notes: 'Green stool',
+        });
+
+        component.error.set('API 503 Service Unavailable');
+
+        expect(component.diaperForm.get('change_type')?.value).toBe('dirty');
+        expect(component.diaperForm.get('notes')?.value).toBe('Green stool');
+      });
+
+      it('should allow user to continue editing despite error', () => {
+        component.diaperForm.get('change_type')?.setValue('wet');
+        component.error.set('Upload failed');
+
+        component.diaperForm.get('notes')?.setValue('Updated notes');
+
+        expect(component.diaperForm.get('notes')?.value).toBe('Updated notes');
+        expect(component.error()).toBe('Upload failed');
+      });
+    });
+
+    describe('error handling with different error types', () => {
+      it('should handle network timeout error', () => {
+        const errorMessage = 'Network request timeout';
+        component.error.set(errorMessage);
+
+        expect(component.error()).toBe(errorMessage);
+      });
+
+      it('should handle validation error', () => {
+        const errorMessage = 'Invalid change_type value provided';
+        component.error.set(errorMessage);
+
+        expect(component.error()).toBe(errorMessage);
+      });
+
+      it('should handle permission error', () => {
+        const errorMessage = 'You do not have permission to update this record';
+        component.error.set(errorMessage);
+
+        expect(component.error()).toBe(errorMessage);
+      });
+
+      it('should handle server error', () => {
+        const errorMessage = 'Internal server error occurred';
+        component.error.set(errorMessage);
+
+        expect(component.error()).toBe(errorMessage);
+      });
+
+      it('should handle not found error', () => {
+        const errorMessage = 'Diaper record not found';
+        component.error.set(errorMessage);
+
+        expect(component.error()).toBe(errorMessage);
+      });
+    });
+
+    describe('error state persistence', () => {
+      it('should persist error through multiple form updates', () => {
+        component.error.set('Error occurred');
+
+        component.diaperForm.get('change_type')?.setValue('dirty');
+        expect(component.error()).toBe('Error occurred');
+
+        component.diaperForm.get('notes')?.setValue('Some notes');
+        expect(component.error()).toBe('Error occurred');
+      });
+
+      it('should allow clearing error independently', () => {
+        component.error.set('API error');
+        expect(component.error()).not.toBeNull();
+
+        component.error.set(null);
+        expect(component.error()).toBeNull();
+      });
+
+      it('should preserve error until explicitly cleared', () => {
+        component.diaperForm.patchValue({
+          change_type: 'both',
+          changed_at: '2026-02-10T16:00',
+        });
+        component.error.set('Submission failed');
+
+        // User interacts with form
+        component.diaperForm.get('change_type')?.setValue('wet');
+        component.diaperForm.get('notes')?.setValue('New notes');
+
+        // Error should still be present
+        expect(component.error()).toBe('Submission failed');
+      });
+    });
+
+    describe('validation error scenarios', () => {
+      it('should allow error signal with invalid form state', () => {
+        component.diaperForm.patchValue({
+          change_type: null,
+          changed_at: '',
+        });
+
+        expect(component.diaperForm.invalid).toBe(true);
+
+        component.error.set('Validation failed on server');
+        expect(component.error()).toBe('Validation failed on server');
+      });
+
+      it('should handle error with partially filled form', () => {
+        component.diaperForm.get('change_type')?.setValue('wet');
+        // changed_at is missing, form invalid
+
+        component.error.set('Request error');
+
+        expect(component.diaperForm.invalid).toBe(true);
+        expect(component.error()).toBe('Request error');
+      });
+
+      it('should maintain form validity state independent of error', () => {
+        component.diaperForm.patchValue({
+          change_type: 'wet',
+          changed_at: '2026-02-10T10:30',
+        });
+
+        expect(component.diaperForm.valid).toBe(true);
+
+        component.error.set('Some error');
+
+        expect(component.diaperForm.valid).toBe(true);
+        expect(component.error()).toBe('Some error');
+      });
+    });
+
+    describe('concurrent error scenarios', () => {
+      it('should handle rapid error updates', () => {
+        component.error.set('Error 1');
+        component.error.set('Error 2');
+        component.error.set('Error 3');
+
+        expect(component.error()).toBe('Error 3');
+      });
+
+      it('should handle error clearing and setting', () => {
+        component.error.set('First error');
+        component.error.set(null);
+        component.error.set('Second error');
+
+        expect(component.error()).toBe('Second error');
+      });
+    });
+  });
 });

@@ -681,6 +681,234 @@ describe('QuickLog', () => {
     });
   });
 
+  describe('Conditional Branch Testing (Matrix)', () => {
+    describe('bottle amount null handling', () => {
+      it('should disable bottle buttons when bottleAmount is null (no DOB)', () => {
+        fixture.componentRef.setInput('childId', 1);
+        fixture.componentRef.setInput('canEdit', true);
+        fixture.componentRef.setInput('child', null);
+        fixture.detectChanges();
+
+        const buttons = fixture.nativeElement.querySelectorAll('button');
+        const bottleLowButton = buttons[4];
+        const bottleMidButton = buttons[5];
+        const bottleHighButton = buttons[6];
+
+        expect(bottleLowButton.disabled).toBe(true);
+        expect(bottleMidButton.disabled).toBe(true);
+        expect(bottleHighButton.disabled).toBe(true);
+      });
+
+      it('should not show bottle amount text when bottleAmountLow is null', () => {
+        fixture.componentRef.setInput('childId', 1);
+        fixture.componentRef.setInput('canEdit', true);
+        fixture.componentRef.setInput('child', null);
+        fixture.detectChanges();
+
+        const buttons = fixture.nativeElement.querySelectorAll('button');
+        const bottleLowButton = buttons[4];
+        const amountText = bottleLowButton.querySelector('span.text-2xl');
+        expect(amountText).toBeFalsy();
+      });
+
+      it('should show bottle emoji when bottleAmountLow is null', () => {
+        fixture.componentRef.setInput('childId', 1);
+        fixture.componentRef.setInput('canEdit', true);
+        fixture.componentRef.setInput('child', null);
+        fixture.detectChanges();
+
+        const buttons = fixture.nativeElement.querySelectorAll('button');
+        const bottleLowButton = buttons[4];
+        const emoji = bottleLowButton.querySelector('span.text-5xl');
+        expect(emoji?.textContent).toBe('🍼');
+      });
+
+      it('should not display oz unit when bottleAmountLow is null', () => {
+        fixture.componentRef.setInput('childId', 1);
+        fixture.componentRef.setInput('canEdit', true);
+        fixture.componentRef.setInput('child', null);
+        fixture.detectChanges();
+
+        const buttons = fixture.nativeElement.querySelectorAll('button');
+        const bottleLowButton = buttons[4];
+        const ozText = bottleLowButton.querySelector('span.text-sm');
+        expect(ozText).toBeFalsy();
+      });
+
+      it('should disable all bottle buttons when child has no DOB, regardless of canEdit', () => {
+        fixture.componentRef.setInput('childId', 1);
+        fixture.componentRef.setInput('canEdit', true);
+        fixture.componentRef.setInput('child', null);
+        fixture.detectChanges();
+
+        const buttons = fixture.nativeElement.querySelectorAll('button');
+        const bottleLowButton = buttons[4];
+        expect(bottleLowButton.disabled).toBe(true);
+        expect(bottleLowButton.getAttribute('aria-busy')).toBe('false');
+      });
+    });
+
+    describe('loading state with bottle amounts', () => {
+      beforeEach(() => {
+        const mockChild: Child = {
+          id: 1,
+          name: 'Baby',
+          date_of_birth: '2025-11-15',
+          gender: 'M',
+          user_role: 'owner',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          last_feeding: null,
+          last_diaper_change: null,
+          last_nap: null,
+        };
+        fixture.componentRef.setInput('childId', 1);
+        fixture.componentRef.setInput('canEdit', true);
+        fixture.componentRef.setInput('child', mockChild);
+      });
+
+      it('should show spinner but not emoji when bottle low is loading', () => {
+        fixture.detectChanges();
+        component.isLoggingBottleLow.set(true);
+        fixture.detectChanges();
+
+        const buttons = fixture.nativeElement.querySelectorAll('button');
+        const bottleLowButton = buttons[4];
+        const spinner = bottleLowButton.querySelector('svg.animate-spin');
+        const emoji = bottleLowButton.querySelector('span.text-5xl');
+        const amount = bottleLowButton.querySelector('span.text-2xl');
+
+        expect(spinner).toBeTruthy();
+        expect(emoji).toBeFalsy();
+        expect(amount).toBeTruthy(); // Amount still shows during loading
+      });
+
+      it('should keep bottle amount displayed while loading', () => {
+        fixture.detectChanges();
+        expect(component.bottleAmountLow()).toBe(4); // 5 - 1
+
+        component.isLoggingBottleLow.set(true);
+        fixture.detectChanges();
+
+        const buttons = fixture.nativeElement.querySelectorAll('button');
+        const bottleLowButton = buttons[4];
+        const amount = bottleLowButton.querySelector('span.text-2xl');
+        expect(amount?.textContent?.trim()).toBe('4');
+      });
+    });
+
+    describe('mixed button states (multiple buttons with different conditions)', () => {
+      beforeEach(() => {
+        const mockChild: Child = {
+          id: 1,
+          name: 'Baby',
+          date_of_birth: '2025-11-15',
+          gender: 'M',
+          user_role: 'owner',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          last_feeding: null,
+          last_diaper_change: null,
+          last_nap: null,
+        };
+        fixture.componentRef.setInput('childId', 1);
+        fixture.componentRef.setInput('child', mockChild);
+      });
+
+      it('should show different spinners for different loading buttons', () => {
+        fixture.componentRef.setInput('canEdit', true);
+        fixture.detectChanges();
+
+        component.isLoggingBottleLow.set(true);
+        component.isLoggingWetDiaper.set(true);
+        component.isLoggingNap.set(true);
+        fixture.detectChanges();
+
+        const buttons = fixture.nativeElement.querySelectorAll('button');
+        const bottleLowButton = buttons[4];
+        const wetButton = buttons[0];
+        const napButton = buttons[3];
+
+        expect(bottleLowButton.querySelector('svg.animate-spin')).toBeTruthy();
+        expect(wetButton.querySelector('svg.animate-spin')).toBeTruthy();
+        expect(napButton.querySelector('svg.animate-spin')).toBeTruthy();
+
+        // But other buttons should show emoji
+        const bottleMidButton = buttons[5];
+        expect(bottleMidButton.querySelector('span.text-5xl')).toBeTruthy();
+      });
+
+      it('should disable wet button when canEdit=false but other buttons still have amounts', () => {
+        fixture.componentRef.setInput('canEdit', false);
+        fixture.detectChanges();
+
+        const buttons = fixture.nativeElement.querySelectorAll('button');
+        const wetButton = buttons[0];
+        const bottleLowButton = buttons[4];
+
+        expect(wetButton.disabled).toBe(true);
+        expect(bottleLowButton.disabled).toBe(true); // Also disabled due to canEdit=false
+      });
+
+      it('should allow bottle log when bottle amount exists and canEdit=true but diaper logging=true', () => {
+        fixture.componentRef.setInput('canEdit', true);
+        fixture.detectChanges();
+
+        component.isLoggingWetDiaper.set(true);
+        fixture.detectChanges();
+
+        const buttons = fixture.nativeElement.querySelectorAll('button');
+        const bottleLowButton = buttons[4];
+        const wetButton = buttons[0];
+
+        expect(wetButton.disabled).toBe(true); // Diaper button disabled while logging
+        expect(bottleLowButton.disabled).toBe(false); // Bottle button still enabled
+      });
+    });
+
+    describe('combined disabled conditions (|| logic)', () => {
+      it('should disable bottle button when any condition is true: isLogging || !canEdit || !amount', () => {
+        const mockChild: Child = {
+          id: 1,
+          name: 'Baby',
+          date_of_birth: '2025-11-15',
+          gender: 'M',
+          user_role: 'owner',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          last_feeding: null,
+          last_diaper_change: null,
+          last_nap: null,
+        };
+
+        fixture.componentRef.setInput('childId', 1);
+        fixture.componentRef.setInput('child', mockChild);
+        fixture.componentRef.setInput('canEdit', true);
+        fixture.detectChanges();
+
+        const buttons = fixture.nativeElement.querySelectorAll('button');
+        const bottleLowButton = buttons[4];
+
+        // Case 1: isLogging=true, canEdit=true, amount exists -> disabled
+        component.isLoggingBottleLow.set(true);
+        fixture.detectChanges();
+        expect(bottleLowButton.disabled).toBe(true);
+
+        // Case 2: isLogging=false, canEdit=false, amount exists -> disabled
+        component.isLoggingBottleLow.set(false);
+        fixture.componentRef.setInput('canEdit', false);
+        fixture.detectChanges();
+        expect(bottleLowButton.disabled).toBe(true);
+
+        // Case 3: isLogging=false, canEdit=true, amount=null -> disabled
+        fixture.componentRef.setInput('child', null);
+        fixture.componentRef.setInput('canEdit', true);
+        fixture.detectChanges();
+        expect(bottleLowButton.disabled).toBe(true);
+      });
+    });
+  });
+
   describe('template', () => {
     beforeEach(() => {
       fixture.componentRef.setInput('childId', 1);

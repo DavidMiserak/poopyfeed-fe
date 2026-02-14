@@ -490,4 +490,174 @@ describe('FeedingForm', () => {
       });
     });
   });
+
+  describe('Error Handling - Form & API', () => {
+    describe('error signal management', () => {
+      it('should initialize error signal as null', () => {
+        expect(component.error()).toBeNull();
+      });
+
+      it('should set and clear error signal independently of form state', () => {
+        component.feedingForm.patchValue({
+          feeding_type: 'bottle',
+          fed_at: '2026-02-10T10:30',
+          amount_oz: 5,
+        });
+
+        // Manually set error as would happen from API failure
+        component.error.set('API failed temporarily');
+        expect(component.error()).toBe('API failed temporarily');
+
+        // Form can still be valid despite error
+        expect(component.feedingForm.valid).toBe(true);
+
+        // Error persists until cleared
+        expect(component.error()).toBe('API failed temporarily');
+
+        // Clear error manually
+        component.error.set(null);
+        expect(component.error()).toBeNull();
+      });
+    });
+
+    describe('form data preservation during errors', () => {
+      it('should preserve form data independently of error state', () => {
+        const formData = {
+          feeding_type: 'bottle' as const,
+          fed_at: '2026-02-10T10:30',
+          amount_oz: 5,
+        };
+        component.feedingForm.patchValue(formData);
+        component.error.set('Some error occurred');
+
+        expect(component.feedingForm.get('amount_oz')?.value).toBe(5);
+        expect(component.feedingForm.get('feeding_type')?.value).toBe('bottle');
+        expect(component.error()).toBe('Some error occurred');
+      });
+
+      it('should not lose form data when error is cleared', () => {
+        const formData = {
+          feeding_type: 'breast' as const,
+          fed_at: '2026-02-10T14:00',
+          duration_minutes: 20,
+          side: 'right' as const,
+        };
+        component.feedingForm.patchValue(formData);
+        component.error.set('Previous error');
+
+        // Clear error
+        component.error.set(null);
+
+        expect(component.feedingForm.get('duration_minutes')?.value).toBe(20);
+        expect(component.feedingForm.get('side')?.value).toBe('right');
+        expect(component.error()).toBeNull();
+      });
+    });
+
+    describe('error state persistence', () => {
+      it('should maintain error message until explicitly cleared', () => {
+        component.error.set('Form submission failed');
+        expect(component.error()).toBe('Form submission failed');
+
+        component.feedingForm.patchValue({ feeding_type: 'breast' });
+        expect(component.error()).toBe('Form submission failed'); // Error persists
+
+        component.error.set(null);
+        expect(component.error()).toBeNull(); // Explicitly cleared
+      });
+
+      it('should handle multiple sequential errors', () => {
+        component.error.set('First error');
+        expect(component.error()).toBe('First error');
+
+        component.error.set('Second error - network timeout');
+        expect(component.error()).toBe('Second error - network timeout');
+
+        component.error.set(null);
+        expect(component.error()).toBeNull();
+      });
+    });
+
+    describe('error signal state conditions', () => {
+      it('should keep error set even when form is modified', () => {
+        component.error.set('API connection failed');
+
+        // Modify form
+        component.feedingForm.patchValue({ amount_oz: 10 });
+
+        // Error should still be set
+        expect(component.error()).toBe('API connection failed');
+      });
+
+      it('should handle error during different form states', () => {
+        // Initial state
+        expect(component.error()).toBeNull();
+
+        // Form has invalid state
+        component.feedingForm.get('amount_oz')?.setErrors({ required: true });
+        component.error.set('Validation error occurred');
+
+        // Error is separate from form validity
+        expect(component.error()).toBe('Validation error occurred');
+        expect(component.feedingForm.valid).toBe(false);
+
+        // Both conditions can exist independently
+        component.error.set(null);
+        expect(component.feedingForm.valid).toBe(false); // Still invalid
+      });
+
+      it('should preserve error message across multiple form changes', () => {
+        const errorMsg = 'Database connection failed';
+        component.error.set(errorMsg);
+
+        // Multiple form changes
+        component.feedingForm.get('feeding_type')?.setValue('breast');
+        component.feedingForm.get('duration_minutes')?.setValue(30);
+        component.feedingForm.get('side')?.setValue('left');
+
+        expect(component.error()).toBe(errorMsg);
+      });
+    });
+
+    describe('error handling with different error types', () => {
+      it('should handle network-related errors', () => {
+        component.error.set('Network timeout: Unable to connect to server');
+        expect(component.error()).toBe('Network timeout: Unable to connect to server');
+      });
+
+      it('should handle validation-related errors from server', () => {
+        component.error.set('Invalid feeding time: cannot log future events');
+        expect(component.error()).toBe('Invalid feeding time: cannot log future events');
+      });
+
+      it('should handle permission-related errors', () => {
+        component.error.set('Permission denied: You do not have access to edit this child');
+        expect(component.error()).toBe('Permission denied: You do not have access to edit this child');
+      });
+
+      it('should handle server errors (5xx)', () => {
+        component.error.set('Server error: Internal server error');
+        expect(component.error()).toBe('Server error: Internal server error');
+      });
+    });
+
+    describe('validation error detection', () => {
+      it('should detect required field errors on amount_oz', () => {
+        const amountControl = component.feedingForm.get('amount_oz');
+        amountControl?.setErrors({ required: true });
+
+        expect(amountControl?.hasError('required')).toBe(true);
+        expect(component.feedingForm.valid).toBe(false);
+      });
+
+      it('should detect validation errors on multiple fields', () => {
+        component.feedingForm.get('amount_oz')?.setErrors({ required: true });
+        component.feedingForm.get('fed_at')?.setErrors({ required: true });
+
+        expect(component.feedingForm.valid).toBe(false);
+        expect(component.feedingForm.get('amount_oz')?.invalid).toBe(true);
+        expect(component.feedingForm.get('fed_at')?.invalid).toBe(true);
+      });
+    });
+  });
 });
