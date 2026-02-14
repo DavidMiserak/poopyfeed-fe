@@ -540,3 +540,431 @@ describe('FeedingsList - Batch Operations', () => {
     });
   });
 });
+
+describe('FeedingsList - Core Functionality Tests', () => {
+  let component: FeedingsList;
+  let fixture: ComponentFixture<FeedingsList>;
+  let feedingsService: FeedingsService;
+  let childrenService: ChildrenService;
+  let router: Router;
+
+  const mockChild: Child = {
+    id: 1,
+    name: 'Baby Alice',
+    date_of_birth: '2024-01-15',
+    gender: 'F',
+    user_role: 'owner',
+    created_at: '2024-01-15T10:00:00Z',
+    updated_at: '2024-01-15T10:00:00Z',
+    last_diaper_change: '2024-02-10T14:30:00Z',
+    last_nap: '2024-02-10T13:00:00Z',
+    last_feeding: '2024-02-10T12:00:00Z',
+  };
+
+  const mockCoParentChild: Child = {
+    ...mockChild,
+    id: 2,
+    user_role: 'co-parent',
+  };
+
+  const mockCaregiverChild: Child = {
+    ...mockChild,
+    id: 3,
+    user_role: 'caregiver',
+  };
+
+  const mockFeedings: Feeding[] = [
+    {
+      id: 1,
+      child: 1,
+      feeding_type: 'bottle',
+      fed_at: '2024-02-10T10:00:00Z',
+      amount_oz: 5.5,
+      created_at: '2024-02-10T10:00:00Z',
+      updated_at: '2024-02-10T10:00:00Z',
+    },
+    {
+      id: 2,
+      child: 1,
+      feeding_type: 'breast',
+      fed_at: '2024-02-10T14:30:00Z',
+      duration_minutes: 15,
+      side: 'left',
+      created_at: '2024-02-10T14:30:00Z',
+      updated_at: '2024-02-10T14:30:00Z',
+    },
+    {
+      id: 3,
+      child: 1,
+      feeding_type: 'bottle',
+      fed_at: '2024-02-10T18:00:00Z',
+      amount_oz: 6,
+      created_at: '2024-02-10T18:00:00Z',
+      updated_at: '2024-02-10T18:00:00Z',
+    },
+  ];
+
+  beforeEach(async () => {
+    const feedingsServiceMock = {
+      list: vi.fn().mockReturnValue(of(mockFeedings)),
+      delete: vi.fn().mockReturnValue(of(void 0)),
+    };
+    const childrenServiceMock = {
+      get: vi.fn().mockReturnValue(of(mockChild)),
+    };
+    const routerMock = {
+      navigate: vi.fn(),
+    };
+
+    await TestBed.configureTestingModule({
+      imports: [FeedingsList],
+      providers: [
+        { provide: FeedingsService, useValue: feedingsServiceMock },
+        { provide: ChildrenService, useValue: childrenServiceMock },
+        { provide: Router, useValue: routerMock },
+        FilterService,
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              paramMap: {
+                get: (key: string) => (key === 'childId' ? '1' : null),
+              },
+            },
+          },
+        },
+      ],
+    }).compileComponents();
+
+    feedingsService = TestBed.inject(FeedingsService);
+    childrenService = TestBed.inject(ChildrenService);
+    router = TestBed.inject(Router);
+
+    fixture = TestBed.createComponent(FeedingsList);
+    component = fixture.componentInstance;
+  });
+
+  describe('Component Initialization', () => {
+    it('should create component', () => {
+      expect(component).toBeTruthy();
+    });
+
+    it('should initialize with empty feedings', () => {
+      expect(component.allFeedings()).toEqual([]);
+    });
+
+    it('should initialize with isLoading=true', () => {
+      expect(component.isLoading()).toBe(true);
+    });
+
+    it('should initialize with empty selection', () => {
+      expect(component.selectedIds()).toEqual([]);
+    });
+
+    it('should initialize feeding type options', () => {
+      expect(component.feedingTypeOptions).toEqual([
+        { value: 'bottle', label: 'Bottle' },
+        { value: 'breast', label: 'Breast' },
+      ]);
+    });
+  });
+
+  describe('Data Loading', () => {
+    it('should load child and feedings on init', () => {
+      component.ngOnInit();
+
+      expect(childrenService.get).toHaveBeenCalledWith(1);
+    });
+
+    it('should populate allFeedings after load', async () => {
+      component.ngOnInit();
+      await new Promise(resolve => setTimeout(resolve, 10));
+
+      expect(component.allFeedings()).toHaveLength(3);
+    });
+
+    it('should set isLoading=false after load', async () => {
+      component.ngOnInit();
+      await new Promise(resolve => setTimeout(resolve, 10));
+
+      expect(component.isLoading()).toBe(false);
+    });
+
+    it('should set child signal after load', async () => {
+      component.ngOnInit();
+      await new Promise(resolve => setTimeout(resolve, 10));
+
+      expect(component.child()).toEqual(mockChild);
+    });
+  });
+
+  describe('Permissions', () => {
+    it('should allow edit for owner', () => {
+      component.child.set(mockChild);
+
+      expect(component.canEdit()).toBe(true);
+    });
+
+    it('should allow edit for co-parent', () => {
+      component.child.set(mockCoParentChild);
+
+      expect(component.canEdit()).toBe(true);
+    });
+
+    it('should deny edit for caregiver', () => {
+      component.child.set(mockCaregiverChild);
+
+      expect(component.canEdit()).toBe(false);
+    });
+  });
+
+  describe('Navigation', () => {
+    beforeEach(() => {
+      component.childId.set(1);
+    });
+
+    it('should navigate to create', () => {
+      component.navigateToCreate();
+
+      expect(router.navigate).toHaveBeenCalledWith(['/children', 1, 'feedings', 'create']);
+    });
+
+    it('should navigate to edit', () => {
+      component.navigateToEdit(5);
+
+      expect(router.navigate).toHaveBeenCalledWith(['/children', 1, 'feedings', 5, 'edit']);
+    });
+
+    it('should navigate to delete', () => {
+      component.navigateToDelete(5);
+
+      expect(router.navigate).toHaveBeenCalledWith(['/children', 1, 'feedings', 5, 'delete']);
+    });
+
+    it('should navigate to dashboard', () => {
+      component.navigateToDashboard();
+
+      expect(router.navigate).toHaveBeenCalledWith(['/children', 1, 'dashboard']);
+    });
+  });
+
+  describe('DateTime Formatting', () => {
+    it('should format datetime with locale string', () => {
+      const formatted = component.formatDateTime('2024-02-10T14:30:00Z');
+
+      expect(formatted).toContain('Feb');
+      expect(formatted).toContain('10');
+      expect(formatted).toContain('2024');
+    });
+
+    it('should format time ago in minutes', () => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date('2024-02-10T14:45:00Z'));
+
+      const formatted = component.formatTimeAgo('2024-02-10T14:30:00Z');
+
+      expect(formatted).toBe('15 mins ago');
+      vi.useRealTimers();
+    });
+
+    it('should format time ago in hours', () => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date('2024-02-10T18:30:00Z'));
+
+      const formatted = component.formatTimeAgo('2024-02-10T14:30:00Z');
+
+      expect(formatted).toBe('4 hours ago');
+      vi.useRealTimers();
+    });
+
+    it('should format time ago in days', () => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date('2024-02-12T14:30:00Z'));
+
+      const formatted = component.formatTimeAgo('2024-02-10T14:30:00Z');
+
+      expect(formatted).toBe('2 days ago');
+      vi.useRealTimers();
+    });
+
+    it('should handle singular time units', () => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date('2024-02-10T14:31:00Z'));
+
+      const formatted = component.formatTimeAgo('2024-02-10T14:30:00Z');
+
+      expect(formatted).toBe('1 min ago');
+      vi.useRealTimers();
+    });
+  });
+
+  describe('Feeding Type Handling', () => {
+    it('should display bottle icon for bottle feeding', () => {
+      const bottleFeeding = mockFeedings[0];
+
+      const icon = component.getFeedingIcon(bottleFeeding);
+
+      expect(icon).toBe('🍼');
+    });
+
+    it('should display breast icon for breast feeding', () => {
+      const breastFeeding = mockFeedings[1];
+
+      const icon = component.getFeedingIcon(breastFeeding);
+
+      expect(icon).toBe('🤱');
+    });
+
+    it('should format bottle feeding title with amount', () => {
+      const bottleFeeding = mockFeedings[0];
+
+      const title = component.getFeedingTitle(bottleFeeding);
+
+      expect(title).toBe('Bottle: 5.5 oz');
+    });
+
+    it('should format breast feeding title with duration and side', () => {
+      const breastFeeding = mockFeedings[1];
+
+      const title = component.getFeedingTitle(breastFeeding);
+
+      expect(title).toBe('Breast: 15 min (Left)');
+    });
+
+    it('should handle both sides in breast feeding', () => {
+      const bothSidesFeeding: Feeding = {
+        id: 4,
+        child: 1,
+        feeding_type: 'breast',
+        fed_at: '2024-02-10T20:00:00Z',
+        duration_minutes: 20,
+        side: 'both',
+        created_at: '2024-02-10T20:00:00Z',
+        updated_at: '2024-02-10T20:00:00Z',
+      };
+
+      const title = component.getFeedingTitle(bothSidesFeeding);
+
+      expect(title).toBe('Breast: 20 min (Both)');
+    });
+
+    it('should handle right side in breast feeding', () => {
+      const rightSideFeeding: Feeding = {
+        id: 5,
+        child: 1,
+        feeding_type: 'breast',
+        fed_at: '2024-02-10T21:00:00Z',
+        duration_minutes: 12,
+        side: 'right',
+        created_at: '2024-02-10T21:00:00Z',
+        updated_at: '2024-02-10T21:00:00Z',
+      };
+
+      const title = component.getFeedingTitle(rightSideFeeding);
+
+      expect(title).toBe('Breast: 12 min (Right)');
+    });
+  });
+
+  describe('Filtering', () => {
+    beforeEach(() => {
+      component.allFeedings.set(mockFeedings);
+      fixture.detectChanges();
+    });
+
+    it('should have feedings computed property', () => {
+      expect(component.feedings).toBeDefined();
+    });
+
+    it('should return all feedings when no filters', () => {
+      expect(component.feedings()).toHaveLength(3);
+    });
+
+    it('should filter by feeding type', () => {
+      component.onFilterChange({ type: 'bottle' });
+      fixture.detectChanges();
+
+      const filtered = component.feedings();
+      expect(filtered.length).toBe(2); // Two bottle feedings
+      expect(filtered.every(f => f.feeding_type === 'bottle')).toBeTruthy();
+    });
+
+    it('should filter by date range', () => {
+      component.onFilterChange({
+        dateFrom: '2024-02-10',
+        dateTo: '2024-02-10',
+      });
+      fixture.detectChanges();
+
+      expect(component.feedings()).toHaveLength(3); // All on same day
+    });
+  });
+
+  describe('Error Handling', () => {
+    it('should handle loading errors', () => {
+      const error = new Error('Load failed');
+      vi.mocked(childrenService.get).mockReturnValue(throwError(() => error));
+
+      component.ngOnInit();
+
+      expect(component.error()).toBe('Load failed');
+    });
+
+    it('should clear error on retry', () => {
+      component.error.set('Previous error');
+      vi.mocked(childrenService.get).mockReturnValue(of(mockChild));
+
+      component.loadData(1);
+
+      expect(component.error()).toBeNull();
+    });
+
+    it('should handle feedings load error', () => {
+      const error = new Error('Feedings load failed');
+      vi.mocked(feedingsService.list).mockReturnValue(throwError(() => error));
+      vi.mocked(childrenService.get).mockReturnValue(of(mockChild));
+
+      component.loadData(1);
+
+      expect(component.error()).toBe('Feedings load failed');
+    });
+  });
+
+  describe('Empty States', () => {
+    it('should handle empty feeding list', () => {
+      component.allFeedings.set([]);
+
+      expect(component.feedings()).toEqual([]);
+    });
+
+    it('should handle no selections', () => {
+      expect(component.hasSelectedItems()).toBe(false);
+    });
+  });
+
+  describe('Signal Reactivity', () => {
+    it('should update allFeedings reactively', () => {
+      component.allFeedings.set(mockFeedings);
+
+      expect(component.allFeedings()).toHaveLength(3);
+    });
+
+    it('should update filters reactively', () => {
+      component.filters.set({ type: 'breast' });
+
+      expect(component.filters()).toEqual({ type: 'breast' });
+    });
+
+    it('should update error reactively', () => {
+      component.error.set('Test error');
+
+      expect(component.error()).toBe('Test error');
+    });
+
+    it('should update isLoading reactively', () => {
+      component.isLoading.set(false);
+
+      expect(component.isLoading()).toBe(false);
+    });
+  });
+});
