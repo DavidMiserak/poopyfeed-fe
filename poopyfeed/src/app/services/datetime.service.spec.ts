@@ -4,6 +4,7 @@
 
 import { TestBed } from '@angular/core/testing';
 import { DateTimeService } from './datetime.service';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 
 describe('DateTimeService', () => {
   let service: DateTimeService;
@@ -209,6 +210,122 @@ describe('DateTimeService', () => {
       const inputFormat = service.toInputFormat(endOfYear);
 
       expect(inputFormat).toBe('2024-12-31T23:59');
+    });
+
+    it('should handle milliseconds in UTC conversion', () => {
+      const date = new Date('2024-01-15T10:30:45.567');
+      const utcString = service.toUTC(date);
+
+      expect(utcString).toContain('567');
+      const parsed = service.toLocal(utcString);
+      expect(parsed.getMilliseconds()).toBe(567);
+    });
+
+    it('should preserve seconds in toUTC output', () => {
+      const date = new Date('2024-01-15T10:30:45');
+      const utcString = service.toUTC(date);
+
+      // Verify seconds are preserved with milliseconds
+      expect(utcString).toMatch(/:\d{2}:\d{2}\.\d{3}Z/);
+      expect(utcString).toContain('45.');
+    });
+
+    it('should handle single digit hours and minutes in formatting', () => {
+      const date = new Date('2024-01-15T01:02:00');
+      const inputFormat = service.toInputFormat(date);
+
+      expect(inputFormat).toBe('2024-01-15T01:02');
+      // Verify no double-digit hours/minutes
+      expect(inputFormat).toMatch(/T\d{2}:\d{2}$/);
+    });
+
+    it('should correctly handle October (month 10) padding', () => {
+      const date = new Date('2024-10-15T10:30:00');
+      const inputFormat = service.toInputFormat(date);
+
+      expect(inputFormat).toBe('2024-10-15T10:30');
+      expect(inputFormat.substring(5, 7)).toBe('10');
+    });
+
+    it('should handle input format with single-digit date', () => {
+      const input = '2024-01-05T10:30';
+      const date = service.fromInputFormat(input);
+
+      expect(date.getDate()).toBe(5);
+      expect(date.getMonth()).toBe(0);
+    });
+
+    it('should handle different years in round trip', () => {
+      const testYears = [2020, 2023, 2024, 2025];
+
+      testYears.forEach(year => {
+        const date = new Date(`${year}-06-15T12:30:00`);
+        const inputFormat = service.toInputFormat(date);
+        const parsed = service.fromInputFormat(inputFormat);
+
+        expect(parsed.getFullYear()).toBe(year);
+      });
+    });
+
+    it('should handle UTC string with offset notation', () => {
+      const utcString = '2024-01-15T10:30:00+00:00';
+      const localDate = service.toLocal(utcString);
+
+      expect(localDate).toBeInstanceOf(Date);
+      expect(localDate.getFullYear()).toBe(2024);
+    });
+
+    it('should return valid format for all hours of the day', () => {
+      for (let hour = 0; hour < 24; hour++) {
+        const date = new Date(2024, 0, 15, hour, 30, 0);
+        const inputFormat = service.toInputFormat(date);
+        const hourStr = String(hour).padStart(2, '0');
+
+        expect(inputFormat).toContain(`T${hourStr}:30`);
+      }
+    });
+
+    it('should return valid format for all minutes of the hour', () => {
+      for (let minute = 0; minute < 60; minute += 5) {
+        const date = new Date(2024, 0, 15, 10, minute, 0);
+        const inputFormat = service.toInputFormat(date);
+        const minStr = String(minute).padStart(2, '0');
+
+        expect(inputFormat).toContain(`:${minStr}`);
+      }
+    });
+
+    it('should handle consecutive date conversions', () => {
+      const dates = [
+        new Date('2024-01-15T10:30:00'),
+        new Date('2024-01-16T11:45:00'),
+        new Date('2024-01-17T09:15:00'),
+      ];
+
+      dates.forEach(date => {
+        const inputFormat = service.toInputFormat(date);
+        const parsed = service.fromInputFormat(inputFormat);
+
+        expect(parsed.getFullYear()).toBe(date.getFullYear());
+        expect(parsed.getMonth()).toBe(date.getMonth());
+        expect(parsed.getDate()).toBe(date.getDate());
+      });
+    });
+
+    it('should handle mixed timezone conversion patterns', () => {
+      const localDate = new Date('2024-01-15T10:30:00');
+      const utcString = service.toUTC(localDate);
+      const inputFormat = service.toInputFormat(localDate);
+
+      // Both conversions should be valid
+      expect(utcString).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
+      expect(inputFormat).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/);
+
+      // They should represent the same point in time
+      const utcParsed = service.toLocal(utcString);
+      const inputParsed = service.fromInputFormat(inputFormat);
+
+      expect(utcParsed.getTime()).toBe(inputParsed.getTime());
     });
   });
 });
