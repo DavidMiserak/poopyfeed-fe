@@ -11,6 +11,7 @@ vi.mock('chart.js', () => {
 
   const mockChartConstructor = vi.fn(function (this: any) {
     this.destroy = mockDestroyFn;
+    this.update = vi.fn();
     return this;
   }) as any;
 
@@ -55,6 +56,7 @@ describe('DiaperPatternsChart', () => {
     fixture.componentRef.setInput('data', mockData);
     fixture.componentRef.setInput('isLoading', false);
     fixture.detectChanges();
+    fixture.detectChanges(); // Extra detection cycle for effect to run
 
     expect(vi.mocked(Chart)).toHaveBeenCalled();
   });
@@ -63,6 +65,7 @@ describe('DiaperPatternsChart', () => {
     fixture.componentRef.setInput('data', mockData);
     fixture.componentRef.setInput('isLoading', false);
     fixture.detectChanges();
+    fixture.detectChanges(); // Extra detection cycle for effect to run
 
     const chartConfig = vi.mocked(Chart).mock.calls[0][1] as any;
     expect(chartConfig.type).toBe('bar');
@@ -79,6 +82,7 @@ describe('DiaperPatternsChart', () => {
     fixture.componentRef.setInput('data', mockData);
     fixture.componentRef.setInput('isLoading', false);
     fixture.detectChanges();
+    fixture.detectChanges(); // Extra detection cycle for effect to run
 
     const chartInstance = vi.mocked(Chart).mock.results[0].value;
     const destroySpy = chartInstance.destroy;
