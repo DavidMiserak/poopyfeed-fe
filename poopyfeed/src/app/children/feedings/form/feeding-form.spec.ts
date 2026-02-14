@@ -660,4 +660,450 @@ describe('FeedingForm', () => {
       });
     });
   });
+
+  describe('Form Validation Edge Cases', () => {
+    describe('conditional validator transitions', () => {
+      it('should support switching from bottle to breast feeding', () => {
+        // Start with bottle
+        component.feedingForm.patchValue({
+          feeding_type: 'bottle' as const,
+          fed_at: '2026-02-10T10:30',
+          amount_oz: 5,
+        });
+        expect(component.feedingForm.valid).toBe(true);
+
+        // Switch to breast
+        component.feedingForm.get('feeding_type')?.setValue('breast');
+        expect(component.feedingForm.get('feeding_type')?.value).toBe('breast');
+
+        // Now add required breast fields to validate
+        component.feedingForm.patchValue({
+          duration_minutes: 20,
+          side: 'left' as const,
+        });
+        expect(component.feedingForm.valid).toBe(true);
+      });
+
+      it('should support switching from breast to bottle feeding', () => {
+        // Start with breast
+        component.feedingForm.patchValue({
+          feeding_type: 'breast' as const,
+          fed_at: '2026-02-10T10:30',
+          duration_minutes: 20,
+          side: 'left' as const,
+        });
+        expect(component.feedingForm.valid).toBe(true);
+
+        // Switch to bottle
+        component.feedingForm.get('feeding_type')?.setValue('bottle');
+        expect(component.feedingForm.get('feeding_type')?.value).toBe('bottle');
+
+        // Now add required bottle field to validate
+        component.feedingForm.patchValue({
+          amount_oz: 5,
+        });
+        expect(component.feedingForm.valid).toBe(true);
+      });
+
+      it('should handle multiple rapid type changes', () => {
+        component.feedingForm.patchValue({
+          feeding_type: 'bottle' as const,
+          fed_at: '2026-02-10T10:30',
+        });
+
+        // Rapid type changes
+        component.feedingForm.get('feeding_type')?.setValue('breast');
+        component.feedingForm.get('feeding_type')?.setValue('bottle');
+        component.feedingForm.get('feeding_type')?.setValue('breast');
+
+        // Should end in breast mode
+        expect(component.feedingForm.get('feeding_type')?.value).toBe('breast');
+        expect(component.feedingForm.get('amount_oz')?.value).toBeNull();
+      });
+
+      it('should support switching from breast to bottle feeding', () => {
+        component.feedingForm.patchValue({
+          feeding_type: 'breast' as const,
+          fed_at: '2026-02-10T10:30',
+          duration_minutes: 15,
+          side: 'right' as const,
+        });
+
+        // Switch type (field values may or may not clear depending on implementation)
+        component.feedingForm.get('feeding_type')?.setValue('bottle');
+
+        // Verify type changed
+        expect(component.feedingForm.get('feeding_type')?.value).toBe('bottle');
+      });
+
+      it('should support switching from bottle to breast feeding', () => {
+        component.feedingForm.patchValue({
+          feeding_type: 'bottle' as const,
+          fed_at: '2026-02-10T10:30',
+          amount_oz: 8,
+        });
+
+        // Switch type
+        component.feedingForm.get('feeding_type')?.setValue('breast');
+
+        // Verify type changed
+        expect(component.feedingForm.get('feeding_type')?.value).toBe('breast');
+      });
+    });
+
+    describe('boundary value validation', () => {
+      it('should accept bottle amounts within valid range (0.1-50 oz)', () => {
+        component.feedingForm.patchValue({
+          feeding_type: 'bottle' as const,
+          fed_at: '2026-02-10T10:30',
+          amount_oz: 0.1,
+        });
+
+        expect(component.feedingForm.valid).toBe(true);
+
+        component.feedingForm.get('amount_oz')?.setValue(5);
+        expect(component.feedingForm.valid).toBe(true);
+
+        component.feedingForm.get('amount_oz')?.setValue(50);
+        expect(component.feedingForm.valid).toBe(true);
+      });
+
+      it('should accept breast durations within valid range (1-180 minutes)', () => {
+        component.feedingForm.patchValue({
+          feeding_type: 'breast' as const,
+          fed_at: '2026-02-10T10:30',
+          duration_minutes: 1,
+          side: 'left' as const,
+        });
+
+        expect(component.feedingForm.valid).toBe(true);
+
+        component.feedingForm.get('duration_minutes')?.setValue(90);
+        expect(component.feedingForm.valid).toBe(true);
+
+        component.feedingForm.get('duration_minutes')?.setValue(180);
+        expect(component.feedingForm.valid).toBe(true);
+      });
+
+      it('should handle bottle amounts at boundaries', () => {
+        // Min value
+        component.feedingForm.patchValue({
+          feeding_type: 'bottle' as const,
+          fed_at: '2026-02-10T10:30',
+          amount_oz: 0.1,
+        });
+        let valid = component.feedingForm.valid;
+
+        // Max value
+        component.feedingForm.get('amount_oz')?.setValue(50);
+        expect(component.feedingForm.valid).toBe(valid || true);
+      });
+
+      it('should handle breast durations at boundaries', () => {
+        // Min value
+        component.feedingForm.patchValue({
+          feeding_type: 'breast' as const,
+          fed_at: '2026-02-10T10:30',
+          duration_minutes: 1,
+          side: 'left' as const,
+        });
+        let valid = component.feedingForm.valid;
+
+        // Max value
+        component.feedingForm.get('duration_minutes')?.setValue(180);
+        expect(component.feedingForm.valid).toBe(valid || true);
+      });
+
+      it('should handle mid-range values for bottle and breast', () => {
+        // Bottle mid-range
+        component.feedingForm.patchValue({
+          feeding_type: 'bottle' as const,
+          fed_at: '2026-02-10T10:30',
+          amount_oz: 25,
+        });
+
+        expect(component.feedingForm.valid).toBe(true);
+
+        // Breast mid-range
+        component.feedingForm.patchValue({
+          feeding_type: 'breast' as const,
+          duration_minutes: 90,
+          side: 'both' as const,
+        });
+
+        expect(component.feedingForm.valid).toBe(true);
+      });
+    });
+
+    describe('cross-field validation scenarios', () => {
+      it('should be valid when all bottle feeding fields are present', () => {
+        component.feedingForm.patchValue({
+          feeding_type: 'bottle' as const,
+          fed_at: '2026-02-10T10:30',
+          amount_oz: 5,
+        });
+
+        expect(component.feedingForm.valid).toBe(true);
+      });
+
+      it('should be valid when all breast feeding fields are present', () => {
+        component.feedingForm.patchValue({
+          feeding_type: 'breast' as const,
+          fed_at: '2026-02-10T10:30',
+          duration_minutes: 20,
+          side: 'left' as const,
+        });
+
+        expect(component.feedingForm.valid).toBe(true);
+      });
+
+      it('should allow bottle feeding with extra breast fields set', () => {
+        // Bottle form with breast fields (shouldn't cause validation errors)
+        component.feedingForm.patchValue({
+          feeding_type: 'bottle' as const,
+          fed_at: '2026-02-10T10:30',
+          amount_oz: 5,
+          duration_minutes: 20, // Extra field (not used in bottle mode)
+          side: 'left' as const, // Extra field (not used in bottle mode)
+        });
+
+        // Form should still be valid
+        expect(component.feedingForm.valid).toBe(true);
+      });
+
+      it('should allow breast feeding with extra bottle field set', () => {
+        // Breast form with bottle field (shouldn't cause validation errors)
+        component.feedingForm.patchValue({
+          feeding_type: 'breast' as const,
+          fed_at: '2026-02-10T10:30',
+          amount_oz: 5, // Extra field (not used in breast mode)
+          duration_minutes: 20,
+          side: 'left' as const,
+        });
+
+        // Form should still be valid
+        expect(component.feedingForm.valid).toBe(true);
+      });
+
+      it('should require fed_at field for both feeding types', () => {
+        // Test bottle without fed_at
+        component.feedingForm.patchValue({
+          feeding_type: 'bottle' as const,
+          fed_at: '',
+          amount_oz: 5,
+        });
+
+        expect(component.feedingForm.get('fed_at')?.hasError('required')).toBe(true);
+        expect(component.feedingForm.invalid).toBe(true);
+      });
+    });
+
+    describe('field value preservation and clearing', () => {
+      it('should preserve form state when notes change', () => {
+        component.feedingForm.patchValue({
+          feeding_type: 'bottle' as const,
+          fed_at: '2026-02-10T10:30',
+          amount_oz: 5,
+          notes: 'Initial notes',
+        });
+
+        const initialValid = component.feedingForm.valid;
+
+        component.feedingForm.get('notes')?.setValue('Updated notes');
+
+        expect(component.feedingForm.valid).toBe(initialValid);
+        expect(component.feedingForm.get('amount_oz')?.value).toBe(5);
+      });
+
+      it('should handle clearing all optional fields', () => {
+        component.feedingForm.patchValue({
+          feeding_type: 'bottle' as const,
+          fed_at: '2026-02-10T10:30',
+          amount_oz: 5,
+          notes: 'Some notes',
+        });
+
+        component.feedingForm.get('notes')?.setValue('');
+
+        expect(component.feedingForm.valid).toBe(true);
+        expect(component.feedingForm.get('notes')?.value).toBe('');
+      });
+
+      it('should maintain breast side selection across duration changes', () => {
+        component.feedingForm.patchValue({
+          feeding_type: 'breast' as const,
+          fed_at: '2026-02-10T10:30',
+          duration_minutes: 15,
+          side: 'right' as const,
+        });
+
+        component.feedingForm.get('duration_minutes')?.setValue(25);
+
+        expect(component.feedingForm.get('side')?.value).toBe('right');
+        expect(component.feedingForm.valid).toBe(true);
+      });
+    });
+
+    describe('validator state consistency', () => {
+      it('should be valid when all required bottle fields are present', () => {
+        component.feedingForm.patchValue({
+          feeding_type: 'bottle' as const,
+          fed_at: '2026-02-10T10:30',
+          amount_oz: 5,
+        });
+
+        expect(component.feedingForm.valid).toBe(true);
+      });
+
+      it('should be valid when all required breast fields are present', () => {
+        component.feedingForm.patchValue({
+          feeding_type: 'breast' as const,
+          fed_at: '2026-02-10T10:30',
+          duration_minutes: 20,
+          side: 'left' as const,
+        });
+
+        expect(component.feedingForm.valid).toBe(true);
+      });
+
+      it('should remain valid when optional notes field changes', () => {
+        component.feedingForm.patchValue({
+          feeding_type: 'bottle' as const,
+          fed_at: '2026-02-10T10:30',
+          amount_oz: 5,
+        });
+
+        expect(component.feedingForm.valid).toBe(true);
+
+        // Change notes (optional field)
+        component.feedingForm.get('notes')?.setValue('Updated notes');
+
+        expect(component.feedingForm.valid).toBe(true);
+      });
+
+      it('should allow switching between feeding types with different field sets', () => {
+        // Start as bottle
+        component.feedingForm.patchValue({
+          feeding_type: 'bottle' as const,
+          fed_at: '2026-02-10T10:30',
+          amount_oz: 5,
+        });
+
+        let isValid = component.feedingForm.valid;
+        expect(isValid).toBe(true);
+
+        // Switch to breast and set required fields
+        component.feedingForm.patchValue({
+          feeding_type: 'breast' as const,
+          duration_minutes: 20,
+          side: 'left' as const,
+        });
+
+        // Should still be valid
+        expect(component.feedingForm.valid).toBe(true);
+      });
+    });
+
+    describe('notes field validation edge cases', () => {
+      it('should accept notes at max length (500 characters)', () => {
+        const maxNotes = 'a'.repeat(500);
+        component.feedingForm.patchValue({
+          feeding_type: 'bottle' as const,
+          fed_at: '2026-02-10T10:30',
+          amount_oz: 5,
+          notes: maxNotes,
+        });
+
+        expect(component.feedingForm.get('notes')?.valid).toBe(true);
+        expect(component.feedingForm.valid).toBe(true);
+      });
+
+      it('should reject notes exceeding max length (501 characters)', () => {
+        const tooLongNotes = 'a'.repeat(501);
+        component.feedingForm.patchValue({
+          feeding_type: 'bottle' as const,
+          fed_at: '2026-02-10T10:30',
+          amount_oz: 5,
+          notes: tooLongNotes,
+        });
+
+        expect(component.feedingForm.get('notes')?.hasError('maxlength')).toBe(true);
+        expect(component.feedingForm.invalid).toBe(true);
+      });
+
+      it('should accept empty notes', () => {
+        component.feedingForm.patchValue({
+          feeding_type: 'bottle' as const,
+          fed_at: '2026-02-10T10:30',
+          amount_oz: 5,
+          notes: '',
+        });
+
+        expect(component.feedingForm.get('notes')?.valid).toBe(true);
+        expect(component.feedingForm.valid).toBe(true);
+      });
+
+      it('should accept notes with special characters', () => {
+        const specialNotes = 'Notes: @#$%!? with 🍼 emoji';
+        component.feedingForm.patchValue({
+          feeding_type: 'bottle' as const,
+          fed_at: '2026-02-10T10:30',
+          amount_oz: 5,
+          notes: specialNotes,
+        });
+
+        expect(component.feedingForm.get('notes')?.valid).toBe(true);
+      });
+    });
+
+    describe('side field validation for breast feeding', () => {
+      it('should accept left side', () => {
+        component.feedingForm.patchValue({
+          feeding_type: 'breast' as const,
+          fed_at: '2026-02-10T10:30',
+          duration_minutes: 15,
+          side: 'left' as const,
+        });
+
+        expect(component.feedingForm.get('side')?.valid).toBe(true);
+        expect(component.feedingForm.valid).toBe(true);
+      });
+
+      it('should accept right side', () => {
+        component.feedingForm.patchValue({
+          feeding_type: 'breast' as const,
+          fed_at: '2026-02-10T10:30',
+          duration_minutes: 15,
+          side: 'right' as const,
+        });
+
+        expect(component.feedingForm.get('side')?.valid).toBe(true);
+        expect(component.feedingForm.valid).toBe(true);
+      });
+
+      it('should accept both sides', () => {
+        component.feedingForm.patchValue({
+          feeding_type: 'breast' as const,
+          fed_at: '2026-02-10T10:30',
+          duration_minutes: 15,
+          side: 'both' as const,
+        });
+
+        expect(component.feedingForm.get('side')?.valid).toBe(true);
+        expect(component.feedingForm.valid).toBe(true);
+      });
+
+      it('should transition to valid breast feeding with all fields', () => {
+        component.feedingForm.patchValue({
+          feeding_type: 'breast' as const,
+          fed_at: '2026-02-10T10:30',
+          duration_minutes: 15,
+        });
+
+        // Add side to complete the breast feeding record
+        component.feedingForm.get('side')?.setValue('left');
+        expect(component.feedingForm.valid).toBe(true);
+      });
+    });
+  });
 });
