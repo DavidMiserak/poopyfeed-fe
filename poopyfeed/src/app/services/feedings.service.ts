@@ -13,7 +13,7 @@
  */
 
 import { Injectable, inject, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { ErrorHandler } from './error.utils';
 import { Observable, tap, catchError, throwError, map } from 'rxjs';
 import {
@@ -60,35 +60,67 @@ export class FeedingsService {
   }
 
   /**
-   * List all feedings for a child.
+   * List all feedings for a child with optional filtering.
    *
    * Returns feedings sorted by fed_at descending (newest first).
    * Results are paginated (default 50 per page). Only feedings for accessible
    * children can be fetched (owner/co-parent/caregiver all have view access).
    *
+   * Optional query parameters for filtering:
+   * - `fed_at__gte`: Filter feedings on or after this date (ISO format)
+   * - `fed_at__lt`: Filter feedings before this date (ISO format)
+   * - `feeding_type`: Filter by feeding type ('bottle' or 'breast')
+   *
    * @param childId Child whose feedings to fetch
+   * @param filters Optional filter object with dateFrom, dateTo, feeding_type
    * @returns Observable<Feeding[]> Array of feedings for this child
    *
    * @throws ApiError if child not found or user lacks access
    *
    * @example
-   * this.feedingsService.list(childId).subscribe({
-   *   next: (feedings) => {
-   *     console.log('Feedings:', feedings);
-   *     // Also cached in feedingsService.feedings signal
-   *   }
-   * });
+   * // All feedings
+   * this.feedingsService.list(childId).subscribe(...);
+   *
+   * // Filter by date range and type
+   * this.feedingsService.list(childId, {
+   *   dateFrom: '2024-01-01',
+   *   dateTo: '2024-01-31',
+   *   feeding_type: 'bottle'
+   * }).subscribe(...);
    */
-  list(childId: number): Observable<Feeding[]> {
-    return this.http.get<PaginatedResponse<Feeding>>(`${this.baseUrl(childId)}/`).pipe(
-      map((response) => response.results),
-      tap((feedings) => {
-        this.feedings.set(feedings);
-      }),
-      catchError((error) => {
-        return throwError(() => ErrorHandler.handle(error, 'List'));
-      })
-    );
+  list(
+    childId: number,
+    filters?: {
+      dateFrom?: string;
+      dateTo?: string;
+      feeding_type?: string;
+    }
+  ): Observable<Feeding[]> {
+    let params = new HttpParams();
+
+    if (filters) {
+      if (filters.dateFrom) {
+        params = params.set('fed_at__gte', filters.dateFrom);
+      }
+      if (filters.dateTo) {
+        params = params.set('fed_at__lt', filters.dateTo);
+      }
+      if (filters.feeding_type) {
+        params = params.set('feeding_type', filters.feeding_type);
+      }
+    }
+
+    return this.http
+      .get<PaginatedResponse<Feeding>>(`${this.baseUrl(childId)}/`, { params })
+      .pipe(
+        map((response) => response.results),
+        tap((feedings) => {
+          this.feedings.set(feedings);
+        }),
+        catchError((error) => {
+          return throwError(() => ErrorHandler.handle(error, 'List'));
+        })
+      );
   }
 
   /**

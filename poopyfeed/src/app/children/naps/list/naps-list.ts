@@ -10,12 +10,14 @@ import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { NapsService } from '../../../services/naps.service';
 import { ChildrenService } from '../../../services/children.service';
+import { FilterService, FilterCriteria } from '../../../services/filter.service';
+import { TrackingFilterComponent } from '../../../components/tracking-filter/tracking-filter';
 import { Nap } from '../../../models/nap.model';
 import { Child } from '../../../models/child.model';
 
 @Component({
   selector: 'app-naps-list',
-  imports: [CommonModule],
+  imports: [CommonModule, TrackingFilterComponent],
   templateUrl: './naps-list.html',
   styleUrl: './naps-list.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -25,12 +27,23 @@ export class NapsList implements OnInit {
   private route = inject(ActivatedRoute);
   private napsService = inject(NapsService);
   private childrenService = inject(ChildrenService);
+  private filterService = inject(FilterService);
 
   childId = signal<number | null>(null);
   child = signal<Child | null>(null);
-  naps = signal<Nap[]>([]);
+  allNaps = signal<Nap[]>([]);
+  filters = signal<FilterCriteria>({});
   isLoading = signal(true);
   error = signal<string | null>(null);
+
+  // Computed: naps after filtering (date range only, no type filter)
+  naps = computed(() => {
+    const criteria = this.filters();
+    const all = this.allNaps();
+
+    // Apply filtering (no type field for naps)
+    return this.filterService.filter(all, criteria, 'napped_at');
+  });
 
   canEdit = computed(() => {
     const role = this.child()?.user_role;
@@ -64,7 +77,7 @@ export class NapsList implements OnInit {
   loadNaps(childId: number) {
     this.napsService.list(childId).subscribe({
       next: (naps) => {
-        this.naps.set(naps);
+        this.allNaps.set(naps);
         this.isLoading.set(false);
       },
       error: (err: Error) => {
@@ -72,6 +85,10 @@ export class NapsList implements OnInit {
         this.isLoading.set(false);
       },
     });
+  }
+
+  onFilterChange(criteria: FilterCriteria): void {
+    this.filters.set(criteria);
   }
 
   navigateToCreate() {

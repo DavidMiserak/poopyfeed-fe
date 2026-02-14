@@ -10,12 +10,14 @@ import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FeedingsService } from '../../../services/feedings.service';
 import { ChildrenService } from '../../../services/children.service';
-import { Feeding } from '../../../models/feeding.model';
+import { FilterService, FilterCriteria } from '../../../services/filter.service';
+import { TrackingFilterComponent } from '../../../components/tracking-filter/tracking-filter';
+import { Feeding, FEEDING_TYPE_LABELS } from '../../../models/feeding.model';
 import { Child } from '../../../models/child.model';
 
 @Component({
   selector: 'app-feedings-list',
-  imports: [CommonModule],
+  imports: [CommonModule, TrackingFilterComponent],
   templateUrl: './feedings-list.html',
   styleUrl: './feedings-list.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -25,12 +27,29 @@ export class FeedingsList implements OnInit {
   private route = inject(ActivatedRoute);
   private feedingsService = inject(FeedingsService);
   private childrenService = inject(ChildrenService);
+  private filterService = inject(FilterService);
 
   childId = signal<number | null>(null);
   child = signal<Child | null>(null);
-  feedings = signal<Feeding[]>([]);
+  allFeedings = signal<Feeding[]>([]);
+  filters = signal<FilterCriteria>({});
   isLoading = signal(true);
   error = signal<string | null>(null);
+
+  // Feeding type options for filter dropdown
+  feedingTypeOptions = [
+    { value: 'bottle', label: 'Bottle' },
+    { value: 'breast', label: 'Breast' },
+  ];
+
+  // Computed: feedings after filtering
+  feedings = computed(() => {
+    const criteria = this.filters();
+    const all = this.allFeedings();
+
+    // Apply filtering
+    return this.filterService.filter(all, criteria, 'fed_at', 'feeding_type');
+  });
 
   canEdit = computed(() => {
     const role = this.child()?.user_role;
@@ -65,7 +84,7 @@ export class FeedingsList implements OnInit {
   loadFeedings(childId: number) {
     this.feedingsService.list(childId).subscribe({
       next: (feedings) => {
-        this.feedings.set(feedings);
+        this.allFeedings.set(feedings);
         this.isLoading.set(false);
       },
       error: (err: Error) => {
@@ -73,6 +92,10 @@ export class FeedingsList implements OnInit {
         this.isLoading.set(false);
       },
     });
+  }
+
+  onFilterChange(criteria: FilterCriteria): void {
+    this.filters.set(criteria);
   }
 
   navigateToCreate() {

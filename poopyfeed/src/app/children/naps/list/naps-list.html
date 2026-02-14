@@ -112,6 +112,13 @@
           </div>
         </div>
 
+        <!-- Filter Controls -->
+        <app-tracking-filter
+          [typeOptions]="[]"
+          [filterLabel]="'Type'"
+          (filterChange)="onFilterChange($event)"
+        />
+
         <!-- Naps List -->
         @if (naps().length === 0) {
           <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-12 border-2 border-amber-400/20 text-center">

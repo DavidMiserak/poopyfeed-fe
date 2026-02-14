@@ -15,7 +15,7 @@
  */
 
 import { Injectable, inject, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { ErrorHandler } from './error.utils';
 import { Observable, tap, catchError, throwError, map } from 'rxjs';
 import {
@@ -58,27 +58,56 @@ export class DiapersService {
   }
 
   /**
-   * List all diaper changes for a child.
+   * List all diaper changes for a child with optional filtering.
    *
    * Returns diaper changes sorted by changed_at descending (newest first).
    * Results are paginated (default 50 per page). Only diaper changes for accessible
    * children can be fetched (owner/co-parent/caregiver all have view access).
    *
+   * Optional query parameters for filtering:
+   * - `changed_at__gte`: Filter on or after this date (ISO format)
+   * - `changed_at__lt`: Filter before this date (ISO format)
+   * - `change_type`: Filter by change type (wet, dirty, or both)
+   *
    * @param childId Child whose diaper changes to fetch
+   * @param filters Optional filter object with dateFrom, dateTo, change_type
    * @returns Observable<DiaperChange[]> Array of diaper changes for this child
    *
    * @throws ApiError if child not found or user lacks access
    */
-  list(childId: number): Observable<DiaperChange[]> {
-    return this.http.get<PaginatedResponse<DiaperChange>>(`${this.baseUrl(childId)}/`).pipe(
-      map((response) => response.results),
-      tap((diapers) => {
-        this.diapers.set(diapers);
-      }),
-      catchError((error) => {
-        return throwError(() => ErrorHandler.handle(error, 'List'));
-      })
-    );
+  list(
+    childId: number,
+    filters?: {
+      dateFrom?: string;
+      dateTo?: string;
+      change_type?: string;
+    }
+  ): Observable<DiaperChange[]> {
+    let params = new HttpParams();
+
+    if (filters) {
+      if (filters.dateFrom) {
+        params = params.set('changed_at__gte', filters.dateFrom);
+      }
+      if (filters.dateTo) {
+        params = params.set('changed_at__lt', filters.dateTo);
+      }
+      if (filters.change_type) {
+        params = params.set('change_type', filters.change_type);
+      }
+    }
+
+    return this.http
+      .get<PaginatedResponse<DiaperChange>>(`${this.baseUrl(childId)}/`, { params })
+      .pipe(
+        map((response) => response.results),
+        tap((diapers) => {
+          this.diapers.set(diapers);
+        }),
+        catchError((error) => {
+          return throwError(() => ErrorHandler.handle(error, 'List'));
+        })
+      );
   }
 
   /**

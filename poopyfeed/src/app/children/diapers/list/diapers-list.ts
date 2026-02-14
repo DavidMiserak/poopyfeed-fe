@@ -10,12 +10,14 @@ import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { DiapersService } from '../../../services/diapers.service';
 import { ChildrenService } from '../../../services/children.service';
-import { DiaperChange } from '../../../models/diaper.model';
+import { FilterService, FilterCriteria } from '../../../services/filter.service';
+import { TrackingFilterComponent } from '../../../components/tracking-filter/tracking-filter';
+import { DiaperChange, CHANGE_TYPE_LABELS } from '../../../models/diaper.model';
 import { Child } from '../../../models/child.model';
 
 @Component({
   selector: 'app-diapers-list',
-  imports: [CommonModule],
+  imports: [CommonModule, TrackingFilterComponent],
   templateUrl: './diapers-list.html',
   styleUrl: './diapers-list.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -25,12 +27,30 @@ export class DiapersList implements OnInit {
   private route = inject(ActivatedRoute);
   private diapersService = inject(DiapersService);
   private childrenService = inject(ChildrenService);
+  private filterService = inject(FilterService);
 
   childId = signal<number | null>(null);
   child = signal<Child | null>(null);
-  diapers = signal<DiaperChange[]>([]);
+  allDiapers = signal<DiaperChange[]>([]);
+  filters = signal<FilterCriteria>({});
   isLoading = signal(true);
   error = signal<string | null>(null);
+
+  // Diaper change type options for filter dropdown
+  changeTypeOptions = [
+    { value: 'wet', label: 'Wet' },
+    { value: 'dirty', label: 'Dirty' },
+    { value: 'both', label: 'Both' },
+  ];
+
+  // Computed: diapers after filtering
+  diapers = computed(() => {
+    const criteria = this.filters();
+    const all = this.allDiapers();
+
+    // Apply filtering
+    return this.filterService.filter(all, criteria, 'changed_at', 'change_type');
+  });
 
   canEdit = computed(() => {
     const role = this.child()?.user_role;
@@ -64,7 +84,7 @@ export class DiapersList implements OnInit {
   loadDiapers(childId: number) {
     this.diapersService.list(childId).subscribe({
       next: (diapers) => {
-        this.diapers.set(diapers);
+        this.allDiapers.set(diapers);
         this.isLoading.set(false);
       },
       error: (err: Error) => {
@@ -72,6 +92,10 @@ export class DiapersList implements OnInit {
         this.isLoading.set(false);
       },
     });
+  }
+
+  onFilterChange(criteria: FilterCriteria): void {
+    this.filters.set(criteria);
   }
 
   navigateToCreate() {

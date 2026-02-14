@@ -11,7 +11,7 @@
  */
 
 import { Injectable, inject, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { ErrorHandler } from './error.utils';
 import { Observable, tap, catchError, throwError, map } from 'rxjs';
 import { Nap, NapCreate, NapUpdate } from '../models/nap.model';
@@ -50,27 +50,51 @@ export class NapsService {
   }
 
   /**
-   * List all naps for a child.
+   * List all naps for a child with optional filtering.
    *
    * Returns naps sorted by napped_at descending (newest first).
    * Results are paginated (default 50 per page). Only naps for accessible
    * children can be fetched (owner/co-parent/caregiver all have view access).
    *
+   * Optional query parameters for filtering:
+   * - `napped_at__gte`: Filter on or after this date (ISO format)
+   * - `napped_at__lt`: Filter before this date (ISO format)
+   *
    * @param childId Child whose naps to fetch
+   * @param filters Optional filter object with dateFrom, dateTo
    * @returns Observable<Nap[]> Array of naps for this child
    *
    * @throws ApiError if child not found or user lacks access
    */
-  list(childId: number): Observable<Nap[]> {
-    return this.http.get<PaginatedResponse<Nap>>(`${this.baseUrl(childId)}/`).pipe(
-      map((response) => response.results),
-      tap((naps) => {
-        this.naps.set(naps);
-      }),
-      catchError((error) => {
-        return throwError(() => ErrorHandler.handle(error, 'List'));
-      })
-    );
+  list(
+    childId: number,
+    filters?: {
+      dateFrom?: string;
+      dateTo?: string;
+    }
+  ): Observable<Nap[]> {
+    let params = new HttpParams();
+
+    if (filters) {
+      if (filters.dateFrom) {
+        params = params.set('napped_at__gte', filters.dateFrom);
+      }
+      if (filters.dateTo) {
+        params = params.set('napped_at__lt', filters.dateTo);
+      }
+    }
+
+    return this.http
+      .get<PaginatedResponse<Nap>>(`${this.baseUrl(childId)}/`, { params })
+      .pipe(
+        map((response) => response.results),
+        tap((naps) => {
+          this.naps.set(naps);
+        }),
+        catchError((error) => {
+          return throwError(() => ErrorHandler.handle(error, 'List'));
+        })
+      );
   }
 
   /**
