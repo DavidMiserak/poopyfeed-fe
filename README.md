@@ -11,6 +11,9 @@
   <a href="https://www.conventionalcommits.org/">
     <img src="https://img.shields.io/badge/Conventional%20Commits-1.0.0-%23FE5196?logo=conventionalcommits" alt="Conventional Commits" />
   </a>
+  <a href="https://codecov.io/gh/DavidMiserak/poopyfeed-fe">
+    <img src="https://codecov.io/gh/DavidMiserak/poopyfeed-fe/graph/badge.svg" alt="codecov" />
+  </a>
 </p>
 
 A modern baby care tracking web application built with Angular 21, TypeScript, and Tailwind CSS. Track feedings, diaper changes, naps, and share access with co-parents and caregivers.
