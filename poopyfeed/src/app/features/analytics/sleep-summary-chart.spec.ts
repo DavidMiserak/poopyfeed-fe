@@ -63,7 +63,7 @@ describe('SleepSummaryChart', () => {
     fixture.componentRef.setInput('data', mockData);
     fixture.componentRef.setInput('isLoading', false);
     fixture.detectChanges();
-    await new Promise(resolve => setTimeout(resolve, 10));
+    await new Promise(resolve => setTimeout(resolve, 50));
 
     expect(vi.mocked(Chart)).toHaveBeenCalled();
   });
@@ -72,7 +72,7 @@ describe('SleepSummaryChart', () => {
     fixture.componentRef.setInput('data', mockData);
     fixture.componentRef.setInput('isLoading', false);
     fixture.detectChanges();
-    await new Promise(resolve => setTimeout(resolve, 10));
+    await new Promise(resolve => setTimeout(resolve, 50));
 
     const chartConfig = vi.mocked(Chart).mock.calls[0][1] as any;
     expect(chartConfig.type).toBe('line');
@@ -82,7 +82,7 @@ describe('SleepSummaryChart', () => {
     fixture.componentRef.setInput('data', mockData);
     fixture.componentRef.setInput('isLoading', false);
     fixture.detectChanges();
-    await new Promise(resolve => setTimeout(resolve, 10));
+    await new Promise(resolve => setTimeout(resolve, 50));
 
     const chartConfig = vi.mocked(Chart).mock.calls[0][1];
     expect(chartConfig.data.datasets[0].borderColor).toBe('#FBBF24');
@@ -99,7 +99,7 @@ describe('SleepSummaryChart', () => {
     fixture.componentRef.setInput('data', mockData);
     fixture.componentRef.setInput('isLoading', false);
     fixture.detectChanges();
-    await new Promise(resolve => setTimeout(resolve, 10));
+    await new Promise(resolve => setTimeout(resolve, 50));
 
     const chartInstance = vi.mocked(Chart).mock.results[0].value;
     const destroySpy = chartInstance.destroy;

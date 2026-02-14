@@ -7,6 +7,7 @@ import { Router, UrlTree } from '@angular/router';
 import { publicOnlyGuard } from './public-only.guard';
 import { AuthService } from '../services/auth.service';
 import { signal } from '@angular/core';
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 
 describe('publicOnlyGuard', () => {
   let mockAuthService: { isAuthenticated: ReturnType<typeof signal<boolean>> };
@@ -27,6 +28,11 @@ describe('publicOnlyGuard', () => {
         { provide: Router, useValue: mockRouter },
       ],
     });
+  });
+
+  afterEach(() => {
+    localStorage.clear();
+    vi.clearAllMocks();
   });
 
   it('should allow access when not authenticated (via service)', () => {
@@ -90,6 +96,61 @@ describe('publicOnlyGuard', () => {
 
     const result = TestBed.runInInjectionContext(() => publicOnlyGuard({} as any, {} as any));
 
+    expect(result).toBe(mockUrlTree);
+    expect(mockRouter.createUrlTree).toHaveBeenCalledWith(['/children']);
+  });
+
+  it('should ignore empty string token in localStorage', () => {
+    mockAuthService.isAuthenticated.set(false);
+    localStorage.setItem('auth_token', '');
+
+    const result = TestBed.runInInjectionContext(() => publicOnlyGuard({} as any, {} as any));
+
+    expect(result).toBe(true);
+    expect(mockRouter.createUrlTree).not.toHaveBeenCalled();
+  });
+
+  it('should redirect when whitespace-only token in localStorage (truthy value)', () => {
+    mockAuthService.isAuthenticated.set(false);
+    const mockUrlTree = {} as UrlTree;
+    mockRouter.createUrlTree.mockReturnValue(mockUrlTree);
+    localStorage.setItem('auth_token', '   ');
+
+    const result = TestBed.runInInjectionContext(() => publicOnlyGuard({} as any, {} as any));
+
+    // Whitespace is truthy, so should redirect
+    expect(result).toBe(mockUrlTree);
+    expect(mockRouter.createUrlTree).toHaveBeenCalledWith(['/children']);
+  });
+
+  it('should redirect when localStorage has valid token but service is not authenticated', () => {
+    mockAuthService.isAuthenticated.set(false);
+    const mockUrlTree = {} as UrlTree;
+    mockRouter.createUrlTree.mockReturnValue(mockUrlTree);
+    localStorage.setItem('auth_token', 'valid-token');
+
+    const result = TestBed.runInInjectionContext(() => publicOnlyGuard({} as any, {} as any));
+
+    expect(result).toBe(mockUrlTree);
+    expect(mockRouter.createUrlTree).toHaveBeenCalledWith(['/children']);
+  });
+
+  it('should handle rapid sequential guard checks with state changes', () => {
+    mockAuthService.isAuthenticated.set(false);
+    const mockUrlTree = {} as UrlTree;
+    mockRouter.createUrlTree.mockReturnValue(mockUrlTree);
+
+    // First check - unauthenticated
+    let result = TestBed.runInInjectionContext(() => publicOnlyGuard({} as any, {} as any));
+    expect(result).toBe(true);
+
+    // Change auth state
+    mockAuthService.isAuthenticated.set(true);
+    vi.clearAllMocks();
+    mockRouter.createUrlTree.mockReturnValue(mockUrlTree);
+
+    // Second check - now authenticated
+    result = TestBed.runInInjectionContext(() => publicOnlyGuard({} as any, {} as any));
     expect(result).toBe(mockUrlTree);
     expect(mockRouter.createUrlTree).toHaveBeenCalledWith(['/children']);
   });
