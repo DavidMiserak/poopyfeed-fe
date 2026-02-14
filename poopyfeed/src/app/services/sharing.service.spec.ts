@@ -927,5 +927,470 @@ describe('SharingService', () => {
 
       expect(errorCaught).toBe(true);
     });
+
+    it('should handle 503 service unavailable on listInvites()', () => {
+      let errorCaught = false;
+
+      service.listInvites(1).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toContain('server');
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/invites/');
+      req.flush(null, { status: 503, statusText: 'Service Unavailable' });
+
+      expect(errorCaught).toBe(true);
+    });
+
+    it('should handle 504 gateway timeout on deleteInvite()', () => {
+      let errorCaught = false;
+
+      service.deleteInvite(1, 1).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toBeDefined();
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/invites/1/');
+      req.flush(null, { status: 504, statusText: 'Gateway Timeout' });
+
+      expect(errorCaught).toBe(true);
+    });
+
+    it('should handle 507 insufficient storage on createInvite()', () => {
+      let errorCaught = false;
+
+      service.createInvite(1, { role: 'caregiver' }).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toBeDefined();
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/invites/');
+      req.flush(null, { status: 507, statusText: 'Insufficient Storage' });
+
+      expect(errorCaught).toBe(true);
+    });
+
+    it('should handle 409 conflict on revokeShare()', () => {
+      let errorCaught = false;
+
+      service.revokeShare(1, 1).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toBeDefined();
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/shares/1/');
+      req.flush({ detail: 'Cannot revoke: last owner' }, { status: 409, statusText: 'Conflict' });
+
+      expect(errorCaught).toBe(true);
+    });
+
+    it('should handle 401 on createInvite()', () => {
+      let errorCaught = false;
+
+      service.createInvite(1, { role: 'co-parent' }).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toContain('session has expired');
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/invites/');
+      req.flush(null, { status: 401, statusText: 'Unauthorized' });
+
+      expect(errorCaught).toBe(true);
+    });
+
+    it('should handle 401 on revokeShare()', () => {
+      let errorCaught = false;
+
+      service.revokeShare(1, 1).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toContain('session has expired');
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/shares/1/');
+      req.flush(null, { status: 401, statusText: 'Unauthorized' });
+
+      expect(errorCaught).toBe(true);
+    });
+
+    it('should handle 401 on deleteInvite()', () => {
+      let errorCaught = false;
+
+      service.deleteInvite(1, 1).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toContain('session has expired');
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/invites/1/');
+      req.flush(null, { status: 401, statusText: 'Unauthorized' });
+
+      expect(errorCaught).toBe(true);
+    });
+  });
+
+  describe('validation and state errors', () => {
+    it('should handle multiple field validation errors on createInvite()', () => {
+      let errorCaught = false;
+
+      service.createInvite(1, { role: 'invalid' as any }).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toBeDefined();
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/invites/');
+      req.flush(
+        {
+          role: ['Invalid role'],
+          child: ['Invalid child ID'],
+        },
+        { status: 400, statusText: 'Bad Request' }
+      );
+
+      expect(errorCaught).toBe(true);
+    });
+
+    it('should handle mixed validation and non_field_errors on acceptInvite()', () => {
+      let errorCaught = false;
+
+      service.acceptInvite('token').subscribe({
+        error: (error: Error) => {
+          expect(error.message).toContain('already have access');
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/invites/accept/');
+      req.flush(
+        {
+          non_field_errors: ['You already have access to this child'],
+          token: ['Invalid format'],
+        },
+        { status: 400, statusText: 'Bad Request' }
+      );
+
+      expect(errorCaught).toBe(true);
+    });
+  });
+
+  describe('state consistency on errors', () => {
+    it('should not modify shares state on listShares() error', () => {
+      service.shares.set(mockShares);
+      const initialShares = service.shares();
+
+      service.listShares(1).subscribe({
+        error: () => {
+          // Error expected
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/shares/');
+      req.flush(null, { status: 500, statusText: 'Internal Server Error' });
+
+      expect(service.shares()).toEqual(initialShares);
+    });
+
+    it('should not modify invites state on listInvites() error', () => {
+      service.invites.set(mockInvites);
+      const initialInvites = service.invites();
+
+      service.listInvites(1).subscribe({
+        error: () => {
+          // Error expected
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/invites/');
+      req.flush(null, { status: 500, statusText: 'Internal Server Error' });
+
+      expect(service.invites()).toEqual(initialInvites);
+    });
+
+    it('should not modify invites state on createInvite() error', () => {
+      service.invites.set(mockInvites);
+      const initialInvites = service.invites();
+
+      service.createInvite(1, { role: 'co-parent' }).subscribe({
+        error: () => {
+          // Error expected
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/invites/');
+      req.flush(null, { status: 500, statusText: 'Internal Server Error' });
+
+      expect(service.invites()).toEqual(initialInvites);
+    });
+
+    it('should not modify shares state on revokeShare() error', () => {
+      service.shares.set(mockShares);
+      const initialShares = service.shares();
+
+      service.revokeShare(1, 1).subscribe({
+        error: () => {
+          // Error expected
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/shares/1/');
+      req.flush(null, { status: 503, statusText: 'Service Unavailable' });
+
+      expect(service.shares()).toEqual(initialShares);
+    });
+  });
+
+  describe('concurrent operations with errors', () => {
+    it('should handle concurrent createInvite requests with errors', () => {
+      let errorCount = 0;
+
+      service.createInvite(1, { role: 'co-parent' }).subscribe({
+        error: () => {
+          errorCount++;
+        },
+      });
+
+      service.createInvite(1, { role: 'caregiver' }).subscribe({
+        error: () => {
+          errorCount++;
+        },
+      });
+
+      const requests = httpMock.match('/api/v1/children/1/invites/');
+      expect(requests.length).toBe(2);
+
+      requests[0].flush(null, { status: 500, statusText: 'Internal Server Error' });
+      requests[1].flush(null, { status: 503, statusText: 'Service Unavailable' });
+
+      expect(errorCount).toBe(2);
+    });
+
+    it('should handle concurrent listShares and revokeShare with errors', () => {
+      let errors = 0;
+
+      service.listShares(1).subscribe({
+        error: () => {
+          errors++;
+        },
+      });
+
+      service.revokeShare(1, 1).subscribe({
+        error: () => {
+          errors++;
+        },
+      });
+
+      const listReq = httpMock.expectOne('/api/v1/children/1/shares/');
+      const deleteReq = httpMock.expectOne('/api/v1/children/1/shares/1/');
+
+      listReq.flush(null, { status: 503, statusText: 'Service Unavailable' });
+      deleteReq.flush(null, { status: 504, statusText: 'Gateway Timeout' });
+
+      expect(errors).toBe(2);
+    });
+  });
+
+  describe('retry scenarios', () => {
+    it('should allow retry after createInvite() error', () => {
+      let createCount = 0;
+
+      // First attempt
+      service.createInvite(1, { role: 'co-parent' }).subscribe({
+        error: () => {
+          // Retry
+          service.createInvite(1, { role: 'co-parent' }).subscribe({
+            next: (invite) => {
+              expect(invite.role).toBe('co-parent');
+              createCount++;
+            },
+          });
+        },
+      });
+
+      const req1 = httpMock.expectOne('/api/v1/children/1/invites/');
+      req1.flush(null, { status: 503, statusText: 'Service Unavailable' });
+
+      const req2 = httpMock.expectOne('/api/v1/children/1/invites/');
+      const newInvite: ShareInvite = {
+        id: 10,
+        child: 1,
+        token: 'new-token',
+        role: 'co-parent',
+        is_active: true,
+        created_at: '2024-01-20T10:00:00Z',
+        expires_at: '2024-02-20T10:00:00Z',
+      };
+      req2.flush(newInvite);
+
+      expect(createCount).toBe(1);
+    });
+
+    it('should allow retry after revokeShare() error', () => {
+      let revokeCount = 0;
+
+      service.revokeShare(1, 1).subscribe({
+        error: () => {
+          // Retry
+          service.revokeShare(1, 1).subscribe({
+            next: () => {
+              revokeCount++;
+            },
+          });
+        },
+      });
+
+      const req1 = httpMock.expectOne('/api/v1/children/1/shares/1/');
+      req1.flush(null, { status: 504, statusText: 'Gateway Timeout' });
+
+      const req2 = httpMock.expectOne('/api/v1/children/1/shares/1/');
+      req2.flush(null);
+
+      expect(revokeCount).toBe(1);
+    });
+  });
+
+  describe('network errors', () => {
+    it('should handle network timeout on listShares()', () => {
+      let errorCaught = false;
+
+      service.listShares(1).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toBeDefined();
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/shares/');
+      req.error(new ProgressEvent('timeout'));
+
+      expect(errorCaught).toBe(true);
+    });
+
+    it('should handle CORS error on createInvite()', () => {
+      let errorCaught = false;
+
+      service.createInvite(1, { role: 'co-parent' }).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toBeDefined();
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/invites/');
+      req.error(new ProgressEvent('CORS error'));
+
+      expect(errorCaught).toBe(true);
+    });
+
+    it('should handle offline error on acceptInvite()', () => {
+      let errorCaught = false;
+
+      service.acceptInvite('token').subscribe({
+        error: (error: Error) => {
+          expect(error.message).toBeDefined();
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/invites/accept/');
+      req.error(new ProgressEvent('offline'));
+
+      expect(errorCaught).toBe(true);
+    });
+
+    it('should handle DNS failure on toggleInvite()', () => {
+      let errorCaught = false;
+
+      service.toggleInvite(1, 1, false).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toBeDefined();
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/invites/1/');
+      req.error(new ProgressEvent('DNS failure'));
+
+      expect(errorCaught).toBe(true);
+    });
+  });
+
+  describe('edge cases', () => {
+    it('should handle string error response on listInvites()', () => {
+      let errorCaught = false;
+
+      service.listInvites(1).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toBeDefined();
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/invites/');
+      req.flush('Server error occurred', { status: 500, statusText: 'Internal Server Error' });
+
+      expect(errorCaught).toBe(true);
+    });
+
+    it('should handle array error response on deleteInvite()', () => {
+      let errorCaught = false;
+
+      service.deleteInvite(1, 1).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toBeDefined();
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/invites/1/');
+      req.flush(['Error 1', 'Error 2'], { status: 400, statusText: 'Bad Request' });
+
+      expect(errorCaught).toBe(true);
+    });
+
+    it('should handle empty object error on toggleInvite()', () => {
+      let errorCaught = false;
+
+      service.toggleInvite(1, 1, false).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toBeDefined();
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/invites/1/');
+      req.flush({}, { status: 500, statusText: 'Internal Server Error' });
+
+      expect(errorCaught).toBe(true);
+    });
+
+    it('should handle null response on revokeShare() error', () => {
+      let errorCaught = false;
+
+      service.revokeShare(1, 1).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toBeDefined();
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/shares/1/');
+      req.flush(null, { status: 500, statusText: 'Internal Server Error' });
+
+      expect(errorCaught).toBe(true);
+    });
   });
 });
