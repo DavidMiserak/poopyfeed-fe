@@ -1,12 +1,13 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router, ActivatedRoute } from '@angular/router';
 import { of, throwError } from 'rxjs';
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { FeedingForm } from './feeding-form';
 import { FeedingsService } from '../../../services/feedings.service';
 import { ChildrenService } from '../../../services/children.service';
 import { DateTimeService } from '../../../services/datetime.service';
 import { ToastService } from '../../../services/toast.service';
-import { Feeding, FeedingCreate } from '../../../models/feeding.model';
+import { Feeding, FeedingCreate, FEEDING_VALIDATION } from '../../../models/feeding.model';
 import { Child } from '../../../models/child.model';
 
 describe('FeedingForm', () => {
@@ -84,6 +85,8 @@ describe('FeedingForm', () => {
       navigate: vi.fn(),
       routerState: { root: {} },
       parseUrl: vi.fn(),
+      createUrlTree: vi.fn(),
+      serializeUrl: vi.fn(() => ''),
       events: of(),
     } as any;
 
@@ -1104,6 +1107,230 @@ describe('FeedingForm', () => {
         component.feedingForm.get('side')?.setValue('left');
         expect(component.feedingForm.valid).toBe(true);
       });
+    });
+  });
+
+  describe('DOM Rendering', () => {
+    beforeEach(() => {
+      vi.mocked(childrenService.get).mockReturnValue(of(mockChild));
+      vi.mocked(dateTimeService.toInputFormat).mockReturnValue('2026-02-10T10:30');
+      vi.mocked(dateTimeService.toUTC).mockReturnValue('2026-02-10T10:30:00Z');
+      vi.mocked(dateTimeService.fromInputFormat).mockReturnValue(new Date('2026-02-10T10:30:00'));
+    });
+
+    afterEach(() => {
+      vi.clearAllMocks();
+    });
+
+    it('should render "Add Feeding" title in create mode', () => {
+      fixture.detectChanges();
+
+      const el = fixture.nativeElement as HTMLElement;
+      expect(el.textContent).toContain('Add Feeding');
+    });
+
+    it('should render "Edit Feeding" title in edit mode', () => {
+      component.resourceId.set(5);
+      fixture.detectChanges();
+
+      const el = fixture.nativeElement as HTMLElement;
+      expect(el.textContent).toContain('Edit Feeding');
+    });
+
+    it('should render child name when child is loaded', () => {
+      component.child.set(mockChild);
+      fixture.detectChanges();
+
+      const el = fixture.nativeElement as HTMLElement;
+      expect(el.textContent).toContain('Baby Alice');
+    });
+
+    it('should render error message when error signal is set', () => {
+      fixture.detectChanges();
+      component.error.set('API connection failed');
+      fixture.detectChanges();
+
+      const el = fixture.nativeElement as HTMLElement;
+      expect(el.textContent).toContain('API connection failed');
+    });
+
+    it('should render bottle amount field when bottle type selected', () => {
+      fixture.detectChanges();
+      component.feedingForm.get('feeding_type')?.setValue('bottle');
+      fixture.detectChanges();
+
+      const el = fixture.nativeElement as HTMLElement;
+      expect(el.textContent).toContain('Amount (oz)');
+      const amountInput = el.querySelector('#amount_oz');
+      expect(amountInput).toBeTruthy();
+    });
+
+    it('should hide breast fields when bottle type selected', () => {
+      fixture.detectChanges();
+      component.feedingForm.get('feeding_type')?.setValue('bottle');
+      fixture.detectChanges();
+
+      const el = fixture.nativeElement as HTMLElement;
+      expect(el.textContent).not.toContain('Duration (minutes)');
+      const durationInput = el.querySelector('#duration_minutes');
+      expect(durationInput).toBeNull();
+    });
+
+    it('should render breast duration and side fields when breast type selected', () => {
+      fixture.detectChanges();
+      component.feedingForm.get('feeding_type')?.setValue('breast');
+      fixture.detectChanges();
+
+      const el = fixture.nativeElement as HTMLElement;
+      expect(el.textContent).toContain('Duration (minutes)');
+      expect(el.textContent).toContain('Side');
+      expect(el.textContent).toContain('Left');
+      expect(el.textContent).toContain('Right');
+      expect(el.textContent).toContain('Both');
+    });
+
+    it('should hide bottle field when breast type selected', () => {
+      fixture.detectChanges();
+      component.feedingForm.get('feeding_type')?.setValue('breast');
+      fixture.detectChanges();
+
+      const el = fixture.nativeElement as HTMLElement;
+      expect(el.textContent).not.toContain('Amount (oz)');
+      const amountInput = el.querySelector('#amount_oz');
+      expect(amountInput).toBeNull();
+    });
+
+    it('should show fed_at validation error when touched and invalid', () => {
+      fixture.detectChanges();
+      component.feedingForm.get('fed_at')?.setValue('');
+      component.feedingForm.get('fed_at')?.markAsTouched();
+      fixture.detectChanges();
+
+      const el = fixture.nativeElement as HTMLElement;
+      expect(el.textContent).toContain('Date and time is required');
+    });
+
+    it('should show amount_oz required error', () => {
+      fixture.detectChanges();
+      component.feedingForm.get('feeding_type')?.setValue('bottle');
+      component.feedingForm.get('amount_oz')?.setValue(null);
+      component.feedingForm.get('amount_oz')?.markAsTouched();
+      fixture.detectChanges();
+
+      const el = fixture.nativeElement as HTMLElement;
+      expect(el.textContent).toContain('Amount is required');
+    });
+
+    it('should show amount_oz min error', () => {
+      fixture.detectChanges();
+      component.feedingForm.get('feeding_type')?.setValue('bottle');
+      component.feedingForm.get('amount_oz')?.setValue(0);
+      component.feedingForm.get('amount_oz')?.markAsTouched();
+      fixture.detectChanges();
+
+      const el = fixture.nativeElement as HTMLElement;
+      expect(el.textContent).toContain(`Amount must be at least ${FEEDING_VALIDATION.MIN_BOTTLE_OZ} oz`);
+    });
+
+    it('should show amount_oz max error', () => {
+      fixture.detectChanges();
+      component.feedingForm.get('feeding_type')?.setValue('bottle');
+      component.feedingForm.get('amount_oz')?.setValue(999);
+      component.feedingForm.get('amount_oz')?.markAsTouched();
+      fixture.detectChanges();
+
+      const el = fixture.nativeElement as HTMLElement;
+      expect(el.textContent).toContain(`Amount must be at most ${FEEDING_VALIDATION.MAX_BOTTLE_OZ} oz`);
+    });
+
+    it('should show duration_minutes required error', () => {
+      fixture.detectChanges();
+      component.feedingForm.get('feeding_type')?.setValue('breast');
+      component.feedingForm.get('duration_minutes')?.setValue(null);
+      component.feedingForm.get('duration_minutes')?.markAsTouched();
+      fixture.detectChanges();
+
+      const el = fixture.nativeElement as HTMLElement;
+      expect(el.textContent).toContain('Duration is required');
+    });
+
+    it('should show duration_minutes min error', () => {
+      fixture.detectChanges();
+      component.feedingForm.get('feeding_type')?.setValue('breast');
+      component.feedingForm.get('duration_minutes')?.setValue(0);
+      component.feedingForm.get('duration_minutes')?.markAsTouched();
+      fixture.detectChanges();
+
+      const el = fixture.nativeElement as HTMLElement;
+      expect(el.textContent).toContain(`Duration must be at least ${FEEDING_VALIDATION.MIN_BREAST_MINUTES} minute`);
+    });
+
+    it('should show duration_minutes max error', () => {
+      fixture.detectChanges();
+      component.feedingForm.get('feeding_type')?.setValue('breast');
+      component.feedingForm.get('duration_minutes')?.setValue(999);
+      component.feedingForm.get('duration_minutes')?.markAsTouched();
+      fixture.detectChanges();
+
+      const el = fixture.nativeElement as HTMLElement;
+      expect(el.textContent).toContain(`Duration must be at most ${FEEDING_VALIDATION.MAX_BREAST_MINUTES} minutes`);
+    });
+
+    it('should show side required error', () => {
+      fixture.detectChanges();
+      component.feedingForm.get('feeding_type')?.setValue('breast');
+      component.feedingForm.get('side')?.markAsTouched();
+      fixture.detectChanges();
+
+      const el = fixture.nativeElement as HTMLElement;
+      expect(el.textContent).toContain('Side is required');
+    });
+
+    it('should show submit spinner when isSubmitting', () => {
+      fixture.detectChanges();
+      component.isSubmitting.set(true);
+      component.resourceId.set(null);
+      fixture.detectChanges();
+
+      const el = fixture.nativeElement as HTMLElement;
+      const spinner = el.querySelector('.animate-spin');
+      expect(spinner).toBeTruthy();
+      expect(el.textContent).toContain('Adding...');
+    });
+
+    it('should show "Updating..." spinner text in edit mode', () => {
+      component.resourceId.set(5);
+      fixture.detectChanges();
+      component.isSubmitting.set(true);
+      fixture.detectChanges();
+
+      const el = fixture.nativeElement as HTMLElement;
+      expect(el.textContent).toContain('Updating...');
+    });
+
+    it('should show notes character count', () => {
+      component.feedingForm.get('notes')?.setValue('Hello');
+      fixture.detectChanges();
+
+      const el = fixture.nativeElement as HTMLElement;
+      expect(el.textContent).toContain(`5 / ${FEEDING_VALIDATION.MAX_NOTES_LENGTH}`);
+    });
+
+    it('should show "Update Feeding" button text in edit mode', () => {
+      component.resourceId.set(5);
+      fixture.detectChanges();
+
+      const el = fixture.nativeElement as HTMLElement;
+      expect(el.textContent).toContain('Update Feeding');
+    });
+
+    it('should show "Add Feeding" button text in create mode', () => {
+      fixture.detectChanges();
+
+      const el = fixture.nativeElement as HTMLElement;
+      // Button shows "Add Feeding" text
+      const submitButton = el.querySelector('button[type="submit"]');
+      expect(submitButton?.textContent).toContain('Add Feeding');
     });
   });
 });

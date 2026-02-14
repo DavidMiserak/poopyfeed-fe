@@ -4,7 +4,7 @@ import { of, throwError, Observable } from 'rxjs';
 import { ChildrenList } from './children-list';
 import { ChildrenService } from '../../services/children.service';
 import { Child } from '../../models/child.model';
-import { vi, describe, it, expect, beforeEach } from 'vitest';
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 
 describe('ChildrenList', () => {
   let component: ChildrenList;
@@ -66,6 +66,8 @@ describe('ChildrenList', () => {
       navigate: vi.fn(),
       routerState: { root: {} },
       parseUrl: vi.fn(),
+      createUrlTree: vi.fn(),
+      serializeUrl: vi.fn(() => ''),
       events: of(),
     } as any;
 
@@ -694,6 +696,222 @@ describe('ChildrenList', () => {
 
       component.navigateToChild(3);
       expect(component.navigatingToChildId()).toBe(3);
+    });
+  });
+
+  describe('DOM Rendering', () => {
+    afterEach(() => {
+      vi.clearAllMocks();
+    });
+
+    it('should render loading skeletons when isLoading is true', () => {
+      // First detectChanges triggers ngOnInit which loads data
+      fixture.detectChanges();
+      // Now set loading state and re-render
+      component.isLoading.set(true);
+      fixture.detectChanges();
+
+      const el = fixture.nativeElement as HTMLElement;
+      const skeletons = el.querySelectorAll('.animate-pulse');
+      expect(skeletons.length).toBeGreaterThan(0);
+    });
+
+    it('should render error message and retry button on error', () => {
+      fixture.detectChanges();
+      component.isLoading.set(false);
+      component.error.set('Network error');
+      fixture.detectChanges();
+
+      const el = fixture.nativeElement as HTMLElement;
+      expect(el.textContent).toContain('Oops! Something went wrong');
+      expect(el.textContent).toContain('Network error');
+      expect(el.textContent).toContain('Try Again');
+    });
+
+    it('should render empty state when no children and not loading', () => {
+      vi.mocked(childrenService.list).mockReturnValue(of([]));
+      fixture.detectChanges();
+
+      const el = fixture.nativeElement as HTMLElement;
+      expect(el.textContent).toContain('No children yet!');
+      expect(el.textContent).toContain('Add Your First Baby');
+    });
+
+    it('should render children cards when data loaded', () => {
+      fixture.detectChanges();
+
+      const el = fixture.nativeElement as HTMLElement;
+      expect(el.textContent).toContain('Baby Alice');
+      expect(el.textContent).toContain('Baby Bob');
+      expect(el.textContent).toContain('Baby Sam');
+    });
+
+    it('should render male gender icon for male child', () => {
+      vi.mocked(childrenService.list).mockReturnValue(of([mockChildCoParent]));
+      fixture.detectChanges();
+
+      const el = fixture.nativeElement as HTMLElement;
+      const maleIcon = el.querySelector('.text-blue-500');
+      expect(maleIcon).toBeTruthy();
+      expect(maleIcon?.textContent?.trim()).toBe('\u2642');
+    });
+
+    it('should render female gender icon for female child', () => {
+      vi.mocked(childrenService.list).mockReturnValue(of([mockChildOwner]));
+      fixture.detectChanges();
+
+      const el = fixture.nativeElement as HTMLElement;
+      const femaleIcon = el.querySelector('.text-pink-500');
+      expect(femaleIcon).toBeTruthy();
+      expect(femaleIcon?.textContent?.trim()).toBe('\u2640');
+    });
+
+    it('should render other gender icon for other child', () => {
+      vi.mocked(childrenService.list).mockReturnValue(of([mockChildCaregiver]));
+      fixture.detectChanges();
+
+      const el = fixture.nativeElement as HTMLElement;
+      const otherIcon = el.querySelector('.text-purple-500');
+      expect(otherIcon).toBeTruthy();
+      expect(otherIcon?.textContent?.trim()).toBe('\u25C8');
+    });
+
+    it('should show "None yet" when last_diaper_change is null', () => {
+      const childNoActivity: Child = {
+        ...mockChildOwner,
+        id: 99,
+        last_diaper_change: null as any,
+        last_nap: '2024-02-10T13:00:00Z',
+        last_feeding: '2024-02-10T12:00:00Z',
+      };
+      vi.mocked(childrenService.list).mockReturnValue(of([childNoActivity]));
+      fixture.detectChanges();
+
+      const el = fixture.nativeElement as HTMLElement;
+      const italicSpans = el.querySelectorAll('.italic');
+      const noneYetTexts = Array.from(italicSpans).filter(
+        (span) => span.textContent?.trim() === 'None yet'
+      );
+      expect(noneYetTexts.length).toBe(1);
+    });
+
+    it('should show formatted timestamp when last_diaper_change exists', () => {
+      fixture.detectChanges();
+
+      const el = fixture.nativeElement as HTMLElement;
+      const diaperSection = el.textContent || '';
+      expect(diaperSection).toContain('Diaper');
+      // No "None yet" for diaper when timestamp exists
+      expect(diaperSection).toContain('days ago');
+    });
+
+    it('should show "None yet" when last_nap is null', () => {
+      const childNoNap: Child = {
+        ...mockChildOwner,
+        id: 99,
+        last_diaper_change: '2024-02-10T14:30:00Z',
+        last_nap: null as any,
+        last_feeding: '2024-02-10T12:00:00Z',
+      };
+      vi.mocked(childrenService.list).mockReturnValue(of([childNoNap]));
+      fixture.detectChanges();
+
+      const el = fixture.nativeElement as HTMLElement;
+      const italicSpans = el.querySelectorAll('.italic');
+      const noneYetTexts = Array.from(italicSpans).filter(
+        (span) => span.textContent?.trim() === 'None yet'
+      );
+      expect(noneYetTexts.length).toBe(1);
+    });
+
+    it('should show "None yet" when last_feeding is null', () => {
+      const childNoFeeding: Child = {
+        ...mockChildOwner,
+        id: 99,
+        last_diaper_change: '2024-02-10T14:30:00Z',
+        last_nap: '2024-02-10T13:00:00Z',
+        last_feeding: null as any,
+      };
+      vi.mocked(childrenService.list).mockReturnValue(of([childNoFeeding]));
+      fixture.detectChanges();
+
+      const el = fixture.nativeElement as HTMLElement;
+      const italicSpans = el.querySelectorAll('.italic');
+      const noneYetTexts = Array.from(italicSpans).filter(
+        (span) => span.textContent?.trim() === 'None yet'
+      );
+      expect(noneYetTexts.length).toBe(1);
+    });
+
+    it('should show navigation spinner overlay for navigating child', () => {
+      fixture.detectChanges();
+      component.navigatingToChildId.set(1);
+      fixture.detectChanges();
+
+      const el = fixture.nativeElement as HTMLElement;
+      const spinnerOverlay = el.querySelector('.animate-spin');
+      expect(spinnerOverlay).toBeTruthy();
+    });
+
+    it('should not show spinner overlay when not navigating', () => {
+      fixture.detectChanges();
+
+      const el = fixture.nativeElement as HTMLElement;
+      const spinnerOverlay = el.querySelector('.animate-spin');
+      expect(spinnerOverlay).toBeNull();
+    });
+
+    it('should render role badges for each child', () => {
+      fixture.detectChanges();
+
+      const el = fixture.nativeElement as HTMLElement;
+      expect(el.textContent).toContain('Owner');
+      expect(el.textContent).toContain('Co-parent');
+      expect(el.textContent).toContain('Caregiver');
+    });
+
+    it('should render child names and ages', () => {
+      vi.mocked(childrenService.list).mockReturnValue(of([mockChildOwner]));
+      fixture.detectChanges();
+
+      const el = fixture.nativeElement as HTMLElement;
+      expect(el.textContent).toContain('Baby Alice');
+      expect(el.textContent).toContain('old');
+    });
+
+    it('should render retry button that calls loadChildren on click', () => {
+      fixture.detectChanges();
+      component.isLoading.set(false);
+      component.error.set('Some error');
+      fixture.detectChanges();
+
+      const el = fixture.nativeElement as HTMLElement;
+      const retryButton = el.querySelector('button');
+      expect(retryButton).toBeTruthy();
+
+      const loadChildrenSpy = vi.spyOn(component, 'loadChildren');
+      retryButton?.click();
+      expect(loadChildrenSpy).toHaveBeenCalled();
+    });
+
+    it('should not render children grid during loading', () => {
+      fixture.detectChanges();
+      component.isLoading.set(true);
+      fixture.detectChanges();
+
+      const el = fixture.nativeElement as HTMLElement;
+      expect(el.textContent).not.toContain('Baby Alice');
+    });
+
+    it('should not render empty state during loading', () => {
+      vi.mocked(childrenService.list).mockReturnValue(of([]));
+      fixture.detectChanges();
+      // Now set loading back to true
+      component.isLoading.set(true);
+      fixture.detectChanges();
+
+      const el = fixture.nativeElement as HTMLElement;
+      expect(el.textContent).not.toContain('No children yet!');
     });
   });
 });

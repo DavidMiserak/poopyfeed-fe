@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router, ActivatedRoute } from '@angular/router';
 import { of, throwError } from 'rxjs';
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { ChildForm } from './child-form';
 import { ChildrenService } from '../../services/children.service';
 import { ToastService } from '../../services/toast.service';
@@ -793,6 +794,230 @@ describe('ChildForm', () => {
         expect(component.childForm.get('date_of_birth')?.value).toBe(
           '2024-01-15'
         );
+      });
+    });
+  });
+
+  describe('DOM Rendering', () => {
+    describe('Create Mode', () => {
+      beforeEach(async () => {
+        const mockChildrenService = {
+          get: vi.fn(),
+          create: vi.fn(),
+          update: vi.fn(),
+        };
+
+        const mockToastService = {
+          success: vi.fn(),
+          error: vi.fn(),
+          warning: vi.fn(),
+          info: vi.fn(),
+        };
+
+        const mockRouter = {
+          navigate: vi.fn(),
+          routerState: { root: {} },
+          parseUrl: vi.fn(),
+          createUrlTree: vi.fn(),
+          serializeUrl: vi.fn(() => ''),
+          events: of(),
+        } as any;
+
+        const mockActivatedRoute = {
+          paramMap: of(new Map()),
+          queryParamMap: of(new Map()),
+          snapshot: {
+            paramMap: {
+              get: vi.fn(() => null),
+            },
+          },
+        } as any;
+
+        await TestBed.configureTestingModule({
+          imports: [ChildForm],
+          providers: [
+            { provide: ChildrenService, useValue: mockChildrenService },
+            { provide: ToastService, useValue: mockToastService },
+            { provide: Router, useValue: mockRouter },
+            { provide: ActivatedRoute, useValue: mockActivatedRoute },
+          ],
+        }).compileComponents();
+
+        fixture = TestBed.createComponent(ChildForm);
+        component = fixture.componentInstance;
+        childrenService = TestBed.inject(ChildrenService);
+        toastService = TestBed.inject(ToastService);
+        router = TestBed.inject(Router);
+      });
+
+      afterEach(() => {
+        vi.clearAllMocks();
+      });
+
+      it('should render "Add New Baby" title in create mode', () => {
+        fixture.detectChanges();
+
+        const el = fixture.nativeElement as HTMLElement;
+        expect(el.textContent).toContain('Add New Baby');
+      });
+
+      it('should render subtitle for create mode', () => {
+        fixture.detectChanges();
+
+        const el = fixture.nativeElement as HTMLElement;
+        expect(el.textContent).toContain('Add your little one to start tracking');
+      });
+
+      it('should render error message when error signal is set', () => {
+        fixture.detectChanges();
+        component.error.set('Something went wrong');
+        fixture.detectChanges();
+
+        const el = fixture.nativeElement as HTMLElement;
+        expect(el.textContent).toContain('Something went wrong');
+      });
+
+      it('should show name required validation error when touched', () => {
+        fixture.detectChanges();
+        component.childForm.controls.name.setValue('');
+        component.childForm.controls.name.markAsTouched();
+        fixture.detectChanges();
+
+        const el = fixture.nativeElement as HTMLElement;
+        expect(el.textContent).toContain('Name is required');
+      });
+
+      it('should show name maxlength validation error when touched', () => {
+        component.childForm.controls.name.setValue('a'.repeat(101));
+        component.childForm.controls.name.markAsTouched();
+        fixture.detectChanges();
+
+        const el = fixture.nativeElement as HTMLElement;
+        expect(el.textContent).toContain('Name must be 100 characters or less');
+      });
+
+      it('should show date_of_birth validation error when touched', () => {
+        fixture.detectChanges();
+        component.childForm.controls.date_of_birth.setValue('');
+        component.childForm.controls.date_of_birth.markAsTouched();
+        fixture.detectChanges();
+
+        const el = fixture.nativeElement as HTMLElement;
+        expect(el.textContent).toContain('Date of birth is required');
+      });
+
+      it('should render submit spinner when isSubmitting', () => {
+        fixture.detectChanges();
+        component.isSubmitting.set(true);
+        fixture.detectChanges();
+
+        const el = fixture.nativeElement as HTMLElement;
+        const spinner = el.querySelector('.animate-spin');
+        expect(spinner).toBeTruthy();
+        expect(el.textContent).toContain('Saving...');
+      });
+
+      it('should render "Add Baby" button text in create mode', () => {
+        fixture.detectChanges();
+
+        const el = fixture.nativeElement as HTMLElement;
+        const submitButton = el.querySelector('button[type="submit"]');
+        expect(submitButton?.textContent).toContain('Add Baby');
+      });
+
+      it('should disable submit button when form is invalid', () => {
+        component.childForm.controls.name.setValue('');
+        fixture.detectChanges();
+
+        const el = fixture.nativeElement as HTMLElement;
+        const submitButton = el.querySelector('button[type="submit"]') as HTMLButtonElement;
+        expect(submitButton.disabled).toBe(true);
+      });
+
+      it('should not render error message when error is null', () => {
+        fixture.detectChanges();
+
+        const el = fixture.nativeElement as HTMLElement;
+        const errorBanner = el.querySelector('.border-red-500');
+        expect(errorBanner).toBeNull();
+      });
+    });
+
+    describe('Edit Mode', () => {
+      beforeEach(async () => {
+        const mockChildrenService = {
+          get: vi.fn().mockReturnValue(of(mockChild)),
+          create: vi.fn(),
+          update: vi.fn(),
+        };
+
+        const mockToastService = {
+          success: vi.fn(),
+          error: vi.fn(),
+          warning: vi.fn(),
+          info: vi.fn(),
+        };
+
+        const mockRouter = {
+          navigate: vi.fn(),
+          routerState: { root: {} },
+          parseUrl: vi.fn(),
+          createUrlTree: vi.fn(),
+          serializeUrl: vi.fn(() => ''),
+          events: of(),
+        } as any;
+
+        const mockActivatedRoute = {
+          paramMap: of(new Map([['id', '1']])),
+          queryParamMap: of(new Map()),
+          snapshot: {
+            paramMap: {
+              get: vi.fn((param: string) => (param === 'id' ? '1' : null)),
+            },
+          },
+        } as any;
+
+        await TestBed.configureTestingModule({
+          imports: [ChildForm],
+          providers: [
+            { provide: ChildrenService, useValue: mockChildrenService },
+            { provide: ToastService, useValue: mockToastService },
+            { provide: Router, useValue: mockRouter },
+            { provide: ActivatedRoute, useValue: mockActivatedRoute },
+          ],
+        }).compileComponents();
+
+        fixture = TestBed.createComponent(ChildForm);
+        component = fixture.componentInstance;
+        childrenService = TestBed.inject(ChildrenService);
+        toastService = TestBed.inject(ToastService);
+        router = TestBed.inject(Router);
+      });
+
+      afterEach(() => {
+        vi.clearAllMocks();
+      });
+
+      it('should render "Edit Baby" title in edit mode', () => {
+        fixture.detectChanges();
+
+        const el = fixture.nativeElement as HTMLElement;
+        expect(el.textContent).toContain('Edit Baby');
+      });
+
+      it('should render subtitle for edit mode', () => {
+        fixture.detectChanges();
+
+        const el = fixture.nativeElement as HTMLElement;
+        expect(el.textContent).toContain("Update your baby's information");
+      });
+
+      it('should render "Update Baby" button text in edit mode', () => {
+        fixture.detectChanges();
+
+        const el = fixture.nativeElement as HTMLElement;
+        const submitButton = el.querySelector('button[type="submit"]');
+        expect(submitButton?.textContent).toContain('Update Baby');
       });
     });
   });
