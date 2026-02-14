@@ -458,4 +458,38 @@ describe('NapsService', () => {
       expect(errorCaught).toBe(true);
     });
   });
+
+  describe('malformed responses', () => {
+    it('should handle null error response on validation error', () => {
+      let errorCaught = false;
+
+      service.list(1).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toContain('Invalid request');
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/naps/');
+      req.flush({}, { status: 400, statusText: 'Bad Request' });
+
+      expect(errorCaught).toBe(true);
+    });
+
+    it('should handle null error response on get()', () => {
+      let errorCaught = false;
+
+      service.get(1, 1).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toBeDefined();
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/naps/1/');
+      req.flush(null, { status: 500, statusText: 'Internal Server Error' });
+
+      expect(errorCaught).toBe(true);
+    });
+  });
 });

@@ -493,4 +493,223 @@ describe('ChildrenService', () => {
       expect(errorCaught).toBe(true);
     });
   });
+
+  describe('network errors', () => {
+    it('should handle network offline error on list()', () => {
+      let errorCaught = false;
+
+      service.list().subscribe({
+        error: (error: Error) => {
+          expect(error.message).toBeDefined();
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/');
+      req.error(new ProgressEvent('error'), {
+        status: 0,
+        statusText: 'Unknown Error',
+      });
+
+      expect(errorCaught).toBe(true);
+    });
+
+    it('should handle network timeout on list()', () => {
+      let errorCaught = false;
+
+      service.list().subscribe({
+        error: (error: Error) => {
+          expect(error.message).toBeDefined();
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/');
+      req.error(new ProgressEvent('timeout'), {
+        status: 0,
+        statusText: 'Timeout',
+      });
+
+      expect(errorCaught).toBe(true);
+    });
+
+    it('should handle DNS resolution failure on get()', () => {
+      let errorCaught = false;
+
+      service.get(1).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toBeDefined();
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/');
+      req.error(new ProgressEvent('error'), {
+        status: 0,
+        statusText: 'DNS lookup failed',
+      });
+
+      expect(errorCaught).toBe(true);
+    });
+
+    it('should handle connection refused on create()', () => {
+      let errorCaught = false;
+
+      const createData: ChildCreate = {
+        name: 'Baby Test',
+        date_of_birth: '2024-03-01',
+        gender: 'M',
+      };
+
+      service.create(createData).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toBeDefined();
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/');
+      req.error(new ProgressEvent('error'), {
+        status: 0,
+        statusText: 'Connection refused',
+      });
+
+      expect(errorCaught).toBe(true);
+    });
+
+    it('should handle CORS preflight failure on update()', () => {
+      let errorCaught = false;
+
+      const updateData: ChildUpdate = {
+        name: 'Updated Name',
+      };
+
+      service.update(1, updateData).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toBeDefined();
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/');
+      req.error(new ProgressEvent('error'), {
+        status: 0,
+        statusText: 'CORS error',
+      });
+
+      expect(errorCaught).toBe(true);
+    });
+  });
+
+  describe('malformed responses', () => {
+    it('should handle null error response on 400 error', () => {
+      let errorCaught = false;
+
+      service.get(1).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toBeDefined();
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/');
+      req.flush(null, { status: 400, statusText: 'Bad Request' });
+
+      expect(errorCaught).toBe(true);
+    });
+
+    it('should handle empty error object on validation error', () => {
+      let errorCaught = false;
+
+      const createData: ChildCreate = {
+        name: 'Baby Test',
+        date_of_birth: '2024-03-01',
+        gender: 'M',
+      };
+
+      service.create(createData).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toContain('Invalid request');
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/');
+      req.flush({}, { status: 400, statusText: 'Bad Request' });
+
+      expect(errorCaught).toBe(true);
+    });
+
+    it('should handle null error response on server error', () => {
+      let errorCaught = false;
+
+      service.get(1).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toContain('server error');
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/');
+      req.flush(null, { status: 500, statusText: 'Internal Server Error' });
+
+      expect(errorCaught).toBe(true);
+    });
+  });
+
+  describe('HTTP error codes', () => {
+    it('should handle 429 rate limit error on list()', () => {
+      let errorCaught = false;
+
+      service.list().subscribe({
+        error: (error: Error) => {
+          expect(error.message).toContain('Too many requests');
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/');
+      req.flush({}, { status: 429, statusText: 'Too Many Requests' });
+
+      expect(errorCaught).toBe(true);
+    });
+
+    it('should handle 422 unprocessable entity on create()', () => {
+      let errorCaught = false;
+
+      const createData: ChildCreate = {
+        name: 'Baby Test',
+        date_of_birth: '2024-03-01',
+        gender: 'M',
+      };
+
+      service.create(createData).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toContain('Invalid data');
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/');
+      req.flush({}, { status: 422, statusText: 'Unprocessable Entity' });
+
+      expect(errorCaught).toBe(true);
+    });
+
+    it('should handle 502 bad gateway error on get()', () => {
+      let errorCaught = false;
+
+      service.get(1).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toContain('temporarily unavailable');
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/');
+      req.flush(null, { status: 502, statusText: 'Bad Gateway' });
+
+      expect(errorCaught).toBe(true);
+    });
+  });
 });

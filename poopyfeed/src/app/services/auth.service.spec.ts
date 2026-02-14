@@ -614,4 +614,143 @@ describe('AuthService', () => {
       });
     });
   });
+
+  describe('network errors', () => {
+    it('should handle network offline error on login()', () => {
+      let errorCaught = false;
+
+      service.login({ email: 'test@example.com', password: 'password123' }).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toBeDefined();
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/browser/v1/auth/login');
+      req.error(new ProgressEvent('error'), {
+        status: 0,
+        statusText: 'Unknown Error',
+      });
+
+      expect(errorCaught).toBe(true);
+    });
+
+    it('should handle network timeout on signup()', () => {
+      let errorCaught = false;
+
+      service.signup({ email: 'test@example.com', password: 'password123' }).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toBeDefined();
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/browser/v1/auth/signup');
+      req.error(new ProgressEvent('timeout'), {
+        status: 0,
+        statusText: 'Timeout',
+      });
+
+      expect(errorCaught).toBe(true);
+    });
+
+    it('should handle CORS failure on logout()', () => {
+      let errorCaught = false;
+
+      localStorage.setItem('auth_token', 'test-token');
+      service['authToken'].set('test-token');
+
+      service.logout().subscribe({
+        error: (error: Error) => {
+          expect(error.message).toBeDefined();
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/browser/v1/auth/session');
+      req.error(new ProgressEvent('error'), {
+        status: 0,
+        statusText: 'CORS error',
+      });
+
+      expect(errorCaught).toBe(true);
+    });
+
+    it('should handle connection refused on login()', () => {
+      let errorCaught = false;
+
+      service.login({ email: 'test@example.com', password: 'password123' }).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toBeDefined();
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/browser/v1/auth/login');
+      req.error(new ProgressEvent('error'), {
+        status: 0,
+        statusText: 'Connection refused',
+      });
+
+      expect(errorCaught).toBe(true);
+    });
+
+    it('should handle DNS failure on token fetch()', () => {
+      let errorCaught = false;
+
+      service.login({ email: 'test@example.com', password: 'password123' }).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toBeDefined();
+          errorCaught = true;
+        },
+      });
+
+      // First request succeeds
+      const loginReq = httpMock.expectOne('/api/v1/browser/v1/auth/login');
+      loginReq.flush({ status: 200, data: { user: { id: 1 } } });
+
+      // Token fetch fails with network error
+      const tokenReq = httpMock.expectOne('/api/v1/browser/v1/auth/token/');
+      tokenReq.error(new ProgressEvent('error'), {
+        status: 0,
+        statusText: 'DNS lookup failed',
+      });
+
+      expect(errorCaught).toBe(true);
+    });
+  });
+
+  describe('additional HTTP error codes', () => {
+    it('should handle 429 rate limit error on login()', () => {
+      let errorCaught = false;
+
+      service.login({ email: 'test@example.com', password: 'password123' }).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toContain('Too many requests');
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/browser/v1/auth/login');
+      req.flush({}, { status: 429, statusText: 'Too Many Requests' });
+
+      expect(errorCaught).toBe(true);
+    });
+
+    it('should handle 502 bad gateway error on signup()', () => {
+      let errorCaught = false;
+
+      service.signup({ email: 'test@example.com', password: 'password123' }).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toContain('temporarily unavailable');
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/browser/v1/auth/signup');
+      req.flush(null, { status: 502, statusText: 'Bad Gateway' });
+
+      expect(errorCaught).toBe(true);
+    });
+  });
 });

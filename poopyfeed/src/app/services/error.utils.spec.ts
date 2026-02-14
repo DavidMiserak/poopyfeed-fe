@@ -309,3 +309,47 @@ describe('ErrorHandler - edge cases with malformed responses', () => {
     expect(error.isServerError()).toBe(false);
   });
 });
+
+describe('ErrorHandler - network error edge cases', () => {
+  it('should handle null error object', () => {
+    const result = ErrorHandler.handle(null);
+    expect(result).toBeInstanceOf(ApiError);
+    expect(result.message).toBe('An unexpected error occurred');
+  });
+
+  it('should handle undefined error object', () => {
+    const result = ErrorHandler.handle(undefined);
+    expect(result).toBeInstanceOf(ApiError);
+    expect(result.message).toBe('An unexpected error occurred');
+  });
+
+  it('should handle error with empty status (network error)', () => {
+    const httpError = new HttpErrorResponse({
+      error: null,
+      status: 0,
+      statusText: '',
+    });
+    const result = ErrorHandler.handle(httpError);
+    expect(result.message).toBeDefined();
+    expect(result.message).not.toBe('An unexpected error occurred');
+  });
+
+  it('should handle error with unknown status code', () => {
+    const httpError = new HttpErrorResponse({
+      error: { detail: 'I am a teapot' },
+      status: 418,
+      statusText: 'I\'m a teapot',
+    });
+    const result = ErrorHandler.handle(httpError);
+    expect(result.message).toBe('I am a teapot');
+  });
+
+  it('should handle error with circular JSON reference', () => {
+    const circular: any = { error: {} };
+    circular.error.self = circular;
+
+    const result = ErrorHandler.handle({ status: 400, error: circular });
+    expect(result.message).toBeDefined();
+    expect(result).toBeInstanceOf(ApiError);
+  });
+});

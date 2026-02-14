@@ -640,4 +640,42 @@ describe('AnalyticsService', () => {
       removeChildSpy.mockRestore();
     });
   });
+
+  describe('HTTP error codes', () => {
+    it('should handle 429 rate limit error on getFeedingTrends()', () => {
+      let errorCaught = false;
+
+      service.getFeedingTrends(1, 30).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toContain('Too many requests');
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne(
+        '/api/v1/analytics/children/1/feeding-trends/?days=30'
+      );
+      req.flush({}, { status: 429, statusText: 'Too Many Requests' });
+
+      expect(errorCaught).toBe(true);
+    });
+
+    it('should handle 502 bad gateway error on exportPDFAsync()', () => {
+      let errorCaught = false;
+
+      service.exportPDFAsync(1, 30).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toContain('temporarily unavailable');
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne(
+        '/api/v1/analytics/children/1/export-pdf/'
+      );
+      req.flush(null, { status: 502, statusText: 'Bad Gateway' });
+
+      expect(errorCaught).toBe(true);
+    });
+  });
 });

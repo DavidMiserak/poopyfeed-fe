@@ -878,4 +878,54 @@ describe('SharingService', () => {
       expect(errorCaught).toBe(true);
     });
   });
+
+  describe('HTTP error codes', () => {
+    it('should handle 429 rate limit error on listShares()', () => {
+      let errorCaught = false;
+
+      service.listShares(1).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toContain('Too many requests');
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/shares/');
+      req.flush({}, { status: 429, statusText: 'Too Many Requests' });
+
+      expect(errorCaught).toBe(true);
+    });
+
+    it('should handle 422 unprocessable entity on createInvite()', () => {
+      let errorCaught = false;
+
+      service.createInvite(1, { role: 'co-parent' }).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toContain('Invalid data');
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/invites/');
+      req.flush({}, { status: 422, statusText: 'Unprocessable Entity' });
+
+      expect(errorCaught).toBe(true);
+    });
+
+    it('should handle 502 bad gateway error on acceptInvite()', () => {
+      let errorCaught = false;
+
+      service.acceptInvite('valid-token').subscribe({
+        error: (error: Error) => {
+          expect(error.message).toContain('temporarily unavailable');
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/invites/accept/');
+      req.flush(null, { status: 502, statusText: 'Bad Gateway' });
+
+      expect(errorCaught).toBe(true);
+    });
+  });
 });
