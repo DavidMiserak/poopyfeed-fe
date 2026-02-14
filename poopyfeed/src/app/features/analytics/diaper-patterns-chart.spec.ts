@@ -7,12 +7,17 @@ import { DiaperPatternsChart } from './diaper-patterns-chart';
 import { Chart } from 'chart.js';
 
 vi.mock('chart.js', () => {
-  const mockChart = vi.fn(function (this: any) {
-    this.destroy = vi.fn();
+  const mockDestroyFn = vi.fn();
+
+  const mockChartConstructor = vi.fn(function (this: any) {
+    this.destroy = mockDestroyFn;
+    return this;
   }) as any;
-  mockChart.register = vi.fn();
+
+  mockChartConstructor.register = vi.fn();
+
   return {
-    Chart: mockChart,
+    Chart: mockChartConstructor,
     registerables: [],
   };
 });
