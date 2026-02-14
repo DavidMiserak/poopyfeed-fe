@@ -695,6 +695,212 @@ describe('FeedingsService', () => {
 
       expect(errorCaught).toBe(true);
     });
+
+    it('should handle 503 service unavailable on list()', () => {
+      let errorCaught = false;
+
+      service.list(1).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toContain('server is currently down');
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/feedings/');
+      req.flush(null, { status: 503, statusText: 'Service Unavailable' });
+
+      expect(errorCaught).toBe(true);
+    });
+
+    it('should handle 504 gateway timeout on delete()', () => {
+      let errorCaught = false;
+
+      service.delete(1, 1).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toContain('unexpected error');
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/feedings/1/');
+      req.flush(null, { status: 504, statusText: 'Gateway Timeout' });
+
+      expect(errorCaught).toBe(true);
+    });
+
+    it('should handle 401 unauthorized on create()', () => {
+      let errorCaught = false;
+
+      service.create(1, { feeding_type: 'bottle', fed_at: '2024-01-20T12:00:00Z', amount_oz: 5 }).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toContain('session has expired');
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/feedings/');
+      req.flush(null, { status: 401, statusText: 'Unauthorized' });
+
+      expect(errorCaught).toBe(true);
+    });
+
+    it('should handle 401 unauthorized on update()', () => {
+      let errorCaught = false;
+
+      service.update(1, 1, { notes: 'Updated' }).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toContain('session has expired');
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/feedings/1/');
+      req.flush(null, { status: 401, statusText: 'Unauthorized' });
+
+      expect(errorCaught).toBe(true);
+    });
+
+    it('should handle 409 conflict error on update()', () => {
+      let errorCaught = false;
+
+      service.update(1, 1, { notes: 'Conflicting update' }).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toContain('already exists');
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/feedings/1/');
+      req.flush(null, { status: 409, statusText: 'Conflict' });
+
+      expect(errorCaught).toBe(true);
+    });
+  });
+
+  describe('state consistency on errors', () => {
+    it('should not add feeding to cache on create error', () => {
+      const initialFeedings = [...mockFeedings];
+      service.feedings.set(initialFeedings);
+
+      service.create(1, { feeding_type: 'bottle', fed_at: '2024-01-20T12:00:00Z', amount_oz: -1 }).subscribe({
+        error: () => {
+          // Error expected
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/feedings/');
+      req.flush(
+        { amount_oz: ['Must be positive'] },
+        { status: 400, statusText: 'Bad Request' }
+      );
+
+      expect(service.feedings()).toEqual(initialFeedings);
+    });
+
+    it('should not remove from cache on delete error', () => {
+      const initialFeedings = [...mockFeedings];
+      service.feedings.set(initialFeedings);
+
+      service.delete(1, 999).subscribe({
+        error: () => {
+          // Error expected
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/feedings/999/');
+      req.flush(null, { status: 404, statusText: 'Not Found' });
+
+      expect(service.feedings()).toEqual(initialFeedings);
+    });
+
+    it('should not modify cache on update error', () => {
+      const initialFeedings = [...mockFeedings];
+      service.feedings.set(initialFeedings);
+
+      const originalAmount = mockBottleFeeding.amount_oz;
+
+      service.update(1, 1, { amount_oz: -5 }).subscribe({
+        error: () => {
+          // Error expected
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/feedings/1/');
+      req.flush(
+        { amount_oz: ['Must be positive'] },
+        { status: 400, statusText: 'Bad Request' }
+      );
+
+      const cachedFeeding = service.feedings().find((f: Feeding) => f.id === 1);
+      expect(cachedFeeding?.amount_oz).toBe(originalAmount);
+    });
+  });
+
+  describe('retry scenarios', () => {
+    it('should allow retry after create() error', () => {
+      let firstErrorCaught = false;
+      let secondSuccessCaught = false;
+
+      const createData: FeedingCreate = { feeding_type: 'bottle', fed_at: '2024-01-20T12:00:00Z', amount_oz: 5 };
+      const createdFeeding: Feeding = {
+        id: 5,
+        child: 1,
+        ...createData,
+        created_at: '2024-01-20T12:00:00Z',
+        updated_at: '2024-01-20T12:00:00Z',
+      };
+
+      // First request - fails
+      service.create(1, createData).subscribe({
+        error: () => {
+          firstErrorCaught = true;
+        },
+      });
+
+      let req = httpMock.expectOne('/api/v1/children/1/feedings/');
+      req.flush({}, { status: 400, statusText: 'Bad Request' });
+
+      expect(firstErrorCaught).toBe(true);
+
+      // Retry - succeeds
+      service.create(1, createData).subscribe({
+        next: (feeding: Feeding) => {
+          expect(feeding).toEqual(createdFeeding);
+          secondSuccessCaught = true;
+        },
+      });
+
+      req = httpMock.expectOne('/api/v1/children/1/feedings/');
+      req.flush(createdFeeding);
+
+      expect(secondSuccessCaught).toBe(true);
+    });
+
+    it('should maintain cache after failed delete retry', () => {
+      service.feedings.set([...mockFeedings]);
+      const initialLength = service.feedings().length;
+
+      // First request - fails
+      service.delete(1, 1).subscribe({
+        error: () => {
+          // Error expected
+        },
+      });
+
+      let req = httpMock.expectOne('/api/v1/children/1/feedings/1/');
+      req.flush(null, { status: 403, statusText: 'Forbidden' });
+
+      // Verify cache unchanged
+      expect(service.feedings().length).toBe(initialLength);
+
+      // Retry - succeeds
+      service.delete(1, 1).subscribe();
+
+      req = httpMock.expectOne('/api/v1/children/1/feedings/1/');
+      req.flush(null);
+
+      expect(service.feedings().length).toBe(initialLength - 1);
+    });
   });
 
   describe('state management', () => {
