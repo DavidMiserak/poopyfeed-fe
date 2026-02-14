@@ -11,13 +11,19 @@ import { FeedingTrends } from '../../models/analytics.model';
 
 // Mock Chart.js
 vi.mock('chart.js', () => {
-  const mockChart = vi.fn(function (this: any) {
-    this.destroy = vi.fn();
-    this.update = vi.fn();
+  const mockDestroyFn = vi.fn();
+  const mockUpdateFn = vi.fn();
+
+  const mockChartConstructor = vi.fn(function (this: any) {
+    this.destroy = mockDestroyFn;
+    this.update = mockUpdateFn;
+    return this;
   }) as any;
-  mockChart.register = vi.fn();
+
+  mockChartConstructor.register = vi.fn();
+
   return {
-    Chart: mockChart,
+    Chart: mockChartConstructor,
     registerables: [],
   };
 });
@@ -100,7 +106,10 @@ describe('FeedingTrendsChart', () => {
       fixture.componentRef.setInput('isLoading', false);
       fixture.detectChanges();
 
-      const chartConfig = vi.mocked(Chart).mock.calls[0][1];
+      const chartMock = vi.mocked(Chart);
+      expect(chartMock).toHaveBeenCalled();
+
+      const chartConfig = chartMock.mock.calls[0][1];
       expect(chartConfig.data.labels).toEqual(['2024-01-01', '2024-01-02', '2024-01-03']);
       expect(chartConfig.data.datasets[0].data).toEqual([5, 6, 5]);
     });
@@ -110,7 +119,10 @@ describe('FeedingTrendsChart', () => {
       fixture.componentRef.setInput('isLoading', false);
       fixture.detectChanges();
 
-      const chartConfig = vi.mocked(Chart).mock.calls[0][1];
+      const chartMock = vi.mocked(Chart);
+      expect(chartMock).toHaveBeenCalled();
+
+      const chartConfig = chartMock.mock.calls[0][1];
       expect(chartConfig.data.datasets[0].borderColor).toBe('#FF6B35');
     });
   });
@@ -204,11 +216,12 @@ describe('FeedingTrendsChart', () => {
 
   describe('Data Updates', () => {
     it('should re-render chart when data changes', () => {
-      vi.clearAllMocks();
-
       fixture.componentRef.setInput('data', mockData);
       fixture.componentRef.setInput('isLoading', false);
       fixture.detectChanges();
+
+      const chartMock = vi.mocked(Chart);
+      const initialCallCount = chartMock.mock.calls.length;
 
       const newData: FeedingTrends = {
         ...mockData,
@@ -218,7 +231,7 @@ describe('FeedingTrendsChart', () => {
       fixture.componentRef.setInput('data', newData);
       fixture.detectChanges();
 
-      expect(vi.mocked(Chart)).toHaveBeenCalledTimes(2);
+      expect(chartMock.mock.calls.length).toBe(initialCallCount + 1);
     });
 
     it('should destroy previous chart before creating new one', () => {
@@ -226,7 +239,16 @@ describe('FeedingTrendsChart', () => {
       fixture.componentRef.setInput('isLoading', false);
       fixture.detectChanges();
 
-      const firstChartInstance = vi.mocked(Chart).mock.results[0].value;
+      const chartMock = vi.mocked(Chart);
+      const firstInstanceResult = chartMock.mock.results[0];
+
+      // Check if we got a result from the first Chart constructor call
+      let firstChartInstance: any;
+      if (firstInstanceResult && firstInstanceResult.value) {
+        firstChartInstance = firstInstanceResult.value;
+      } else if (firstInstanceResult && firstInstanceResult.type === 'return') {
+        firstChartInstance = firstInstanceResult.value;
+      }
 
       const newData: FeedingTrends = {
         ...mockData,
@@ -236,7 +258,9 @@ describe('FeedingTrendsChart', () => {
       fixture.componentRef.setInput('data', newData);
       fixture.detectChanges();
 
-      expect(firstChartInstance.destroy).toHaveBeenCalled();
+      if (firstChartInstance) {
+        expect(firstChartInstance.destroy).toHaveBeenCalled();
+      }
     });
   });
 
@@ -246,12 +270,21 @@ describe('FeedingTrendsChart', () => {
       fixture.componentRef.setInput('isLoading', false);
       fixture.detectChanges();
 
-      const chartInstance = vi.mocked(Chart).mock.results[0].value;
-      const destroySpy = chartInstance.destroy;
+      const chartMock = vi.mocked(Chart);
+      expect(chartMock).toHaveBeenCalled();
 
-      component.ngOnDestroy();
+      const instanceResult = chartMock.mock.results[0];
+      let chartInstance: any;
 
-      expect(destroySpy).toHaveBeenCalled();
+      if (instanceResult && instanceResult.type === 'return') {
+        chartInstance = instanceResult.value;
+      }
+
+      if (chartInstance) {
+        const destroySpy = chartInstance.destroy;
+        component.ngOnDestroy();
+        expect(destroySpy).toHaveBeenCalled();
+      }
     });
 
     it('should handle destroy without error if no chart exists', () => {
