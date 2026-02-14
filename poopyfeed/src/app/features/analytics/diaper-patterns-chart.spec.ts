@@ -5,13 +5,15 @@
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { DiaperPatternsChart } from './diaper-patterns-chart';
 import { Chart } from 'chart.js';
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 
 vi.mock('chart.js', () => {
   const mockDestroyFn = vi.fn();
+  const mockUpdateFn = vi.fn();
 
   const mockChartConstructor = vi.fn(function (this: any) {
     this.destroy = mockDestroyFn;
-    this.update = vi.fn();
+    this.update = mockUpdateFn;
     return this;
   }) as any;
 
@@ -40,6 +42,7 @@ describe('DiaperPatternsChart', () => {
   };
 
   beforeEach(async () => {
+    vi.clearAllMocks();
     await TestBed.configureTestingModule({
       imports: [DiaperPatternsChart],
     }).compileComponents();
@@ -48,24 +51,29 @@ describe('DiaperPatternsChart', () => {
     component = fixture.componentInstance;
   });
 
+  afterEach(() => {
+    fixture.destroy();
+    vi.clearAllMocks();
+  });
+
   it('should create component', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should render chart with data', () => {
+  it('should render chart with data', async () => {
     fixture.componentRef.setInput('data', mockData);
     fixture.componentRef.setInput('isLoading', false);
     fixture.detectChanges();
-    fixture.detectChanges(); // Extra detection cycle for effect to run
+    await new Promise(resolve => setTimeout(resolve, 50));
 
     expect(vi.mocked(Chart)).toHaveBeenCalled();
   });
 
-  it('should use bar chart type', () => {
+  it('should use bar chart type', async () => {
     fixture.componentRef.setInput('data', mockData);
     fixture.componentRef.setInput('isLoading', false);
     fixture.detectChanges();
-    fixture.detectChanges(); // Extra detection cycle for effect to run
+    await new Promise(resolve => setTimeout(resolve, 50));
 
     const chartConfig = vi.mocked(Chart).mock.calls[0][1] as any;
     expect(chartConfig.type).toBe('bar');
@@ -78,11 +86,11 @@ describe('DiaperPatternsChart', () => {
     expect(title?.textContent).toContain('Diaper Patterns');
   });
 
-  it('should destroy chart on component destroy', () => {
+  it('should destroy chart on component destroy', async () => {
     fixture.componentRef.setInput('data', mockData);
     fixture.componentRef.setInput('isLoading', false);
     fixture.detectChanges();
-    fixture.detectChanges(); // Extra detection cycle for effect to run
+    await new Promise(resolve => setTimeout(resolve, 50));
 
     const chartInstance = vi.mocked(Chart).mock.results[0].value;
     const destroySpy = chartInstance.destroy;
