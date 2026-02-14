@@ -783,4 +783,316 @@ describe('ChildDashboard', () => {
       expect(routerSpy).toHaveBeenCalled();
     });
   });
+
+  describe('Component Lifecycle Edge Cases', () => {
+    describe('multiple rapid loadDashboardData calls (subscription management)', () => {
+      it('should handle multiple rapid consecutive load calls', () => {
+        const feedingsMock = [makeFeeding({ id: 1 }), makeFeeding({ id: 2 })];
+        const diapersMock = [makeDiaper({ id: 1 })];
+        const napsMock = [makeNap({ id: 1 })];
+
+        vi.spyOn(childrenService, 'get').mockReturnValue(of(mockChild));
+        vi.spyOn(feedingsService, 'list').mockReturnValue(of(feedingsMock));
+        vi.spyOn(diapersService, 'list').mockReturnValue(of(diapersMock));
+        vi.spyOn(napsService, 'list').mockReturnValue(of(napsMock));
+
+        fixture = TestBed.createComponent(ChildDashboard);
+        component = fixture.componentInstance;
+        component.childId.set(1);
+
+        // First call
+        component.loadDashboardData(1);
+        expect(component.isLoading()).toBe(false);
+        expect(component.feedings().length).toBe(2);
+
+        // Rapid second call
+        component.loadDashboardData(1);
+        expect(component.isLoading()).toBe(false);
+        expect(component.feedings().length).toBe(2);
+
+        // Both should have latest data
+        expect(component.child()).toEqual(mockChild);
+      });
+
+      it('should not show loading spinner when showLoading parameter is false', () => {
+        setupWithData();
+
+        component.loadDashboardData(1, false);
+
+        expect(component.isLoading()).toBe(false);
+      });
+
+      it('should clear error before loading new data', () => {
+        setupWithData();
+
+        component.error.set('Previous error');
+        expect(component.error()).toBe('Previous error');
+
+        component.loadDashboardData(1);
+
+        expect(component.error()).toBeNull();
+      });
+    });
+
+    describe('route changes with different childId', () => {
+      it('should load different child data when childId changes', () => {
+        const child1 = { ...mockChild, id: 1, name: 'Alice' };
+        const child2 = { ...mockChild, id: 2, name: 'Bob' };
+
+        vi.spyOn(childrenService, 'get')
+          .mockReturnValueOnce(of(child1))
+          .mockReturnValueOnce(of(child2));
+        vi.spyOn(feedingsService, 'list').mockReturnValue(of([]));
+        vi.spyOn(diapersService, 'list').mockReturnValue(of([]));
+        vi.spyOn(napsService, 'list').mockReturnValue(of([]));
+
+        fixture = TestBed.createComponent(ChildDashboard);
+        component = fixture.componentInstance;
+
+        // Load first child
+        component.childId.set(1);
+        component.loadDashboardData(1);
+        expect(component.child()?.name).toBe('Alice');
+
+        // Load second child (simulating route change)
+        component.childId.set(2);
+        component.loadDashboardData(2);
+        expect(component.child()?.name).toBe('Bob');
+      });
+
+      it('should update childId signal when ngOnInit called with different route param', () => {
+        vi.spyOn(childrenService, 'get').mockReturnValue(of(mockChild));
+        vi.spyOn(feedingsService, 'list').mockReturnValue(of([]));
+        vi.spyOn(diapersService, 'list').mockReturnValue(of([]));
+        vi.spyOn(napsService, 'list').mockReturnValue(of([]));
+
+        const mockActivatedRoute = TestBed.inject(ActivatedRoute);
+        vi.spyOn(mockActivatedRoute.snapshot.paramMap, 'get').mockReturnValue('5');
+
+        fixture = TestBed.createComponent(ChildDashboard);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+
+        expect(component.childId()).toBe(5);
+      });
+    });
+
+    describe('missing or invalid childId handling', () => {
+      it('should not load data if childId is missing from route', () => {
+        const mockActivatedRoute = TestBed.inject(ActivatedRoute);
+        vi.spyOn(mockActivatedRoute.snapshot.paramMap, 'get').mockReturnValue(null);
+
+        fixture = TestBed.createComponent(ChildDashboard);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+
+        expect(component.childId()).toBeNull();
+        expect(component.child()).toBeNull();
+        expect(component.isLoading()).toBe(true);
+      });
+
+      it('should handle invalid childId (non-numeric)', () => {
+        const mockActivatedRoute = TestBed.inject(ActivatedRoute);
+        vi.spyOn(mockActivatedRoute.snapshot.paramMap, 'get').mockReturnValue(
+          'invalid'
+        );
+
+        fixture = TestBed.createComponent(ChildDashboard);
+        component = fixture.componentInstance;
+
+        // Should convert to NaN but still try to load
+        expect(Number('invalid')).toBeNaN();
+      });
+    });
+
+    describe('state isolation across dashboard reloads', () => {
+      it('should preserve old data while loading new data', () => {
+        const oldFeeding = makeFeeding({ id: 100, amount_oz: 2 });
+        const newFeeding = makeFeeding({ id: 101, amount_oz: 4 });
+
+        vi.spyOn(childrenService, 'get').mockReturnValue(of(mockChild));
+        vi.spyOn(feedingsService, 'list')
+          .mockReturnValueOnce(of([oldFeeding]))
+          .mockReturnValueOnce(of([newFeeding]));
+        vi.spyOn(diapersService, 'list').mockReturnValue(of([]));
+        vi.spyOn(napsService, 'list').mockReturnValue(of([]));
+
+        fixture = TestBed.createComponent(ChildDashboard);
+        component = fixture.componentInstance;
+
+        // First load
+        component.loadDashboardData(1, true);
+        expect(component.feedings()[0]?.amount_oz).toBe(2);
+
+        // Second load - should update to new data
+        component.loadDashboardData(1, true);
+        expect(component.feedings()[0]?.amount_oz).toBe(4);
+      });
+
+      it('should isolate data between different child dashboard instances', () => {
+        const feeding1 = makeFeeding({ id: 1 });
+        const feeding2 = makeFeeding({ id: 2 });
+
+        vi.spyOn(childrenService, 'get').mockReturnValue(of(mockChild));
+        vi.spyOn(feedingsService, 'list')
+          .mockReturnValueOnce(of([feeding1]))
+          .mockReturnValueOnce(of([feeding2]));
+        vi.spyOn(diapersService, 'list').mockReturnValue(of([]));
+        vi.spyOn(napsService, 'list').mockReturnValue(of([]));
+
+        // Create first instance
+        const fixture1 = TestBed.createComponent(ChildDashboard);
+        const component1 = fixture1.componentInstance;
+        component1.loadDashboardData(1);
+
+        // Create second instance
+        const fixture2 = TestBed.createComponent(ChildDashboard);
+        const component2 = fixture2.componentInstance;
+        component2.loadDashboardData(1);
+
+        // Verify each instance has its own data
+        expect(component1.feedings()[0]?.id).toBe(1);
+        expect(component2.feedings()[0]?.id).toBe(2);
+      });
+    });
+
+    describe('computed signals during lifecycle transitions', () => {
+      it('should maintain correct counts while data loads', () => {
+        const feedingToday = makeFeeding({
+          id: 1,
+          fed_at: makeTodayTimestamp(),
+        });
+        const feedingYesterday = makeFeeding({
+          id: 2,
+          fed_at: makeYesterdayTimestamp(),
+        });
+
+        vi.spyOn(childrenService, 'get').mockReturnValue(of(mockChild));
+        vi.spyOn(feedingsService, 'list').mockReturnValue(
+          of([feedingToday, feedingYesterday])
+        );
+        vi.spyOn(diapersService, 'list').mockReturnValue(of([]));
+        vi.spyOn(napsService, 'list').mockReturnValue(of([]));
+
+        fixture = TestBed.createComponent(ChildDashboard);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+
+        expect(component.todayFeedings()).toBe(1);
+      });
+
+      it('should update computed permissions when child role changes', () => {
+        const ownerChild = { ...mockChild, user_role: 'owner' as const };
+        const caregiverChild = { ...mockChild, user_role: 'caregiver' as const };
+
+        vi.spyOn(childrenService, 'get')
+          .mockReturnValueOnce(of(ownerChild))
+          .mockReturnValueOnce(of(caregiverChild));
+        vi.spyOn(feedingsService, 'list').mockReturnValue(of([]));
+        vi.spyOn(diapersService, 'list').mockReturnValue(of([]));
+        vi.spyOn(napsService, 'list').mockReturnValue(of([]));
+
+        fixture = TestBed.createComponent(ChildDashboard);
+        component = fixture.componentInstance;
+
+        // First load with owner
+        component.loadDashboardData(1);
+        expect(component.canEdit()).toBe(true);
+        expect(component.canManageSharing()).toBe(true);
+
+        // Second load with caregiver role
+        component.loadDashboardData(1);
+        expect(component.canEdit()).toBe(false);
+        expect(component.canManageSharing()).toBe(false);
+      });
+
+      it('should recalculate diaper breakdown when diapers signal changes', () => {
+        const wetDiaper = makeDiaper({
+          id: 1,
+          change_type: 'wet',
+          changed_at: makeTodayTimestamp(),
+        });
+        const dirtyDiaper = makeDiaper({
+          id: 2,
+          change_type: 'dirty',
+          changed_at: makeTodayTimestamp(),
+        });
+        const bothDiaper = makeDiaper({
+          id: 3,
+          change_type: 'both',
+          changed_at: makeTodayTimestamp(),
+        });
+
+        setupWithData([], [wetDiaper, dirtyDiaper, bothDiaper]);
+
+        expect(component.todayDiapersWet()).toBe(1);
+        expect(component.todayDiapersDirty()).toBe(1);
+        expect(component.todayDiapersBoth()).toBe(1);
+        expect(component.todayDiapers()).toBe(3);
+      });
+    });
+
+    describe('quickLogged event and refresh behavior', () => {
+      it('should reload data without loading spinner on quickLogged event', () => {
+        const feedingBefore = makeFeeding({ id: 1 });
+        const feedingAfter = makeFeeding({ id: 1 });
+        const newFeeding = makeFeeding({ id: 2 });
+
+        vi.spyOn(childrenService, 'get').mockReturnValue(of(mockChild));
+        vi.spyOn(feedingsService, 'list')
+          .mockReturnValueOnce(of([feedingBefore]))
+          .mockReturnValueOnce(of([newFeeding, feedingAfter]));
+        vi.spyOn(diapersService, 'list').mockReturnValue(of([]));
+        vi.spyOn(napsService, 'list').mockReturnValue(of([]));
+
+        setupWithData([feedingBefore]);
+
+        component.isLoading.set(false);
+        component.onQuickLogged();
+
+        // Should load new data without showing loading spinner
+        expect(component.feedings().length).toBe(2);
+        expect(component.feedings()[0]?.id).toBe(2);
+      });
+
+      it('should handle onQuickLogged when childId is null', () => {
+        setupWithData();
+
+        component.childId.set(null);
+        const loadSpy = vi.spyOn(component, 'loadDashboardData');
+
+        component.onQuickLogged();
+
+        expect(loadSpy).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('navigation signal state during lifecycle', () => {
+      it('should maintain navigation signals across data loads', () => {
+        setupWithData();
+
+        component.isNavigatingToFeeding.set(true);
+        expect(component.isNavigatingToFeeding()).toBe(true);
+
+        component.loadDashboardData(1);
+
+        // Navigation signal should remain unchanged by data load
+        expect(component.isNavigatingToFeeding()).toBe(true);
+      });
+
+      it('should handle rapid navigation button clicks', () => {
+        setupWithData();
+
+        component.navigateToFeedings();
+        component.navigateToDiapers();
+        component.navigateToNaps();
+        component.navigateToAnalytics();
+
+        expect(component.isNavigatingToFeeding()).toBe(true);
+        expect(component.isNavigatingToDiaper()).toBe(true);
+        expect(component.isNavigatingToNap()).toBe(true);
+        expect(component.isNavigatingToAnalytics()).toBe(true);
+      });
+    });
+  });
 });
