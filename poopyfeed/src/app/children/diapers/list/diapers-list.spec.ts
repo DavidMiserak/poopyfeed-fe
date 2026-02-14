@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router, ActivatedRoute } from '@angular/router';
-import { of, throwError } from 'rxjs';
+import { of, throwError, Observable } from 'rxjs';
 import { DiapersList } from './diapers-list';
 import { DiapersService } from '../../../services/diapers.service';
 import { ChildrenService } from '../../../services/children.service';
@@ -646,6 +646,148 @@ describe('DiapersList - Comprehensive Tests', () => {
       expect(component.allDiapers()[0].change_type).toBe('wet');
       expect(component.allDiapers()[1].change_type).toBe('dirty');
       expect(component.allDiapers()[2].change_type).toBe('both');
+    });
+  });
+});
+
+describe('DiapersList - Route and Concurrent Operations', () => {
+  let component: DiapersList;
+  let fixture: ComponentFixture<DiapersList>;
+  let diapersService: DiapersService;
+  let childrenService: ChildrenService;
+  let router: Router;
+
+  const mockChild: Child = {
+    id: 1,
+    name: 'Baby Alice',
+    date_of_birth: '2024-01-15',
+    gender: 'F',
+    user_role: 'owner',
+    created_at: '2024-01-15T10:00:00Z',
+    updated_at: '2024-01-15T10:00:00Z',
+    last_diaper_change: '2024-01-15T14:30:00Z',
+    last_nap: '2024-01-15T13:00:00Z',
+    last_feeding: '2024-01-15T12:00:00Z',
+  };
+
+  const mockDiapers: DiaperChange[] = [
+    {
+      id: 1,
+      child: 1,
+      change_type: 'wet',
+      changed_at: '2024-01-15T10:00:00Z',
+      created_at: '2024-01-15T10:00:00Z',
+      updated_at: '2024-01-15T10:00:00Z',
+    },
+    {
+      id: 2,
+      child: 1,
+      change_type: 'dirty',
+      changed_at: '2024-01-15T14:30:00Z',
+      created_at: '2024-01-15T14:30:00Z',
+      updated_at: '2024-01-15T14:30:00Z',
+    },
+    {
+      id: 3,
+      child: 1,
+      change_type: 'both',
+      changed_at: '2024-01-15T18:00:00Z',
+      created_at: '2024-01-15T18:00:00Z',
+      updated_at: '2024-01-15T18:00:00Z',
+    },
+  ];
+
+  beforeEach(async () => {
+    const diapersServiceMock = {
+      list: vi.fn().mockReturnValue(of(mockDiapers)),
+      delete: vi.fn().mockReturnValue(of(void 0)),
+    };
+    const childrenServiceMock = {
+      get: vi.fn().mockReturnValue(of(mockChild)),
+    };
+    const routerMock = {
+      navigate: vi.fn(),
+    };
+
+    await TestBed.configureTestingModule({
+      imports: [DiapersList],
+      providers: [
+        { provide: DiapersService, useValue: diapersServiceMock },
+        { provide: ChildrenService, useValue: childrenServiceMock },
+        { provide: Router, useValue: routerMock },
+        FilterService,
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              paramMap: {
+                get: (key: string) => (key === 'childId' ? '1' : null),
+              },
+            },
+          },
+        },
+      ],
+    }).compileComponents();
+
+    diapersService = TestBed.inject(DiapersService);
+    childrenService = TestBed.inject(ChildrenService);
+    router = TestBed.inject(Router);
+
+    fixture = TestBed.createComponent(DiapersList);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  describe('Route Parameter Changes', () => {
+    it('should reload data when childId route parameter changes', async () => {
+      component.ngOnInit();
+      expect(component.childId()).toBe(1);
+
+      const mockRoute = TestBed.inject(ActivatedRoute);
+      const originalGet = mockRoute.snapshot.paramMap.get;
+      mockRoute.snapshot.paramMap.get = vi.fn((key: string) =>
+        key === 'childId' ? '2' : null
+      );
+      vi.mocked(childrenService.get).mockReturnValue(
+        of({ ...mockChild, id: 2, name: 'Baby Bob' })
+      );
+
+      component.ngOnInit();
+      await new Promise(resolve => setTimeout(resolve, 10));
+
+      expect(component.childId()).toBe(2);
+      expect(component.child()?.id).toBe(2);
+
+      mockRoute.snapshot.paramMap.get = originalGet;
+    });
+
+    it('should clear previous data when childId changes', async () => {
+      component.allDiapers.set(mockDiapers);
+      expect(component.allDiapers().length).toBe(3);
+
+      const mockRoute = TestBed.inject(ActivatedRoute);
+      const originalGet = mockRoute.snapshot.paramMap.get;
+      mockRoute.snapshot.paramMap.get = vi.fn(() => '2');
+      vi.mocked(diapersService.list).mockReturnValue(of([]));
+
+      component.ngOnInit();
+      await new Promise(resolve => setTimeout(resolve, 10));
+
+      expect(component.allDiapers()).toEqual([]);
+
+      mockRoute.snapshot.paramMap.get = originalGet;
+    });
+  });
+
+  describe('Concurrent Operations', () => {
+    it('should handle empty filtered results after selection', () => {
+      component.allDiapers.set(mockDiapers);
+      component.selectedIds.set([1, 2]);
+
+      component.filters.set({ type: 'dirty' });
+
+      expect(component.selectedIds()).toEqual([1, 2]);
+      expect(component.isAllSelected()).toBe(false);
     });
   });
 });

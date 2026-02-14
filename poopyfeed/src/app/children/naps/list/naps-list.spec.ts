@@ -5,7 +5,7 @@ import { ChildrenService } from '../../../services/children.service';
 import { FilterService, FilterCriteria } from '../../../services/filter.service';
 import { Router } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
-import { of, throwError } from 'rxjs';
+import { of, throwError, Observable } from 'rxjs';
 import { Nap } from '../../../models/nap.model';
 import { Child } from '../../../models/child.model';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
@@ -525,6 +525,152 @@ describe('NapsList - Core Functionality Tests', () => {
       component.error.set('Test error');
 
       expect(component.error()).toBe('Test error');
+    });
+  });
+
+  describe('Duration Formatting Edge Cases', () => {
+    it('should format 0 minutes duration', () => {
+      expect(component.formatDuration(0)).toBe('0m');
+    });
+
+    it('should format 1 minute duration (singular)', () => {
+      expect(component.formatDuration(1)).toBe('1m');
+    });
+
+    it('should format exactly 60 minutes as hours only', () => {
+      expect(component.formatDuration(60)).toBe('1h');
+    });
+
+    it('should format 24+ hours correctly', () => {
+      expect(component.formatDuration(1500)).toBe('25h');
+    });
+
+    it('should handle fractional minutes by rounding', () => {
+      expect(component.formatDuration(65.7)).toBe('1h 6m');
+    });
+  });
+
+  describe('Ongoing Nap Display', () => {
+    it('should display empty string for naps with null duration', () => {
+      expect(component.formatDuration(null)).toBe('');
+    });
+
+    it('should filter ongoing naps correctly with date filters', () => {
+      const ongoingNap: Nap = {
+        id: 99,
+        child: 1,
+        napped_at: '2024-02-10T18:00:00Z',
+        ended_at: null,
+        duration_minutes: null,
+        created_at: '2024-02-10T18:00:00Z',
+        updated_at: '2024-02-10T18:00:00Z',
+      };
+      component.allNaps.set([mockNaps[0], ongoingNap]);
+      component.filters.set({ dateFrom: '2024-02-10', dateTo: '2024-02-10' });
+
+      expect(component.naps().length).toBeGreaterThan(0);
+    });
+
+    it('should allow selection of ongoing naps', () => {
+      const ongoingNap: Nap = {
+        id: 99,
+        child: 1,
+        napped_at: '2024-02-10T18:00:00Z',
+        ended_at: null,
+        duration_minutes: null,
+        created_at: '2024-02-10T18:00:00Z',
+        updated_at: '2024-02-10T18:00:00Z',
+      };
+      component.allNaps.set([ongoingNap]);
+      component.toggleSelection(ongoingNap.id);
+
+      expect(component.selectedIds()).toContain(ongoingNap.id);
+    });
+  });
+
+  describe('Route Parameter Changes', () => {
+    it('should reload data when childId route parameter changes', async () => {
+      component.ngOnInit();
+      expect(component.childId()).toBe(1);
+
+      const mockRoute = TestBed.inject(ActivatedRoute);
+      const originalGet = mockRoute.snapshot.paramMap.get;
+      mockRoute.snapshot.paramMap.get = vi.fn((key: string) =>
+        key === 'childId' ? '2' : null
+      );
+      vi.mocked(childrenService.get).mockReturnValue(
+        of({ ...mockChild, id: 2, name: 'Baby Bob' })
+      );
+
+      component.ngOnInit();
+      await new Promise(resolve => setTimeout(resolve, 10));
+
+      expect(component.childId()).toBe(2);
+      expect(component.child()?.id).toBe(2);
+
+      mockRoute.snapshot.paramMap.get = originalGet;
+    });
+
+    it('should clear previous data when childId changes', async () => {
+      component.allNaps.set(mockNaps);
+      expect(component.allNaps().length).toBe(3);
+
+      const mockRoute = TestBed.inject(ActivatedRoute);
+      const originalGet = mockRoute.snapshot.paramMap.get;
+      mockRoute.snapshot.paramMap.get = vi.fn(() => '2');
+      vi.mocked(napsService.list).mockReturnValue(of([]));
+
+      component.ngOnInit();
+      await new Promise(resolve => setTimeout(resolve, 10));
+
+      expect(component.allNaps()).toEqual([]);
+
+      mockRoute.snapshot.paramMap.get = originalGet;
+    });
+  });
+
+  describe('Filter State Transitions', () => {
+    it('should maintain filter state during data reload', async () => {
+      component.filters.set({ dateFrom: '2024-02-10', dateTo: '2024-02-12' });
+      vi.mocked(napsService.list).mockReturnValue(of(mockNaps));
+
+      component.loadData(1);
+      await new Promise(resolve => setTimeout(resolve, 10));
+
+      expect(component.filters().dateFrom).toBe('2024-02-10');
+    });
+
+    it('should handle concurrent filter change and selection update', () => {
+      component.allNaps.set(mockNaps);
+      component.filters.set({ dateFrom: '2024-02-10' });
+      component.toggleSelection(1);
+
+      expect(component.naps().length).toBeGreaterThan(0);
+      expect(component.selectedIds()).toContain(1);
+    });
+  });
+
+  describe('Concurrent Operations', () => {
+    it('should handle filter changes during data load', async () => {
+      let loadComplete = false;
+      vi.mocked(napsService.list).mockImplementation(() => {
+        return new Observable(subscriber => {
+          setTimeout(() => {
+            loadComplete = true;
+            subscriber.next(mockNaps);
+            subscriber.complete();
+          }, 50);
+        });
+      });
+
+      component.loadData(1);
+      component.filters.set({ dateFrom: '2024-02-10' });
+
+      expect(loadComplete).toBe(false);
+      expect(component.filters().dateFrom).toBe('2024-02-10');
+
+      await new Promise(resolve => setTimeout(resolve, 60));
+      expect(loadComplete).toBe(true);
     });
   });
 });

@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router, ActivatedRoute } from '@angular/router';
-import { of, throwError } from 'rxjs';
+import { of, throwError, Observable } from 'rxjs';
 import { ChildrenList } from './children-list';
 import { ChildrenService } from '../../services/children.service';
 import { Child } from '../../models/child.model';
@@ -672,6 +672,28 @@ describe('ChildrenList', () => {
       expect(component.children()[0].gender).toBe('F');
       expect(component.children()[1].gender).toBe('M');
       expect(component.children()[2].gender).toBe('O');
+    });
+  });
+
+  describe('Navigation Edge Cases', () => {
+    it('should handle rapid navigation to different children', () => {
+      component.navigateToChild(1);
+      component.navigateToChild(2);
+      component.navigateToChild(3);
+
+      expect(router.navigate).toHaveBeenCalledTimes(3);
+      expect(router.navigate).toHaveBeenLastCalledWith(['/children', 3, 'dashboard']);
+    });
+
+    it('should manage rapid navigation state correctly', () => {
+      component.navigateToChild(1);
+      expect(component.navigatingToChildId()).toBe(1);
+
+      component.navigateToChild(2);
+      expect(component.navigatingToChildId()).toBe(2);
+
+      component.navigateToChild(3);
+      expect(component.navigatingToChildId()).toBe(3);
     });
   });
 });

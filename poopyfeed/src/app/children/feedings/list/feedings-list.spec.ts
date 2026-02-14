@@ -6,7 +6,7 @@ import { FilterService } from '../../../services/filter.service';
 import { ToastService } from '../../../services/toast.service';
 import { Router } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
-import { of, throwError } from 'rxjs';
+import { of, throwError, Observable } from 'rxjs';
 import { Feeding } from '../../../models/feeding.model';
 import { Child } from '../../../models/child.model';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
@@ -965,6 +965,101 @@ describe('FeedingsList - Core Functionality Tests', () => {
       component.isLoading.set(false);
 
       expect(component.isLoading()).toBe(false);
+    });
+  });
+
+  describe('Route Parameter Changes', () => {
+    it('should reload data when childId route parameter changes', async () => {
+      component.ngOnInit();
+      expect(component.childId()).toBe(1);
+
+      const mockRoute = TestBed.inject(ActivatedRoute);
+      const originalGet = mockRoute.snapshot.paramMap.get;
+      mockRoute.snapshot.paramMap.get = vi.fn((key: string) =>
+        key === 'childId' ? '2' : null
+      );
+      vi.mocked(childrenService.get).mockReturnValue(
+        of({ ...mockChild, id: 2, name: 'Baby Bob' })
+      );
+
+      component.ngOnInit();
+      await new Promise(resolve => setTimeout(resolve, 10));
+
+      expect(component.childId()).toBe(2);
+      expect(component.child()?.id).toBe(2);
+
+      mockRoute.snapshot.paramMap.get = originalGet;
+    });
+
+    it('should clear previous data when childId changes', async () => {
+      component.allFeedings.set(mockFeedings);
+      expect(component.allFeedings().length).toBe(3);
+
+      const mockRoute = TestBed.inject(ActivatedRoute);
+      const originalGet = mockRoute.snapshot.paramMap.get;
+      mockRoute.snapshot.paramMap.get = vi.fn(() => '2');
+      vi.mocked(feedingsService.list).mockReturnValue(of([]));
+
+      component.ngOnInit();
+      await new Promise(resolve => setTimeout(resolve, 10));
+
+      expect(component.allFeedings()).toEqual([]);
+
+      mockRoute.snapshot.paramMap.get = originalGet;
+    });
+  });
+
+  describe('Filter State Transitions', () => {
+    it('should update filtered list immediately when filters change', () => {
+      component.allFeedings.set(mockFeedings);
+      expect(component.feedings().length).toBe(3);
+
+      component.filters.set({ type: 'bottle' });
+      expect(component.feedings().length).toBe(2);
+    });
+
+    it('should handle rapid filter changes correctly', () => {
+      component.allFeedings.set(mockFeedings);
+      component.filters.set({ type: 'bottle' });
+      component.filters.set({ type: 'breast' });
+      component.filters.set({ type: 'bottle' });
+
+      const filtered = component.feedings();
+      expect(filtered.every((f: Feeding) => f.feeding_type === 'bottle')).toBe(true);
+    });
+
+    it('should handle isAllSelected computed during filter transitions', () => {
+      component.allFeedings.set(mockFeedings);
+      component.selectedIds.set([1, 3]);
+      expect(component.isAllSelected()).toBe(false);
+
+      component.filters.set({ type: 'bottle' });
+      expect(component.isAllSelected()).toBe(true);
+    });
+  });
+
+  describe('Concurrent Operations', () => {
+    it('should handle selection changes during bulk delete operation', async () => {
+      const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
+      component.childId.set(1);
+      component.allFeedings.set(mockFeedings);
+      component.selectedIds.set([1, 2]);
+
+      component.bulkDelete();
+      component.toggleSelection(3);
+
+      await new Promise(resolve => setTimeout(resolve, 100));
+      expect(component.isBulkDeleting()).toBe(false);
+      confirmSpy.mockRestore();
+    });
+
+    it('should preserve error state when filters change', () => {
+      component.error.set('Previous error');
+      component.allFeedings.set([]);
+
+      component.filters.set({ type: 'bottle' });
+
+      expect(component.error()).toBe('Previous error');
     });
   });
 });
