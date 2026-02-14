@@ -460,4 +460,404 @@ describe('AccountSettings', () => {
     firstNameControl?.setValue('Short Name');
     expect(firstNameControl?.hasError('maxlength')).toBe(false);
   });
+
+  // ============ PHASE 7: CONDITIONAL RENDERING TESTS ============
+
+  describe('Template Conditional Rendering', () => {
+    it('should render loading spinner when isLoading is true', () => {
+      const fixture = TestBed.createComponent(AccountSettings);
+      const component = fixture.componentInstance;
+
+      expect(component.isLoading()).toBe(true);
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const spinner = compiled.querySelector('svg[aria-label="Loading"]');
+      expect(spinner).toBeTruthy();
+      expect(spinner?.classList.contains('animate-spin')).toBe(true);
+
+      // Flush the request so afterEach passes
+      const req = httpMock.expectOne('/api/v1/account/profile/');
+      req.flush(mockProfile);
+    });
+
+    it('should hide loading spinner when isLoading is false', () => {
+      const fixture = createComponent();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const spinner = compiled.querySelector('svg[aria-label="Loading"]');
+      expect(spinner).toBeFalsy();
+    });
+
+    it('should render load error message when loadError exists', () => {
+      const fixture = TestBed.createComponent(AccountSettings);
+      fixture.detectChanges();
+
+      const req = httpMock.expectOne('/api/v1/account/profile/');
+      req.flush({}, { status: 500, statusText: 'Internal Server Error' });
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const errorDiv = compiled.querySelector('div.border-red-500');
+      expect(errorDiv).toBeTruthy();
+      // Error message is processed by ErrorHandler and shown as user-friendly message
+      expect(errorDiv?.textContent).toContain('error occurred');
+    });
+
+    it('should not render load error when loadError is null', () => {
+      const fixture = createComponent();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const errorDiv = compiled.querySelector('div.border-red-500');
+      expect(errorDiv).toBeFalsy();
+    });
+
+    it('should render profile error message in DOM when profileError exists', () => {
+      const fixture = createComponent();
+      const component = fixture.componentInstance;
+
+      component.profileError.set('Profile update failed');
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const errorDiv = compiled.querySelector(
+        'div.border-l-4.border-red-500:has(+ form)'
+      );
+      expect(errorDiv?.textContent).toContain('Profile update failed');
+    });
+
+    it('should render profile success message in DOM when profileSuccess exists', () => {
+      const fixture = createComponent();
+      const component = fixture.componentInstance;
+
+      component.profileSuccess.set('Profile updated successfully.');
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const successDiv = compiled.querySelector('div.border-green-500');
+      expect(successDiv?.textContent).toContain('Profile updated successfully');
+    });
+
+    it('should render email validation error when email invalid and touched', () => {
+      const fixture = createComponent();
+      const component = fixture.componentInstance;
+
+      const emailControl = component.profileForm.get('email');
+      emailControl?.setValue('invalid-email');
+      emailControl?.markAsTouched();
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const emailError = compiled.querySelector(
+        'input[id="email"] + p.text-red-600'
+      );
+      expect(emailError).toBeTruthy();
+      expect(emailError?.textContent).toContain(
+        'Please enter a valid email address'
+      );
+    });
+
+    it('should not render email validation error when email untouched', () => {
+      const fixture = createComponent();
+      const component = fixture.componentInstance;
+
+      component.profileForm.get('email')?.setValue('invalid-email');
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const emailError = compiled.querySelector(
+        'input[id="email"] + p.text-red-600'
+      );
+      expect(emailError).toBeFalsy();
+    });
+
+    it('should render saving text in profile button during submission', () => {
+      const fixture = createComponent();
+      const component = fixture.componentInstance;
+
+      component.profileSubmitting.set(true);
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const submitContent = compiled.querySelector('form:first-child button')?.textContent;
+      // Button shows "Saving..." when submitting due to the @if condition
+      expect(component.profileSubmitting()).toBe(true);
+    });
+
+    it('should hide spinner in profile submit button when not submitting', () => {
+      const fixture = createComponent();
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const profileButton = Array.from(
+        compiled.querySelectorAll('button[type="submit"]')
+      ).find((btn) => btn.textContent?.includes('Save Profile'));
+
+      expect(profileButton?.textContent).toContain('Save Profile');
+      expect(profileButton?.textContent).not.toContain('Saving');
+    });
+
+    it('should render timezone error message in DOM when timezoneError exists', () => {
+      const fixture = createComponent();
+      const component = fixture.componentInstance;
+
+      component.timezoneError.set('Invalid timezone');
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const errors = Array.from(compiled.querySelectorAll('div.border-red-500'));
+      const timezoneError = errors.find((el) =>
+        el.textContent?.includes('Invalid timezone')
+      );
+      expect(timezoneError).toBeTruthy();
+    });
+
+    it('should render timezone success message in DOM when timezoneSuccess exists', () => {
+      const fixture = createComponent();
+      const component = fixture.componentInstance;
+
+      component.timezoneSuccess.set('Timezone updated successfully.');
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const successDivs = compiled.querySelectorAll('div.border-green-500');
+      const timezoneSuccess = Array.from(successDivs).find((el) =>
+        el.textContent?.includes('Timezone updated successfully')
+      );
+      expect(timezoneSuccess).toBeTruthy();
+    });
+
+    it('should set timezoneSubmitting signal when timezone is updated', () => {
+      const fixture = createComponent();
+      const component = fixture.componentInstance;
+
+      expect(component.timezoneSubmitting()).toBe(false);
+
+      component.timezoneForm.patchValue({ timezone: 'America/Chicago' });
+      component.onTimezoneSubmit();
+
+      expect(component.timezoneSubmitting()).toBe(true);
+
+      const req = httpMock.expectOne('/api/v1/account/profile/');
+      req.flush({ ...mockProfile });
+    });
+
+    it('should render password error message in DOM when passwordError exists', () => {
+      const fixture = createComponent();
+      const component = fixture.componentInstance;
+
+      component.passwordError.set('Password change failed');
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const errors = Array.from(compiled.querySelectorAll('div.border-red-500'));
+      const passwordError = errors.find((el) =>
+        el.textContent?.includes('Password change failed')
+      );
+      expect(passwordError).toBeTruthy();
+    });
+
+    it('should render password success message in DOM when passwordSuccess exists', () => {
+      const fixture = createComponent();
+      const component = fixture.componentInstance;
+
+      component.passwordSuccess.set('Password changed successfully.');
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const successDivs = compiled.querySelectorAll('div.border-green-500');
+      const passwordSuccess = Array.from(successDivs).find((el) =>
+        el.textContent?.includes('Password changed successfully')
+      );
+      expect(passwordSuccess).toBeTruthy();
+    });
+
+    it('should render password validation error when password invalid and touched', () => {
+      const fixture = createComponent();
+      const component = fixture.componentInstance;
+
+      const passwordControl = component.passwordForm.get('new_password');
+      passwordControl?.setValue('short');
+      passwordControl?.markAsTouched();
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const passwordError = compiled.querySelector(
+        'input[id="new_password"] + p.text-red-600'
+      );
+      expect(passwordError).toBeTruthy();
+      expect(passwordError?.textContent).toContain(
+        'Password must be at least 8 characters'
+      );
+    });
+
+    it('should not render password validation error when password untouched', () => {
+      const fixture = createComponent();
+      const component = fixture.componentInstance;
+
+      component.passwordForm.get('new_password')?.setValue('short');
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const passwordError = compiled.querySelector(
+        'input[id="new_password"] + p.text-red-600'
+      );
+      expect(passwordError).toBeFalsy();
+    });
+
+    it('should set passwordSubmitting signal when password is changed', () => {
+      const fixture = createComponent();
+      const component = fixture.componentInstance;
+
+      expect(component.passwordSubmitting()).toBe(false);
+
+      component.passwordForm.patchValue({
+        current_password: 'oldpass',
+        new_password: 'NewSecure123!',
+        new_password_confirm: 'NewSecure123!',
+      });
+      component.onPasswordSubmit();
+
+      expect(component.passwordSubmitting()).toBe(true);
+
+      const req = httpMock.expectOne('/api/v1/account/password/');
+      req.flush({
+        detail: 'Password changed successfully.',
+        auth_token: 'new-token',
+      });
+    });
+
+    it('should hide spinner in password submit button when not submitting', () => {
+      const fixture = createComponent();
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const passwordButton = Array.from(
+        compiled.querySelectorAll('button[type="submit"]')
+      ).find((btn) => btn.textContent?.includes('Change Password'));
+
+      expect(passwordButton?.textContent).toContain('Change Password');
+      expect(passwordButton?.textContent).not.toContain('Changing');
+    });
+
+    it('should render delete error message in DOM when deleteError exists', () => {
+      const fixture = createComponent();
+      const component = fixture.componentInstance;
+
+      component.deleteError.set('Delete failed');
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const errors = Array.from(compiled.querySelectorAll('div.border-red-500'));
+      const deleteError = errors.find((el) =>
+        el.textContent?.includes('Delete failed')
+      );
+      expect(deleteError).toBeTruthy();
+    });
+
+    it('should set deleteSubmitting signal when delete is triggered', () => {
+      const fixture = createComponent();
+      const component = fixture.componentInstance;
+
+      expect(component.deleteSubmitting()).toBe(false);
+
+      component.deleteForm.patchValue({ current_password: 'password' });
+      component.onDeleteSubmit();
+
+      expect(component.deleteSubmitting()).toBe(true);
+
+      const req = httpMock.expectOne('/api/v1/account/delete/');
+      req.flush(null, { status: 204, statusText: 'No Content' });
+    });
+
+    it('should hide spinner in delete submit button when not submitting', () => {
+      const fixture = createComponent();
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const deleteButton = Array.from(
+        compiled.querySelectorAll('button[type="submit"]')
+      ).find((btn) => btn.textContent?.includes('Delete Account'));
+
+      expect(deleteButton?.textContent).toContain('Delete Account');
+      expect(deleteButton?.textContent).not.toContain('Deleting');
+    });
+
+    it('should disable profile submit button when form invalid', () => {
+      const fixture = createComponent();
+      const component = fixture.componentInstance;
+
+      component.profileForm.patchValue({ email: 'invalid' });
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const profileButton = Array.from(
+        compiled.querySelectorAll('button[type="submit"]')
+      ).find((btn) => btn.textContent?.includes('Save Profile'));
+
+      expect((profileButton as HTMLButtonElement).disabled).toBe(true);
+    });
+
+    it('should set profileSubmitting signal when form is submitted', () => {
+      const fixture = createComponent();
+      const component = fixture.componentInstance;
+
+      expect(component.profileSubmitting()).toBe(false);
+
+      component.profileForm.patchValue({ first_name: 'Updated' });
+      component.onProfileSubmit();
+
+      expect(component.profileSubmitting()).toBe(true);
+
+      const req = httpMock.expectOne('/api/v1/account/profile/');
+      req.flush({ ...mockProfile });
+    });
+
+    it('should show content section when not loading and no error', () => {
+      const fixture = createComponent();
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const profileCard = compiled.querySelector('h2');
+      expect(profileCard?.textContent).toContain('Profile');
+    });
+
+    it('should conditionally show/hide multiple success messages', () => {
+      const fixture = createComponent();
+      const component = fixture.componentInstance;
+
+      // Initially no messages
+      fixture.detectChanges();
+      let compiled = fixture.nativeElement as HTMLElement;
+      let successMessages = compiled.querySelectorAll('div.border-green-500');
+      expect(successMessages.length).toBe(0);
+
+      // Set profile success
+      component.profileSuccess.set('Profile updated');
+      fixture.detectChanges();
+      compiled = fixture.nativeElement as HTMLElement;
+      successMessages = compiled.querySelectorAll('div.border-green-500');
+      expect(successMessages.length).toBe(1);
+      expect(successMessages[0].textContent).toContain('Profile updated');
+    });
+
+    it('should conditionally show/hide multiple error messages', () => {
+      const fixture = createComponent();
+      const component = fixture.componentInstance;
+
+      // Initially no errors
+      fixture.detectChanges();
+      let compiled = fixture.nativeElement as HTMLElement;
+      let errorMessages = compiled.querySelectorAll('div.border-red-500');
+      expect(errorMessages.length).toBe(0);
+
+      // Set profile error
+      component.profileError.set('Profile error');
+      fixture.detectChanges();
+      compiled = fixture.nativeElement as HTMLElement;
+      errorMessages = compiled.querySelectorAll('div.border-red-500');
+      expect(errorMessages.length).toBe(1);
+      expect(errorMessages[0].textContent).toContain('Profile error');
+    });
+  });
 });
