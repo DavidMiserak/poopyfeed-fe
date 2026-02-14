@@ -8,6 +8,7 @@ import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { FeedingTrendsChart } from './feeding-trends-chart';
 import { Chart } from 'chart.js';
 import { FeedingTrends } from '../../models/analytics.model';
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 
 // Mock Chart.js
 vi.mock('chart.js', () => {
@@ -49,6 +50,7 @@ describe('FeedingTrendsChart', () => {
   };
 
   beforeEach(async () => {
+    vi.clearAllMocks();
     await TestBed.configureTestingModule({
       imports: [FeedingTrendsChart],
     }).compileComponents();
@@ -59,6 +61,7 @@ describe('FeedingTrendsChart', () => {
 
   afterEach(() => {
     fixture.destroy();
+    vi.clearAllMocks();
   });
 
   describe('Initialization', () => {
@@ -76,35 +79,37 @@ describe('FeedingTrendsChart', () => {
   });
 
   describe('Chart Rendering', () => {
-    it('should render chart when data is provided', () => {
+    it('should render chart when data is provided', async () => {
       fixture.componentRef.setInput('data', mockData);
       fixture.componentRef.setInput('isLoading', false);
       fixture.detectChanges();
+      await new Promise(resolve => setTimeout(resolve, 50));
 
       expect(vi.mocked(Chart)).toHaveBeenCalled();
     });
 
-    it('should not render chart when data is null', () => {
-      vi.clearAllMocks();
+    it('should not render chart when data is null', async () => {
       fixture.componentRef.setInput('data', null);
       fixture.detectChanges();
+      await new Promise(resolve => setTimeout(resolve, 50));
 
       expect(vi.mocked(Chart)).not.toHaveBeenCalled();
     });
 
-    it('should not render chart when isLoading is true', () => {
-      vi.clearAllMocks();
+    it('should not render chart when isLoading is true', async () => {
       fixture.componentRef.setInput('data', mockData);
       fixture.componentRef.setInput('isLoading', true);
       fixture.detectChanges();
+      await new Promise(resolve => setTimeout(resolve, 50));
 
       expect(vi.mocked(Chart)).not.toHaveBeenCalled();
     });
 
-    it('should pass correct data to chart', () => {
+    it('should pass correct data to chart', async () => {
       fixture.componentRef.setInput('data', mockData);
       fixture.componentRef.setInput('isLoading', false);
       fixture.detectChanges();
+      await new Promise(resolve => setTimeout(resolve, 50));
 
       const chartMock = vi.mocked(Chart);
       expect(chartMock).toHaveBeenCalled();
@@ -114,10 +119,11 @@ describe('FeedingTrendsChart', () => {
       expect(chartConfig.data.datasets[0].data).toEqual([5, 6, 5]);
     });
 
-    it('should use PoopyFeed brand colors', () => {
+    it('should use PoopyFeed brand colors', async () => {
       fixture.componentRef.setInput('data', mockData);
       fixture.componentRef.setInput('isLoading', false);
       fixture.detectChanges();
+      await new Promise(resolve => setTimeout(resolve, 50));
 
       const chartMock = vi.mocked(Chart);
       expect(chartMock).toHaveBeenCalled();
@@ -201,24 +207,25 @@ describe('FeedingTrendsChart', () => {
       expect(component.hasData()).toBe(true);
     });
 
-    it('should not render chart when data has all zero counts', () => {
-      vi.clearAllMocks();
+    it('should not render chart when data has all zero counts', async () => {
       fixture.componentRef.setInput('data', {
         ...mockData,
         daily_data: [{ date: '2024-01-01', count: 0, average_duration: null, total_oz: null }],
       });
       fixture.componentRef.setInput('isLoading', false);
       fixture.detectChanges();
+      await new Promise(resolve => setTimeout(resolve, 50));
 
       expect(vi.mocked(Chart)).not.toHaveBeenCalled();
     });
   });
 
   describe('Data Updates', () => {
-    it('should re-render chart when data changes', () => {
+    it('should re-render chart when data changes', async () => {
       fixture.componentRef.setInput('data', mockData);
       fixture.componentRef.setInput('isLoading', false);
       fixture.detectChanges();
+      await new Promise(resolve => setTimeout(resolve, 50));
 
       const chartMock = vi.mocked(Chart);
       const initialCallCount = chartMock.mock.calls.length;
@@ -230,14 +237,16 @@ describe('FeedingTrendsChart', () => {
 
       fixture.componentRef.setInput('data', newData);
       fixture.detectChanges();
+      await new Promise(resolve => setTimeout(resolve, 50));
 
       expect(chartMock.mock.calls.length).toBe(initialCallCount + 1);
     });
 
-    it('should destroy previous chart before creating new one', () => {
+    it('should destroy previous chart before creating new one', async () => {
       fixture.componentRef.setInput('data', mockData);
       fixture.componentRef.setInput('isLoading', false);
       fixture.detectChanges();
+      await new Promise(resolve => setTimeout(resolve, 50));
 
       const chartMock = vi.mocked(Chart);
       const firstInstanceResult = chartMock.mock.results[0];
@@ -257,6 +266,7 @@ describe('FeedingTrendsChart', () => {
 
       fixture.componentRef.setInput('data', newData);
       fixture.detectChanges();
+      await new Promise(resolve => setTimeout(resolve, 50));
 
       if (firstChartInstance) {
         expect(firstChartInstance.destroy).toHaveBeenCalled();
@@ -265,10 +275,11 @@ describe('FeedingTrendsChart', () => {
   });
 
   describe('Cleanup', () => {
-    it('should destroy chart on component destroy', () => {
+    it('should destroy chart on component destroy', async () => {
       fixture.componentRef.setInput('data', mockData);
       fixture.componentRef.setInput('isLoading', false);
       fixture.detectChanges();
+      await new Promise(resolve => setTimeout(resolve, 50));
 
       const chartMock = vi.mocked(Chart);
       expect(chartMock).toHaveBeenCalled();
