@@ -711,5 +711,506 @@ describe('ChildrenService', () => {
 
       expect(errorCaught).toBe(true);
     });
+
+    it('should handle 503 service unavailable on list()', () => {
+      let errorCaught = false;
+
+      service.list().subscribe({
+        error: (error: Error) => {
+          expect(error.message).toContain('server is currently down');
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/');
+      req.flush(null, { status: 503, statusText: 'Service Unavailable' });
+
+      expect(errorCaught).toBe(true);
+    });
+
+    it('should handle 504 gateway timeout on create()', () => {
+      let errorCaught = false;
+
+      const createData: ChildCreate = {
+        name: 'Baby Test',
+        date_of_birth: '2024-03-01',
+        gender: 'M',
+      };
+
+      service.create(createData).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toContain('unexpected error');
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/');
+      req.flush(null, { status: 504, statusText: 'Gateway Timeout' });
+
+      expect(errorCaught).toBe(true);
+    });
+
+    it('should handle 507 insufficient storage on delete()', () => {
+      let errorCaught = false;
+
+      service.delete(1).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toBeDefined();
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/');
+      req.flush(null, { status: 507, statusText: 'Insufficient Storage' });
+
+      expect(errorCaught).toBe(true);
+    });
+  });
+
+  describe('permission errors', () => {
+    it('should handle 403 forbidden on create()', () => {
+      let errorCaught = false;
+
+      const createData: ChildCreate = {
+        name: 'Baby Test',
+        date_of_birth: '2024-03-01',
+        gender: 'M',
+      };
+
+      service.create(createData).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toContain('permission');
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/');
+      req.flush(null, { status: 403, statusText: 'Forbidden' });
+
+      expect(errorCaught).toBe(true);
+    });
+
+    it('should handle 403 forbidden on update()', () => {
+      let errorCaught = false;
+
+      const updateData: ChildUpdate = {
+        name: 'Updated Name',
+      };
+
+      service.update(1, updateData).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toContain('permission');
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/');
+      req.flush(null, { status: 403, statusText: 'Forbidden' });
+
+      expect(errorCaught).toBe(true);
+    });
+  });
+
+  describe('validation errors', () => {
+    it('should handle multiple field validation errors', () => {
+      let errorCaught = false;
+
+      const createData: ChildCreate = {
+        name: '',
+        date_of_birth: 'invalid-date',
+        gender: 'O',
+      };
+
+      service.create(createData).subscribe({
+        error: (error: Error) => {
+          // ErrorHandler returns only first field with error
+          expect(error.message).toContain('name');
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/');
+      req.flush(
+        {
+          name: ['This field is required'],
+          date_of_birth: ['Invalid date format'],
+        },
+        { status: 400, statusText: 'Bad Request' }
+      );
+
+      expect(errorCaught).toBe(true);
+    });
+
+    it('should handle mixed field and non_field errors', () => {
+      let errorCaught = false;
+
+      const createData: ChildCreate = {
+        name: 'Baby Test',
+        date_of_birth: '2024-03-01',
+        gender: 'M',
+      };
+
+      service.create(createData).subscribe({
+        error: (error: Error) => {
+          // ErrorHandler prioritizes non_field_errors over field errors
+          expect(error.message).toContain('Duplicate child detected');
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/');
+      req.flush(
+        {
+          name: ['Child with this name already exists'],
+          non_field_errors: ['Duplicate child detected'],
+        },
+        { status: 400, statusText: 'Bad Request' }
+      );
+
+      expect(errorCaught).toBe(true);
+    });
+
+    it('should handle array of errors per field', () => {
+      let errorCaught = false;
+
+      const createData: ChildCreate = {
+        name: 'a', // Too short
+        date_of_birth: '2024-03-01',
+        gender: 'M',
+      };
+
+      service.create(createData).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toContain('name');
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/');
+      req.flush(
+        {
+          name: ['Ensure this field has at least 2 characters', 'Another validation error'],
+        },
+        { status: 400, statusText: 'Bad Request' }
+      );
+
+      expect(errorCaught).toBe(true);
+    });
+  });
+
+  describe('state consistency', () => {
+    it('should not update children signal on error', () => {
+      const initialChildren = [...mockChildren];
+      service.children.set(initialChildren);
+
+      const createData: ChildCreate = {
+        name: 'Baby Test',
+        date_of_birth: '2024-03-01',
+        gender: 'M',
+      };
+
+      service.create(createData).subscribe({
+        error: () => {
+          // Error expected
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/');
+      req.flush(
+        { name: ['This field is required'] },
+        { status: 400, statusText: 'Bad Request' }
+      );
+
+      expect(service.children()).toEqual(initialChildren);
+    });
+
+    it('should not modify selectedChild signal on get error', () => {
+      const selectedBefore = mockChild;
+      service.selectedChild.set(selectedBefore);
+
+      service.get(999).subscribe({
+        error: () => {
+          // Error expected
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/999/');
+      req.flush(null, { status: 404, statusText: 'Not Found' });
+
+      expect(service.selectedChild()).toEqual(selectedBefore);
+    });
+
+    it('should not remove from children signal on update error', () => {
+      service.children.set([...mockChildren]);
+
+      const updateData: ChildUpdate = {
+        name: 'Invalid Update',
+      };
+
+      service.update(1, updateData).subscribe({
+        error: () => {
+          // Error expected
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/');
+      req.flush(
+        { name: ['This field is required'] },
+        { status: 400, statusText: 'Bad Request' }
+      );
+
+      expect(service.children()).toEqual(mockChildren);
+    });
+
+    it('should not modify children signal on delete error', () => {
+      service.children.set([...mockChildren]);
+
+      service.delete(1).subscribe({
+        error: () => {
+          // Error expected
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/');
+      req.flush(null, { status: 403, statusText: 'Forbidden' });
+
+      expect(service.children()).toEqual(mockChildren);
+    });
+  });
+
+  describe('concurrent request errors', () => {
+    it('should handle errors in concurrent list and get requests', () => {
+      let listErrorCaught = false;
+      let getErrorCaught = false;
+
+      service.list().subscribe({
+        error: () => {
+          listErrorCaught = true;
+        },
+      });
+
+      service.get(1).subscribe({
+        error: () => {
+          getErrorCaught = true;
+        },
+      });
+
+      const listReq = httpMock.expectOne('/api/v1/children/');
+      const getReq = httpMock.expectOne('/api/v1/children/1/');
+
+      listReq.flush(null, { status: 500, statusText: 'Internal Server Error' });
+      getReq.flush(null, { status: 404, statusText: 'Not Found' });
+
+      expect(listErrorCaught).toBe(true);
+      expect(getErrorCaught).toBe(true);
+    });
+
+    it('should handle create and update error simultaneously', () => {
+      let createErrorCaught = false;
+      let updateErrorCaught = false;
+
+      const createData: ChildCreate = {
+        name: 'Baby Test',
+        date_of_birth: '2024-03-01',
+        gender: 'M',
+      };
+
+      const updateData: ChildUpdate = {
+        name: 'Updated',
+      };
+
+      service.create(createData).subscribe({
+        error: () => {
+          createErrorCaught = true;
+        },
+      });
+
+      service.update(1, updateData).subscribe({
+        error: () => {
+          updateErrorCaught = true;
+        },
+      });
+
+      const createReq = httpMock.expectOne('/api/v1/children/');
+      const updateReq = httpMock.expectOne('/api/v1/children/1/');
+
+      createReq.flush({}, { status: 400, statusText: 'Bad Request' });
+      updateReq.flush(null, { status: 403, statusText: 'Forbidden' });
+
+      expect(createErrorCaught).toBe(true);
+      expect(updateErrorCaught).toBe(true);
+    });
+  });
+
+  describe('retry scenarios', () => {
+    it('should allow retry after error on list()', () => {
+      let firstErrorCaught = false;
+      let secondSuccessCaught = false;
+
+      // First request - fails
+      service.list().subscribe({
+        error: () => {
+          firstErrorCaught = true;
+        },
+      });
+
+      let req = httpMock.expectOne('/api/v1/children/');
+      req.flush(null, { status: 500, statusText: 'Internal Server Error' });
+
+      expect(firstErrorCaught).toBe(true);
+
+      // Retry - succeeds
+      service.list().subscribe({
+        next: (children) => {
+          expect(children).toEqual(mockChildren);
+          secondSuccessCaught = true;
+        },
+      });
+
+      req = httpMock.expectOne('/api/v1/children/');
+      req.flush({ count: mockChildren.length, next: null, previous: null, results: mockChildren });
+
+      expect(secondSuccessCaught).toBe(true);
+    });
+
+    it('should allow retry after error on get()', () => {
+      let firstErrorCaught = false;
+      let secondSuccessCaught = false;
+
+      // First request - fails
+      service.get(1).subscribe({
+        error: () => {
+          firstErrorCaught = true;
+        },
+      });
+
+      let req = httpMock.expectOne('/api/v1/children/1/');
+      req.flush(null, { status: 404, statusText: 'Not Found' });
+
+      expect(firstErrorCaught).toBe(true);
+
+      // Retry - succeeds
+      service.get(1).subscribe({
+        next: (child) => {
+          expect(child).toEqual(mockChild);
+          secondSuccessCaught = true;
+        },
+      });
+
+      req = httpMock.expectOne('/api/v1/children/1/');
+      req.flush(mockChild);
+
+      expect(secondSuccessCaught).toBe(true);
+    });
+
+    it('should handle retry after partial update error', () => {
+      let firstErrorCaught = false;
+      let secondSuccessCaught = false;
+
+      const updateData: ChildUpdate = {
+        name: 'Updated Name',
+      };
+
+      const updatedChild: Child = {
+        ...mockChild,
+        name: 'Updated Name',
+      };
+
+      // First request - fails
+      service.update(1, updateData).subscribe({
+        error: () => {
+          firstErrorCaught = true;
+        },
+      });
+
+      let req = httpMock.expectOne('/api/v1/children/1/');
+      req.flush(null, { status: 409, statusText: 'Conflict' });
+
+      expect(firstErrorCaught).toBe(true);
+
+      // Verify state unchanged
+      expect(service.selectedChild()).toBeNull();
+
+      // Retry - succeeds
+      service.update(1, updateData).subscribe({
+        next: (child) => {
+          expect(child).toEqual(updatedChild);
+          secondSuccessCaught = true;
+        },
+      });
+
+      req = httpMock.expectOne('/api/v1/children/1/');
+      req.flush(updatedChild);
+
+      expect(secondSuccessCaught).toBe(true);
+    });
+  });
+
+  describe('edge case errors', () => {
+    it('should handle error with array as response body', () => {
+      let errorCaught = false;
+
+      service.get(1).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toBeDefined();
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/');
+      req.flush(['Array', 'response'], { status: 500, statusText: 'Internal Server Error' });
+
+      expect(errorCaught).toBe(true);
+    });
+
+    it('should handle error with string response body', () => {
+      let errorCaught = false;
+
+      service.list().subscribe({
+        error: (error: Error) => {
+          expect(error.message).toBeDefined();
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/');
+      req.flush('String error message', { status: 500, statusText: 'Internal Server Error' });
+
+      expect(errorCaught).toBe(true);
+    });
+
+    it('should handle 401 error and not update children signal', () => {
+      let errorCaught = false;
+
+      service.list().subscribe({
+        error: () => {
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/');
+      req.flush(null, { status: 401, statusText: 'Unauthorized' });
+
+      expect(errorCaught).toBe(true);
+      expect(service.children()).toEqual([]);
+    });
+
+    it('should maintain selectedChild during failed get retry', () => {
+      const existingChild = mockChildren[1];
+      service.selectedChild.set(existingChild);
+
+      // Failed request
+      service.get(2).subscribe({
+        error: () => {
+          // Error expected
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/2/');
+      req.flush(null, { status: 500, statusText: 'Internal Server Error' });
+
+      // Verify selectedChild unchanged
+      expect(service.selectedChild()).toEqual(existingChild);
+    });
   });
 });
