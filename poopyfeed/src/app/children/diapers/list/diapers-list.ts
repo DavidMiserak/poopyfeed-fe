@@ -35,6 +35,8 @@ export class DiapersList implements OnInit {
   filters = signal<FilterCriteria>({});
   isLoading = signal(true);
   error = signal<string | null>(null);
+  selectedIds = signal<number[]>([]);
+  isBulkDeleting = signal(false);
 
   // Diaper change type options for filter dropdown
   changeTypeOptions = [
@@ -55,6 +57,13 @@ export class DiapersList implements OnInit {
   canEdit = computed(() => {
     const role = this.child()?.user_role;
     return role === 'owner' || role === 'co-parent';
+  });
+
+  hasSelectedItems = computed(() => this.selectedIds().length > 0);
+
+  isAllSelected = computed(() => {
+    const diaperList = this.diapers();
+    return diaperList.length > 0 && this.selectedIds().length === diaperList.length;
   });
 
   ngOnInit() {
@@ -177,5 +186,66 @@ export class DiapersList implements OnInit {
       both: 'Wet & Dirty',
     };
     return titles[changeType];
+  }
+
+  toggleSelection(diaperId: number): void {
+    const current = this.selectedIds();
+    if (current.includes(diaperId)) {
+      this.selectedIds.set(current.filter(id => id !== diaperId));
+    } else {
+      this.selectedIds.set([...current, diaperId]);
+    }
+  }
+
+  toggleSelectAll(): void {
+    const diaperList = this.diapers();
+    if (this.isAllSelected()) {
+      this.selectedIds.set([]);
+    } else {
+      this.selectedIds.set(diaperList.map(d => d.id));
+    }
+  }
+
+  clearSelection(): void {
+    this.selectedIds.set([]);
+  }
+
+  bulkDelete(): void {
+    if (!confirm(`Delete ${this.selectedIds().length} diaper change(s)? This cannot be undone.`)) {
+      return;
+    }
+
+    this.isBulkDeleting.set(true);
+    const ids = this.selectedIds();
+    const childId = this.childId();
+
+    if (!childId) {
+      this.isBulkDeleting.set(false);
+      return;
+    }
+
+    // Delete all selected items sequentially
+    let completed = 0;
+    ids.forEach(id => {
+      this.diapersService.delete(childId, id).subscribe({
+        next: () => {
+          completed++;
+          if (completed === ids.length) {
+            // All deletions complete
+            this.allDiapers.set(
+              this.allDiapers().filter(d => !ids.includes(d.id))
+            );
+            this.selectedIds.set([]);
+            this.isBulkDeleting.set(false);
+          }
+        },
+        error: () => {
+          completed++;
+          if (completed === ids.length) {
+            this.isBulkDeleting.set(false);
+          }
+        },
+      });
+    });
   }
 }

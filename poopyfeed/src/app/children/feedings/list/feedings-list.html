@@ -114,6 +114,40 @@
           (filterChange)="onFilterChange($event)"
         />
 
+        <!-- Bulk Actions Bar -->
+        @if (hasSelectedItems()) {
+          <div class="sticky top-0 z-20 bg-gradient-to-r from-rose-100 to-pink-100 rounded-2xl p-4 border-2 border-rose-300 shadow-lg flex items-center justify-between">
+            <div class="font-['DM_Sans',sans-serif] font-semibold text-slate-900">
+              {{ selectedIds().length }} selected
+            </div>
+            <div class="flex gap-2">
+              <button
+                type="button"
+                (click)="clearSelection()"
+                class="px-4 py-2 rounded-lg bg-white text-slate-700 hover:bg-slate-50 border border-slate-300 font-['DM_Sans',sans-serif] font-medium transition-colors"
+                [disabled]="isBulkDeleting()"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                (click)="bulkDelete()"
+                [disabled]="isBulkDeleting()"
+                class="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 disabled:bg-red-300 text-white font-['DM_Sans',sans-serif] font-medium transition-colors flex items-center gap-2"
+                [attr.aria-busy]="isBulkDeleting()"
+              >
+                @if (isBulkDeleting()) {
+                  <svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                }
+                Delete {{ selectedIds().length }}
+              </button>
+            </div>
+          </div>
+        }
+
         <!-- Feedings List -->
         @if (feedings().length === 0) {
           <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-12 border-2 border-rose-400/20 text-center">
@@ -135,10 +169,43 @@
           </div>
         } @else {
           <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-6 border-2 border-rose-400/20">
+            <!-- List Header with Select All -->
+            @if (canEdit()) {
+              <div class="flex items-center gap-4 p-4 mb-2 border-b border-slate-200">
+                <input
+                  type="checkbox"
+                  [checked]="isAllSelected()"
+                  (change)="toggleSelectAll()"
+                  class="w-5 h-5 text-rose-500 rounded cursor-pointer"
+                  aria-label="Select all feedings"
+                />
+                <span class="text-sm font-['DM_Sans',sans-serif] text-slate-600">
+                  @if (isAllSelected()) {
+                    All selected
+                  } @else if (hasSelectedItems()) {
+                    {{ selectedIds().length }} of {{ feedings().length }} selected
+                  } @else {
+                    Select all
+                  }
+                </span>
+              </div>
+            }
+
             <div class="space-y-4">
               @for (feeding of feedings(); track feeding.id) {
                 <!-- Desktop view -->
-                <div class="hidden sm:flex items-center gap-4 p-4 rounded-xl bg-gradient-to-r from-rose-50 to-pink-50 hover:shadow-md transition-all">
+                <div class="hidden sm:flex items-center gap-4 p-4 rounded-xl bg-gradient-to-r from-rose-50 to-pink-50 hover:shadow-md transition-all" [class.ring-2]="selectedIds().includes(feeding.id)" [class.ring-rose-400]="selectedIds().includes(feeding.id)">
+                  <!-- Checkbox -->
+                  @if (canEdit()) {
+                    <input
+                      type="checkbox"
+                      [checked]="selectedIds().includes(feeding.id)"
+                      (change)="toggleSelection(feeding.id)"
+                      class="w-5 h-5 text-rose-500 rounded cursor-pointer flex-shrink-0"
+                      [attr.aria-label]="'Select ' + getFeedingTitle(feeding)"
+                    />
+                  }
+
                   <!-- Icon -->
                   <div class="text-4xl flex-shrink-0">{{ getFeedingIcon(feeding) }}</div>
 
@@ -191,9 +258,18 @@
                 </div>
 
                 <!-- Mobile view -->
-                <div class="sm:hidden p-4 rounded-xl bg-gradient-to-r from-rose-50 to-pink-50">
-                  <!-- Header with icon and title -->
+                <div class="sm:hidden p-4 rounded-xl bg-gradient-to-r from-rose-50 to-pink-50" [class.ring-2]="selectedIds().includes(feeding.id)" [class.ring-rose-400]="selectedIds().includes(feeding.id)">
+                  <!-- Header with checkbox, icon and title -->
                   <div class="flex items-start gap-3 mb-3">
+                    @if (canEdit()) {
+                      <input
+                        type="checkbox"
+                        [checked]="selectedIds().includes(feeding.id)"
+                        (change)="toggleSelection(feeding.id)"
+                        class="w-5 h-5 text-rose-500 rounded cursor-pointer flex-shrink-0 mt-0.5"
+                        [attr.aria-label]="'Select ' + getFeedingTitle(feeding)"
+                      />
+                    }
                     <div class="text-3xl flex-shrink-0">{{ getFeedingIcon(feeding) }}</div>
                     <div class="flex-1">
                       <h3 class="font-['DM_Sans',sans-serif] font-bold text-slate-900">

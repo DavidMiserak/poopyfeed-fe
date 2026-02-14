@@ -35,6 +35,8 @@ export class NapsList implements OnInit {
   filters = signal<FilterCriteria>({});
   isLoading = signal(true);
   error = signal<string | null>(null);
+  selectedIds = signal<number[]>([]);
+  isBulkDeleting = signal(false);
 
   // Computed: naps after filtering (date range only, no type filter)
   naps = computed(() => {
@@ -48,6 +50,13 @@ export class NapsList implements OnInit {
   canEdit = computed(() => {
     const role = this.child()?.user_role;
     return role === 'owner' || role === 'co-parent';
+  });
+
+  hasSelectedItems = computed(() => this.selectedIds().length > 0);
+
+  isAllSelected = computed(() => {
+    const napList = this.naps();
+    return napList.length > 0 && this.selectedIds().length === napList.length;
   });
 
   ngOnInit() {
@@ -166,6 +175,67 @@ export class NapsList implements OnInit {
       hour: 'numeric',
       minute: '2-digit',
       hour12: true,
+    });
+  }
+
+  toggleSelection(napId: number): void {
+    const current = this.selectedIds();
+    if (current.includes(napId)) {
+      this.selectedIds.set(current.filter(id => id !== napId));
+    } else {
+      this.selectedIds.set([...current, napId]);
+    }
+  }
+
+  toggleSelectAll(): void {
+    const napList = this.naps();
+    if (this.isAllSelected()) {
+      this.selectedIds.set([]);
+    } else {
+      this.selectedIds.set(napList.map(n => n.id));
+    }
+  }
+
+  clearSelection(): void {
+    this.selectedIds.set([]);
+  }
+
+  bulkDelete(): void {
+    if (!confirm(`Delete ${this.selectedIds().length} nap(s)? This cannot be undone.`)) {
+      return;
+    }
+
+    this.isBulkDeleting.set(true);
+    const ids = this.selectedIds();
+    const childId = this.childId();
+
+    if (!childId) {
+      this.isBulkDeleting.set(false);
+      return;
+    }
+
+    // Delete all selected items sequentially
+    let completed = 0;
+    ids.forEach(id => {
+      this.napsService.delete(childId, id).subscribe({
+        next: () => {
+          completed++;
+          if (completed === ids.length) {
+            // All deletions complete
+            this.allNaps.set(
+              this.allNaps().filter(n => !ids.includes(n.id))
+            );
+            this.selectedIds.set([]);
+            this.isBulkDeleting.set(false);
+          }
+        },
+        error: () => {
+          completed++;
+          if (completed === ids.length) {
+            this.isBulkDeleting.set(false);
+          }
+        },
+      });
     });
   }
 }

@@ -35,6 +35,8 @@ export class FeedingsList implements OnInit {
   filters = signal<FilterCriteria>({});
   isLoading = signal(true);
   error = signal<string | null>(null);
+  selectedIds = signal<number[]>([]);
+  isBulkDeleting = signal(false);
 
   // Feeding type options for filter dropdown
   feedingTypeOptions = [
@@ -54,6 +56,13 @@ export class FeedingsList implements OnInit {
   canEdit = computed(() => {
     const role = this.child()?.user_role;
     return role === 'owner' || role === 'co-parent';
+  });
+
+  hasSelectedItems = computed(() => this.selectedIds().length > 0);
+
+  isAllSelected = computed(() => {
+    const feedingList = this.feedings();
+    return feedingList.length > 0 && this.selectedIds().length === feedingList.length;
   });
 
   ngOnInit() {
@@ -166,5 +175,66 @@ export class FeedingsList implements OnInit {
       const side = feeding.side === 'left' ? 'Left' : feeding.side === 'right' ? 'Right' : 'Both';
       return `Breast: ${feeding.duration_minutes} min (${side})`;
     }
+  }
+
+  toggleSelection(feedingId: number): void {
+    const current = this.selectedIds();
+    if (current.includes(feedingId)) {
+      this.selectedIds.set(current.filter(id => id !== feedingId));
+    } else {
+      this.selectedIds.set([...current, feedingId]);
+    }
+  }
+
+  toggleSelectAll(): void {
+    const feedingList = this.feedings();
+    if (this.isAllSelected()) {
+      this.selectedIds.set([]);
+    } else {
+      this.selectedIds.set(feedingList.map(f => f.id));
+    }
+  }
+
+  clearSelection(): void {
+    this.selectedIds.set([]);
+  }
+
+  bulkDelete(): void {
+    if (!confirm(`Delete ${this.selectedIds().length} feeding(s)? This cannot be undone.`)) {
+      return;
+    }
+
+    this.isBulkDeleting.set(true);
+    const ids = this.selectedIds();
+    const childId = this.childId();
+
+    if (!childId) {
+      this.isBulkDeleting.set(false);
+      return;
+    }
+
+    // Delete all selected items sequentially
+    let completed = 0;
+    ids.forEach(id => {
+      this.feedingsService.delete(childId, id).subscribe({
+        next: () => {
+          completed++;
+          if (completed === ids.length) {
+            // All deletions complete
+            this.allFeedings.set(
+              this.allFeedings().filter(f => !ids.includes(f.id))
+            );
+            this.selectedIds.set([]);
+            this.isBulkDeleting.set(false);
+          }
+        },
+        error: () => {
+          completed++;
+          if (completed === ids.length) {
+            this.isBulkDeleting.set(false);
+          }
+        },
+      });
+    });
   }
 }
