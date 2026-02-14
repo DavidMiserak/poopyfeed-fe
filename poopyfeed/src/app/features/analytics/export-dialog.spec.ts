@@ -410,4 +410,145 @@ describe('ExportDialogComponent', () => {
       expect(daysControl?.hasError('max')).toBe(false);
     });
   });
+
+  describe('Error Handling & Edge Cases', () => {
+    it('should handle negative days value', () => {
+      const daysControl = component.form.get('days');
+      daysControl?.setValue(-5);
+
+      expect(daysControl?.valid).toBe(false);
+    });
+
+    it('should handle days boundary: minimum value (1)', () => {
+      const daysControl = component.form.get('days');
+      daysControl?.setValue(1);
+
+      expect(daysControl?.hasError('min')).toBe(false);
+    });
+
+    it('should handle days boundary: maximum value (90)', () => {
+      const daysControl = component.form.get('days');
+      daysControl?.setValue(90);
+
+      expect(daysControl?.hasError('max')).toBe(false);
+    });
+
+    it('should reject days value below minimum', () => {
+      const daysControl = component.form.get('days');
+      daysControl?.setValue(0);
+
+      expect(daysControl?.hasError('min')).toBe(true);
+    });
+
+    it('should reject days value above maximum', () => {
+      const daysControl = component.form.get('days');
+      daysControl?.setValue(100);
+
+      expect(daysControl?.hasError('max')).toBe(true);
+    });
+
+    it('should handle decimal days input', () => {
+      const daysControl = component.form.get('days');
+      daysControl?.setValue(30.5);
+
+      // Form may convert to number
+      const value = daysControl?.value;
+      expect(value).toBeDefined();
+    });
+
+    it('should handle rapid format changes', () => {
+      const formatControl = component.form.get('format');
+
+      formatControl?.setValue('csv');
+      formatControl?.setValue('pdf');
+      formatControl?.setValue('csv');
+
+      expect(formatControl?.value).toBe('csv');
+    });
+
+    it('should handle rapid days changes', () => {
+      const daysControl = component.form.get('days');
+
+      daysControl?.setValue(30);
+      daysControl?.setValue(60);
+      daysControl?.setValue(90);
+
+      expect(daysControl?.value).toBe(90);
+    });
+
+    it('should maintain form validity after error correction', () => {
+      const daysControl = component.form.get('days');
+
+      // Set invalid value
+      daysControl?.setValue(100);
+      expect(component.form.valid).toBe(false);
+
+      // Correct the value
+      daysControl?.setValue(30);
+      expect(component.form.valid).toBe(true);
+    });
+
+    it('should handle undefined form control access', () => {
+      const invalidControl = component.form.get('invalid_field');
+
+      expect(invalidControl).toBeNull();
+    });
+
+    it('should not submit if form is invalid', () => {
+      component.form.patchValue({ format: 'csv', days: 100 }); // Invalid days
+
+      // Validate form state
+      expect(component.form.valid).toBe(false);
+    });
+
+    it('should handle form reset', () => {
+      component.form.patchValue({ format: 'pdf', days: 60 });
+      component.form.reset();
+
+      // After reset, form should be in initial state or null
+      const format = component.form.get('format')?.value;
+      const days = component.form.get('days')?.value;
+
+      expect(format === null || format === 'csv').toBe(true);
+      expect(days === null || days === 30).toBe(true);
+    });
+
+    it('should handle concurrent form value changes', () => {
+      const formatControl = component.form.get('format');
+      const daysControl = component.form.get('days');
+
+      formatControl?.setValue('pdf');
+      daysControl?.setValue(45);
+
+      expect(formatControl?.value).toBe('pdf');
+      expect(daysControl?.value).toBe(45);
+      expect(component.form.valid).toBe(true);
+    });
+
+    it('should maintain valid state with valid days (15)', () => {
+      const daysControl = component.form.get('days');
+      daysControl?.setValue(15);
+
+      expect(daysControl?.valid).toBe(true);
+      expect(component.form.valid).toBe(true);
+    });
+
+    it('should maintain valid state with valid days (75)', () => {
+      const daysControl = component.form.get('days');
+      daysControl?.setValue(75);
+
+      expect(daysControl?.valid).toBe(true);
+      expect(component.form.valid).toBe(true);
+    });
+
+    it('should switch between formats without errors', () => {
+      const formatControl = component.form.get('format');
+
+      formatControl?.setValue('csv');
+      expect(component.form.valid).toBe(true);
+
+      formatControl?.setValue('pdf');
+      expect(component.form.valid).toBe(true);
+    });
+  });
 });

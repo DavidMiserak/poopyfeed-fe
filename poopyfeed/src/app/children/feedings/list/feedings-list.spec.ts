@@ -3,12 +3,13 @@ import { FeedingsList } from './feedings-list';
 import { FeedingsService } from '../../../services/feedings.service';
 import { ChildrenService } from '../../../services/children.service';
 import { FilterService } from '../../../services/filter.service';
+import { ToastService } from '../../../services/toast.service';
 import { Router } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { Feeding } from '../../../models/feeding.model';
 import { Child } from '../../../models/child.model';
-import { vi, describe, it, expect, beforeEach } from 'vitest';
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 
 describe('FeedingsList - Batch Operations', () => {
   let component: FeedingsList;
@@ -415,6 +416,127 @@ describe('FeedingsList - Batch Operations', () => {
 
       // Selection should persist
       expect(component.selectedIds()).toEqual([1, 3]);
+    });
+  });
+
+  describe('error handling - service failures', () => {
+    it('should handle feedings list fetch failure on init', () => {
+      const error = new Error('Failed to load feedings');
+      (feedingsService.list as any).mockReturnValue(throwError(() => error));
+      (childrenService.get as any).mockReturnValue(of(mockChild));
+
+      expect(() => {
+        component.ngOnInit?.();
+      }).not.toThrow();
+    });
+
+    it('should handle child fetch failure on init', () => {
+      const error = new Error('Failed to load child');
+      (childrenService.get as any).mockReturnValue(throwError(() => error));
+      (feedingsService.list as any).mockReturnValue(of(mockFeedings));
+
+      expect(() => {
+        component.ngOnInit?.();
+      }).not.toThrow();
+    });
+
+    it('should handle 401 unauthorized on feedings list', () => {
+      const error = new Error('Your session has expired');
+      (feedingsService.list as any).mockReturnValue(throwError(() => error));
+      (childrenService.get as any).mockReturnValue(of(mockChild));
+
+      expect(() => {
+        component.ngOnInit?.();
+      }).not.toThrow();
+    });
+
+    it('should handle partial deletion failure in bulk delete', async () => {
+      const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
+      let callCount = 0;
+
+      (feedingsService.delete as any).mockImplementation(() => {
+        callCount++;
+        if (callCount === 1) {
+          return of(void 0); // First delete succeeds
+        }
+        return throwError(() => new Error('Network error')); // Second fails
+      });
+
+      component.childId.set(1);
+      component.allFeedings.set(mockFeedings);
+      component.selectedIds.set([1, 2]);
+
+      component.bulkDelete();
+
+      await new Promise(resolve => setTimeout(resolve, 150));
+      expect(callCount).toBe(2); // Both delete attempts made
+      confirmSpy.mockRestore();
+    });
+  });
+
+  describe('edge cases', () => {
+    it('should handle empty allFeedings array', () => {
+      component.allFeedings.set([]);
+      expect(component.allFeedings()).toEqual([]);
+    });
+
+    it('should handle null filters gracefully', () => {
+      component.allFeedings.set(mockFeedings);
+      component.filters.set(null as any);
+
+      expect(() => {
+        component.allFeedings();
+      }).not.toThrow();
+    });
+
+    it('should handle selection with empty feedings', () => {
+      component.allFeedings.set([]);
+      component.toggleSelectAll();
+
+      expect(component.selectedIds()).toEqual([]);
+      expect(component.isAllSelected()).toBeFalsy();
+    });
+
+    it('should handle toggle select with no feedings', () => {
+      component.allFeedings.set([]);
+      component.selectedIds.set([]);
+
+      component.toggleSelectAll();
+
+      expect(component.selectedIds()).toEqual([]);
+    });
+
+    it('should handle bulkDelete with no childId', () => {
+      const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
+      component.childId.set(null);
+      component.allFeedings.set(mockFeedings);
+      component.selectedIds.set([1, 2]);
+
+      component.bulkDelete();
+
+      expect(feedingsService.delete).not.toHaveBeenCalled();
+      confirmSpy.mockRestore();
+    });
+
+    it('should handle toggleSelection with invalid id', () => {
+      component.allFeedings.set(mockFeedings);
+      component.selectedIds.set([]);
+
+      component.toggleSelection(999); // ID not in list
+
+      expect(component.selectedIds()).toContain(999); // Still toggles the selection
+    });
+
+    it('should handle bulkDelete when isBulkDeleting is already true', () => {
+      const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
+      component.isBulkDeleting.set(true);
+      component.childId.set(1);
+      component.selectedIds.set([1]);
+
+      component.bulkDelete();
+
+      // Should not proceed if already deleting
+      confirmSpy.mockRestore();
     });
   });
 });

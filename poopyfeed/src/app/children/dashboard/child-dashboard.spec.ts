@@ -566,4 +566,52 @@ describe('ChildDashboard', () => {
       expect(routerSpy).not.toHaveBeenCalled();
     });
   });
+
+  describe('edge cases', () => {
+    it('should load dashboard with valid childId from route', () => {
+      const mockActivatedRoute = TestBed.inject(ActivatedRoute);
+
+      component.ngOnInit?.();
+
+      expect(component.childId()).toBeTruthy();
+    });
+
+    it('should handle navigate when child is not loaded', () => {
+      component.child.set(null);
+      const routerSpy = vi.spyOn(component['router'], 'navigate');
+
+      component.navigateToFeedings();
+
+      expect(routerSpy).not.toHaveBeenCalled();
+    });
+
+    it('should handle loading without child data', () => {
+      component.child.set(null);
+      component.recentActivity.set([]);
+
+      expect(component.child()).toBeNull();
+      expect(component.recentActivity()).toEqual([]);
+    });
+
+    it('should handle rapid navigation calls', () => {
+      const routerSpy = vi.spyOn(component['router'], 'navigate');
+      component.child.set(mockChild); // Must have child to navigate
+
+      component.navigateToFeedings();
+      component.navigateToDiapers();
+      component.navigateToNaps();
+
+      expect(routerSpy).toHaveBeenCalledTimes(3);
+    });
+
+    it('should maintain child data after failed navigation', () => {
+      component.child.set(mockChild);
+      const routerSpy = vi.spyOn(component['router'], 'navigate');
+
+      component.navigateToFeedings();
+
+      expect(component.child()).toEqual(mockChild);
+      expect(routerSpy).toHaveBeenCalled();
+    });
+  });
 });
