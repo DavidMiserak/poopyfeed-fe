@@ -5,12 +5,15 @@
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { SleepSummaryChart } from './sleep-summary-chart';
 import { Chart } from 'chart.js';
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 
 vi.mock('chart.js', () => {
   const mockDestroyFn = vi.fn();
+  const mockUpdateFn = vi.fn();
 
   const mockChartConstructor = vi.fn(function (this: any) {
     this.destroy = mockDestroyFn;
+    this.update = mockUpdateFn;
     return this;
   }) as any;
 
@@ -38,6 +41,7 @@ describe('SleepSummaryChart', () => {
   };
 
   beforeEach(async () => {
+    vi.clearAllMocks();
     await TestBed.configureTestingModule({
       imports: [SleepSummaryChart],
     }).compileComponents();
@@ -46,31 +50,39 @@ describe('SleepSummaryChart', () => {
     component = fixture.componentInstance;
   });
 
+  afterEach(() => {
+    fixture.destroy();
+    vi.clearAllMocks();
+  });
+
   it('should create component', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should render chart with data', () => {
+  it('should render chart with data', async () => {
     fixture.componentRef.setInput('data', mockData);
     fixture.componentRef.setInput('isLoading', false);
     fixture.detectChanges();
+    await new Promise(resolve => setTimeout(resolve, 10));
 
     expect(vi.mocked(Chart)).toHaveBeenCalled();
   });
 
-  it('should use line chart type', () => {
+  it('should use line chart type', async () => {
     fixture.componentRef.setInput('data', mockData);
     fixture.componentRef.setInput('isLoading', false);
     fixture.detectChanges();
+    await new Promise(resolve => setTimeout(resolve, 10));
 
     const chartConfig = vi.mocked(Chart).mock.calls[0][1] as any;
     expect(chartConfig.type).toBe('line');
   });
 
-  it('should use amber color for sleep chart', () => {
+  it('should use amber color for sleep chart', async () => {
     fixture.componentRef.setInput('data', mockData);
     fixture.componentRef.setInput('isLoading', false);
     fixture.detectChanges();
+    await new Promise(resolve => setTimeout(resolve, 10));
 
     const chartConfig = vi.mocked(Chart).mock.calls[0][1];
     expect(chartConfig.data.datasets[0].borderColor).toBe('#FBBF24');
@@ -83,10 +95,11 @@ describe('SleepSummaryChart', () => {
     expect(title?.textContent).toContain('Sleep Summary');
   });
 
-  it('should destroy chart on component destroy', () => {
+  it('should destroy chart on component destroy', async () => {
     fixture.componentRef.setInput('data', mockData);
     fixture.componentRef.setInput('isLoading', false);
     fixture.detectChanges();
+    await new Promise(resolve => setTimeout(resolve, 10));
 
     const chartInstance = vi.mocked(Chart).mock.results[0].value;
     const destroySpy = chartInstance.destroy;
