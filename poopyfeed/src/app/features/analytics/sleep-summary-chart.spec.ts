@@ -1,5 +1,8 @@
 /**
  * Sleep summary chart component tests.
+ *
+ * Uses zoneless change detection with fixture.whenStable()
+ * for deterministic effect flushing.
  */
 
 import { TestBed, ComponentFixture } from '@angular/core/testing';
@@ -62,8 +65,7 @@ describe('SleepSummaryChart', () => {
   it('should render chart with data', async () => {
     fixture.componentRef.setInput('data', mockData);
     fixture.componentRef.setInput('isLoading', false);
-    fixture.detectChanges();
-    await new Promise(resolve => setTimeout(resolve, 50));
+    await fixture.whenStable();
 
     expect(vi.mocked(Chart)).toHaveBeenCalled();
   });
@@ -71,8 +73,7 @@ describe('SleepSummaryChart', () => {
   it('should use line chart type', async () => {
     fixture.componentRef.setInput('data', mockData);
     fixture.componentRef.setInput('isLoading', false);
-    fixture.detectChanges();
-    await new Promise(resolve => setTimeout(resolve, 50));
+    await fixture.whenStable();
 
     const chartConfig = vi.mocked(Chart).mock.calls[0][1] as any;
     expect(chartConfig.type).toBe('line');
@@ -81,15 +82,14 @@ describe('SleepSummaryChart', () => {
   it('should use amber color for sleep chart', async () => {
     fixture.componentRef.setInput('data', mockData);
     fixture.componentRef.setInput('isLoading', false);
-    fixture.detectChanges();
-    await new Promise(resolve => setTimeout(resolve, 50));
+    await fixture.whenStable();
 
     const chartConfig = vi.mocked(Chart).mock.calls[0][1];
     expect(chartConfig.data.datasets[0].borderColor).toBe('#FBBF24');
   });
 
-  it('should display title', () => {
-    fixture.detectChanges();
+  it('should display title', async () => {
+    await fixture.whenStable();
 
     const title = fixture.nativeElement.querySelector('h2');
     expect(title?.textContent).toContain('Sleep Summary');
@@ -98,8 +98,7 @@ describe('SleepSummaryChart', () => {
   it('should destroy chart on component destroy', async () => {
     fixture.componentRef.setInput('data', mockData);
     fixture.componentRef.setInput('isLoading', false);
-    fixture.detectChanges();
-    await new Promise(resolve => setTimeout(resolve, 50));
+    await fixture.whenStable();
 
     const chartInstance = vi.mocked(Chart).mock.results[0].value;
     const destroySpy = chartInstance.destroy;
@@ -110,23 +109,23 @@ describe('SleepSummaryChart', () => {
   });
 
   describe('Empty State', () => {
-    it('should show empty state when data is null', () => {
+    it('should show empty state when data is null', async () => {
       fixture.componentRef.setInput('data', null);
       fixture.componentRef.setInput('isLoading', false);
-      fixture.detectChanges();
+      await fixture.whenStable();
 
       const compiled = fixture.nativeElement as HTMLElement;
       expect(compiled.textContent).toContain('No sleep data yet');
       expect(compiled.querySelector('canvas')).toBeFalsy();
     });
 
-    it('should show empty state when all counts are zero', () => {
+    it('should show empty state when all counts are zero', async () => {
       fixture.componentRef.setInput('data', {
         ...mockData,
         daily_data: [{ date: '2024-01-01', count: 0, average_duration: null, total_oz: null }],
       });
       fixture.componentRef.setInput('isLoading', false);
-      fixture.detectChanges();
+      await fixture.whenStable();
 
       const compiled = fixture.nativeElement as HTMLElement;
       expect(compiled.textContent).toContain('No sleep data yet');

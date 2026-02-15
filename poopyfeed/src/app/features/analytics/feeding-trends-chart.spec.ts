@@ -2,6 +2,8 @@
  * Feeding trends chart component tests.
  *
  * Tests chart rendering, loading states, and cleanup.
+ * Uses zoneless change detection with fixture.whenStable()
+ * for deterministic effect flushing.
  */
 
 import { TestBed, ComponentFixture } from '@angular/core/testing';
@@ -82,16 +84,14 @@ describe('FeedingTrendsChart', () => {
     it('should render chart when data is provided', async () => {
       fixture.componentRef.setInput('data', mockData);
       fixture.componentRef.setInput('isLoading', false);
-      fixture.detectChanges();
-      await new Promise(resolve => setTimeout(resolve, 50));
+      await fixture.whenStable();
 
       expect(vi.mocked(Chart)).toHaveBeenCalled();
     });
 
     it('should not render chart when data is null', async () => {
       fixture.componentRef.setInput('data', null);
-      fixture.detectChanges();
-      await new Promise(resolve => setTimeout(resolve, 50));
+      await fixture.whenStable();
 
       expect(vi.mocked(Chart)).not.toHaveBeenCalled();
     });
@@ -99,8 +99,7 @@ describe('FeedingTrendsChart', () => {
     it('should not render chart when isLoading is true', async () => {
       fixture.componentRef.setInput('data', mockData);
       fixture.componentRef.setInput('isLoading', true);
-      fixture.detectChanges();
-      await new Promise(resolve => setTimeout(resolve, 50));
+      await fixture.whenStable();
 
       expect(vi.mocked(Chart)).not.toHaveBeenCalled();
     });
@@ -108,8 +107,7 @@ describe('FeedingTrendsChart', () => {
     it('should pass correct data to chart', async () => {
       fixture.componentRef.setInput('data', mockData);
       fixture.componentRef.setInput('isLoading', false);
-      fixture.detectChanges();
-      await new Promise(resolve => setTimeout(resolve, 50));
+      await fixture.whenStable();
 
       const chartMock = vi.mocked(Chart);
       expect(chartMock).toHaveBeenCalled();
@@ -122,8 +120,7 @@ describe('FeedingTrendsChart', () => {
     it('should use PoopyFeed brand colors', async () => {
       fixture.componentRef.setInput('data', mockData);
       fixture.componentRef.setInput('isLoading', false);
-      fixture.detectChanges();
-      await new Promise(resolve => setTimeout(resolve, 50));
+      await fixture.whenStable();
 
       const chartMock = vi.mocked(Chart);
       expect(chartMock).toHaveBeenCalled();
@@ -134,28 +131,28 @@ describe('FeedingTrendsChart', () => {
   });
 
   describe('Loading State', () => {
-    it('should show loading spinner when isLoading is true', () => {
+    it('should show loading spinner when isLoading is true', async () => {
       fixture.componentRef.setInput('isLoading', true);
-      fixture.detectChanges();
+      await fixture.whenStable();
 
       const compiled = fixture.nativeElement as HTMLElement;
       const spinner = compiled.querySelector('svg.animate-spin');
       expect(spinner).toBeTruthy();
     });
 
-    it('should hide canvas when isLoading is true', () => {
+    it('should hide canvas when isLoading is true', async () => {
       fixture.componentRef.setInput('data', mockData);
       fixture.componentRef.setInput('isLoading', true);
-      fixture.detectChanges();
+      await fixture.whenStable();
 
       const canvas = fixture.nativeElement.querySelector('canvas');
       expect(canvas).toBeFalsy();
     });
 
-    it('should show canvas when isLoading is false and has data', () => {
+    it('should show canvas when isLoading is false and has data', async () => {
       fixture.componentRef.setInput('data', mockData);
       fixture.componentRef.setInput('isLoading', false);
-      fixture.detectChanges();
+      await fixture.whenStable();
 
       const canvas = fixture.nativeElement.querySelector('canvas');
       expect(canvas).toBeTruthy();
@@ -163,17 +160,17 @@ describe('FeedingTrendsChart', () => {
   });
 
   describe('Empty State', () => {
-    it('should show empty state when data is null', () => {
+    it('should show empty state when data is null', async () => {
       fixture.componentRef.setInput('data', null);
       fixture.componentRef.setInput('isLoading', false);
-      fixture.detectChanges();
+      await fixture.whenStable();
 
       const compiled = fixture.nativeElement as HTMLElement;
       expect(compiled.textContent).toContain('No feeding data yet');
       expect(compiled.querySelector('canvas')).toBeFalsy();
     });
 
-    it('should show empty state when all daily_data counts are zero', () => {
+    it('should show empty state when all daily_data counts are zero', async () => {
       const emptyData: FeedingTrends = {
         ...mockData,
         daily_data: [
@@ -183,7 +180,7 @@ describe('FeedingTrendsChart', () => {
       };
       fixture.componentRef.setInput('data', emptyData);
       fixture.componentRef.setInput('isLoading', false);
-      fixture.detectChanges();
+      await fixture.whenStable();
 
       const compiled = fixture.nativeElement as HTMLElement;
       expect(compiled.textContent).toContain('No feeding data yet');
@@ -213,8 +210,7 @@ describe('FeedingTrendsChart', () => {
         daily_data: [{ date: '2024-01-01', count: 0, average_duration: null, total_oz: null }],
       });
       fixture.componentRef.setInput('isLoading', false);
-      fixture.detectChanges();
-      await new Promise(resolve => setTimeout(resolve, 50));
+      await fixture.whenStable();
 
       expect(vi.mocked(Chart)).not.toHaveBeenCalled();
     });
@@ -224,8 +220,7 @@ describe('FeedingTrendsChart', () => {
     it('should re-render chart when data changes', async () => {
       fixture.componentRef.setInput('data', mockData);
       fixture.componentRef.setInput('isLoading', false);
-      fixture.detectChanges();
-      await new Promise(resolve => setTimeout(resolve, 50));
+      await fixture.whenStable();
 
       const chartMock = vi.mocked(Chart);
       const initialCallCount = chartMock.mock.calls.length;
@@ -236,8 +231,7 @@ describe('FeedingTrendsChart', () => {
       };
 
       fixture.componentRef.setInput('data', newData);
-      fixture.detectChanges();
-      await new Promise(resolve => setTimeout(resolve, 50));
+      await fixture.whenStable();
 
       expect(chartMock.mock.calls.length).toBe(initialCallCount + 1);
     });
@@ -245,8 +239,7 @@ describe('FeedingTrendsChart', () => {
     it('should destroy previous chart before creating new one', async () => {
       fixture.componentRef.setInput('data', mockData);
       fixture.componentRef.setInput('isLoading', false);
-      fixture.detectChanges();
-      await new Promise(resolve => setTimeout(resolve, 50));
+      await fixture.whenStable();
 
       const chartMock = vi.mocked(Chart);
       const firstInstanceResult = chartMock.mock.results[0];
@@ -265,8 +258,7 @@ describe('FeedingTrendsChart', () => {
       };
 
       fixture.componentRef.setInput('data', newData);
-      fixture.detectChanges();
-      await new Promise(resolve => setTimeout(resolve, 50));
+      await fixture.whenStable();
 
       if (firstChartInstance) {
         expect(firstChartInstance.destroy).toHaveBeenCalled();
@@ -278,8 +270,7 @@ describe('FeedingTrendsChart', () => {
     it('should destroy chart on component destroy', async () => {
       fixture.componentRef.setInput('data', mockData);
       fixture.componentRef.setInput('isLoading', false);
-      fixture.detectChanges();
-      await new Promise(resolve => setTimeout(resolve, 50));
+      await fixture.whenStable();
 
       const chartMock = vi.mocked(Chart);
       expect(chartMock).toHaveBeenCalled();
@@ -306,16 +297,16 @@ describe('FeedingTrendsChart', () => {
   });
 
   describe('Template', () => {
-    it('should display chart title', () => {
-      fixture.detectChanges();
+    it('should display chart title', async () => {
+      await fixture.whenStable();
 
       const compiled = fixture.nativeElement as HTMLElement;
       const title = compiled.querySelector('h2');
       expect(title?.textContent).toContain('Feeding Trends');
     });
 
-    it('should have proper styling classes', () => {
-      fixture.detectChanges();
+    it('should have proper styling classes', async () => {
+      await fixture.whenStable();
 
       const container = fixture.nativeElement.querySelector('.rounded-3xl');
       expect(container).toBeTruthy();

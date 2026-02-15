@@ -1,10 +1,11 @@
 /**
- * Vitest setup file for Angular tests
+ * Vitest setup file for Angular tests.
  *
- * This file is intentionally minimal. Angular TestBed is initialized
- * in each test file using TestBed.configureTestingModule().
+ * Angular 21 uses zoneless change detection by default.
+ * The Angular test builder (ng test) handles TestBed initialization
+ * via its generated init-testbed.js setup file.
+ *
+ * For async operations in tests, use:
+ *   await fixture.whenStable()
+ * instead of arbitrary setTimeout delays.
  */
-
-// Setup runs before all tests
-import 'zone.js';
-import 'zone.js/testing';
