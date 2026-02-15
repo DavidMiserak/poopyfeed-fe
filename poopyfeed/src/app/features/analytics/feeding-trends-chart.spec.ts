@@ -4,36 +4,22 @@
  * Tests chart rendering, loading states, and cleanup.
  * Uses zoneless change detection with fixture.whenStable()
  * for deterministic effect flushing.
+ *
+ * Chart.js is mocked via Angular DI (CHART_FACTORY token)
+ * rather than vi.mock(), which is unreliable with AOT bundling.
  */
 
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { FeedingTrendsChart } from './feeding-trends-chart';
-import { Chart } from 'chart.js';
-import { FeedingTrends } from '../../models/analytics.model';
+import { CHART_FACTORY } from './chart.token';
+import type { FeedingTrends } from '../../models/analytics.model';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
-
-// Mock Chart.js
-vi.mock('chart.js', () => {
-  const mockDestroyFn = vi.fn();
-  const mockUpdateFn = vi.fn();
-
-  const mockChartConstructor = vi.fn(function (this: any) {
-    this.destroy = mockDestroyFn;
-    this.update = mockUpdateFn;
-    return this;
-  }) as any;
-
-  mockChartConstructor.register = vi.fn();
-
-  return {
-    Chart: mockChartConstructor,
-    registerables: [],
-  };
-});
 
 describe('FeedingTrendsChart', () => {
   let component: FeedingTrendsChart;
   let fixture: ComponentFixture<FeedingTrendsChart>;
+  let mockChartConstructor: ReturnType<typeof vi.fn>;
+  let mockDestroyFn: ReturnType<typeof vi.fn>;
 
   const mockData: FeedingTrends = {
     period: '2024-01-01 to 2024-01-30',
@@ -52,9 +38,17 @@ describe('FeedingTrendsChart', () => {
   };
 
   beforeEach(async () => {
-    vi.clearAllMocks();
+    mockDestroyFn = vi.fn();
+    mockChartConstructor = vi.fn(function (this: any) {
+      this.destroy = mockDestroyFn;
+      this.update = vi.fn();
+      return this;
+    }) as any;
+    (mockChartConstructor as any).register = vi.fn();
+
     await TestBed.configureTestingModule({
       imports: [FeedingTrendsChart],
+      providers: [{ provide: CHART_FACTORY, useValue: mockChartConstructor }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(FeedingTrendsChart);
@@ -63,7 +57,6 @@ describe('FeedingTrendsChart', () => {
 
   afterEach(() => {
     fixture.destroy();
-    vi.clearAllMocks();
   });
 
   describe('Initialization', () => {
@@ -86,14 +79,14 @@ describe('FeedingTrendsChart', () => {
       fixture.componentRef.setInput('isLoading', false);
       await fixture.whenStable();
 
-      expect(vi.mocked(Chart)).toHaveBeenCalled();
+      expect(mockChartConstructor).toHaveBeenCalled();
     });
 
     it('should not render chart when data is null', async () => {
       fixture.componentRef.setInput('data', null);
       await fixture.whenStable();
 
-      expect(vi.mocked(Chart)).not.toHaveBeenCalled();
+      expect(mockChartConstructor).not.toHaveBeenCalled();
     });
 
     it('should not render chart when isLoading is true', async () => {
@@ -101,7 +94,7 @@ describe('FeedingTrendsChart', () => {
       fixture.componentRef.setInput('isLoading', true);
       await fixture.whenStable();
 
-      expect(vi.mocked(Chart)).not.toHaveBeenCalled();
+      expect(mockChartConstructor).not.toHaveBeenCalled();
     });
 
     it('should pass correct data to chart', async () => {
@@ -109,10 +102,9 @@ describe('FeedingTrendsChart', () => {
       fixture.componentRef.setInput('isLoading', false);
       await fixture.whenStable();
 
-      const chartMock = vi.mocked(Chart);
-      expect(chartMock).toHaveBeenCalled();
+      expect(mockChartConstructor).toHaveBeenCalled();
 
-      const chartConfig = chartMock.mock.calls[0][1];
+      const chartConfig = mockChartConstructor.mock.calls[0][1];
       expect(chartConfig.data.labels).toEqual(['2024-01-01', '2024-01-02', '2024-01-03']);
       expect(chartConfig.data.datasets[0].data).toEqual([5, 6, 5]);
     });
@@ -122,10 +114,9 @@ describe('FeedingTrendsChart', () => {
       fixture.componentRef.setInput('isLoading', false);
       await fixture.whenStable();
 
-      const chartMock = vi.mocked(Chart);
-      expect(chartMock).toHaveBeenCalled();
+      expect(mockChartConstructor).toHaveBeenCalled();
 
-      const chartConfig = chartMock.mock.calls[0][1];
+      const chartConfig = mockChartConstructor.mock.calls[0][1];
       expect(chartConfig.data.datasets[0].borderColor).toBe('#FF6B35');
     });
   });
@@ -212,7 +203,7 @@ describe('FeedingTrendsChart', () => {
       fixture.componentRef.setInput('isLoading', false);
       await fixture.whenStable();
 
-      expect(vi.mocked(Chart)).not.toHaveBeenCalled();
+      expect(mockChartConstructor).not.toHaveBeenCalled();
     });
   });
 
@@ -222,8 +213,7 @@ describe('FeedingTrendsChart', () => {
       fixture.componentRef.setInput('isLoading', false);
       await fixture.whenStable();
 
-      const chartMock = vi.mocked(Chart);
-      const initialCallCount = chartMock.mock.calls.length;
+      const initialCallCount = mockChartConstructor.mock.calls.length;
 
       const newData: FeedingTrends = {
         ...mockData,
@@ -233,7 +223,7 @@ describe('FeedingTrendsChart', () => {
       fixture.componentRef.setInput('data', newData);
       await fixture.whenStable();
 
-      expect(chartMock.mock.calls.length).toBe(initialCallCount + 1);
+      expect(mockChartConstructor.mock.calls.length).toBe(initialCallCount + 1);
     });
 
     it('should destroy previous chart before creating new one', async () => {
@@ -241,16 +231,7 @@ describe('FeedingTrendsChart', () => {
       fixture.componentRef.setInput('isLoading', false);
       await fixture.whenStable();
 
-      const chartMock = vi.mocked(Chart);
-      const firstInstanceResult = chartMock.mock.results[0];
-
-      // Check if we got a result from the first Chart constructor call
-      let firstChartInstance: any;
-      if (firstInstanceResult && firstInstanceResult.value) {
-        firstChartInstance = firstInstanceResult.value;
-      } else if (firstInstanceResult && firstInstanceResult.type === 'return') {
-        firstChartInstance = firstInstanceResult.value;
-      }
+      const firstChartInstance = mockChartConstructor.mock.results[0]?.value;
 
       const newData: FeedingTrends = {
         ...mockData,
@@ -272,21 +253,14 @@ describe('FeedingTrendsChart', () => {
       fixture.componentRef.setInput('isLoading', false);
       await fixture.whenStable();
 
-      const chartMock = vi.mocked(Chart);
-      expect(chartMock).toHaveBeenCalled();
+      expect(mockChartConstructor).toHaveBeenCalled();
 
-      const instanceResult = chartMock.mock.results[0];
-      let chartInstance: any;
+      const chartInstance = mockChartConstructor.mock.results[0]?.value;
+      expect(chartInstance).toBeTruthy();
 
-      if (instanceResult && instanceResult.type === 'return') {
-        chartInstance = instanceResult.value;
-      }
-
-      if (chartInstance) {
-        const destroySpy = chartInstance.destroy;
-        component.ngOnDestroy();
-        expect(destroySpy).toHaveBeenCalled();
-      }
+      const destroySpy = chartInstance.destroy;
+      component.ngOnDestroy();
+      expect(destroySpy).toHaveBeenCalled();
     });
 
     it('should handle destroy without error if no chart exists', () => {

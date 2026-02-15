@@ -14,6 +14,7 @@
 
 import {
   Component,
+  inject,
   input,
   signal,
   computed,
@@ -26,10 +27,8 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FeedingTrends } from '../../models/analytics.model';
-import { Chart, ChartConfiguration, registerables } from 'chart.js';
-
-// Register Chart.js components globally
-Chart.register(...registerables);
+import type { Chart, ChartConfiguration } from 'chart.js';
+import { CHART_FACTORY } from './chart.token';
 
 @Component({
   selector: 'app-feeding-trends-chart',
@@ -76,6 +75,8 @@ Chart.register(...registerables);
   `,
 })
 export class FeedingTrendsChart implements OnDestroy {
+  private chartFactory = inject(CHART_FACTORY);
+
   /** Feeding trends data from API */
   data = input<FeedingTrends | null>(null);
 
@@ -180,7 +181,7 @@ export class FeedingTrendsChart implements OnDestroy {
     };
 
     try {
-      this.chart.set(new Chart(canvas, config));
+      this.chart.set(new this.chartFactory(canvas, config));
     } catch (error) {
       console.error('Failed to render feeding trends chart:', error);
     }

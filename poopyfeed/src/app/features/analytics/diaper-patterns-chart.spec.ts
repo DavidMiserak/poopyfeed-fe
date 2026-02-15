@@ -3,34 +3,21 @@
  *
  * Uses zoneless change detection with fixture.whenStable()
  * for deterministic effect flushing.
+ *
+ * Chart.js is mocked via Angular DI (CHART_FACTORY token)
+ * rather than vi.mock(), which is unreliable with AOT bundling.
  */
 
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { DiaperPatternsChart } from './diaper-patterns-chart';
-import { Chart } from 'chart.js';
+import { CHART_FACTORY } from './chart.token';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
-
-vi.mock('chart.js', () => {
-  const mockDestroyFn = vi.fn();
-  const mockUpdateFn = vi.fn();
-
-  const mockChartConstructor = vi.fn(function (this: any) {
-    this.destroy = mockDestroyFn;
-    this.update = mockUpdateFn;
-    return this;
-  }) as any;
-
-  mockChartConstructor.register = vi.fn();
-
-  return {
-    Chart: mockChartConstructor,
-    registerables: [],
-  };
-});
 
 describe('DiaperPatternsChart', () => {
   let component: DiaperPatternsChart;
   let fixture: ComponentFixture<DiaperPatternsChart>;
+  let mockChartConstructor: ReturnType<typeof vi.fn>;
+  let mockDestroyFn: ReturnType<typeof vi.fn>;
 
   const mockData = {
     period: '2024-01-01 to 2024-01-30',
@@ -45,9 +32,17 @@ describe('DiaperPatternsChart', () => {
   };
 
   beforeEach(async () => {
-    vi.clearAllMocks();
+    mockDestroyFn = vi.fn();
+    mockChartConstructor = vi.fn(function (this: any) {
+      this.destroy = mockDestroyFn;
+      this.update = vi.fn();
+      return this;
+    }) as any;
+    (mockChartConstructor as any).register = vi.fn();
+
     await TestBed.configureTestingModule({
       imports: [DiaperPatternsChart],
+      providers: [{ provide: CHART_FACTORY, useValue: mockChartConstructor }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(DiaperPatternsChart);
@@ -56,7 +51,6 @@ describe('DiaperPatternsChart', () => {
 
   afterEach(() => {
     fixture.destroy();
-    vi.clearAllMocks();
   });
 
   it('should create component', () => {
@@ -68,7 +62,7 @@ describe('DiaperPatternsChart', () => {
     fixture.componentRef.setInput('isLoading', false);
     await fixture.whenStable();
 
-    expect(vi.mocked(Chart)).toHaveBeenCalled();
+    expect(mockChartConstructor).toHaveBeenCalled();
   });
 
   it('should use bar chart type', async () => {
@@ -76,7 +70,7 @@ describe('DiaperPatternsChart', () => {
     fixture.componentRef.setInput('isLoading', false);
     await fixture.whenStable();
 
-    const chartConfig = vi.mocked(Chart).mock.calls[0][1] as any;
+    const chartConfig = mockChartConstructor.mock.calls[0][1] as any;
     expect(chartConfig.type).toBe('bar');
   });
 
@@ -92,7 +86,7 @@ describe('DiaperPatternsChart', () => {
     fixture.componentRef.setInput('isLoading', false);
     await fixture.whenStable();
 
-    const chartInstance = vi.mocked(Chart).mock.results[0].value;
+    const chartInstance = mockChartConstructor.mock.results[0].value;
     const destroySpy = chartInstance.destroy;
 
     component.ngOnDestroy();

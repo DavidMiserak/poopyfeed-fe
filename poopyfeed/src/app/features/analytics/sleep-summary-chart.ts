@@ -14,6 +14,7 @@
 
 import {
   Component,
+  inject,
   input,
   signal,
   computed,
@@ -26,10 +27,8 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SleepSummary } from '../../models/analytics.model';
-import { Chart, ChartConfiguration, registerables } from 'chart.js';
-
-// Register Chart.js components globally
-Chart.register(...registerables);
+import type { Chart, ChartConfiguration } from 'chart.js';
+import { CHART_FACTORY } from './chart.token';
 
 @Component({
   selector: 'app-sleep-summary-chart',
@@ -76,6 +75,8 @@ Chart.register(...registerables);
   `,
 })
 export class SleepSummaryChart implements OnDestroy {
+  private chartFactory = inject(CHART_FACTORY);
+
   /** Sleep summary data from API */
   data = input<SleepSummary | null>(null);
 
@@ -180,7 +181,7 @@ export class SleepSummaryChart implements OnDestroy {
     };
 
     try {
-      this.chart.set(new Chart(canvas, config));
+      this.chart.set(new this.chartFactory(canvas, config));
     } catch (error) {
       console.error('Failed to render sleep summary chart:', error);
     }
