@@ -45,11 +45,14 @@ import { NapsService } from '../../services/naps.service';
 import { DateTimeService } from '../../services/datetime.service';
 import { ToastService } from '../../services/toast.service';
 import { ErrorHandler } from '../../services/error.utils';
+import { TimeWindowSelector } from './time-window-selector';
+import { EventTimeline } from './event-timeline';
+import { EventCard } from './event-card';
 
 @Component({
   selector: 'app-catch-up',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TimeWindowSelector, EventTimeline, EventCard],
   template: `
     <div class="catch-up-container max-w-4xl mx-auto px-4 py-8">
       <!-- Loading state -->
@@ -79,74 +82,48 @@ import { ErrorHandler } from '../../services/error.utils';
           </p>
         </div>
 
-        <!-- Time Window Section (placeholder for child component) -->
+        <!-- Time Window Section -->
         <div class="bg-white rounded-lg border border-gray-200 p-6 mb-6">
           <h2 class="text-lg font-semibold text-gray-900 mb-4">Time Window</h2>
-          <p class="text-gray-600 text-sm">
-            Time window selector component will be rendered here (Phase 3)
-          </p>
-          <p class="text-xs text-gray-500 mt-2">
-            Current window: {{ timeWindow().startTime | date: 'short' }} to
-            {{ timeWindow().endTime | date: 'short' }}
-          </p>
+          <app-time-window-selector
+            [timeWindow]="timeWindow()"
+            (onTimeWindowChange)="onTimeWindowChange($event)"
+            (onCancelClick)="onCancel()"
+          />
         </div>
 
-        <!-- Event Timeline Section (placeholder for child component) -->
+        <!-- Event Timeline Section -->
         <div class="bg-white rounded-lg border border-gray-200 p-6 mb-6">
           <h2 class="text-lg font-semibold text-gray-900 mb-4">
-            Events ({{ eventList().length }})
+            Events Timeline
           </h2>
-          <div class="grid grid-cols-3 gap-4 mb-4">
-            <div class="text-center">
-              <div class="text-2xl font-bold text-rose-600">{{ newEvents().length }}</div>
-              <div class="text-sm text-gray-600">New Events</div>
-            </div>
-            <div class="text-center">
-              <div class="text-2xl font-bold text-blue-600">{{ existingEvents().length }}</div>
-              <div class="text-sm text-gray-600">Existing Events</div>
-            </div>
-            <div class="text-center">
-              <div class="text-2xl font-bold text-green-600">{{ totalEventCount() }}</div>
-              <div class="text-sm text-gray-600">Total</div>
-            </div>
-          </div>
-          <p class="text-gray-600 text-sm">
-            Event timeline component will be rendered here (Phase 3)
-          </p>
+          <app-event-timeline
+            [events]="eventList()"
+            (onAddEvent)="onAddEvent($event)"
+            (onSelectEvent)="selectedEventId.set($event)"
+            (onReorderEvents)="onReorderEvents($event)"
+          />
         </div>
 
-        <!-- Add Event Actions (placeholder for child component) -->
-        <div class="bg-white rounded-lg border border-gray-200 p-6 mb-6">
-          <h2 class="text-lg font-semibold text-gray-900 mb-4">Add Event</h2>
-          <div class="flex gap-2">
-            <button
-              (click)="onAddEvent('feeding')"
-              [disabled]="!canAddEvent()"
-              class="px-4 py-2 bg-blue-500 text-white rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              + Feeding
-            </button>
-            <button
-              (click)="onAddEvent('diaper')"
-              [disabled]="!canAddEvent()"
-              class="px-4 py-2 bg-yellow-500 text-white rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              + Diaper
-            </button>
-            <button
-              (click)="onAddEvent('nap')"
-              [disabled]="!canAddEvent()"
-              class="px-4 py-2 bg-purple-500 text-white rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              + Nap
-            </button>
-          </div>
-          @if (!canAddEvent()) {
-            <p class="text-sm text-red-600 mt-3">
-              Maximum 20 events per session. Submit these first, then start a new session.
-            </p>
+        <!-- Event Details (when selected) -->
+        @if (selectedEventId(); as eventId) {
+          @if (getEventById(eventId); as event) {
+            <div class="bg-white rounded-lg border border-gray-200 p-6 mb-6">
+              <h2 class="text-lg font-semibold text-gray-900 mb-4">Event Details</h2>
+              <app-event-card
+                [event]="event"
+                (onUpdate)="onUpdateEvent(eventId, $event)"
+                (onRemove)="onRemoveEvent(eventId)"
+              />
+              <button
+                (click)="selectedEventId.set(null)"
+                class="mt-4 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50"
+              >
+                Close Details
+              </button>
+            </div>
           }
-        </div>
+        }
 
         <!-- Form Actions -->
         <div class="flex gap-4 justify-between">
@@ -203,6 +180,7 @@ export class CatchUp implements OnInit {
   isLoading = signal(false);
   isSubmitting = signal(false);
   error = signal<string | null>(null);
+  selectedEventId = signal<string | null>(null);
 
   // ✅ Data Model
   childId = signal<number | null>(null);
@@ -226,6 +204,13 @@ export class CatchUp implements OnInit {
   );
   totalEventCount = computed(() => this.eventList().length);
   hasChanges = computed(() => this.newEvents().length > 0);
+
+  /**
+   * Get event by ID from event list.
+   */
+  getEventById(eventId: string): CatchUpEvent | undefined {
+    return this.eventList().find((e) => e.id === eventId);
+  }
 
   ngOnInit() {
     this.initialize();
