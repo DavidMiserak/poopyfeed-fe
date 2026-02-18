@@ -87,6 +87,14 @@ export const routes: Routes = [
         ],
       },
       {
+        path: ':childId/catch-up',
+        loadComponent: () =>
+          import('./features/catch-up/catch-up').then(
+            (m) => m.CatchUp
+          ),
+        title: 'Catch-Up Mode - PoopyFeed',
+      },
+      {
         path: ':childId/feedings',
         children: [
           {
