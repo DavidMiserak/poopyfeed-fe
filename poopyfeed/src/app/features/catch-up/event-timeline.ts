@@ -5,7 +5,9 @@
  * - Visual event cards with drag handles
  * - Quick-add buttons for new events
  * - Event count summary (new, existing, total)
- * - HTML5 native drag-drop reordering
+ * - HTML5 native drag-drop reordering (desktop)
+ * - Touch-based drag reordering (mobile)
+ * - Visual drop indicator line showing target position
  * - Time gap visualization
  * - Empty state handling
  */
@@ -101,6 +103,9 @@ import { getActivityIcon } from '../../utils/date.utils';
               (dragend)="onDragEnd()"
               (dragenter)="onDragEnter($event, idx)"
               (dragleave)="onDragLeave($event, idx)"
+              (touchstart)="onTouchStart($event, idx)"
+              (touchmove)="onTouchMove($event)"
+              (touchend)="onTouchEnd()"
               role="article"
             >
               <!-- Timeline Connector -->
@@ -193,6 +198,7 @@ export class EventTimeline {
   isDraggingOver = signal(false);
   draggedIndex = signal<number | null>(null);
   dragOverIndex = signal<number | null>(null);
+  touchStartY = signal<number | null>(null);
 
   // Computed
   newEventCount = computed(() => this.events().filter((e) => !e.isExisting).length);
@@ -305,6 +311,81 @@ export class EventTimeline {
     if (sourceIndex === -1 || sourceIndex === targetIndex) {
       this.dragOverIndex.set(null);
       this.draggedIndex.set(null);
+      return;
+    }
+
+    // Create reordered list
+    const reordered = [...this.events()];
+    const [draggedEvent] = reordered.splice(sourceIndex, 1);
+    reordered.splice(targetIndex, 0, draggedEvent);
+
+    this.onReorderEvents.emit(reordered);
+    this.draggedIndex.set(null);
+    this.dragOverIndex.set(null);
+  }
+
+  /**
+   * Handle touch start on event item (mobile drag support).
+   */
+  onTouchStart(event: TouchEvent, index: number) {
+    event.preventDefault();
+    this.draggedIndex.set(index);
+    this.isDraggingOver.set(true);
+    this.touchStartY.set(event.touches[0]?.clientY ?? null);
+  }
+
+  /**
+   * Handle touch move on event item to determine drop target (mobile drag support).
+   */
+  onTouchMove(event: TouchEvent) {
+    event.preventDefault();
+
+    const draggedIdx = this.draggedIndex();
+    if (draggedIdx === null) return;
+
+    const currentY = event.touches[0]?.clientY ?? 0;
+    const timeline = document.querySelector('.timeline') as HTMLElement;
+    if (!timeline) return;
+
+    // Find which event item is currently under the touch point
+    const eventItems = timeline.querySelectorAll('.event-item');
+    let foundTarget = false;
+
+    eventItems.forEach((item, idx) => {
+      const rect = item.getBoundingClientRect();
+
+      // Check if touch is over this item (with some margin for easier targeting)
+      if (currentY >= rect.top - 30 && currentY <= rect.bottom + 30) {
+        if (idx !== draggedIdx) {
+          this.dragOverIndex.set(idx);
+          foundTarget = true;
+        }
+      }
+    });
+
+    // If no valid target found, clear dragOverIndex
+    if (!foundTarget) {
+      this.dragOverIndex.set(null);
+    }
+  }
+
+  /**
+   * Handle touch end to complete reordering (mobile drag support).
+   */
+  onTouchEnd() {
+    const sourceIndex = this.draggedIndex();
+    const targetIndex = this.dragOverIndex();
+
+    this.isDraggingOver.set(false);
+    this.touchStartY.set(null);
+
+    if (
+      sourceIndex === null ||
+      targetIndex === null ||
+      sourceIndex === targetIndex
+    ) {
+      this.draggedIndex.set(null);
+      this.dragOverIndex.set(null);
       return;
     }
 

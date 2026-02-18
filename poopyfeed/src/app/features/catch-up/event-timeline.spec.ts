@@ -616,4 +616,116 @@ describe('EventTimeline', () => {
       expect(buttons.length).toBeGreaterThan(0);
     });
   });
+
+  describe('Touch Support (Mobile)', () => {
+    beforeEach(() => {
+      fixture.componentRef.setInput('events', [mockNewEvent, mockExistingEvent, mockNapEvent]);
+      fixture.detectChanges();
+    });
+
+    it('should set draggedIndex on touch start', () => {
+      expect(component.draggedIndex()).toBeNull();
+
+      const mockEvent = {
+        touches: [{ clientY: 100 }],
+        preventDefault: vi.fn(),
+      } as any;
+
+      component.onTouchStart(mockEvent, 0);
+
+      expect(component.draggedIndex()).toBe(0);
+    });
+
+    it('should set touchStartY on touch start', () => {
+      expect(component.touchStartY()).toBeNull();
+
+      const mockEvent = {
+        touches: [{ clientY: 150 }],
+        preventDefault: vi.fn(),
+      } as any;
+
+      component.onTouchStart(mockEvent, 0);
+
+      expect(component.touchStartY()).toBe(150);
+    });
+
+    it('should set isDraggingOver on touch start', () => {
+      const mockEvent = {
+        touches: [{ clientY: 100 }],
+        preventDefault: vi.fn(),
+      } as any;
+
+      component.onTouchStart(mockEvent, 1);
+
+      expect(component.isDraggingOver()).toBe(true);
+    });
+
+    it('should clear touch state on touch end', () => {
+      component.draggedIndex.set(0);
+      component.dragOverIndex.set(1);
+      component.touchStartY.set(100);
+
+      component.onTouchEnd();
+
+      expect(component.touchStartY()).toBeNull();
+      expect(component.isDraggingOver()).toBe(false);
+    });
+
+    it('should not emit when sourceIndex equals targetIndex on touch end', () => {
+      const emitSpy = vi.spyOn(component.onReorderEvents, 'emit');
+
+      component.draggedIndex.set(0);
+      component.dragOverIndex.set(0);
+
+      component.onTouchEnd();
+
+      expect(emitSpy).not.toHaveBeenCalled();
+    });
+
+    it('should reorder events on touch end with different indices', () => {
+      const emitSpy = vi.spyOn(component.onReorderEvents, 'emit');
+
+      component.draggedIndex.set(0);
+      component.dragOverIndex.set(2);
+
+      component.onTouchEnd();
+
+      expect(emitSpy).toHaveBeenCalled();
+      const reorderedEvents = emitSpy.mock.calls[0][0];
+      expect(reorderedEvents.length).toBe(3);
+      expect(reorderedEvents[2]?.id).toBe(mockNewEvent.id);
+    });
+
+    it('should clear draggedIndex and dragOverIndex after touch end', () => {
+      component.draggedIndex.set(0);
+      component.dragOverIndex.set(1);
+
+      component.onTouchEnd();
+
+      expect(component.draggedIndex()).toBeNull();
+      expect(component.dragOverIndex()).toBeNull();
+    });
+
+    it('should not emit on touch end when draggedIndex is null', () => {
+      const emitSpy = vi.spyOn(component.onReorderEvents, 'emit');
+
+      component.draggedIndex.set(null);
+      component.dragOverIndex.set(1);
+
+      component.onTouchEnd();
+
+      expect(emitSpy).not.toHaveBeenCalled();
+    });
+
+    it('should not emit on touch end when targetIndex is null', () => {
+      const emitSpy = vi.spyOn(component.onReorderEvents, 'emit');
+
+      component.draggedIndex.set(0);
+      component.dragOverIndex.set(null);
+
+      component.onTouchEnd();
+
+      expect(emitSpy).not.toHaveBeenCalled();
+    });
+  });
 });
