@@ -78,7 +78,7 @@ import { getActivityIcon } from '../../utils/date.utils';
           class="timeline space-y-2"
           (drop)="onDrop($event)"
           (dragover)="onDragOver($event)"
-          (dragleave)="onDragLeave($event)"
+          (dragleave)="onContainerDragLeave($event)"
           [class.bg-blue-50]="isDraggingOver()"
           [class.rounded-lg]="isDraggingOver()"
           [class.p-4]="isDraggingOver()"
@@ -89,11 +89,18 @@ import { getActivityIcon } from '../../utils/date.utils';
           aria-label="Events timeline"
         >
           @for (event of events(); track event.id; let idx = $index) {
+            <!-- Drop indicator line -->
+            @if (dragOverIndex() === idx && draggedIndex() !== idx) {
+              <div class="h-1 bg-blue-400 rounded-full mx-2 my-1" aria-hidden="true"></div>
+            }
+
             <div
               class="event-item flex gap-3"
               draggable="true"
               (dragstart)="onDragStart($event, idx)"
               (dragend)="onDragEnd()"
+              (dragenter)="onDragEnter($event, idx)"
+              (dragleave)="onDragLeave($event, idx)"
               role="article"
             >
               <!-- Timeline Connector -->
@@ -184,7 +191,8 @@ export class EventTimeline {
 
   // State
   isDraggingOver = signal(false);
-  private draggedIndex = signal<number | null>(null);
+  draggedIndex = signal<number | null>(null);
+  dragOverIndex = signal<number | null>(null);
 
   // Computed
   newEventCount = computed(() => this.events().filter((e) => !e.isExisting).length);
@@ -238,10 +246,29 @@ export class EventTimeline {
   }
 
   /**
+   * Handle drag enter on individual event items to track drop target.
+   */
+  onDragEnter(event: DragEvent, index: number) {
+    event.preventDefault();
+    this.dragOverIndex.set(index);
+  }
+
+  /**
+   * Handle drag leave on individual event items.
+   */
+  onDragLeave(event: DragEvent, index: number) {
+    // Clear dragOverIndex if leaving this specific item
+    if (this.dragOverIndex() === index) {
+      this.dragOverIndex.set(null);
+    }
+  }
+
+  /**
    * Handle drag end.
    */
   onDragEnd() {
     this.isDraggingOver.set(false);
+    this.dragOverIndex.set(null);
   }
 
   /**
@@ -256,9 +283,9 @@ export class EventTimeline {
   }
 
   /**
-   * Handle drag leave.
+   * Handle drag leave from the timeline container.
    */
-  onDragLeave(event: DragEvent) {
+  onContainerDragLeave(event: DragEvent) {
     // Only hide if leaving the container entirely
     if ((event.target as HTMLElement).classList.contains('timeline')) {
       this.isDraggingOver.set(false);
@@ -273,14 +300,21 @@ export class EventTimeline {
     this.isDraggingOver.set(false);
 
     const sourceIndex = Number(event.dataTransfer?.getData('text/plain') ?? '-1');
-    if (sourceIndex === -1) return;
+    const targetIndex = this.dragOverIndex() ?? sourceIndex;
+
+    if (sourceIndex === -1 || sourceIndex === targetIndex) {
+      this.dragOverIndex.set(null);
+      this.draggedIndex.set(null);
+      return;
+    }
 
     // Create reordered list
     const reordered = [...this.events()];
     const [draggedEvent] = reordered.splice(sourceIndex, 1);
-    reordered.splice(sourceIndex, 0, draggedEvent);
+    reordered.splice(targetIndex, 0, draggedEvent);
 
     this.onReorderEvents.emit(reordered);
     this.draggedIndex.set(null);
+    this.dragOverIndex.set(null);
   }
 }

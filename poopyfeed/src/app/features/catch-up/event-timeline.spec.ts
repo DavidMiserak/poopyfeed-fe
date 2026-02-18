@@ -264,16 +264,51 @@ describe('EventTimeline', () => {
       expect(eventItems.length).toBeGreaterThan(0);
     });
 
-    it('should handle drag end by clearing isDraggingOver', () => {
+    it('should handle drag end by clearing isDraggingOver and dragOverIndex', () => {
       component.isDraggingOver.set(true);
+      component.dragOverIndex.set(1);
 
       component.onDragEnd();
 
       expect(component.isDraggingOver()).toBe(false);
+      expect(component.dragOverIndex()).toBeNull();
+    });
+
+    it('should set dragOverIndex on drag enter', () => {
+      expect(component.dragOverIndex()).toBeNull();
+
+      const mockEvent = {
+        preventDefault: vi.fn(),
+      } as any;
+
+      component.onDragEnter(mockEvent, 1);
+
+      expect(component.dragOverIndex()).toBe(1);
+    });
+
+    it('should clear dragOverIndex on drag leave when leaving the specific item', () => {
+      component.dragOverIndex.set(1);
+
+      const mockEvent = {} as DragEvent;
+      component.onDragLeave(mockEvent, 1);
+
+      expect(component.dragOverIndex()).toBeNull();
+    });
+
+    it('should not clear dragOverIndex when leaving a different item', () => {
+      component.dragOverIndex.set(1);
+
+      const mockEvent = {} as DragEvent;
+      component.onDragLeave(mockEvent, 0);
+
+      expect(component.dragOverIndex()).toBe(1);
     });
 
     it('should call reorder on drop with mocked dataTransfer', () => {
       const emitSpy = vi.spyOn(component.onReorderEvents, 'emit');
+
+      // Simulate dropping at a different position
+      component.dragOverIndex.set(1);
 
       // Create mock event with dataTransfer
       const mockEvent = {
@@ -287,6 +322,77 @@ describe('EventTimeline', () => {
 
       // Verify reorder was emitted
       expect(emitSpy).toHaveBeenCalled();
+    });
+
+    it('should reorder events to correct target position on drop', () => {
+      const emitSpy = vi.spyOn(component.onReorderEvents, 'emit');
+
+      // Simulate dragging event at index 0 to index 2
+      component.dragOverIndex.set(2);
+
+      const mockEvent = {
+        preventDefault: vi.fn(),
+        dataTransfer: {
+          getData: vi.fn().mockReturnValue('0'),
+        },
+      } as any;
+
+      component.onDrop(mockEvent);
+
+      expect(emitSpy).toHaveBeenCalled();
+      const reorderedEvents = emitSpy.mock.calls[0][0];
+
+      // Event originally at index 0 should now be at index 2 (or close to it)
+      expect(reorderedEvents[2]?.id).toBe(mockNewEvent.id);
+    });
+
+    it('should not emit when sourceIndex equals targetIndex', () => {
+      const emitSpy = vi.spyOn(component.onReorderEvents, 'emit');
+
+      // Simulate dropping at the same position
+      component.dragOverIndex.set(0);
+
+      const mockEvent = {
+        preventDefault: vi.fn(),
+        dataTransfer: {
+          getData: vi.fn().mockReturnValue('0'),
+        },
+      } as any;
+
+      component.onDrop(mockEvent);
+
+      expect(emitSpy).not.toHaveBeenCalled();
+    });
+
+    it('should clear dragOverIndex after drop', () => {
+      component.dragOverIndex.set(1);
+
+      const mockEvent = {
+        preventDefault: vi.fn(),
+        dataTransfer: {
+          getData: vi.fn().mockReturnValue('0'),
+        },
+      } as any;
+
+      component.onDrop(mockEvent);
+
+      expect(component.dragOverIndex()).toBeNull();
+    });
+
+    it('should clear draggedIndex after drop', () => {
+      component.draggedIndex.set(0);
+      component.dragOverIndex.set(1);
+
+      const mockEvent = {
+        preventDefault: vi.fn(),
+        dataTransfer: {
+          getData: vi.fn().mockReturnValue('0'),
+        },
+      } as any;
+
+      component.onDrop(mockEvent);
+
+      expect(component.draggedIndex()).toBeNull();
     });
   });
 
@@ -455,6 +561,9 @@ describe('EventTimeline', () => {
 
       const emitSpy = vi.spyOn(component.onReorderEvents, 'emit');
 
+      // Simulate dragging event at index 0 to index 2
+      component.dragOverIndex.set(2);
+
       const mockEvent = {
         preventDefault: vi.fn(),
         dataTransfer: {
@@ -473,6 +582,10 @@ describe('EventTimeline', () => {
       fixture.detectChanges();
 
       const emitSpy = vi.spyOn(component.onReorderEvents, 'emit');
+
+      // Simulate dragging event at index 0 to index 2
+      component.dragOverIndex.set(2);
+
       const mockEvent = {
         preventDefault: vi.fn(),
         dataTransfer: {
