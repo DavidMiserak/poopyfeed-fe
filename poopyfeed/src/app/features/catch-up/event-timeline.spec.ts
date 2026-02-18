@@ -185,12 +185,24 @@ describe('EventTimeline', () => {
       expect(compiled.textContent).toContain('🍼'); // Feeding icon
     });
 
-    it('should show pinned indicator for pinned events', () => {
-      fixture.componentRef.setInput('events', [mockExistingEvent]);
+    it('should show pinned indicator for pinned new events', () => {
+      const pinnedEvent: CatchUpEvent = {
+        ...mockNewEvent,
+        isPinned: true,
+      };
+      fixture.componentRef.setInput('events', [pinnedEvent]);
       fixture.detectChanges();
 
       const compiled = fixture.nativeElement as HTMLElement;
       expect(compiled.textContent).toContain('Pinned');
+    });
+
+    it('should show locked indicator for existing events', () => {
+      fixture.componentRef.setInput('events', [mockExistingEvent]);
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      expect(compiled.textContent).toContain('Locked');
     });
 
     it('should not show pinned indicator for unpinned events', () => {
@@ -650,12 +662,15 @@ describe('EventTimeline', () => {
     });
 
     it('should set isDraggingOver on touch start', () => {
+      fixture.componentRef.setInput('events', [mockNewEvent]);
+      fixture.detectChanges();
+
       const mockEvent = {
         touches: [{ clientY: 100 }],
         preventDefault: vi.fn(),
       } as any;
 
-      component.onTouchStart(mockEvent, 1);
+      component.onTouchStart(mockEvent, 0);
 
       expect(component.isDraggingOver()).toBe(true);
     });

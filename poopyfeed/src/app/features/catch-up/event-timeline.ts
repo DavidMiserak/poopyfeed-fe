@@ -98,7 +98,7 @@ import { getActivityIcon } from '../../utils/date.utils';
 
             <div
               class="event-item flex gap-3"
-              draggable="true"
+              [draggable]="!event.isExisting"
               (dragstart)="onDragStart($event, idx)"
               (dragend)="onDragEnd()"
               (dragenter)="onDragEnter($event, idx)"
@@ -135,15 +135,19 @@ import { getActivityIcon } from '../../utils/date.utils';
 
               <!-- Event Trigger -->
               <button
-                class="flex-1 text-left p-3 rounded-lg border transition-all cursor-move active:cursor-grabbing"
+                class="flex-1 text-left p-3 rounded-lg border transition-all"
                 [class.bg-blue-50]="!event.isExisting"
                 [class.border-blue-200]="!event.isExisting"
                 [class.hover:border-blue-400]="!event.isExisting"
+                [class.cursor-move]="!event.isExisting"
+                [class.active:cursor-grabbing]="!event.isExisting"
                 [class.bg-rose-50]="event.isExisting"
                 [class.border-rose-200]="event.isExisting"
                 [class.hover:border-rose-400]="event.isExisting"
+                [class.cursor-not-allowed]="event.isExisting"
+                [class.opacity-75]="event.isExisting"
                 (click)="selectEventHandler(event.id)"
-                [attr.aria-label]="event.type + ' event at ' + event.estimatedTime"
+                [attr.aria-label]="event.type + ' event at ' + event.estimatedTime + (event.isExisting ? ' (read-only)' : '')"
               >
                 <div class="flex items-center gap-2">
                   <span class="text-xl">{{ getActivityIcon(event.type) }}</span>
@@ -151,7 +155,11 @@ import { getActivityIcon } from '../../utils/date.utils';
                     <p class="font-medium text-gray-900 capitalize">{{ event.type }}</p>
                     <p class="text-sm text-gray-600">{{ formatTime(event.estimatedTime) }}</p>
                   </div>
-                  @if (event.isPinned) {
+                  @if (event.isExisting) {
+                    <span class="text-xs px-2 py-1 bg-gray-200 text-gray-700 rounded font-medium" title="Existing event (read-only anchor)">
+                      🔒 Locked
+                    </span>
+                  } @else if (event.isPinned) {
                     <span class="text-xs px-2 py-1 bg-yellow-100 text-yellow-800 rounded font-medium" title="Time manually pinned">
                       📌 Pinned
                     </span>
@@ -244,6 +252,12 @@ export class EventTimeline {
    * Handle drag start.
    */
   onDragStart(event: DragEvent, index: number) {
+    // Prevent dragging existing events
+    if (this.events()[index]?.isExisting) {
+      event.preventDefault();
+      return;
+    }
+
     this.draggedIndex.set(index);
     if (event.dataTransfer) {
       event.dataTransfer.effectAllowed = 'move';
@@ -314,10 +328,18 @@ export class EventTimeline {
       return;
     }
 
+    // Prevent dropping existing events
+    const draggedEvent = this.events()[sourceIndex];
+    if (draggedEvent?.isExisting) {
+      this.dragOverIndex.set(null);
+      this.draggedIndex.set(null);
+      return;
+    }
+
     // Create reordered list
     const reordered = [...this.events()];
-    const [draggedEvent] = reordered.splice(sourceIndex, 1);
-    reordered.splice(targetIndex, 0, draggedEvent);
+    const [movedEvent] = reordered.splice(sourceIndex, 1);
+    reordered.splice(targetIndex, 0, movedEvent);
 
     this.onReorderEvents.emit(reordered);
     this.draggedIndex.set(null);
@@ -328,6 +350,12 @@ export class EventTimeline {
    * Handle touch start on event item (mobile drag support).
    */
   onTouchStart(event: TouchEvent, index: number) {
+    // Prevent dragging existing events
+    if (this.events()[index]?.isExisting) {
+      event.preventDefault();
+      return;
+    }
+
     event.preventDefault();
     this.draggedIndex.set(index);
     this.isDraggingOver.set(true);
@@ -389,10 +417,18 @@ export class EventTimeline {
       return;
     }
 
+    // Prevent reordering existing events
+    const draggedEvent = this.events()[sourceIndex];
+    if (draggedEvent?.isExisting) {
+      this.draggedIndex.set(null);
+      this.dragOverIndex.set(null);
+      return;
+    }
+
     // Create reordered list
     const reordered = [...this.events()];
-    const [draggedEvent] = reordered.splice(sourceIndex, 1);
-    reordered.splice(targetIndex, 0, draggedEvent);
+    const [movedEvent] = reordered.splice(sourceIndex, 1);
+    reordered.splice(targetIndex, 0, movedEvent);
 
     this.onReorderEvents.emit(reordered);
     this.draggedIndex.set(null);
