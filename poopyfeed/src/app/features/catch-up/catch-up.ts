@@ -90,16 +90,16 @@ import { EventCard } from './event-card';
             <div class="flex gap-2 justify-center">
               <div
                 class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-white transition-all"
-                [class.bg-rose-500]="currentStep() !== 'time-range' || currentStep() === 'time-range'"
-                [class.bg-slate-200]="currentStep() === 'time-range' && currentStep() !== 'time-range'"
+                [class.bg-rose-500]="currentStep() === 'time-range'"
+                [class.bg-slate-200]="currentStep() !== 'time-range'"
               >
                 1
               </div>
               <div class="w-px bg-slate-300"></div>
               <div
                 class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-white transition-all"
-                [class.bg-rose-500]="currentStep() !== 'time-range' && currentStep() !== 'events'"
-                [class.bg-slate-200]="currentStep() === 'time-range' || currentStep() === 'events'"
+                [class.bg-rose-500]="currentStep() === 'events'"
+                [class.bg-slate-200]="currentStep() !== 'events'"
               >
                 2
               </div>
