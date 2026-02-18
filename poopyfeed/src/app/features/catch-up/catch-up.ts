@@ -598,10 +598,18 @@ export class CatchUp implements OnInit {
    * Load existing events from API for the current time window.
    */
   private loadExistingEvents(childId: number) {
+    const timeWindow = this.timeWindow();
+    if (!timeWindow) return;
+
+    const filters = {
+      dateFrom: timeWindow.startTime,
+      dateTo: timeWindow.endTime,
+    };
+
     forkJoin({
-      feedings: this.feedingsService.list(childId),
-      diapers: this.diapersService.list(childId),
-      naps: this.napsService.list(childId),
+      feedings: this.feedingsService.list(childId, filters),
+      diapers: this.diapersService.list(childId, filters),
+      naps: this.napsService.list(childId, filters),
     })
       .pipe(
         tap(({ feedings, diapers, naps }: any) => {

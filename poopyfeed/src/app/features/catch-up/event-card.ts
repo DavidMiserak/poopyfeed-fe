@@ -23,7 +23,7 @@ import { debounceTime } from 'rxjs/operators';
 import { CatchUpEvent } from '../../models';
 import { DateTimeService } from '../../services/datetime.service';
 import { ToastService } from '../../services/toast.service';
-import { getActivityIcon, formatTimestamp } from '../../utils/date.utils';
+import { getActivityIcon, formatTimestamp, formatActivityAge } from '../../utils/date.utils';
 
 @Component({
   selector: 'app-event-card',
@@ -50,7 +50,7 @@ import { getActivityIcon, formatTimestamp } from '../../utils/date.utils';
             <!-- Event Info -->
             <div class="flex-1">
               <h3 class="font-semibold text-slate-900 capitalize">{{ evt.type }}</h3>
-              <p class="text-sm text-slate-600">{{ formatTime() }}</p>
+              <p class="text-sm text-slate-600">{{ formatActivityAge(evt.estimatedTime) }}</p>
             </div>
 
             <!-- Locked Badge -->
@@ -348,6 +348,7 @@ export class EventCard implements OnInit, AfterViewInit {
 
   // Helpers
   getActivityIcon = getActivityIcon;
+  formatActivityAge = formatActivityAge;
 
   ngOnInit() {
     this.initializeForm();

@@ -19,7 +19,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CatchUpEvent, CATCH_UP_VALIDATION } from '../../models';
-import { getActivityIcon } from '../../utils/date.utils';
+import { getActivityIcon, formatActivityAge } from '../../utils/date.utils';
 
 @Component({
   selector: 'app-event-timeline',
@@ -129,7 +129,13 @@ import { getActivityIcon } from '../../utils/date.utils';
                     <span class="text-2xl">{{ getActivityIcon(event.type) }}</span>
                     <div class="flex-1 min-w-0">
                       <p class="font-semibold text-slate-900 capitalize text-base">{{ event.type }}</p>
-                      <p class="text-sm text-slate-600">{{ formatTime(event.estimatedTime) }}</p>
+                      <p class="text-sm text-slate-600">
+                        @if (event.isExisting) {
+                          {{ formatActivityAge(event.estimatedTime) }}
+                        } @else {
+                          {{ formatTime(event.estimatedTime) }}
+                        }
+                      </p>
                     </div>
                     @if (event.isExisting) {
                       <span class="text-sm px-2 py-1 bg-slate-200 text-slate-700 rounded-lg font-medium flex-shrink-0" title="Existing event (read-only anchor)">
@@ -184,6 +190,7 @@ export class EventTimeline {
 
   // Helpers
   getActivityIcon = getActivityIcon;
+  formatActivityAge = formatActivityAge;
 
   /**
    * Format event time for display.

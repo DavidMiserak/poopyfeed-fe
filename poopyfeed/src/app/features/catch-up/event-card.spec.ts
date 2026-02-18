@@ -129,6 +129,32 @@ describe('EventCard', () => {
       const lockedBadgeElement = fixture.nativeElement.querySelector('[title*="Locked"]');
       expect(lockedBadgeElement).toBeTruthy();
     });
+
+    it('should display relative timestamp for existing event', () => {
+      // Create an event from 30 minutes ago
+      const now = new Date();
+      const thirtyMinsAgo = new Date(now.getTime() - 30 * 60 * 1000);
+      const existingEventWithTime: CatchUpEvent = {
+        id: 'existing-feeding-test',
+        type: 'feeding',
+        estimatedTime: thirtyMinsAgo.toISOString(),
+        isPinned: true,
+        isExisting: true,
+        existingId: 1,
+        data: {
+          feeding_type: 'bottle',
+          fed_at: thirtyMinsAgo.toISOString(),
+        },
+      };
+
+      fixture.componentRef.setInput('event', existingEventWithTime);
+      fixture.detectChanges();
+
+      const timeDisplay = fixture.nativeElement.textContent;
+      // Should show relative timestamp like "30 mins ago"
+      expect(timeDisplay).toMatch(/\d+\s+mins?\s+ago/);
+      expect(timeDisplay).not.toMatch(/\d{2}:\d{2}/); // Should not show absolute time
+    });
   });
 
   describe('Delete', () => {

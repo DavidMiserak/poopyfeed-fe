@@ -123,6 +123,63 @@ describe('CatchUpComponent - Step Wizard', () => {
       expect(component.currentStep()).toBe('events');
     });
 
+    it('should exclude events outside the 4-hour time window', () => {
+      const now = new Date();
+      const fourHoursAgo = new Date(now.getTime() - 4 * 60 * 60 * 1000);
+      const fiveHoursAgo = new Date(now.getTime() - 5 * 60 * 60 * 1000);
+
+      const timeWindow = {
+        startTime: fourHoursAgo.toISOString(),
+        endTime: now.toISOString(),
+      };
+
+      // Create events: one inside window (2h ago), one outside (5h ago)
+      const eventWithin4h = {
+        id: 1,
+        child: 1,
+        feeding_type: 'bottle',
+        fed_at: new Date(now.getTime() - 2 * 60 * 60 * 1000).toISOString(),
+        amount_oz: 4,
+        created_at: '2024-01-15T10:00:00Z',
+        updated_at: '2024-01-15T10:00:00Z',
+      };
+
+      const eventOutside4h = {
+        id: 2,
+        child: 1,
+        feeding_type: 'bottle',
+        fed_at: fiveHoursAgo.toISOString(),
+        amount_oz: 4,
+        created_at: '2024-01-15T09:00:00Z',
+        updated_at: '2024-01-15T09:00:00Z',
+      };
+
+      // Services should be called with the 4-hour window filters
+      feedingsService.list.mockReturnValue(of([eventWithin4h]));
+      diapersService.list.mockReturnValue(of([]));
+      napsService.list.mockReturnValue(of([]));
+
+      component.goToStep('events', timeWindow);
+
+      // Verify services were called with correct filters
+      expect(feedingsService.list).toHaveBeenCalledWith(
+        1,
+        expect.objectContaining({
+          dateFrom: fourHoursAgo.toISOString(),
+          dateTo: now.toISOString(),
+        }),
+      );
+
+      // The component should only show event within 4h, not event from 5h ago
+      const existingFeedings = component.eventList()
+        .filter(e => e.type === 'feeding' && e.isExisting);
+
+      // Should have the event from within 4h
+      expect(existingFeedings.some(e => e.existingId === 1)).toBe(true);
+      // Should NOT have the event from 5h ago (not in mock response)
+      expect(existingFeedings.some(e => e.existingId === 2)).toBe(false);
+    });
+
     it('should validate time window before advancing', () => {
       timeEstimationService.validateTimeWindow.mockReturnValue([
         'Invalid time window',
