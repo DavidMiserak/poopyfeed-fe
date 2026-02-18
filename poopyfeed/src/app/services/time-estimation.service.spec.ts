@@ -466,16 +466,21 @@ describe('TimeEstimationService', () => {
     });
 
     it('should accumulate multiple validation errors', () => {
-      const future = new Date(Date.now() + 10 * 60000);
+      // endTime in future (6 min from now) and startTime after endTime (8 min from now)
+      const endInFuture = new Date(Date.now() + 6 * 60000);
+      const startAfterEnd = new Date(Date.now() + 8 * 60000);
 
       const window: TimeWindow = {
-        startTime: '2026-02-18T10:00:00Z',
-        endTime: future.toISOString(), // start > end AND end in future
+        startTime: startAfterEnd.toISOString(), // start > end AND in future
+        endTime: endInFuture.toISOString(), // end in future (both errors)
       };
 
       const errors = service.validateTimeWindow(window);
 
+      // Should have both errors
       expect(errors.length).toBeGreaterThan(1);
+      expect(errors).toContain('Start time must be before end time');
+      expect(errors).toContain('End time cannot be in the future');
     });
   });
 
