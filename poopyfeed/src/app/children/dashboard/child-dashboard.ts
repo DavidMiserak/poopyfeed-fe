@@ -120,6 +120,7 @@ export class ChildDashboard implements OnInit {
   isNavigatingToDiaper = signal(false);
   isNavigatingToNap = signal(false);
   isNavigatingToAnalytics = signal(false);
+  isNavigatingToCatchUp = signal(false);
 
   /**
    * Computed permission: Can current user add tracking records?
@@ -373,6 +374,24 @@ export class ChildDashboard implements OnInit {
     if (childId) {
       this.isNavigatingToAnalytics.set(true);
       this.router.navigate(['/children', childId, 'analytics']);
+    }
+  }
+
+  /**
+   * Navigate to catch-up mode.
+   *
+   * Sets loading spinner on button and navigates to:
+   * /children/:childId/catch-up
+   *
+   * Catch-up mode allows caregivers to efficiently log multiple activities
+   * (feedings, diaper changes, naps) for a child within a specified time
+   * window using intelligent time estimation and drag-and-drop reordering.
+   */
+  navigateToCatchUp(): void {
+    const childId = this.child()?.id;
+    if (childId) {
+      this.isNavigatingToCatchUp.set(true);
+      this.router.navigate(['/children', childId, 'catch-up']);
     }
   }
 
