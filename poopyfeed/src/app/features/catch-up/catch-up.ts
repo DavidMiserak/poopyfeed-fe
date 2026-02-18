@@ -1,17 +1,19 @@
 /**
  * Catch-Up Mode main component.
  *
- * Orchestrates the entire catch-up session where caregivers log multiple events
- * with smart time estimation and drag-and-drop reordering. Manages time window,
- * event lifecycle, and atomic batch submission to the backend.
+ * 3-step wizard for Maria (caretaker persona):
+ * Step 1: Choose Time Range → Step 2: Add Activities → Step 3: Review & Save → Success
+ *
+ * Orchestrates catch-up session with smart time estimation. Supports editing,
+ * reordering, and batch submission. Optimized for quick data entry with large buttons
+ * and preset-first UX.
  *
  * Features:
- * - Time window selection with validation (4-hour default, max 24 hours)
+ * - 3-step linear wizard (time range → activities → review)
  * - Automatic proportional time spacing for new events
- * - Drag-and-drop reordering with time recalculation
- * - Support for event pinning (manual time overrides)
+ * - Simple arrow buttons for reordering (no drag-drop)
  * - Batch submission with per-event error highlighting
- * - Existing events as read-only anchors
+ * - Success screen with summary
  */
 
 import {
@@ -24,7 +26,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
-import { forkJoin, throwError } from 'rxjs';
+import { forkJoin, throwError, of } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 
 import {
@@ -45,16 +47,16 @@ import { NapsService } from '../../services/naps.service';
 import { DateTimeService } from '../../services/datetime.service';
 import { ToastService } from '../../services/toast.service';
 import { ErrorHandler } from '../../services/error.utils';
+import { getActivityIcon } from '../../utils/date.utils';
 import { TimeWindowSelector } from './time-window-selector';
 import { EventTimeline } from './event-timeline';
 import { EventCard } from './event-card';
 
 @Component({
   selector: 'app-catch-up',
-  standalone: true,
   imports: [CommonModule, TimeWindowSelector, EventTimeline, EventCard],
   template: `
-    <div class="catch-up-container max-w-4xl mx-auto px-4 py-8">
+    <div class="catch-up-container min-h-screen bg-amber-50/30 px-4 py-6">
       <!-- Loading state -->
       @if (isLoading()) {
         <div class="flex justify-center items-center py-12">
@@ -64,8 +66,8 @@ import { EventCard } from './event-card';
 
       <!-- Error state -->
       @if (error()) {
-        <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-          <h3 class="font-semibold text-red-900 mb-2">Error</h3>
+        <div class="max-w-3xl mx-auto bg-red-50 border-2 border-red-200 rounded-2xl p-6 mb-6">
+          <h3 class="font-bold text-red-900 mb-2 text-lg">Error</h3>
           <p class="text-red-700">{{ error() }}</p>
         </div>
       }
@@ -73,80 +75,196 @@ import { EventCard } from './event-card';
       <!-- Main content -->
       @if (!isLoading() && !error()) {
         <!-- Header -->
-        <div class="mb-8">
-          <h1 class="text-3xl font-bold text-gray-900 mb-2">
+        <div class="max-w-3xl mx-auto mb-8">
+          <h1 class="text-3xl font-bold text-slate-900 mb-2">
             Catch-Up Mode: {{ child()?.name }}
           </h1>
-          <p class="text-gray-600">
-            Log multiple activities at once with smart time estimation
+          <p class="text-slate-600">
+            Quick log of {{ currentStepLabel() }}
           </p>
         </div>
 
-        <!-- Time Window Section -->
-        <div class="bg-white rounded-lg border border-gray-200 p-6 mb-6">
-          <h2 class="text-lg font-semibold text-gray-900 mb-4">Time Window</h2>
-          <app-time-window-selector
-            [timeWindow]="timeWindow()"
-            (onTimeWindowChange)="onTimeWindowChange($event)"
-            (onCancelClick)="onCancel()"
-          />
-        </div>
-
-        <!-- Event Timeline Section -->
-        <div class="bg-white rounded-lg border border-gray-200 p-6 mb-6">
-          <h2 class="text-lg font-semibold text-gray-900 mb-4">
-            Events Timeline
-          </h2>
-          <app-event-timeline
-            [events]="eventList()"
-            (onAddEvent)="onAddEvent($event)"
-            (onSelectEvent)="selectedEventId.set($event)"
-            (onReorderEvents)="onReorderEvents($event)"
-          />
-        </div>
-
-        <!-- Event Details (when selected) -->
-        @if (selectedEventId(); as eventId) {
-          @if (getEventById(eventId); as event) {
-            <div class="bg-white rounded-lg border border-gray-200 p-6 mb-6">
-              <h2 class="text-lg font-semibold text-gray-900 mb-4">Event Details</h2>
-              <app-event-card
-                [event]="event"
-                (onUpdate)="onUpdateEvent(eventId, $event)"
-                (onRemove)="onRemoveEvent(eventId)"
-              />
-              <button
-                (click)="selectedEventId.set(null)"
-                class="mt-4 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50"
+        <!-- Step Indicator (hidden on success) -->
+        @if (currentStep() !== 'success') {
+          <div class="max-w-3xl mx-auto mb-8">
+            <div class="flex gap-2 justify-center">
+              <div
+                class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-white transition-all"
+                [class.bg-rose-500]="currentStep() !== 'time-range' || currentStep() === 'time-range'"
+                [class.bg-slate-200]="currentStep() === 'time-range' && currentStep() !== 'time-range'"
               >
-                Close Details
-              </button>
+                1
+              </div>
+              <div class="w-px bg-slate-300"></div>
+              <div
+                class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-white transition-all"
+                [class.bg-rose-500]="currentStep() !== 'time-range' && currentStep() !== 'events'"
+                [class.bg-slate-200]="currentStep() === 'time-range' || currentStep() === 'events'"
+              >
+                2
+              </div>
+              <div class="w-px bg-slate-300"></div>
+              <div
+                class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-white transition-all"
+                [class.bg-rose-500]="currentStep() === 'review'"
+                [class.bg-slate-200]="currentStep() !== 'review'"
+              >
+                3
+              </div>
             </div>
-          }
+          </div>
         }
 
-        <!-- Form Actions -->
-        <div class="flex gap-4 justify-between">
-          <button
-            (click)="onCancel()"
-            class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50"
-          >
-            Cancel
-          </button>
-          <button
-            (click)="onSubmit()"
-            [disabled]="!hasChanges() || isSubmitting()"
-            [attr.aria-busy]="isSubmitting()"
-            class="px-6 py-2 bg-rose-500 text-white rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            @if (isSubmitting()) {
-              <span class="inline-block animate-spin mr-2">⏳</span>
-              Saving {{ newEvents().length }} events...
-            } @else {
-              Save All
+        <!-- Step 1: Time Range -->
+        @if (currentStep() === 'time-range') {
+          <div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-md p-8 border border-slate-100">
+            <h2 class="text-2xl font-bold text-slate-900 mb-6">Step 1: Choose Time Window</h2>
+            <app-time-window-selector
+              [timeWindow]="timeWindow()"
+              (onTimeWindowChange)="goToStep('events', $event)"
+            />
+            <button
+              (click)="onCancel()"
+              class="w-full mt-6 h-12 border-2 border-slate-300 text-slate-700 rounded-xl font-semibold hover:bg-slate-50"
+            >
+              Cancel
+            </button>
+          </div>
+        }
+
+        <!-- Step 2: Add Activities -->
+        @if (currentStep() === 'events') {
+          <div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-md p-8 border border-slate-100">
+            <h2 class="text-2xl font-bold text-slate-900 mb-6">Step 2: Add Activities</h2>
+            <app-event-timeline
+              [events]="eventList()"
+              (onAddEvent)="onAddEvent($event)"
+              (onSelectEvent)="selectedEventId.set($event)"
+              (onReorderEvents)="onReorderEvents($event)"
+            />
+
+            <!-- Event Details (when selected) -->
+            @if (selectedEventId(); as eventId) {
+              @if (getEventById(eventId); as event) {
+                <div class="mt-6 pt-6 border-t-2 border-slate-100">
+                  <h3 class="text-lg font-bold text-slate-900 mb-4">Edit Activity</h3>
+                  <app-event-card
+                    [event]="event"
+                    (onUpdate)="onUpdateEvent(eventId, $event)"
+                    (onRemove)="onRemoveEvent(eventId)"
+                  />
+                  <button
+                    (click)="selectedEventId.set(null)"
+                    class="w-full mt-4 h-12 border-2 border-slate-300 text-slate-700 rounded-xl font-semibold hover:bg-slate-50"
+                  >
+                    Close Editor
+                  </button>
+                </div>
+              }
             }
-          </button>
-        </div>
+
+            <!-- Navigation -->
+            <div class="flex gap-4 mt-6 pt-6 border-t-2 border-slate-100">
+              <button
+                (click)="goToStep('time-range')"
+                class="flex-1 h-12 border-2 border-slate-300 text-slate-700 rounded-xl font-semibold hover:bg-slate-50"
+              >
+                Back
+              </button>
+              <button
+                (click)="goToStep('review')"
+                [disabled]="!hasChanges()"
+                class="flex-1 h-12 bg-rose-500 hover:bg-rose-600 text-white rounded-xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Review {{ newEvents().length }} Activities
+              </button>
+            </div>
+          </div>
+        }
+
+        <!-- Step 3: Review & Save -->
+        @if (currentStep() === 'review') {
+          <div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-md p-8 border border-slate-100">
+            <h2 class="text-2xl font-bold text-slate-900 mb-6">Step 3: Review & Save</h2>
+            <p class="text-slate-700 mb-6">
+              Ready to save {{ newEvents().length }} activit{{ newEvents().length === 1 ? 'y' : 'ies' }}?
+            </p>
+
+            <!-- Summary List -->
+            <div class="space-y-3 mb-8">
+              @for (event of newEvents(); track event.id) {
+                <div class="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                  <div class="flex items-center gap-3">
+                    <span class="text-2xl">{{ getActivityIcon(event.type) }}</span>
+                    <div class="flex-1">
+                      <p class="font-semibold text-slate-900 capitalize">{{ event.type }}</p>
+                      <p class="text-sm text-slate-600">{{ formatTime(event.estimatedTime) }}</p>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+
+            <!-- Navigation -->
+            <div class="flex gap-4 pt-6 border-t-2 border-slate-100">
+              <button
+                (click)="goToStep('events')"
+                [disabled]="isSubmitting()"
+                class="flex-1 h-12 border-2 border-slate-300 text-slate-700 rounded-xl font-semibold hover:bg-slate-50 disabled:opacity-50"
+              >
+                Edit
+              </button>
+              <button
+                (click)="onSubmit()"
+                [disabled]="isSubmitting()"
+                [attr.aria-busy]="isSubmitting()"
+                class="flex-1 h-12 bg-rose-500 hover:bg-rose-600 text-white rounded-xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                @if (isSubmitting()) {
+                  <span class="inline-block animate-spin mr-2">⏳</span>
+                  Saving...
+                } @else {
+                  Confirm & Save
+                }
+              </button>
+            </div>
+          </div>
+        }
+
+        <!-- Step 4: Success -->
+        @if (currentStep() === 'success') {
+          <div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-md p-8 border border-slate-100 text-center">
+            <div class="text-5xl mb-4">✅</div>
+            <h2 class="text-3xl font-bold text-slate-900 mb-2">
+              {{ newEvents().length }} Activit{{ newEvents().length === 1 ? 'y' : 'ies' }} Saved!
+            </h2>
+            <p class="text-lg text-slate-600 mb-8">
+              Great work logging for {{ child()?.name }}. Everything is saved.
+            </p>
+
+            <!-- Summary -->
+            <div class="bg-amber-50 rounded-xl p-6 border-2 border-amber-100 mb-8 text-left">
+              <p class="text-sm font-semibold text-slate-900 mb-4">What was saved:</p>
+              <div class="space-y-2">
+                @for (event of newEvents(); track event.id) {
+                  <div class="flex items-center gap-2 text-slate-700">
+                    <span>{{ getActivityIcon(event.type) }}</span>
+                    <span class="capitalize">{{ event.type }}</span>
+                    <span class="text-slate-500">{{ formatTime(event.estimatedTime) }}</span>
+                  </div>
+                }
+              </div>
+            </div>
+
+            <!-- Done Button -->
+            <button
+              (click)="navigateToDashboard()"
+              class="w-full h-14 bg-rose-500 hover:bg-rose-600 text-white rounded-xl font-semibold text-lg"
+            >
+              Back to {{ child()?.name }}'s Dashboard
+            </button>
+          </div>
+        }
       }
     </div>
   `,
@@ -157,7 +275,6 @@ import { EventCard } from './event-card';
       }
 
       .catch-up-container {
-        background-color: #fafafa;
         min-height: 100vh;
       }
     `,
@@ -181,6 +298,7 @@ export class CatchUp implements OnInit {
   isSubmitting = signal(false);
   error = signal<string | null>(null);
   selectedEventId = signal<string | null>(null);
+  currentStep = signal<'time-range' | 'events' | 'review' | 'success'>('time-range');
 
   // ✅ Data Model
   childId = signal<number | null>(null);
@@ -204,6 +322,23 @@ export class CatchUp implements OnInit {
   );
   totalEventCount = computed(() => this.eventList().length);
   hasChanges = computed(() => this.newEvents().length > 0);
+  currentStepLabel = computed(() => {
+    switch (this.currentStep()) {
+      case 'time-range':
+        return 'time window';
+      case 'events':
+        return `${this.newEvents().length} activit${this.newEvents().length === 1 ? 'y' : 'ies'}`;
+      case 'review':
+        return 'review';
+      case 'success':
+        return 'done';
+      default:
+        return '';
+    }
+  });
+
+  // ✅ Helpers
+  getActivityIcon = getActivityIcon;
 
   /**
    * Get event by ID from event list.
@@ -384,16 +519,62 @@ export class CatchUp implements OnInit {
   }
 
   /**
-   * Remove an event from the timeline.
+   * Navigate to a specific step with validation.
+   */
+  goToStep(
+    step: 'time-range' | 'events' | 'review' | 'success',
+    timeWindow?: TimeWindow,
+  ) {
+    if (timeWindow) {
+      // Validate before advancing from time-range to events
+      const errors = this.timeEstimationService.validateTimeWindow(timeWindow);
+      if (errors.length > 0) {
+        errors.forEach((err: string) => this.toast.error(err));
+        return;
+      }
+
+      this.timeWindow.set(timeWindow);
+      this.recalculateTimes();
+
+      // Reload existing events from new time window
+      if (this.childId()) {
+        this.loadExistingEvents(this.childId()!);
+      }
+    }
+
+    // Validate before advancing to review
+    if (step === 'review' && !this.hasChanges()) {
+      this.toast.error('Add at least one activity before reviewing');
+      return;
+    }
+
+    this.currentStep.set(step);
+  }
+
+  /**
+   * Format time for display.
+   */
+  formatTime(timestamp: string): string {
+    try {
+      const date = new Date(timestamp);
+      const hours = date.getHours().toString().padStart(2, '0');
+      const minutes = date.getMinutes().toString().padStart(2, '0');
+      return `${hours}:${minutes}`;
+    } catch {
+      return 'Invalid time';
+    }
+  }
+
+  /**
+   * Remove an event from the timeline (no toast - keep simple).
    */
   onRemoveEvent(eventId: string) {
     this.eventList.update((events) => events.filter((e) => e.id !== eventId));
     this.recalculateTimes();
-    this.toast.success('Event removed');
   }
 
   /**
-   * Update an event with new data.
+   * Update an event with new data from form changes.
    */
   onUpdateEvent(eventId: string, updates: Partial<CatchUpEvent>) {
     this.eventList.update((events) =>
@@ -406,32 +587,11 @@ export class CatchUp implements OnInit {
   }
 
   /**
-   * Reorder events after drag-and-drop.
+   * Reorder events after move up/down buttons.
    */
   onReorderEvents(reorderedList: CatchUpEvent[]) {
     this.eventList.set(reorderedList);
     this.recalculateTimes();
-  }
-
-  /**
-   * Update time window and reload existing events.
-   */
-  onTimeWindowChange(newWindow: TimeWindow) {
-    const validationErrors =
-      this.timeEstimationService.validateTimeWindow(newWindow);
-
-    if (validationErrors.length > 0) {
-      validationErrors.forEach((err: string) => this.toast.error(err));
-      return;
-    }
-
-    this.timeWindow.set(newWindow);
-    this.recalculateTimes();
-
-    // Reload existing events from new time window
-    if (this.childId()) {
-      this.loadExistingEvents(this.childId()!);
-    }
   }
 
   /**
@@ -485,7 +645,7 @@ export class CatchUp implements OnInit {
    */
   onSubmit() {
     if (!this.hasChanges()) {
-      this.toast.error('Add at least one event before saving');
+      this.toast.error('Add at least one activity before saving');
       return;
     }
 
@@ -495,10 +655,9 @@ export class CatchUp implements OnInit {
       .create(this.childId()!, this.newEvents())
       .pipe(
         tap((response: any) => {
-          this.toast.success(
-            `${response.count} events saved successfully`,
-          );
-          this.router.navigate(['/children', this.childId(), 'dashboard']);
+          // Show success screen instead of navigating immediately
+          this.currentStep.set('success');
+          this.isSubmitting.set(false);
         }),
         catchError((err: any) => {
           this.isSubmitting.set(false);
@@ -512,28 +671,36 @@ export class CatchUp implements OnInit {
                 )
                 .join('; ');
               this.toast.error(
-                `Event ${eventError.index + 1} (${eventError.type}): ${errorMsg}`,
+                `Activity ${eventError.index + 1} (${eventError.type}): ${errorMsg}`,
               );
             });
           } else {
             this.toast.error(
-              'Failed to save events. Your data is preserved — please try again.',
+              'Failed to save activities. Your data is preserved — please try again.',
             );
           }
 
-          return throwError(() => err);
+          // Return empty observable to complete the stream gracefully
+          return of([]);
         }),
       )
       .subscribe();
   }
 
   /**
-   * Cancel the catch-up session with confirmation if unsaved changes exist.
+   * Navigate back to child dashboard from success screen.
+   */
+  navigateToDashboard() {
+    this.router.navigate(['/children', this.childId(), 'dashboard']);
+  }
+
+  /**
+   * Cancel the catch-up session (with confirmation on step 2).
    */
   onCancel() {
-    if (this.hasChanges()) {
+    if (this.currentStep() === 'events' && this.hasChanges()) {
       const confirmed = confirm(
-        `Discard ${this.newEvents().length} unsaved event(s)?`,
+        `Discard ${this.newEvents().length} unsaved activit${this.newEvents().length === 1 ? 'y' : 'ies'}?`,
       );
       if (!confirmed) {
         return;
