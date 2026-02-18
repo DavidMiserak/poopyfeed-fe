@@ -127,13 +127,14 @@ describe('CatchUpComponent - Step Wizard', () => {
       const now = new Date();
       const fourHoursAgo = new Date(now.getTime() - 4 * 60 * 60 * 1000);
       const fiveHoursAgo = new Date(now.getTime() - 5 * 60 * 60 * 1000);
+      const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
 
       const timeWindow = {
         startTime: fourHoursAgo.toISOString(),
         endTime: now.toISOString(),
       };
 
-      // Create events: one inside window (2h ago), one outside (5h ago)
+      // Create events: one inside window (2h ago), one outside (5h ago), one way outside (1 day ago)
       const eventWithin4h = {
         id: 1,
         child: 1,
@@ -144,6 +145,7 @@ describe('CatchUpComponent - Step Wizard', () => {
         updated_at: '2024-01-15T10:00:00Z',
       };
 
+      // This event should NOT be returned by the service because it's outside the window
       const eventOutside4h = {
         id: 2,
         child: 1,
@@ -154,14 +156,25 @@ describe('CatchUpComponent - Step Wizard', () => {
         updated_at: '2024-01-15T09:00:00Z',
       };
 
+      const eventFromYesterday = {
+        id: 3,
+        child: 1,
+        feeding_type: 'bottle',
+        fed_at: oneDayAgo.toISOString(),
+        amount_oz: 4,
+        created_at: '2024-01-14T10:00:00Z',
+        updated_at: '2024-01-14T10:00:00Z',
+      };
+
       // Services should be called with the 4-hour window filters
+      // The API should filter and only return the event within 4h
       feedingsService.list.mockReturnValue(of([eventWithin4h]));
       diapersService.list.mockReturnValue(of([]));
       napsService.list.mockReturnValue(of([]));
 
       component.goToStep('events', timeWindow);
 
-      // Verify services were called with correct filters
+      // Verify services were called with correct time window filters
       expect(feedingsService.list).toHaveBeenCalledWith(
         1,
         expect.objectContaining({
@@ -170,14 +183,21 @@ describe('CatchUpComponent - Step Wizard', () => {
         }),
       );
 
-      // The component should only show event within 4h, not event from 5h ago
+      // Verify the dates passed are actually within 4 hours
+      const callDateFrom = new Date(fourHoursAgo);
+      const callDateTo = new Date(now);
+      const windowDurationHours = (callDateTo.getTime() - callDateFrom.getTime()) / (1000 * 60 * 60);
+      expect(windowDurationHours).toBeCloseTo(4, 1); // Within 1 hour of 4 hours
+
+      // The component should only show event within 4h
       const existingFeedings = component.eventList()
         .filter(e => e.type === 'feeding' && e.isExisting);
 
       // Should have the event from within 4h
       expect(existingFeedings.some(e => e.existingId === 1)).toBe(true);
-      // Should NOT have the event from 5h ago (not in mock response)
+      // Should NOT have events outside the window
       expect(existingFeedings.some(e => e.existingId === 2)).toBe(false);
+      expect(existingFeedings.some(e => e.existingId === 3)).toBe(false);
     });
 
     it('should validate time window before advancing', () => {

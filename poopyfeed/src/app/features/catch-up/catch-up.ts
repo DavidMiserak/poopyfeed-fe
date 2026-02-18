@@ -370,22 +370,12 @@ export class CatchUp implements OnInit {
     this.childId.set(+childId);
     this.isLoading.set(true);
 
-    // Load child profile and existing events in parallel
-    forkJoin({
-      child: this.childrenService.get(+childId),
-      feedings: this.feedingsService.list(+childId),
-      diapers: this.diapersService.list(+childId),
-      naps: this.napsService.list(+childId),
-    })
+    // Load child profile only - events will be loaded after user selects time window
+    this.childrenService
+      .get(+childId)
       .pipe(
-        tap(({ child, feedings, diapers, naps }: any) => {
+        tap((child: any) => {
           this.child.set(child);
-          const existingEvents = this.buildExistingEvents(
-            feedings,
-            diapers,
-            naps,
-          );
-          this.eventList.set(existingEvents);
           this.isLoading.set(false);
         }),
         catchError((err: any) => {
