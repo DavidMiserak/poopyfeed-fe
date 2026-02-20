@@ -471,9 +471,9 @@ export class ChildDashboard implements OnInit {
    * Generate display title for an activity item.
    *
    * Returns human-readable description of activity for dashboard feed:
-   * - Feeding: "Bottle: 5 oz" or "Breast: 15 min (left)"
+   * - Feeding: "Bottle: 5 oz" or "Breast: 7m (left)" or "Breast: 1h 2m (left)"
    * - Diaper: "Wet", "Dirty", or "Wet & Dirty"
-   * - Nap: "Nap recorded"
+   * - Nap: "Nap: 45m" or "Nap: 1h 30m"
    *
    * @param item Activity item from recent activity list
    * @returns Human-readable activity description
@@ -484,7 +484,7 @@ export class ChildDashboard implements OnInit {
         const feeding = item.data as Feeding;
         return feeding.feeding_type === 'bottle'
           ? `Bottle: ${feeding.amount_oz} oz`
-          : `Breast: ${feeding.duration_minutes} min (${feeding.side})`;
+          : `Breast: ${this.formatMinutes(feeding.duration_minutes ?? 0)} (${feeding.side})`;
       }
       case 'diaper': {
         const diaper = item.data as DiaperChange;
@@ -496,7 +496,8 @@ export class ChildDashboard implements OnInit {
         return typeLabels[diaper.change_type];
       }
       case 'nap': {
-        return 'Nap recorded';
+        const nap = item.data as Nap;
+        return `Nap: ${this.formatMinutes(nap.duration_minutes ?? 0)}`;
       }
     }
   }

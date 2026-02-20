@@ -181,12 +181,9 @@
                 </div>
                 <div class="font-['DM_Sans',sans-serif] text-xs sm:text-sm font-medium text-slate-600 mt-1 space-y-0.5">
                   <div>Feedings</div>
-                  @if (todayFeedings() > 0) {
+                  @if (todayFeedingsTotalOz() > 0) {
                     <div class="text-slate-500 text-xs">
-                      {{ todayFeedingsBottle() }}🍼 {{ todayFeedingsBreast() }}🤱
-                      @if (todayFeedingsTotalOz() > 0) {
-                        · {{ todayFeedingsTotalOz() }}oz
-                      }
+                      {{ todayFeedingsTotalOz() }}oz
                     </div>
                   }
                 </div>
