@@ -33,6 +33,7 @@ import { ToastService } from '../../services/toast.service';
 import { FeedingTrendsChart } from './feeding-trends-chart';
 import { DiaperPatternsChart } from './diaper-patterns-chart';
 import { SleepSummaryChart } from './sleep-summary-chart';
+import { TodaySummaryCards } from '../../components/today-summary-cards';
 
 @Component({
   selector: 'app-analytics-dashboard',
@@ -41,6 +42,7 @@ import { SleepSummaryChart } from './sleep-summary-chart';
     FeedingTrendsChart,
     DiaperPatternsChart,
     SleepSummaryChart,
+    TodaySummaryCards,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -127,63 +129,9 @@ import { SleepSummaryChart } from './sleep-summary-chart';
           </div>
         } @else {
           <!-- Quick Stats Cards -->
-          @if (todaySummary(); as today) {
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <!-- Feedings Card -->
-              <div
-                class="bg-gradient-to-br from-amber-50 to-amber-100 rounded-3xl p-6 border-2 border-amber-200 shadow-md"
-              >
-                <div class="flex items-center justify-between">
-                  <div>
-                    <p class="text-sm font-medium text-amber-700 mb-1">Feedings Today</p>
-                    <p class="font-['Fredoka',sans-serif] text-4xl font-bold text-amber-800">
-                      {{ today.feedings.count }}
-                    </p>
-                    <p class="text-xs text-amber-600 mt-1">
-                      {{ today.feedings.total_oz }} oz total
-                    </p>
-                  </div>
-                  <div class="text-4xl">🍼</div>
-                </div>
-              </div>
-
-              <!-- Diapers Card -->
-              <div
-                class="bg-gradient-to-br from-rose-50 to-rose-100 rounded-3xl p-6 border-2 border-rose-200 shadow-md"
-              >
-                <div class="flex items-center justify-between">
-                  <div>
-                    <p class="text-sm font-medium text-rose-700 mb-1">Diapers Today</p>
-                    <p class="font-['Fredoka',sans-serif] text-4xl font-bold text-rose-800">
-                      {{ today.diapers.count }}
-                    </p>
-                    <p class="text-xs text-rose-600 mt-1">
-                      {{ today.diapers.wet }} wet, {{ today.diapers.dirty }} dirty, {{ today.diapers.both }} both (wet + dirty)
-                    </p>
-                  </div>
-                  <div class="text-4xl">💩</div>
-                </div>
-              </div>
-
-              <!-- Sleep Card -->
-              <div
-                class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-3xl p-6 border-2 border-blue-200 shadow-md"
-              >
-                <div class="flex items-center justify-between">
-                  <div>
-                    <p class="text-sm font-medium text-blue-700 mb-1">Naps Today</p>
-                    <p class="font-['Fredoka',sans-serif] text-4xl font-bold text-blue-800">
-                      {{ today.sleep.naps }}
-                    </p>
-                    <p class="text-xs text-blue-600 mt-1">
-                      {{ formatMinutes(today.sleep.total_minutes) }} total
-                    </p>
-                  </div>
-                  <div class="text-4xl">😴</div>
-                </div>
-              </div>
-            </div>
-          }
+          <div class="mb-8">
+            <app-today-summary-cards [summary]="todaySummary()" />
+          </div>
 
           <!-- Charts Grid -->
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
@@ -279,27 +227,6 @@ export class AnalyticsDashboard implements OnInit {
           this.toast.error(err.message);
         },
       });
-  }
-
-  /**
-   * Format minutes into human-readable duration string.
-   *
-   * @param minutes Total minutes
-   * @returns Formatted string (e.g., "2h 30m")
-   */
-  formatMinutes(minutes: number): string {
-    if (minutes < 60) {
-      return `${minutes}m`;
-    }
-
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-
-    if (mins === 0) {
-      return `${hours}h`;
-    }
-
-    return `${hours}h ${mins}m`;
   }
 
   /**

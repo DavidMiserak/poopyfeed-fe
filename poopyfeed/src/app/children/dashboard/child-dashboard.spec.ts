@@ -152,19 +152,8 @@ describe('ChildDashboard', () => {
     naps: Nap[] = [],
     todaySummary?: TodaySummaryData,
   ) {
-    // Calculate total oz from today's bottle feedings if not provided
     if (!todaySummary) {
-      const today = new Date();
-      const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-      const totalOz = feedings
-        .filter((f) => {
-          const feedDate = new Date(f.fed_at);
-          const feedDateStart = new Date(feedDate.getFullYear(), feedDate.getMonth(), feedDate.getDate());
-          return feedDateStart.getTime() === todayStart.getTime() && f.feeding_type === 'bottle';
-        })
-        .reduce((sum, f) => sum + (f.amount_oz ?? 0), 0);
-
-      todaySummary = makeTodaySummary({ feedings: { count: 0, total_oz: totalOz, bottle: 0, breast: 0 } });
+      todaySummary = makeTodaySummary();
     }
 
     vi.spyOn(childrenService, 'get').mockReturnValue(of(mockChild));
@@ -183,311 +172,56 @@ describe('ChildDashboard', () => {
     expect(component).toBeTruthy();
   });
 
-  describe('isToday', () => {
-    beforeEach(() => {
-      setupWithData();
-    });
-
-    it('should return true for a timestamp from today', () => {
-      expect(component.isToday(makeTodayTimestamp())).toBe(true);
-    });
-
-    it('should return true for a timestamp from earlier today', () => {
-      const earlyToday = new Date();
-      earlyToday.setHours(0, 30, 0, 0);
-      expect(component.isToday(earlyToday.toISOString())).toBe(true);
-    });
-
-    it('should return false for a timestamp from yesterday', () => {
-      expect(component.isToday(makeYesterdayTimestamp())).toBe(false);
-    });
-
-    it('should return false for a timestamp from a different year', () => {
-      expect(component.isToday('2023-06-15T12:00:00Z')).toBe(false);
-    });
-  });
-
-  describe('today summary counts', () => {
-    it('should count only today feedings', () => {
-      const todayFeeding = makeFeeding({ id: 1, fed_at: makeTodayTimestamp(600) });
-      const yesterdayFeeding = makeFeeding({
-        id: 2,
-        fed_at: makeYesterdayTimestamp(),
+  describe('todaySummaryData signal', () => {
+    it('should store full TodaySummaryData from API', () => {
+      const summary = makeTodaySummary({
+        feedings: { count: 3, total_oz: 12, bottle: 2, breast: 1 },
+        diapers: { count: 5, wet: 3, dirty: 1, both: 1 },
+        sleep: { naps: 2, total_minutes: 90, avg_duration: 45 },
       });
-      setupWithData([todayFeeding, yesterdayFeeding]);
+      setupWithData([], [], [], summary);
 
-      expect(component.todayFeedings()).toBe(1);
+      expect(component.todaySummaryData()).toEqual(summary);
     });
 
-    it('should count only today diapers', () => {
-      const todayDiaper = makeDiaper({
-        id: 1,
-        changed_at: makeTodayTimestamp(480),
+    it('should be null before data loads', () => {
+      vi.spyOn(childrenService, 'get').mockReturnValue(of(mockChild));
+      vi.spyOn(feedingsService, 'list').mockReturnValue(of([]));
+      vi.spyOn(diapersService, 'list').mockReturnValue(of([]));
+      vi.spyOn(napsService, 'list').mockReturnValue(of([]));
+      vi.spyOn(analyticsService, 'getTodaySummary').mockReturnValue(of(makeTodaySummary()));
+
+      fixture = TestBed.createComponent(ChildDashboard);
+      component = fixture.componentInstance;
+
+      // Before detectChanges (before ngOnInit loads data)
+      expect(component.todaySummaryData()).toBeNull();
+    });
+
+    it('should update when data reloads', () => {
+      const summary1 = makeTodaySummary({
+        feedings: { count: 1, total_oz: 4, bottle: 1, breast: 0 },
       });
-      const todayDiaper2 = makeDiaper({
-        id: 2,
-        changed_at: makeTodayTimestamp(600),
+      const summary2 = makeTodaySummary({
+        feedings: { count: 3, total_oz: 12, bottle: 2, breast: 1 },
       });
-      const yesterdayDiaper = makeDiaper({
-        id: 3,
-        changed_at: makeYesterdayTimestamp(),
-      });
-      setupWithData([], [todayDiaper, todayDiaper2, yesterdayDiaper]);
 
-      expect(component.todayDiapers()).toBe(2);
-    });
+      vi.spyOn(childrenService, 'get').mockReturnValue(of(mockChild));
+      vi.spyOn(feedingsService, 'list').mockReturnValue(of([]));
+      vi.spyOn(diapersService, 'list').mockReturnValue(of([]));
+      vi.spyOn(napsService, 'list').mockReturnValue(of([]));
+      vi.spyOn(analyticsService, 'getTodaySummary')
+        .mockReturnValueOnce(of(summary1))
+        .mockReturnValueOnce(of(summary2));
 
-    it('should count only today naps', () => {
-      const todayNap = makeNap({ id: 1, napped_at: makeTodayTimestamp(540) });
-      const yesterdayNap = makeNap({
-        id: 2,
-        napped_at: makeYesterdayTimestamp(),
-      });
-      setupWithData([], [], [todayNap, yesterdayNap]);
+      fixture = TestBed.createComponent(ChildDashboard);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
 
-      expect(component.todayNaps()).toBe(1);
-    });
+      expect(component.todaySummaryData()?.feedings.count).toBe(1);
 
-    it('should return zero counts when no records exist', () => {
-      setupWithData();
-
-      expect(component.todayFeedings()).toBe(0);
-      expect(component.todayDiapers()).toBe(0);
-      expect(component.todayNaps()).toBe(0);
-    });
-
-    it('should return zero counts when all records are from yesterday', () => {
-      setupWithData(
-        [makeFeeding({ id: 1, fed_at: makeYesterdayTimestamp() })],
-        [makeDiaper({ id: 1, changed_at: makeYesterdayTimestamp() })],
-        [makeNap({ id: 1, napped_at: makeYesterdayTimestamp() })],
-      );
-
-      expect(component.todayFeedings()).toBe(0);
-      expect(component.todayDiapers()).toBe(0);
-      expect(component.todayNaps()).toBe(0);
-    });
-  });
-
-  describe('diaper breakdown', () => {
-    it('should count wet diapers today', () => {
-      const wetDiaper1 = makeDiaper({
-        id: 1,
-        change_type: 'wet',
-        changed_at: makeTodayTimestamp(480),
-      });
-      const wetDiaper2 = makeDiaper({
-        id: 2,
-        change_type: 'wet',
-        changed_at: makeTodayTimestamp(600),
-      });
-      const dirtyDiaper = makeDiaper({
-        id: 3,
-        change_type: 'dirty',
-        changed_at: makeTodayTimestamp(540),
-      });
-      setupWithData([], [wetDiaper1, wetDiaper2, dirtyDiaper]);
-
-      expect(component.todayDiapersWet()).toBe(2);
-      expect(component.todayDiapersDirty()).toBe(1);
-      expect(component.todayDiapersBoth()).toBe(0);
-    });
-
-    it('should count dirty diapers today', () => {
-      const dirtyDiaper1 = makeDiaper({
-        id: 1,
-        change_type: 'dirty',
-        changed_at: makeTodayTimestamp(480),
-      });
-      const dirtyDiaper2 = makeDiaper({
-        id: 2,
-        change_type: 'dirty',
-        changed_at: makeTodayTimestamp(600),
-      });
-      setupWithData([], [dirtyDiaper1, dirtyDiaper2]);
-
-      expect(component.todayDiapersDirty()).toBe(2);
-      expect(component.todayDiapersWet()).toBe(0);
-      expect(component.todayDiapersBoth()).toBe(0);
-    });
-
-    it('should count both diapers today', () => {
-      const bothDiaper1 = makeDiaper({
-        id: 1,
-        change_type: 'both',
-        changed_at: makeTodayTimestamp(480),
-      });
-      const bothDiaper2 = makeDiaper({
-        id: 2,
-        change_type: 'both',
-        changed_at: makeTodayTimestamp(600),
-      });
-      const wetDiaper = makeDiaper({
-        id: 3,
-        change_type: 'wet',
-        changed_at: makeTodayTimestamp(540),
-      });
-      setupWithData([], [bothDiaper1, bothDiaper2, wetDiaper]);
-
-      expect(component.todayDiapersBoth()).toBe(2);
-      expect(component.todayDiapersWet()).toBe(1);
-      expect(component.todayDiapersDirty()).toBe(0);
-    });
-
-    it('should count breakdown correctly with mixed types today', () => {
-      setupWithData(
-        [],
-        [
-          makeDiaper({
-            id: 1,
-            change_type: 'wet',
-            changed_at: makeTodayTimestamp(480),
-          }),
-          makeDiaper({
-            id: 2,
-            change_type: 'wet',
-            changed_at: makeTodayTimestamp(520),
-          }),
-          makeDiaper({
-            id: 3,
-            change_type: 'dirty',
-            changed_at: makeTodayTimestamp(540),
-          }),
-          makeDiaper({
-            id: 4,
-            change_type: 'both',
-            changed_at: makeTodayTimestamp(600),
-          }),
-          makeDiaper({
-            id: 5,
-            change_type: 'dirty',
-            changed_at: makeTodayTimestamp(660),
-          }),
-        ],
-      );
-
-      expect(component.todayDiapersWet()).toBe(2);
-      expect(component.todayDiapersDirty()).toBe(2);
-      expect(component.todayDiapersBoth()).toBe(1);
-      expect(component.todayDiapers()).toBe(5);
-    });
-
-    it('should not count yesterday diapers in breakdown', () => {
-      const todayWet = makeDiaper({
-        id: 1,
-        change_type: 'wet',
-        changed_at: makeTodayTimestamp(480),
-      });
-      const yesterdayWet = makeDiaper({
-        id: 2,
-        change_type: 'wet',
-        changed_at: makeYesterdayTimestamp(),
-      });
-      setupWithData([], [todayWet, yesterdayWet]);
-
-      expect(component.todayDiapersWet()).toBe(1);
-      expect(component.todayDiapers()).toBe(1);
-    });
-
-    it('should return zero breakdown when no diapers today', () => {
-      const yesterdayDiapers = [
-        makeDiaper({
-          id: 1,
-          change_type: 'wet',
-          changed_at: makeYesterdayTimestamp(),
-        }),
-        makeDiaper({
-          id: 2,
-          change_type: 'dirty',
-          changed_at: makeYesterdayTimestamp(),
-        }),
-      ];
-      setupWithData([], yesterdayDiapers);
-
-      expect(component.todayDiapersWet()).toBe(0);
-      expect(component.todayDiapersDirty()).toBe(0);
-      expect(component.todayDiapersBoth()).toBe(0);
-      expect(component.todayDiapers()).toBe(0);
-    });
-  });
-
-  describe('feeding breakdown', () => {
-    it('should count bottle feedings today', () => {
-      setupWithData([
-        makeFeeding({ id: 1, feeding_type: 'bottle', fed_at: makeTodayTimestamp(480) }),
-        makeFeeding({ id: 2, feeding_type: 'bottle', fed_at: makeTodayTimestamp(600) }),
-        makeFeeding({ id: 3, feeding_type: 'breast', fed_at: makeTodayTimestamp(540), amount_oz: undefined, duration_minutes: 15, side: 'left' }),
-      ]);
-
-      expect(component.todayFeedingsBottle()).toBe(2);
-      expect(component.todayFeedingsBreast()).toBe(1);
-    });
-
-    it('should calculate total oz from bottle feedings today', () => {
-      setupWithData([
-        makeFeeding({ id: 1, feeding_type: 'bottle', amount_oz: 4, fed_at: makeTodayTimestamp(480) }),
-        makeFeeding({ id: 2, feeding_type: 'bottle', amount_oz: 3.5, fed_at: makeTodayTimestamp(600) }),
-        makeFeeding({ id: 3, feeding_type: 'breast', fed_at: makeTodayTimestamp(540), amount_oz: undefined, duration_minutes: 15, side: 'left' }),
-      ]);
-
-      expect(component.todayFeedingsTotalOz()).toBe(7.5);
-    });
-
-    it('should not count yesterday feedings in breakdown', () => {
-      setupWithData([
-        makeFeeding({ id: 1, feeding_type: 'bottle', amount_oz: 4, fed_at: makeTodayTimestamp(480) }),
-        makeFeeding({ id: 2, feeding_type: 'bottle', amount_oz: 5, fed_at: makeYesterdayTimestamp() }),
-      ]);
-
-      expect(component.todayFeedingsBottle()).toBe(1);
-      expect(component.todayFeedingsTotalOz()).toBe(4);
-    });
-
-    it('should return zero breakdown when no feedings today', () => {
-      setupWithData([
-        makeFeeding({ id: 1, fed_at: makeYesterdayTimestamp() }),
-      ]);
-
-      expect(component.todayFeedingsBottle()).toBe(0);
-      expect(component.todayFeedingsBreast()).toBe(0);
-      expect(component.todayFeedingsTotalOz()).toBe(0);
-    });
-  });
-
-  describe('nap duration breakdown', () => {
-    it('should sum total nap minutes today', () => {
-      setupWithData([], [], [
-        makeNap({ id: 1, napped_at: makeTodayTimestamp(480), duration_minutes: 45 }),
-        makeNap({ id: 2, napped_at: makeTodayTimestamp(600), duration_minutes: 90 }),
-      ]);
-
-      expect(component.todayNapsTotalMinutes()).toBe(135);
-    });
-
-    it('should not count yesterday nap minutes', () => {
-      setupWithData([], [], [
-        makeNap({ id: 1, napped_at: makeTodayTimestamp(480), duration_minutes: 45 }),
-        makeNap({ id: 2, napped_at: makeYesterdayTimestamp(), duration_minutes: 120 }),
-      ]);
-
-      expect(component.todayNapsTotalMinutes()).toBe(45);
-    });
-
-    it('should skip naps with null duration (ongoing)', () => {
-      setupWithData([], [], [
-        makeNap({ id: 1, napped_at: makeTodayTimestamp(480), duration_minutes: 45 }),
-        makeNap({ id: 2, napped_at: makeTodayTimestamp(600), duration_minutes: null }),
-      ]);
-
-      expect(component.todayNapsTotalMinutes()).toBe(45);
-    });
-
-    it('should return zero when no naps today', () => {
-      setupWithData([], [], [
-        makeNap({ id: 1, napped_at: makeYesterdayTimestamp(), duration_minutes: 60 }),
-      ]);
-
-      expect(component.todayNapsTotalMinutes()).toBe(0);
+      component.loadDashboardData(1);
+      expect(component.todaySummaryData()?.feedings.count).toBe(3);
     });
   });
 
@@ -509,6 +243,11 @@ describe('ChildDashboard', () => {
       expect(component.formatMinutes(90)).toBe('1h 30m');
       expect(component.formatMinutes(150)).toBe('2h 30m');
     });
+
+    it('should round fractional minutes', () => {
+      expect(component.formatMinutes(45.7)).toBe('46m');
+      expect(component.formatMinutes(90.3)).toBe('1h 30m');
+    });
   });
 
   describe('Conditional Branch Testing (Signal States)', () => {
@@ -518,6 +257,7 @@ describe('ChildDashboard', () => {
         vi.spyOn(feedingsService, 'list').mockReturnValue(of([]));
         vi.spyOn(diapersService, 'list').mockReturnValue(of([]));
         vi.spyOn(napsService, 'list').mockReturnValue(of([]));
+        vi.spyOn(analyticsService, 'getTodaySummary').mockReturnValue(of(makeTodaySummary()));
 
         component.loadDashboardData(1); // showLoading defaults to true
         expect(component.isLoading()).toBe(false); // Loading completes
@@ -529,6 +269,7 @@ describe('ChildDashboard', () => {
         vi.spyOn(feedingsService, 'list').mockReturnValue(of([]));
         vi.spyOn(diapersService, 'list').mockReturnValue(of([]));
         vi.spyOn(napsService, 'list').mockReturnValue(of([]));
+        vi.spyOn(analyticsService, 'getTodaySummary').mockReturnValue(of(makeTodaySummary()));
 
         component.isLoading.set(false); // Not loading initially
         component.loadDashboardData(1, false); // showLoading=false
@@ -545,6 +286,7 @@ describe('ChildDashboard', () => {
         vi.spyOn(feedingsService, 'list').mockReturnValue(of([]));
         vi.spyOn(diapersService, 'list').mockReturnValue(of([]));
         vi.spyOn(napsService, 'list').mockReturnValue(of([]));
+        vi.spyOn(analyticsService, 'getTodaySummary').mockReturnValue(of(makeTodaySummary()));
 
         component.error.set('Previous error');
         component.loadDashboardData(1);
@@ -565,6 +307,7 @@ describe('ChildDashboard', () => {
         vi.spyOn(feedingsService, 'list').mockReturnValue(of([]));
         vi.spyOn(diapersService, 'list').mockReturnValue(of([]));
         vi.spyOn(napsService, 'list').mockReturnValue(of([]));
+        vi.spyOn(analyticsService, 'getTodaySummary').mockReturnValue(of(makeTodaySummary()));
 
         component.loadDashboardData(1);
 
@@ -615,9 +358,6 @@ describe('ChildDashboard', () => {
 
     describe('activity merging and sorting', () => {
       it('should merge first 10 of each activity type and sort by timestamp (newest first)', () => {
-        const oldTimestamp = makeYesterdayTimestamp();
-        const recentTimestamp = makeTodayTimestamp(600);
-
         const feedings = [
           makeFeeding({ id: 1, fed_at: makeTodayTimestamp(100) }),
           makeFeeding({ id: 2, fed_at: makeTodayTimestamp(200) }),
@@ -655,29 +395,6 @@ describe('ChildDashboard', () => {
         expect(component.recentActivity().length).toBeLessThanOrEqual(10);
       });
     });
-
-    describe('today summary counts with mixed dates', () => {
-      it('should count only today activities, not yesterday', () => {
-        const todayFeeding = makeFeeding({ id: 1, fed_at: makeTodayTimestamp(600) });
-        const yesterdayFeeding = makeFeeding({ id: 2, fed_at: makeYesterdayTimestamp() });
-
-        setupWithData([todayFeeding, yesterdayFeeding]);
-
-        expect(component.todayFeedings()).toBe(1); // Only today's feeding
-      });
-
-      it('should return zero counts when all activities are from yesterday', () => {
-        setupWithData(
-          [makeFeeding({ id: 1, fed_at: makeYesterdayTimestamp() })],
-          [makeDiaper({ id: 1, changed_at: makeYesterdayTimestamp() })],
-          [makeNap({ id: 1, napped_at: makeYesterdayTimestamp() })]
-        );
-
-        expect(component.todayFeedings()).toBe(0);
-        expect(component.todayDiapers()).toBe(0);
-        expect(component.todayNaps()).toBe(0);
-      });
-    });
   });
 
   describe('template rendering', () => {
@@ -687,35 +404,27 @@ describe('ChildDashboard', () => {
       expect(compiled.textContent).toContain('No activity recorded today');
     });
 
-    it('should show summary counts when there is activity today', () => {
+    it('should show summary cards when there is activity today', () => {
+      const summary = makeTodaySummary({
+        feedings: { count: 3, total_oz: 12, bottle: 2, breast: 1 },
+        diapers: { count: 2, wet: 1, dirty: 1, both: 0 },
+        sleep: { naps: 1, total_minutes: 60, avg_duration: 60 },
+      });
       setupWithData(
-        [
-          makeFeeding({ id: 1, fed_at: makeTodayTimestamp(600) }),
-          makeFeeding({ id: 2, fed_at: makeTodayTimestamp(660) }),
-          makeFeeding({ id: 3, fed_at: makeTodayTimestamp(720) }),
-        ],
-        [
-          makeDiaper({ id: 1, changed_at: makeTodayTimestamp(480) }),
-          makeDiaper({ id: 2, changed_at: makeTodayTimestamp(540) }),
-        ],
-        [makeNap({ id: 1, napped_at: makeTodayTimestamp(600) })],
+        [makeFeeding({ id: 1 }), makeFeeding({ id: 2 }), makeFeeding({ id: 3 })],
+        [makeDiaper({ id: 1 }), makeDiaper({ id: 2 })],
+        [makeNap({ id: 1 })],
+        summary,
       );
 
       const compiled = fixture.nativeElement as HTMLElement;
       expect(compiled.textContent).toContain("Today's Summary");
-      expect(compiled.textContent).not.toContain(
-        'No activity recorded today',
-      );
+      expect(compiled.textContent).not.toContain('No activity recorded today');
 
-      // Verify computed counts are correct
-      expect(component.todayFeedings()).toBe(3);
-      expect(component.todayDiapers()).toBe(2);
-      expect(component.todayNaps()).toBe(1);
-
-      // Verify labels render
-      expect(compiled.textContent).toContain('Feedings');
-      expect(compiled.textContent).toContain('Diapers');
-      expect(compiled.textContent).toContain('Naps');
+      // Verify shared component renders labels
+      expect(compiled.textContent).toContain('Feedings Today');
+      expect(compiled.textContent).toContain('Diapers Today');
+      expect(compiled.textContent).toContain('Naps Today');
     });
 
     it('should show summary section heading', () => {
@@ -724,25 +433,19 @@ describe('ChildDashboard', () => {
       expect(compiled.textContent).toContain("Today's Summary");
     });
 
-    it('should show category labels', () => {
-      setupWithData(
-        [makeFeeding({ id: 1, fed_at: makeTodayTimestamp() })],
-        [makeDiaper({ id: 1, changed_at: makeTodayTimestamp() })],
-        [makeNap({ id: 1, napped_at: makeTodayTimestamp() })],
-      );
+    it('should render TodaySummaryCards component', () => {
+      const summary = makeTodaySummary({
+        feedings: { count: 1, total_oz: 4, bottle: 1, breast: 0 },
+      });
+      setupWithData([], [], [], summary);
 
       const compiled = fixture.nativeElement as HTMLElement;
-      expect(compiled.textContent).toContain('Feedings');
-      expect(compiled.textContent).toContain('Diapers');
-      expect(compiled.textContent).toContain('Naps');
+      const summaryCards = compiled.querySelector('app-today-summary-cards');
+      expect(summaryCards).toBeTruthy();
     });
 
-    it('should show empty state with old records only', () => {
-      setupWithData(
-        [makeFeeding({ id: 1, fed_at: makeYesterdayTimestamp() })],
-        [makeDiaper({ id: 1, changed_at: makeYesterdayTimestamp() })],
-        [makeNap({ id: 1, napped_at: makeYesterdayTimestamp() })],
-      );
+    it('should show empty state when summary has zero counts', () => {
+      setupWithData([], [], [], makeTodaySummary());
 
       const compiled = fixture.nativeElement as HTMLElement;
       expect(compiled.textContent).toContain('No activity recorded today');
@@ -887,8 +590,6 @@ describe('ChildDashboard', () => {
 
   describe('edge cases', () => {
     it('should load dashboard with valid childId from route', () => {
-      const mockActivatedRoute = TestBed.inject(ActivatedRoute);
-
       component.ngOnInit?.();
 
       expect(component.childId()).toBeTruthy();
@@ -1111,30 +812,6 @@ describe('ChildDashboard', () => {
     });
 
     describe('computed signals during lifecycle transitions', () => {
-      it('should maintain correct counts while data loads', () => {
-        const feedingToday = makeFeeding({
-          id: 1,
-          fed_at: makeTodayTimestamp(),
-        });
-        const feedingYesterday = makeFeeding({
-          id: 2,
-          fed_at: makeYesterdayTimestamp(),
-        });
-
-        vi.spyOn(childrenService, 'get').mockReturnValue(of(mockChild));
-        vi.spyOn(feedingsService, 'list').mockReturnValue(
-          of([feedingToday, feedingYesterday])
-        );
-        vi.spyOn(diapersService, 'list').mockReturnValue(of([]));
-        vi.spyOn(napsService, 'list').mockReturnValue(of([]));
-
-        fixture = TestBed.createComponent(ChildDashboard);
-        component = fixture.componentInstance;
-        fixture.detectChanges();
-
-        expect(component.todayFeedings()).toBe(1);
-      });
-
       it('should update computed permissions when child role changes', () => {
         const ownerChild = { ...mockChild, user_role: 'owner' as const };
         const caregiverChild = { ...mockChild, user_role: 'caregiver' as const };
@@ -1159,31 +836,6 @@ describe('ChildDashboard', () => {
         component.loadDashboardData(1);
         expect(component.canEdit()).toBe(false);
         expect(component.canManageSharing()).toBe(false);
-      });
-
-      it('should recalculate diaper breakdown when diapers signal changes', () => {
-        const wetDiaper = makeDiaper({
-          id: 1,
-          change_type: 'wet',
-          changed_at: makeTodayTimestamp(),
-        });
-        const dirtyDiaper = makeDiaper({
-          id: 2,
-          change_type: 'dirty',
-          changed_at: makeTodayTimestamp(),
-        });
-        const bothDiaper = makeDiaper({
-          id: 3,
-          change_type: 'both',
-          changed_at: makeTodayTimestamp(),
-        });
-
-        setupWithData([], [wetDiaper, dirtyDiaper, bothDiaper]);
-
-        expect(component.todayDiapersWet()).toBe(1);
-        expect(component.todayDiapersDirty()).toBe(1);
-        expect(component.todayDiapersBoth()).toBe(1);
-        expect(component.todayDiapers()).toBe(3);
       });
     });
 

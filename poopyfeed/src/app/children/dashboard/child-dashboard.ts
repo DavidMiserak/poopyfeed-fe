@@ -54,14 +54,17 @@ import { Child } from '../../models/child.model';
 import { Feeding } from '../../models/feeding.model';
 import { DiaperChange } from '../../models/diaper.model';
 import { Nap } from '../../models/nap.model';
+import { TodaySummaryData } from '../../models/analytics.model';
 import { QuickLog } from './quick-log/quick-log';
+import { TodaySummaryCards } from '../../components/today-summary-cards';
 import {
   getChildAgeLong,
   formatActivityAge,
   getGenderIconDetailed,
   getActivityIcon,
-  isToday,
+  formatMinutes as formatMinutesUtil,
 } from '../../utils/date.utils';
+
 
 /**
  * Unified activity item for dashboard feed.
@@ -79,7 +82,7 @@ interface ActivityItem {
 
 @Component({
   selector: 'app-child-dashboard',
-  imports: [CommonModule, RouterLink, QuickLog],
+  imports: [CommonModule, RouterLink, QuickLog, TodaySummaryCards],
   templateUrl: './child-dashboard.html',
   styleUrl: './child-dashboard.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -111,8 +114,8 @@ export class ChildDashboard implements OnInit {
   /** Merged and sorted recent activity (last 10 across all types) */
   recentActivity = signal<ActivityItem[]>([]);
 
-  /** Today's feeding oz total from analytics API (backend-cached) */
-  todayFeedingOzFromApi = signal<number | null>(null);
+  /** Today's summary data from analytics API */
+  todaySummaryData = signal<TodaySummaryData | null>(null);
 
   /** Loading state while fetching dashboard data */
   isLoading = signal(true);
@@ -158,86 +161,6 @@ export class ChildDashboard implements OnInit {
   canManageSharing = computed(() => {
     return this.child()?.user_role === 'owner';
   });
-
-  /**
-   * Computed summary: Count of feedings recorded today.
-   *
-   * Filters feedings to those with fed_at timestamp from today (using isToday utility).
-   * Updated automatically when feedings signal changes.
-   * Used for "X feedings today" display on dashboard header.
-   */
-  todayFeedings = computed(
-    () => this.feedings().filter((f) => this.isToday(f.fed_at)).length,
-  );
-
-  /**
-   * Computed summary: Count of diaper changes recorded today.
-   *
-   * Filters diapers to those with changed_at timestamp from today.
-   * Updated automatically when diapers signal changes.
-   */
-  todayDiapers = computed(
-    () => this.diapers().filter((d) => this.isToday(d.changed_at)).length,
-  );
-
-  /**
-   * Computed summary: Count of wet diaper changes today.
-   *
-   * Filters to wet changes only from today.
-   */
-  todayDiapersWet = computed(
-    () => this.diapers().filter((d) => this.isToday(d.changed_at) && d.change_type === 'wet').length,
-  );
-
-  /**
-   * Computed summary: Count of dirty diaper changes today.
-   *
-   * Filters to dirty changes only from today.
-   */
-  todayDiapersDirty = computed(
-    () => this.diapers().filter((d) => this.isToday(d.changed_at) && d.change_type === 'dirty').length,
-  );
-
-  /**
-   * Computed summary: Count of both (wet & dirty) diaper changes today.
-   *
-   * Filters to both type changes only from today.
-   */
-  todayDiapersBoth = computed(
-    () => this.diapers().filter((d) => this.isToday(d.changed_at) && d.change_type === 'both').length,
-  );
-
-  /**
-   * Computed summary: Count of naps recorded today.
-   *
-   * Filters naps to those with napped_at timestamp from today.
-   * Updated automatically when naps signal changes.
-   */
-  todayNaps = computed(
-    () => this.naps().filter((n) => this.isToday(n.napped_at)).length,
-  );
-
-  /** Count of bottle feedings today. */
-  todayFeedingsBottle = computed(
-    () => this.feedings().filter((f) => this.isToday(f.fed_at) && f.feeding_type === 'bottle').length,
-  );
-
-  /** Count of breast feedings today. */
-  todayFeedingsBreast = computed(
-    () => this.feedings().filter((f) => this.isToday(f.fed_at) && f.feeding_type === 'breast').length,
-  );
-
-  /** Total ounces from bottle feedings today (from backend cache). */
-  todayFeedingsTotalOz = computed(() => {
-    return this.todayFeedingOzFromApi() ?? 0;
-  });
-
-  /** Total nap duration in minutes today. */
-  todayNapsTotalMinutes = computed(() =>
-    this.naps()
-      .filter((n) => this.isToday(n.napped_at) && n.duration_minutes)
-      .reduce((sum, n) => sum + (n.duration_minutes ?? 0), 0),
-  );
 
   /**
    * Initialize component and load dashboard data.
@@ -296,7 +219,7 @@ export class ChildDashboard implements OnInit {
         this.feedings.set(feedings);
         this.diapers.set(diapers);
         this.naps.set(naps);
-        this.todayFeedingOzFromApi.set(todaySummary.feedings.total_oz);
+        this.todaySummaryData.set(todaySummary);
 
         // Merge and sort recent activity
         const activity: ActivityItem[] = [
@@ -507,33 +430,10 @@ export class ChildDashboard implements OnInit {
   }
 
   /**
-   * Expose isToday utility to template.
-   *
-   * Used in template to determine if an activity is from today.
-   * Enables filtering of recent activity and today's summary counts.
-   */
-  isToday = (utcTimestamp: string) => isToday(utcTimestamp);
-
-  /**
-   * Round fractional minutes to nearest whole number.
-   * Used before formatting to prevent display of fractional values.
-   */
-  roundMinutes(minutes: number): number {
-    return Math.round(minutes);
-  }
-
-  /**
    * Format minutes into human-readable duration (e.g., "1h 30m").
+   * Delegates to date.utils formatMinutes with rounding.
    */
   formatMinutes(minutes: number): string {
-    if (minutes < 60) {
-      return `${minutes}m`;
-    }
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    if (mins === 0) {
-      return `${hours}h`;
-    }
-    return `${hours}h ${mins}m`;
+    return formatMinutesUtil(Math.round(minutes));
   }
 }

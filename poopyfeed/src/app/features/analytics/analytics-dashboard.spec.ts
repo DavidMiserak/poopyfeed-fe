@@ -286,16 +286,6 @@ describe('AnalyticsDashboard', () => {
     });
   });
 
-    describe('Utility Methods', () => {
-    it('should format minutes correctly', () => {
-      expect(component.formatMinutes(30)).toBe('30m');
-      expect(component.formatMinutes(60)).toBe('1h');
-      expect(component.formatMinutes(90)).toBe('1h 30m');
-      expect(component.formatMinutes(120)).toBe('2h');
-      expect(component.formatMinutes(150)).toBe('2h 30m');
-    });
-  });
-
   describe('Export Functionality', () => {
     let router: Router;
 

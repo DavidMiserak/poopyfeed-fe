@@ -11,6 +11,7 @@ import {
   getGenderIconDetailed,
   getActivityIcon,
   getRoleBadgeColor,
+  formatMinutes,
 } from './date.utils';
 
 describe('Date Utilities', () => {
@@ -320,6 +321,28 @@ describe('Date Utilities', () => {
 
     it('should return fallback emoji for empty string', () => {
       expect(getActivityIcon('' as any)).toBe('📝');
+    });
+  });
+
+  describe('formatMinutes', () => {
+    it('should format minutes under 60', () => {
+      expect(formatMinutes(0)).toBe('0m');
+      expect(formatMinutes(1)).toBe('1m');
+      expect(formatMinutes(30)).toBe('30m');
+      expect(formatMinutes(59)).toBe('59m');
+    });
+
+    it('should format exact hours', () => {
+      expect(formatMinutes(60)).toBe('1h');
+      expect(formatMinutes(120)).toBe('2h');
+      expect(formatMinutes(180)).toBe('3h');
+    });
+
+    it('should format hours and minutes', () => {
+      expect(formatMinutes(90)).toBe('1h 30m');
+      expect(formatMinutes(150)).toBe('2h 30m');
+      expect(formatMinutes(61)).toBe('1h 1m');
+      expect(formatMinutes(125)).toBe('2h 5m');
     });
   });
 

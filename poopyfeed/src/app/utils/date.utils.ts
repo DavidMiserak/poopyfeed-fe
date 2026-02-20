@@ -331,6 +331,37 @@ export function getActivityIcon(type: 'feeding' | 'diaper' | 'nap'): string {
  *
  * Use case: Role badges in sharing list, permission indicators, team management UI
  */
+/**
+ * Format a duration in minutes into a human-readable string.
+ *
+ * Returns compact duration format:
+ * - Under 60 minutes: "30m"
+ * - Exact hours: "2h"
+ * - Hours and minutes: "2h 30m"
+ *
+ * @param minutes Total minutes (should be a whole number)
+ * @returns Formatted duration string (e.g., "30m", "1h", "2h 30m")
+ *
+ * @example
+ * formatMinutes(30)  // Returns "30m"
+ * formatMinutes(60)  // Returns "1h"
+ * formatMinutes(90)  // Returns "1h 30m"
+ * formatMinutes(120) // Returns "2h"
+ *
+ * Use case: Nap duration display, sleep summary cards, activity feed titles
+ */
+export function formatMinutes(minutes: number): string {
+  if (minutes < 60) {
+    return `${minutes}m`;
+  }
+  const hours = Math.floor(minutes / 60);
+  const mins = minutes % 60;
+  if (mins === 0) {
+    return `${hours}h`;
+  }
+  return `${hours}h ${mins}m`;
+}
+
 export function getRoleBadgeColor(role: 'owner' | 'co-parent' | 'caregiver' | string): string {
   const colors: Record<string, string> = {
     owner: 'bg-gradient-to-r from-amber-100 to-amber-200 text-amber-800 border-amber-300',

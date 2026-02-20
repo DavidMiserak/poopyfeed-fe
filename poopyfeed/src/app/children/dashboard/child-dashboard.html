@@ -165,57 +165,7 @@
           <h2 class="font-['Fredoka',sans-serif] text-2xl font-bold text-slate-900 mb-4">
             Today's Summary
           </h2>
-          @if (todayFeedings() === 0 && todayDiapers() === 0 && todayNaps() === 0) {
-            <div class="text-center py-8">
-              <div class="text-5xl mb-3">🌅</div>
-              <p class="font-['DM_Sans',sans-serif] text-slate-600">
-                No activity recorded today
-              </p>
-            </div>
-          } @else {
-            <div class="grid grid-cols-3 gap-2 sm:gap-4">
-              <div class="text-center p-2 sm:p-4 rounded-2xl bg-rose-50/80">
-                <div class="text-2xl sm:text-3xl mb-1">🍼</div>
-                <div class="font-['Fredoka',sans-serif] text-2xl sm:text-4xl font-bold text-rose-500">
-                  {{ todayFeedings() }}
-                </div>
-                <div class="font-['DM_Sans',sans-serif] text-xs sm:text-sm font-medium text-slate-600 mt-1 space-y-0.5">
-                  <div>Feedings</div>
-                  <div class="text-slate-500 text-xs">
-                    {{ todayFeedingsTotalOz() }} oz total
-                  </div>
-                </div>
-              </div>
-              <div class="text-center p-2 sm:p-4 rounded-2xl bg-orange-50/80">
-                <div class="text-2xl sm:text-3xl mb-1">🧷</div>
-                <div class="font-['Fredoka',sans-serif] text-2xl sm:text-4xl font-bold text-orange-500">
-                  {{ todayDiapers() }}
-                </div>
-                <div class="font-['DM_Sans',sans-serif] text-xs sm:text-sm font-medium text-slate-600 mt-1 space-y-0.5">
-                  <div>Diapers</div>
-                  @if (todayDiapers() > 0) {
-                    <div class="text-slate-500 text-xs">
-                      {{ todayDiapersWet() }}💧 {{ todayDiapersDirty() }}💩 {{ todayDiapersBoth() }}🔄
-                    </div>
-                  }
-                </div>
-              </div>
-              <div class="text-center p-2 sm:p-4 rounded-2xl bg-amber-50/80">
-                <div class="text-2xl sm:text-3xl mb-1">😴</div>
-                <div class="font-['Fredoka',sans-serif] text-2xl sm:text-4xl font-bold text-amber-500">
-                  {{ todayNaps() }}
-                </div>
-                <div class="font-['DM_Sans',sans-serif] text-xs sm:text-sm font-medium text-slate-600 mt-1 space-y-0.5">
-                  <div>Naps</div>
-                  @if (todayNapsTotalMinutes() > 0) {
-                    <div class="text-slate-500 text-xs">
-                      {{ formatMinutes(roundMinutes(todayNapsTotalMinutes())) }} total
-                    </div>
-                  }
-                </div>
-              </div>
-            </div>
-          }
+          <app-today-summary-cards [summary]="todaySummaryData()" />
         </div>
 
         <!-- Actions -->
