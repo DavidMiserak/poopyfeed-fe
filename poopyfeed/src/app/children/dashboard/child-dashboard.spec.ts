@@ -9,10 +9,12 @@ import { ChildrenService } from '../../services/children.service';
 import { FeedingsService } from '../../services/feedings.service';
 import { DiapersService } from '../../services/diapers.service';
 import { NapsService } from '../../services/naps.service';
+import { AnalyticsService } from '../../services/analytics.service';
 import { Child } from '../../models/child.model';
 import { Feeding } from '../../models/feeding.model';
 import { DiaperChange } from '../../models/diaper.model';
 import { Nap } from '../../models/nap.model';
+import { TodaySummaryData } from '../../models/analytics.model';
 
 const mockChild: Child = {
   id: 1,
@@ -82,6 +84,32 @@ function makeNap(overrides: Partial<Nap> = {}): Nap {
   };
 }
 
+function makeTodaySummary(overrides: Partial<TodaySummaryData> = {}): TodaySummaryData {
+  return {
+    child_id: 1,
+    period: 'Today',
+    feedings: {
+      count: 0,
+      total_oz: 0,
+      bottle: 0,
+      breast: 0,
+    },
+    diapers: {
+      count: 0,
+      wet: 0,
+      dirty: 0,
+      both: 0,
+    },
+    sleep: {
+      naps: 0,
+      total_minutes: 0,
+      avg_duration: 0,
+    },
+    last_updated: new Date().toISOString(),
+    ...overrides,
+  };
+}
+
 describe('ChildDashboard', () => {
   let component: ChildDashboard;
   let fixture: ComponentFixture<ChildDashboard>;
@@ -89,6 +117,7 @@ describe('ChildDashboard', () => {
   let feedingsService: FeedingsService;
   let diapersService: DiapersService;
   let napsService: NapsService;
+  let analyticsService: AnalyticsService;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -114,17 +143,35 @@ describe('ChildDashboard', () => {
     feedingsService = TestBed.inject(FeedingsService);
     diapersService = TestBed.inject(DiapersService);
     napsService = TestBed.inject(NapsService);
+    analyticsService = TestBed.inject(AnalyticsService);
   });
 
   function setupWithData(
     feedings: Feeding[] = [],
     diapers: DiaperChange[] = [],
     naps: Nap[] = [],
+    todaySummary?: TodaySummaryData,
   ) {
+    // Calculate total oz from today's bottle feedings if not provided
+    if (!todaySummary) {
+      const today = new Date();
+      const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      const totalOz = feedings
+        .filter((f) => {
+          const feedDate = new Date(f.fed_at);
+          const feedDateStart = new Date(feedDate.getFullYear(), feedDate.getMonth(), feedDate.getDate());
+          return feedDateStart.getTime() === todayStart.getTime() && f.feeding_type === 'bottle';
+        })
+        .reduce((sum, f) => sum + (f.amount_oz ?? 0), 0);
+
+      todaySummary = makeTodaySummary({ feedings: { count: 0, total_oz: totalOz, bottle: 0, breast: 0 } });
+    }
+
     vi.spyOn(childrenService, 'get').mockReturnValue(of(mockChild));
     vi.spyOn(feedingsService, 'list').mockReturnValue(of(feedings));
     vi.spyOn(diapersService, 'list').mockReturnValue(of(diapers));
     vi.spyOn(napsService, 'list').mockReturnValue(of(naps));
+    vi.spyOn(analyticsService, 'getTodaySummary').mockReturnValue(of(todaySummary));
 
     fixture = TestBed.createComponent(ChildDashboard);
     component = fixture.componentInstance;
@@ -732,6 +779,7 @@ describe('ChildDashboard', () => {
       vi.spyOn(feedingsService, 'list').mockReturnValue(of([]));
       vi.spyOn(diapersService, 'list').mockReturnValue(of([]));
       vi.spyOn(napsService, 'list').mockReturnValue(of([]));
+      vi.spyOn(analyticsService, 'getTodaySummary').mockReturnValue(of(makeTodaySummary()));
 
       fixture = TestBed.createComponent(ChildDashboard);
       component = fixture.componentInstance;
@@ -746,6 +794,7 @@ describe('ChildDashboard', () => {
       vi.spyOn(feedingsService, 'list').mockReturnValue(of([]));
       vi.spyOn(diapersService, 'list').mockReturnValue(of([]));
       vi.spyOn(napsService, 'list').mockReturnValue(of([]));
+      vi.spyOn(analyticsService, 'getTodaySummary').mockReturnValue(of(makeTodaySummary()));
 
       fixture = TestBed.createComponent(ChildDashboard);
       component = fixture.componentInstance;
@@ -885,6 +934,10 @@ describe('ChildDashboard', () => {
   });
 
   describe('Component Lifecycle Edge Cases', () => {
+    beforeEach(() => {
+      vi.spyOn(analyticsService, 'getTodaySummary').mockReturnValue(of(makeTodaySummary()));
+    });
+
     describe('multiple rapid loadDashboardData calls (subscription management)', () => {
       it('should handle multiple rapid consecutive load calls', () => {
         const feedingsMock = [makeFeeding({ id: 1 }), makeFeeding({ id: 2 })];
@@ -895,6 +948,7 @@ describe('ChildDashboard', () => {
         vi.spyOn(feedingsService, 'list').mockReturnValue(of(feedingsMock));
         vi.spyOn(diapersService, 'list').mockReturnValue(of(diapersMock));
         vi.spyOn(napsService, 'list').mockReturnValue(of(napsMock));
+        vi.spyOn(analyticsService, 'getTodaySummary').mockReturnValue(of(makeTodaySummary()));
 
         fixture = TestBed.createComponent(ChildDashboard);
         component = fixture.componentInstance;
@@ -1091,6 +1145,7 @@ describe('ChildDashboard', () => {
         vi.spyOn(feedingsService, 'list').mockReturnValue(of([]));
         vi.spyOn(diapersService, 'list').mockReturnValue(of([]));
         vi.spyOn(napsService, 'list').mockReturnValue(of([]));
+        vi.spyOn(analyticsService, 'getTodaySummary').mockReturnValue(of(makeTodaySummary()));
 
         fixture = TestBed.createComponent(ChildDashboard);
         component = fixture.componentInstance;

@@ -49,6 +49,7 @@ import { ChildrenService } from '../../services/children.service';
 import { FeedingsService } from '../../services/feedings.service';
 import { DiapersService } from '../../services/diapers.service';
 import { NapsService } from '../../services/naps.service';
+import { AnalyticsService } from '../../services/analytics.service';
 import { Child } from '../../models/child.model';
 import { Feeding } from '../../models/feeding.model';
 import { DiaperChange } from '../../models/diaper.model';
@@ -90,6 +91,7 @@ export class ChildDashboard implements OnInit {
   private feedingsService = inject(FeedingsService);
   private diapersService = inject(DiapersService);
   private napsService = inject(NapsService);
+  private analyticsService = inject(AnalyticsService);
 
   /** Child ID from URL (/children/123) */
   childId = signal<number | null>(null);
@@ -108,6 +110,9 @@ export class ChildDashboard implements OnInit {
 
   /** Merged and sorted recent activity (last 10 across all types) */
   recentActivity = signal<ActivityItem[]>([]);
+
+  /** Today's feeding oz total from analytics API (backend-cached) */
+  todayFeedingOzFromApi = signal<number | null>(null);
 
   /** Loading state while fetching dashboard data */
   isLoading = signal(true);
@@ -222,12 +227,9 @@ export class ChildDashboard implements OnInit {
     () => this.feedings().filter((f) => this.isToday(f.fed_at) && f.feeding_type === 'breast').length,
   );
 
-  /** Total ounces from bottle feedings today. */
+  /** Total ounces from bottle feedings today (from backend cache). */
   todayFeedingsTotalOz = computed(() => {
-    const total = this.feedings()
-      .filter((f) => this.isToday(f.fed_at) && f.feeding_type === 'bottle')
-      .reduce((sum, f) => sum + (f.amount_oz ?? 0), 0);
-    return isNaN(total) ? 0 : Math.round(total * 10) / 10;
+    return this.todayFeedingOzFromApi() ?? 0;
   });
 
   /** Total nap duration in minutes today. */
@@ -287,12 +289,14 @@ export class ChildDashboard implements OnInit {
       feedings: this.feedingsService.list(childId),
       diapers: this.diapersService.list(childId),
       naps: this.napsService.list(childId),
+      todaySummary: this.analyticsService.getTodaySummary(childId),
     }).subscribe({
-      next: ({ child, feedings, diapers, naps }) => {
+      next: ({ child, feedings, diapers, naps, todaySummary }) => {
         this.child.set(child);
         this.feedings.set(feedings);
         this.diapers.set(diapers);
         this.naps.set(naps);
+        this.todayFeedingOzFromApi.set(todaySummary.feedings.total_oz);
 
         // Merge and sort recent activity
         const activity: ActivityItem[] = [
