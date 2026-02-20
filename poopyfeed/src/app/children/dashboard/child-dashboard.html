@@ -179,8 +179,16 @@
                 <div class="font-['Fredoka',sans-serif] text-2xl sm:text-4xl font-bold text-rose-500">
                   {{ todayFeedings() }}
                 </div>
-                <div class="font-['DM_Sans',sans-serif] text-sm font-medium text-slate-600 mt-1">
-                  Feedings
+                <div class="font-['DM_Sans',sans-serif] text-xs sm:text-sm font-medium text-slate-600 mt-1 space-y-0.5">
+                  <div>Feedings</div>
+                  @if (todayFeedings() > 0) {
+                    <div class="text-slate-500 text-xs">
+                      {{ todayFeedingsBottle() }}🍼 {{ todayFeedingsBreast() }}🤱
+                      @if (todayFeedingsTotalOz() > 0) {
+                        · {{ todayFeedingsTotalOz() }}oz
+                      }
+                    </div>
+                  }
                 </div>
               </div>
               <div class="text-center p-2 sm:p-4 rounded-2xl bg-orange-50/80">
@@ -202,8 +210,13 @@
                 <div class="font-['Fredoka',sans-serif] text-2xl sm:text-4xl font-bold text-amber-500">
                   {{ todayNaps() }}
                 </div>
-                <div class="font-['DM_Sans',sans-serif] text-sm font-medium text-slate-600 mt-1">
-                  Naps
+                <div class="font-['DM_Sans',sans-serif] text-xs sm:text-sm font-medium text-slate-600 mt-1 space-y-0.5">
+                  <div>Naps</div>
+                  @if (todayNapsTotalMinutes() > 0) {
+                    <div class="text-slate-500 text-xs">
+                      {{ formatMinutes(todayNapsTotalMinutes()) }} total
+                    </div>
+                  }
                 </div>
               </div>
             </div>

@@ -212,6 +212,31 @@ export class ChildDashboard implements OnInit {
     () => this.naps().filter((n) => this.isToday(n.napped_at)).length,
   );
 
+  /** Count of bottle feedings today. */
+  todayFeedingsBottle = computed(
+    () => this.feedings().filter((f) => this.isToday(f.fed_at) && f.feeding_type === 'bottle').length,
+  );
+
+  /** Count of breast feedings today. */
+  todayFeedingsBreast = computed(
+    () => this.feedings().filter((f) => this.isToday(f.fed_at) && f.feeding_type === 'breast').length,
+  );
+
+  /** Total ounces from bottle feedings today. */
+  todayFeedingsTotalOz = computed(() => {
+    const total = this.feedings()
+      .filter((f) => this.isToday(f.fed_at) && f.feeding_type === 'bottle' && f.amount_oz)
+      .reduce((sum, f) => sum + (f.amount_oz ?? 0), 0);
+    return Math.round(total * 10) / 10;
+  });
+
+  /** Total nap duration in minutes today. */
+  todayNapsTotalMinutes = computed(() =>
+    this.naps()
+      .filter((n) => this.isToday(n.napped_at) && n.duration_minutes)
+      .reduce((sum, n) => sum + (n.duration_minutes ?? 0), 0),
+  );
+
   /**
    * Initialize component and load dashboard data.
    *
@@ -483,4 +508,19 @@ export class ChildDashboard implements OnInit {
    * Enables filtering of recent activity and today's summary counts.
    */
   isToday = (utcTimestamp: string) => isToday(utcTimestamp);
+
+  /**
+   * Format minutes into human-readable duration (e.g., "1h 30m").
+   */
+  formatMinutes(minutes: number): string {
+    if (minutes < 60) {
+      return `${minutes}m`;
+    }
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    if (mins === 0) {
+      return `${hours}h`;
+    }
+    return `${hours}h ${mins}m`;
+  }
 }

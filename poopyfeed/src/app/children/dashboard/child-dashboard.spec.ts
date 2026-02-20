@@ -364,6 +364,106 @@ describe('ChildDashboard', () => {
     });
   });
 
+  describe('feeding breakdown', () => {
+    it('should count bottle feedings today', () => {
+      setupWithData([
+        makeFeeding({ id: 1, feeding_type: 'bottle', fed_at: makeTodayTimestamp(480) }),
+        makeFeeding({ id: 2, feeding_type: 'bottle', fed_at: makeTodayTimestamp(600) }),
+        makeFeeding({ id: 3, feeding_type: 'breast', fed_at: makeTodayTimestamp(540), amount_oz: undefined, duration_minutes: 15, side: 'left' }),
+      ]);
+
+      expect(component.todayFeedingsBottle()).toBe(2);
+      expect(component.todayFeedingsBreast()).toBe(1);
+    });
+
+    it('should calculate total oz from bottle feedings today', () => {
+      setupWithData([
+        makeFeeding({ id: 1, feeding_type: 'bottle', amount_oz: 4, fed_at: makeTodayTimestamp(480) }),
+        makeFeeding({ id: 2, feeding_type: 'bottle', amount_oz: 3.5, fed_at: makeTodayTimestamp(600) }),
+        makeFeeding({ id: 3, feeding_type: 'breast', fed_at: makeTodayTimestamp(540), amount_oz: undefined, duration_minutes: 15, side: 'left' }),
+      ]);
+
+      expect(component.todayFeedingsTotalOz()).toBe(7.5);
+    });
+
+    it('should not count yesterday feedings in breakdown', () => {
+      setupWithData([
+        makeFeeding({ id: 1, feeding_type: 'bottle', amount_oz: 4, fed_at: makeTodayTimestamp(480) }),
+        makeFeeding({ id: 2, feeding_type: 'bottle', amount_oz: 5, fed_at: makeYesterdayTimestamp() }),
+      ]);
+
+      expect(component.todayFeedingsBottle()).toBe(1);
+      expect(component.todayFeedingsTotalOz()).toBe(4);
+    });
+
+    it('should return zero breakdown when no feedings today', () => {
+      setupWithData([
+        makeFeeding({ id: 1, fed_at: makeYesterdayTimestamp() }),
+      ]);
+
+      expect(component.todayFeedingsBottle()).toBe(0);
+      expect(component.todayFeedingsBreast()).toBe(0);
+      expect(component.todayFeedingsTotalOz()).toBe(0);
+    });
+  });
+
+  describe('nap duration breakdown', () => {
+    it('should sum total nap minutes today', () => {
+      setupWithData([], [], [
+        makeNap({ id: 1, napped_at: makeTodayTimestamp(480), duration_minutes: 45 }),
+        makeNap({ id: 2, napped_at: makeTodayTimestamp(600), duration_minutes: 90 }),
+      ]);
+
+      expect(component.todayNapsTotalMinutes()).toBe(135);
+    });
+
+    it('should not count yesterday nap minutes', () => {
+      setupWithData([], [], [
+        makeNap({ id: 1, napped_at: makeTodayTimestamp(480), duration_minutes: 45 }),
+        makeNap({ id: 2, napped_at: makeYesterdayTimestamp(), duration_minutes: 120 }),
+      ]);
+
+      expect(component.todayNapsTotalMinutes()).toBe(45);
+    });
+
+    it('should skip naps with null duration (ongoing)', () => {
+      setupWithData([], [], [
+        makeNap({ id: 1, napped_at: makeTodayTimestamp(480), duration_minutes: 45 }),
+        makeNap({ id: 2, napped_at: makeTodayTimestamp(600), duration_minutes: null }),
+      ]);
+
+      expect(component.todayNapsTotalMinutes()).toBe(45);
+    });
+
+    it('should return zero when no naps today', () => {
+      setupWithData([], [], [
+        makeNap({ id: 1, napped_at: makeYesterdayTimestamp(), duration_minutes: 60 }),
+      ]);
+
+      expect(component.todayNapsTotalMinutes()).toBe(0);
+    });
+  });
+
+  describe('formatMinutes', () => {
+    beforeEach(() => {
+      setupWithData();
+    });
+
+    it('should format minutes under 60', () => {
+      expect(component.formatMinutes(30)).toBe('30m');
+    });
+
+    it('should format exact hours', () => {
+      expect(component.formatMinutes(60)).toBe('1h');
+      expect(component.formatMinutes(120)).toBe('2h');
+    });
+
+    it('should format hours and minutes', () => {
+      expect(component.formatMinutes(90)).toBe('1h 30m');
+      expect(component.formatMinutes(150)).toBe('2h 30m');
+    });
+  });
+
   describe('Conditional Branch Testing (Signal States)', () => {
     describe('loading state combinations', () => {
       it('should load data with showLoading parameter defaulting to true', () => {
