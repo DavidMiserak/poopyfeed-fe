@@ -225,9 +225,9 @@ export class ChildDashboard implements OnInit {
   /** Total ounces from bottle feedings today. */
   todayFeedingsTotalOz = computed(() => {
     const total = this.feedings()
-      .filter((f) => this.isToday(f.fed_at) && f.feeding_type === 'bottle' && f.amount_oz)
+      .filter((f) => this.isToday(f.fed_at) && f.feeding_type === 'bottle')
       .reduce((sum, f) => sum + (f.amount_oz ?? 0), 0);
-    return Math.round(total * 10) / 10;
+    return isNaN(total) ? 0 : Math.round(total * 10) / 10;
   });
 
   /** Total nap duration in minutes today. */
