@@ -211,7 +211,7 @@
                   <div>Naps</div>
                   @if (todayNapsTotalMinutes() > 0) {
                     <div class="text-slate-500 text-xs">
-                      {{ formatMinutes(todayNapsTotalMinutes()) }} total
+                      {{ formatMinutes(roundMinutes(todayNapsTotalMinutes())) }} total
                     </div>
                   }
                 </div>

@@ -484,7 +484,7 @@ export class ChildDashboard implements OnInit {
         const feeding = item.data as Feeding;
         return feeding.feeding_type === 'bottle'
           ? `Bottle: ${feeding.amount_oz} oz`
-          : `Breast: ${this.formatMinutes(feeding.duration_minutes ?? 0)} (${feeding.side})`;
+          : `Breast: ${this.formatMinutes(Math.round(feeding.duration_minutes ?? 0))} (${feeding.side})`;
       }
       case 'diaper': {
         const diaper = item.data as DiaperChange;
@@ -497,7 +497,7 @@ export class ChildDashboard implements OnInit {
       }
       case 'nap': {
         const nap = item.data as Nap;
-        return `Nap: ${this.formatMinutes(nap.duration_minutes ?? 0)}`;
+        return `Nap: ${this.formatMinutes(Math.round(nap.duration_minutes ?? 0))}`;
       }
     }
   }
@@ -509,6 +509,14 @@ export class ChildDashboard implements OnInit {
    * Enables filtering of recent activity and today's summary counts.
    */
   isToday = (utcTimestamp: string) => isToday(utcTimestamp);
+
+  /**
+   * Round fractional minutes to nearest whole number.
+   * Used before formatting to prevent display of fractional values.
+   */
+  roundMinutes(minutes: number): number {
+    return Math.round(minutes);
+  }
 
   /**
    * Format minutes into human-readable duration (e.g., "1h 30m").
