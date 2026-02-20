@@ -1268,10 +1268,14 @@ describe('QuickLog', () => {
     });
 
     it('should display 3 bottle amounts on buttons', () => {
+      // Child born today = 0 weeks old = 2 oz recommended
+      const today = new Date('2026-02-20');
+      const newbornDate = today.toISOString().split('T')[0];
+
       const mockChild: Child = {
         id: 1,
         name: 'Baby',
-        date_of_birth: '2026-02-05', // Newborn -> 2 oz recommended
+        date_of_birth: newbornDate, // 0 weeks old (newborn) -> 2 oz recommended
         gender: 'M',
         user_role: 'owner',
         created_at: new Date().toISOString(),
@@ -1292,14 +1296,20 @@ describe('QuickLog', () => {
       const bottleHighButton = buttons[6];
 
       // Check that bottle amounts are displayed in the buttons
-      // Format is now: emoji, number (text-2xl), oz (text-sm)
-      expect(bottleLowButton.textContent).toContain('1');
+      // Format is now: emoji (text-5xl), number (text-2xl), oz (text-sm)
+      // Child is 0 weeks old -> 2 oz recommended
+      // So: low=2-1=1, mid=2, high=2+1=3
+      const bottleLowNumber = bottleLowButton.querySelector('span.text-2xl');
+      const bottleMidNumber = bottleMidButton.querySelector('span.text-2xl');
+      const bottleHighNumber = bottleHighButton.querySelector('span.text-2xl');
+
+      expect(bottleLowNumber?.textContent).toBe('1');
       expect(bottleLowButton.textContent).toContain('oz');
 
-      expect(bottleMidButton.textContent).toContain('2');
+      expect(bottleMidNumber?.textContent).toBe('2');
       expect(bottleMidButton.textContent).toContain('oz');
 
-      expect(bottleHighButton.textContent).toContain('3');
+      expect(bottleHighNumber?.textContent).toBe('3');
       expect(bottleHighButton.textContent).toContain('oz');
     });
 
@@ -1324,10 +1334,21 @@ describe('QuickLog', () => {
     });
 
     it('should update bottle amounts when child changes', () => {
+      // Create dates relative to "today" (2026-02-20)
+      // Child1: born 2026-02-19 (1 day old = 0 weeks) -> 2 oz
+      const today = new Date('2026-02-20');
+      const oneDay = 24 * 60 * 60 * 1000;
+      const newbornDate = new Date(today.getTime() - oneDay)
+        .toISOString()
+        .split('T')[0];
+      const sixMonthOldDate = new Date(today.getTime() - 26 * 7 * oneDay)
+        .toISOString()
+        .split('T')[0];
+
       const mockChild1: Child = {
         id: 1,
         name: 'Baby1',
-        date_of_birth: '2026-02-05', // 0 weeks old (newborn) -> 2 oz
+        date_of_birth: newbornDate, // 0 weeks old (newborn) -> 2 oz
         gender: 'M',
         user_role: 'owner',
         created_at: new Date().toISOString(),
@@ -1340,7 +1361,7 @@ describe('QuickLog', () => {
       const mockChild2: Child = {
         id: 2,
         name: 'Baby2',
-        date_of_birth: '2025-08-01', // ~26 weeks old (6 months) -> 7 oz
+        date_of_birth: sixMonthOldDate, // ~26 weeks old (6 months) -> 7 oz
         gender: 'F',
         user_role: 'owner',
         created_at: new Date().toISOString(),
@@ -1351,11 +1372,13 @@ describe('QuickLog', () => {
       };
 
       fixture.componentRef.setInput('child', mockChild1);
+      fixture.detectChanges();
       expect(component.bottleAmountLow()).toBe(1); // 2 - 1
       expect(component.bottleAmountMid()).toBe(2); // 2
       expect(component.bottleAmountHigh()).toBe(3); // 2 + 1
 
       fixture.componentRef.setInput('child', mockChild2);
+      fixture.detectChanges();
       expect(component.bottleAmountLow()).toBe(6); // 7 - 1
       expect(component.bottleAmountMid()).toBe(7); // 7
       expect(component.bottleAmountHigh()).toBe(8); // 7 + 1
