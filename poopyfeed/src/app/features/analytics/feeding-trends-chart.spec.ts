@@ -282,7 +282,7 @@ describe('FeedingTrendsChart', () => {
     it('should have proper styling classes', async () => {
       await fixture.whenStable();
 
-      const container = fixture.nativeElement.querySelector('.rounded-3xl');
+      const container = fixture.nativeElement.querySelector('.rounded-2xl');
       expect(container).toBeTruthy();
       expect(container?.classList.contains('shadow-lg')).toBe(true);
     });
