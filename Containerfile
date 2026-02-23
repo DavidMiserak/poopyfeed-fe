@@ -18,18 +18,22 @@ COPY poopyfeed/. .
 # Build the application
 RUN npm run build
 
-# Stage 2: Production with nginx
-FROM docker.io/nginx:alpine AS production
+# Stage 2: Production with Node SSR server
+FROM docker.io/node:20-alpine AS production
 
-# Copy built assets from build stage
-COPY --from=build /app/dist/poopyfeed/browser /usr/share/nginx/html
+WORKDIR /app
 
-# Copy nginx configuration
-COPY poopyfeed/nginx.conf /etc/nginx/conf.d/default.conf
+# Copy package files and install production deps only
+COPY poopyfeed/package*.json ./
+RUN npm ci --omit=dev
 
+# Copy built dist from build stage (both browser + server bundles)
+COPY --from=build /app/dist ./dist
+
+ENV PORT=80
 EXPOSE 80
 
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["node", "dist/poopyfeed/server/server.mjs"]
 
 # Stage 3: Development
 FROM docker.io/node:20-alpine AS development

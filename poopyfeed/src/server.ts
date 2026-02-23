@@ -25,6 +25,13 @@ const angularApp = new AngularNodeAppEngine();
  */
 
 /**
+ * Lightweight health check endpoint (bypasses Angular rendering).
+ */
+app.get('/healthz', (_req, res) => {
+  res.status(200).send('ok');
+});
+
+/**
  * Serve static files from /browser
  */
 app.use(
