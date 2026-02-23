@@ -31,6 +31,7 @@ import { finalize } from 'rxjs/operators';
 import { AnalyticsService } from '../../services/analytics.service';
 import { ToastService } from '../../services/toast.service';
 import { FeedingTrendsChart } from './feeding-trends-chart';
+import { FeedingOzChart } from './feeding-oz-chart';
 import { DiaperPatternsChart } from './diaper-patterns-chart';
 import { SleepSummaryChart } from './sleep-summary-chart';
 import { TodaySummaryCards } from '../../components/today-summary-cards';
@@ -40,6 +41,7 @@ import { TodaySummaryCards } from '../../components/today-summary-cards';
   imports: [
     CommonModule,
     FeedingTrendsChart,
+    FeedingOzChart,
     DiaperPatternsChart,
     SleepSummaryChart,
     TodaySummaryCards,
