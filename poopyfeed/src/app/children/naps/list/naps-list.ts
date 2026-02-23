@@ -12,12 +12,19 @@ import { NapsService } from '../../../services/naps.service';
 import { ChildrenService } from '../../../services/children.service';
 import { FilterService, FilterCriteria } from '../../../services/filter.service';
 import { TrackingFilterComponent } from '../../../components/tracking-filter/tracking-filter';
+import { LoadingStateComponent } from '../../../components/loading-state/loading-state.component';
+import { ErrorCardComponent } from '../../../components/error-card/error-card.component';
 import { Nap } from '../../../models/nap.model';
 import { Child } from '../../../models/child.model';
 
 @Component({
   selector: 'app-naps-list',
-  imports: [CommonModule, TrackingFilterComponent],
+  imports: [
+    CommonModule,
+    TrackingFilterComponent,
+    LoadingStateComponent,
+    ErrorCardComponent,
+  ],
   templateUrl: './naps-list.html',
   styleUrl: './naps-list.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

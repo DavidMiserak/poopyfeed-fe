@@ -11,10 +11,11 @@ import { NapsService } from '../../../services/naps.service';
 import { ChildrenService } from '../../../services/children.service';
 import { Nap } from '../../../models/nap.model';
 import { Child } from '../../../models/child.model';
+import { ErrorCardComponent } from '../../../components/error-card/error-card.component';
 
 @Component({
   selector: 'app-nap-delete',
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, ErrorCardComponent],
   templateUrl: './nap-delete.html',
   styleUrl: './nap-delete.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

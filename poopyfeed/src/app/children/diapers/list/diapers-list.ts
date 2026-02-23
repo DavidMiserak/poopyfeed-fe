@@ -12,12 +12,19 @@ import { DiapersService } from '../../../services/diapers.service';
 import { ChildrenService } from '../../../services/children.service';
 import { FilterService, FilterCriteria } from '../../../services/filter.service';
 import { TrackingFilterComponent } from '../../../components/tracking-filter/tracking-filter';
+import { LoadingStateComponent } from '../../../components/loading-state/loading-state.component';
+import { ErrorCardComponent } from '../../../components/error-card/error-card.component';
 import { DiaperChange, CHANGE_TYPE_LABELS } from '../../../models/diaper.model';
 import { Child } from '../../../models/child.model';
 
 @Component({
   selector: 'app-diapers-list',
-  imports: [CommonModule, TrackingFilterComponent],
+  imports: [
+    CommonModule,
+    TrackingFilterComponent,
+    LoadingStateComponent,
+    ErrorCardComponent,
+  ],
   templateUrl: './diapers-list.html',
   styleUrl: './diapers-list.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -12,12 +12,19 @@ import { FeedingsService } from '../../../services/feedings.service';
 import { ChildrenService } from '../../../services/children.service';
 import { FilterService, FilterCriteria } from '../../../services/filter.service';
 import { TrackingFilterComponent } from '../../../components/tracking-filter/tracking-filter';
+import { LoadingStateComponent } from '../../../components/loading-state/loading-state.component';
+import { ErrorCardComponent } from '../../../components/error-card/error-card.component';
 import { Feeding, FEEDING_TYPE_LABELS } from '../../../models/feeding.model';
 import { Child } from '../../../models/child.model';
 
 @Component({
   selector: 'app-feedings-list',
-  imports: [CommonModule, TrackingFilterComponent],
+  imports: [
+    CommonModule,
+    TrackingFilterComponent,
+    LoadingStateComponent,
+    ErrorCardComponent,
+  ],
   templateUrl: './feedings-list.html',
   styleUrl: './feedings-list.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

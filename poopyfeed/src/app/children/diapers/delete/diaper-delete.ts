@@ -11,10 +11,11 @@ import { DiapersService } from '../../../services/diapers.service';
 import { ChildrenService } from '../../../services/children.service';
 import { DiaperChange } from '../../../models/diaper.model';
 import { Child } from '../../../models/child.model';
+import { ErrorCardComponent } from '../../../components/error-card/error-card.component';
 
 @Component({
   selector: 'app-diaper-delete',
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, ErrorCardComponent],
   templateUrl: './diaper-delete.html',
   styleUrl: './diaper-delete.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

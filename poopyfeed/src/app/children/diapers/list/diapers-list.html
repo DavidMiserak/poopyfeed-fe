@@ -8,38 +8,21 @@
   <div class="max-w-4xl mx-auto relative z-10">
     <!-- Loading State -->
     @if (isLoading()) {
-      <div class="flex items-center justify-center py-20">
-        <div class="text-center">
-          <svg class="w-16 h-16 animate-spin mx-auto mb-4 text-orange-400" aria-hidden="true" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-          </svg>
-          <p class="font-['DM_Sans',sans-serif] text-slate-600">Loading diaper changes...</p>
-        </div>
-      </div>
+      <app-loading-state
+        [message]="'Loading diaper changes...'"
+        [color]="'orange'"
+      />
     }
 
     <!-- Error State -->
     @if (error() && !child()) {
-      <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-8 border-2 border-red-200">
-        <div class="text-center">
-          <div class="text-6xl mb-4">😞</div>
-          <h2 class="font-['Fredoka',sans-serif] text-2xl font-bold text-slate-900 mb-2">
-            Oops! Something went wrong
-          </h2>
-          <p class="font-['DM_Sans',sans-serif] text-slate-600 mb-6">
-            {{ error() }}
-          </p>
-          <button
-            type="button"
-            (click)="navigateToDashboard()"
-            class="group relative inline-flex px-6 py-3 rounded-xl font-['DM_Sans',sans-serif] font-bold text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 overflow-hidden border-2 border-orange-400"
-          >
-            <span class="absolute inset-0 bg-gradient-to-br from-orange-400 via-orange-500 to-amber-400 transition-transform duration-300 group-hover:scale-110"></span>
-            <span class="relative z-10">Back to Dashboard</span>
-          </button>
-        </div>
-      </div>
+      <app-error-card
+        [errorMessage]="error()!"
+        [useRouter]="false"
+        [backButtonText]="'Back to Dashboard'"
+        [gradientColor]="'orange'"
+        (backAction)="navigateToDashboard()"
+      />
     }
 
     <!-- Content -->

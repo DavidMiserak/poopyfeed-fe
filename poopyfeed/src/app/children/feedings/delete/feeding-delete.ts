@@ -11,10 +11,11 @@ import { FeedingsService } from '../../../services/feedings.service';
 import { ChildrenService } from '../../../services/children.service';
 import { Feeding } from '../../../models/feeding.model';
 import { Child } from '../../../models/child.model';
+import { ErrorCardComponent } from '../../../components/error-card/error-card.component';
 
 @Component({
   selector: 'app-feeding-delete',
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, ErrorCardComponent],
   templateUrl: './feeding-delete.html',
   styleUrl: './feeding-delete.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

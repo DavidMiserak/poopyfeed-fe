@@ -8,24 +8,12 @@
   <div class="w-full max-w-lg relative z-10">
     <!-- Error State -->
     @if (error() && !feeding()) {
-      <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-8 border-2 border-red-200">
-        <div class="text-center">
-          <div class="text-6xl mb-4">😞</div>
-          <h2 class="font-['Fredoka',sans-serif] text-2xl font-bold text-slate-900 mb-2">
-            Oops! Something went wrong
-          </h2>
-          <p class="font-['DM_Sans',sans-serif] text-slate-600 mb-6">
-            {{ error() }}
-          </p>
-          <a
-            [routerLink]="['/children', childId(), 'feedings']"
-            class="group relative inline-flex px-6 py-3 rounded-xl font-['DM_Sans',sans-serif] font-bold text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 overflow-hidden border-2 border-rose-400"
-          >
-            <span class="absolute inset-0 bg-gradient-to-br from-rose-400 via-orange-400 to-amber-400 transition-transform duration-300 group-hover:scale-110"></span>
-            <span class="relative z-10">Back to Feedings</span>
-          </a>
-        </div>
-      </div>
+      <app-error-card
+        [errorMessage]="error()!"
+        [backRoute]="['/children', childId()!, 'feedings']"
+        [backButtonText]="'Back to Feedings'"
+        [gradientColor]="'rose'"
+      />
     }
 
     <!-- Delete Confirmation -->
