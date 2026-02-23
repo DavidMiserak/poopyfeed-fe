@@ -52,10 +52,11 @@ import {
 import {
   TrackingFormBase,
 } from '../../../utils/form-base';
+import { ActionButtonGroupComponent } from '../../../components/action-button-group/action-button-group.component';
 
 @Component({
   selector: 'app-diaper-form',
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, ActionButtonGroupComponent],
   templateUrl: './diaper-form.html',
   styleUrl: './diaper-form.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

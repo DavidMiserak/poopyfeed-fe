@@ -59,10 +59,11 @@ import {
   FEEDING_VALIDATION,
 } from '../../../models/feeding.model';
 import { TrackingFormBase } from '../../../utils/form-base';
+import { ActionButtonGroupComponent } from '../../../components/action-button-group/action-button-group.component';
 
 @Component({
   selector: 'app-feeding-form',
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, ActionButtonGroupComponent],
   templateUrl: './feeding-form.html',
   styleUrl: './feeding-form.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

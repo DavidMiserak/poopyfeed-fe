@@ -45,10 +45,11 @@ import { DateTimeService } from '../../../services/datetime.service';
 import { ToastService } from '../../../services/toast.service';
 import { Nap, NapCreate, NAP_VALIDATION } from '../../../models/nap.model';
 import { TrackingFormBase } from '../../../utils/form-base';
+import { ActionButtonGroupComponent } from '../../../components/action-button-group/action-button-group.component';
 
 @Component({
   selector: 'app-nap-form',
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, ActionButtonGroupComponent],
   templateUrl: './nap-form.html',
   styleUrl: './nap-form.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
