@@ -14,6 +14,7 @@ import { FilterService, FilterCriteria } from '../../../services/filter.service'
 import { TrackingFilterComponent } from '../../../components/tracking-filter/tracking-filter';
 import { LoadingStateComponent } from '../../../components/loading-state/loading-state.component';
 import { ErrorCardComponent } from '../../../components/error-card/error-card.component';
+import { TrackingListHeaderComponent } from '../../../components/tracking-list-header/tracking-list-header.component';
 import { Feeding, FEEDING_TYPE_LABELS } from '../../../models/feeding.model';
 import { Child } from '../../../models/child.model';
 
@@ -24,6 +25,7 @@ import { Child } from '../../../models/child.model';
     TrackingFilterComponent,
     LoadingStateComponent,
     ErrorCardComponent,
+    TrackingListHeaderComponent,
   ],
   templateUrl: './feedings-list.html',
   styleUrl: './feedings-list.css',

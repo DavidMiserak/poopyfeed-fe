@@ -29,71 +29,13 @@
     @if (child() && !isLoading()) {
       <div class="space-y-6">
         <!-- Header -->
-        <div class="mb-8">
-          <!-- Desktop: Horizontal layout -->
-          <div class="hidden sm:flex items-center justify-between gap-6">
-            <div>
-              <button
-                type="button"
-                (click)="navigateToDashboard()"
-                class="font-['DM_Sans',sans-serif] text-sm text-slate-600 hover:text-amber-400 transition-colors font-medium inline-flex items-center gap-2 mb-2"
-              >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                </svg>
-                Back to Dashboard
-              </button>
-              <h1 class="font-['Fredoka',sans-serif] text-4xl font-bold text-slate-900">
-                Naps for {{ child()!.name }}
-              </h1>
-            </div>
-            <button
-              type="button"
-              (click)="navigateToCreate()"
-              class="group relative inline-flex px-6 py-3 rounded-xl font-['DM_Sans',sans-serif] font-bold text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 overflow-hidden border-2 border-amber-400 flex-shrink-0"
-            >
-              <span class="absolute inset-0 bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600 transition-transform duration-300 group-hover:scale-110"></span>
-              <span class="relative z-10 flex items-center gap-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                </svg>
-                Add Nap
-              </span>
-            </button>
-          </div>
-
-          <!-- Mobile: Vertical layout -->
-          <div class="sm:hidden space-y-4">
-            <div>
-              <button
-                type="button"
-                (click)="navigateToDashboard()"
-                class="font-['DM_Sans',sans-serif] text-sm text-slate-600 hover:text-amber-400 transition-colors font-medium inline-flex items-center gap-2 mb-2"
-              >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                </svg>
-                Back to Dashboard
-              </button>
-              <h1 class="font-['Fredoka',sans-serif] text-3xl font-bold text-slate-900">
-                Naps for {{ child()!.name }}
-              </h1>
-            </div>
-            <button
-              type="button"
-              (click)="navigateToCreate()"
-              class="group relative w-full px-6 py-3 rounded-xl font-['DM_Sans',sans-serif] font-bold text-white shadow-xl hover:shadow-2xl transition-all duration-300 active:translate-y-0 overflow-hidden border-2 border-amber-400"
-            >
-              <span class="absolute inset-0 bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600 transition-transform duration-300 group-hover:scale-110"></span>
-              <span class="relative z-10 flex items-center justify-center gap-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                </svg>
-                Add Nap
-              </span>
-            </button>
-          </div>
-        </div>
+        <app-tracking-list-header
+          [title]="'Naps for ' + child()!.name"
+          [addButtonLabel]="'Add Nap'"
+          [accentColor]="'amber'"
+          (back)="navigateToDashboard()"
+          (add)="navigateToCreate()"
+        />
 
         <!-- Filter Controls -->
         <app-tracking-filter
