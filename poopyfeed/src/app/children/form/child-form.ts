@@ -136,6 +136,18 @@ export class ChildForm implements OnInit {
   error = signal<string | null>(null);
 
   /**
+   * Computed error message for bottle amount ordering.
+   * Returns the error message if bottle amounts are out of order, null otherwise.
+   */
+  bottleAmountsOrderError = computed(() => {
+    const err = this.childForm.errors?.['bottleAmountsOrder'];
+    if (err && typeof err === 'string') {
+      return err;
+    }
+    return null;
+  });
+
+  /**
    * Child profile form with fields for basic info and optional custom bottle amounts.
    *
    * **Required fields**:
