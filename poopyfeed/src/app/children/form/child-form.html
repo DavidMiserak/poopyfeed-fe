@@ -234,9 +234,9 @@
             Restore Defaults
           </button>
 
-          <!-- Cross-field validation error for bottle amounts ordering -->
+          <!-- Cross-field validation error for bottle amounts -->
           @if (
-            bottleAmountsOrderError() &&
+            bottleAmountsError() &&
             (childForm.get('custom_bottle_low_oz')?.touched ||
               childForm.get('custom_bottle_mid_oz')?.touched ||
               childForm.get('custom_bottle_high_oz')?.touched)
@@ -249,7 +249,7 @@
                   clip-rule="evenodd"
                 />
               </svg>
-              {{ bottleAmountsOrderError() }}
+              {{ bottleAmountsError() }}
             </p>
           }
         </fieldset>

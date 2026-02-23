@@ -64,13 +64,16 @@ import { ToastService } from '../../services/toast.service';
 import { Child, ChildCreate } from '../../models/child.model';
 
 /**
- * Validator: Ensures custom bottle amounts follow low < mid < high order.
+ * Validator: Ensures custom bottle amounts are either all set or all null.
  *
- * Allows:
- * - Any/all fields can be null (use age-based defaults)
- * - If multiple fields are set, they must maintain: low < mid < high
+ * Rules:
+ * - All three null (use age-based defaults) ✓
+ * - All three set with low < mid < high ✓
+ * - Any combination of partial nulls ✗
+ * - Any out-of-order values ✗
  *
- * Returns error if amounts are out of order when multiple are set.
+ * This prevents nonsensical scenarios like: low=10, mid=null, high=5
+ * which would become: 10 < age_default < 5 (invalid).
  */
 function bottleAmountsValidator(control: AbstractControl): ValidationErrors | null {
   const group = control as FormGroup;
@@ -78,22 +81,35 @@ function bottleAmountsValidator(control: AbstractControl): ValidationErrors | nu
   const mid = group.get('custom_bottle_mid_oz')?.value;
   const high = group.get('custom_bottle_high_oz')?.value;
 
-  // All null or not set is valid
+  // All null is valid (use age-based defaults)
   if (low === null && mid === null && high === null) {
     return null;
   }
 
-  // Check ordering: low < mid < high (only for set values)
-  if (low !== null && mid !== null && low >= mid) {
-    return { bottleAmountsOrder: 'Low amount must be less than recommended amount' };
+  // Count how many fields are set
+  const setCount = [low, mid, high].filter((v) => v !== null).length;
+
+  // If only some are set, require all to be set
+  if (setCount > 0 && setCount < 3) {
+    return {
+      bottleAmountsPartial:
+        'If setting custom amounts, all three (low, recommended, high) must be provided',
+    };
   }
 
-  if (mid !== null && high !== null && mid >= high) {
-    return { bottleAmountsOrder: 'Recommended amount must be less than high amount' };
-  }
+  // All three are set - validate ordering
+  if (setCount === 3) {
+    if (low >= mid) {
+      return { bottleAmountsOrder: 'Low amount must be less than recommended amount' };
+    }
 
-  if (low !== null && high !== null && low >= high) {
-    return { bottleAmountsOrder: 'Low amount must be less than high amount' };
+    if (mid >= high) {
+      return { bottleAmountsOrder: 'Recommended amount must be less than high amount' };
+    }
+
+    if (low >= high) {
+      return { bottleAmountsOrder: 'Low amount must be less than high amount' };
+    }
   }
 
   return null;
@@ -136,14 +152,21 @@ export class ChildForm implements OnInit {
   error = signal<string | null>(null);
 
   /**
-   * Computed error message for bottle amount ordering.
-   * Returns the error message if bottle amounts are out of order, null otherwise.
+   * Computed error message for bottle amounts validation.
+   * Returns the error message if amounts are invalid (partial values or out of order).
    */
-  bottleAmountsOrderError = computed(() => {
-    const err = this.childForm.errors?.['bottleAmountsOrder'];
-    if (err && typeof err === 'string') {
-      return err;
+  bottleAmountsError = computed(() => {
+    const errPartial = this.childForm.errors?.['bottleAmountsPartial'];
+    const errOrder = this.childForm.errors?.['bottleAmountsOrder'];
+
+    if (errPartial && typeof errPartial === 'string') {
+      return errPartial;
     }
+
+    if (errOrder && typeof errOrder === 'string') {
+      return errOrder;
+    }
+
     return null;
   });
 
