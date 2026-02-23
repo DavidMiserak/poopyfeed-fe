@@ -53,17 +53,37 @@ export class QuickLog {
     return getRecommendedBottleAmount(ageInWeeks);
   });
 
-  // Three bottle amount options: recommended - 1, recommended, recommended + 1
+  // Three bottle amount options: use custom amounts if set, otherwise use recommended ± 1
   bottleAmountLow = computed(() => {
+    const childData = this.child();
+    // Use custom amount if defined
+    if (childData?.custom_bottle_low_oz !== null && childData?.custom_bottle_low_oz !== undefined) {
+      return childData.custom_bottle_low_oz;
+    }
+    // Fall back to age-based recommendation - 1
     const base = this.bottleAmount();
     if (!base) return null;
     const lowAmount = base - 1;
     return lowAmount >= 0.1 ? lowAmount : null; // Respect MIN_BOTTLE_OZ
   });
 
-  bottleAmountMid = computed(() => this.bottleAmount()); // Recommended (already exists)
+  bottleAmountMid = computed(() => {
+    const childData = this.child();
+    // Use custom amount if defined
+    if (childData?.custom_bottle_mid_oz !== null && childData?.custom_bottle_mid_oz !== undefined) {
+      return childData.custom_bottle_mid_oz;
+    }
+    // Fall back to age-based recommendation
+    return this.bottleAmount();
+  });
 
   bottleAmountHigh = computed(() => {
+    const childData = this.child();
+    // Use custom amount if defined
+    if (childData?.custom_bottle_high_oz !== null && childData?.custom_bottle_high_oz !== undefined) {
+      return childData.custom_bottle_high_oz;
+    }
+    // Fall back to age-based recommendation + 1
     const base = this.bottleAmount();
     if (!base) return null;
     const highAmount = base + 1;

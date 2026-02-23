@@ -1472,5 +1472,177 @@ describe('QuickLog', () => {
       expect(bottleMidButton.getAttribute('aria-label')).toBe('Log a bottle feeding with 5 oz (recommended)');
       expect(bottleHighButton.getAttribute('aria-label')).toBe('Log a bottle feeding with 6 oz');
     });
+
+    it('should use custom bottle amounts when defined', () => {
+      const mockChild: Child = {
+        id: 1,
+        name: 'Baby',
+        date_of_birth: '2025-12-10', // ~2 months old -> 5 oz recommended
+        gender: 'M',
+        user_role: 'owner',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        last_feeding: null,
+        last_diaper_change: null,
+        last_nap: null,
+        custom_bottle_low_oz: 3.5,   // Custom amount instead of 4 (5-1)
+        custom_bottle_mid_oz: 5.5,   // Custom amount instead of 5
+        custom_bottle_high_oz: 6.5,  // Custom amount instead of 6 (5+1)
+      };
+
+      fixture.componentRef.setInput('child', mockChild);
+      fixture.detectChanges();
+
+      // Should use custom amounts, not age-based calculations
+      expect(component.bottleAmountLow()).toBe(3.5);
+      expect(component.bottleAmountMid()).toBe(5.5);
+      expect(component.bottleAmountHigh()).toBe(6.5);
+    });
+
+    it('should fall back to age-based amounts when custom amounts are null', () => {
+      const mockChild: Child = {
+        id: 1,
+        name: 'Baby',
+        date_of_birth: '2025-12-10', // ~2 months old -> 5 oz recommended
+        gender: 'M',
+        user_role: 'owner',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        last_feeding: null,
+        last_diaper_change: null,
+        last_nap: null,
+        custom_bottle_low_oz: null,
+        custom_bottle_mid_oz: null,
+        custom_bottle_high_oz: null,
+      };
+
+      fixture.componentRef.setInput('child', mockChild);
+      fixture.detectChanges();
+
+      // Should use age-based fallback
+      expect(component.bottleAmountLow()).toBe(4); // 5 - 1
+      expect(component.bottleAmountMid()).toBe(5); // 5
+      expect(component.bottleAmountHigh()).toBe(6); // 5 + 1
+    });
+
+    it('should allow partial custom amounts with fallback for undefined ones', () => {
+      const mockChild: Child = {
+        id: 1,
+        name: 'Baby',
+        date_of_birth: '2025-12-10', // ~2 months old -> 5 oz recommended
+        gender: 'M',
+        user_role: 'owner',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        last_feeding: null,
+        last_diaper_change: null,
+        last_nap: null,
+        custom_bottle_low_oz: 3.5,    // Custom
+        custom_bottle_mid_oz: null,   // Use fallback
+        custom_bottle_high_oz: 6.5,   // Custom
+      };
+
+      fixture.componentRef.setInput('child', mockChild);
+      fixture.detectChanges();
+
+      expect(component.bottleAmountLow()).toBe(3.5); // Custom
+      expect(component.bottleAmountMid()).toBe(5);   // Fallback: 5 oz
+      expect(component.bottleAmountHigh()).toBe(6.5); // Custom
+    });
+
+    it('should update bottle amounts when child changes to one with custom amounts', () => {
+      const mockChild1: Child = {
+        id: 1,
+        name: 'Baby1',
+        date_of_birth: '2025-12-10', // ~2 months -> 5 oz
+        gender: 'M',
+        user_role: 'owner',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        last_feeding: null,
+        last_diaper_change: null,
+        last_nap: null,
+        custom_bottle_low_oz: null,
+        custom_bottle_mid_oz: null,
+        custom_bottle_high_oz: null,
+      };
+
+      const mockChild2: Child = {
+        id: 2,
+        name: 'Baby2',
+        date_of_birth: '2025-08-10', // ~6 months -> 7 oz
+        gender: 'F',
+        user_role: 'owner',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        last_feeding: null,
+        last_diaper_change: null,
+        last_nap: null,
+        custom_bottle_low_oz: 2,   // Custom
+        custom_bottle_mid_oz: 3,   // Custom
+        custom_bottle_high_oz: 4,  // Custom
+      };
+
+      // First child: uses age-based
+      fixture.componentRef.setInput('child', mockChild1);
+      fixture.detectChanges();
+      expect(component.bottleAmountLow()).toBe(4); // 5 - 1
+      expect(component.bottleAmountMid()).toBe(5);
+      expect(component.bottleAmountHigh()).toBe(6); // 5 + 1
+
+      // Second child: uses custom amounts
+      fixture.componentRef.setInput('child', mockChild2);
+      fixture.detectChanges();
+      expect(component.bottleAmountLow()).toBe(2);
+      expect(component.bottleAmountMid()).toBe(3);
+      expect(component.bottleAmountHigh()).toBe(4);
+    });
+
+    it('should log bottle feeding with custom amount', () => {
+      const mockChild: Child = {
+        id: 1,
+        name: 'Baby',
+        date_of_birth: '2025-12-10',
+        gender: 'M',
+        user_role: 'owner',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        last_feeding: null,
+        last_diaper_change: null,
+        last_nap: null,
+        custom_bottle_low_oz: 3.5,
+        custom_bottle_mid_oz: 5.5,
+        custom_bottle_high_oz: 6.5,
+      };
+
+      fixture.componentRef.setInput('child', mockChild);
+      fixture.componentRef.setInput('childId', 1);
+      fixture.componentRef.setInput('canEdit', true);
+      fixture.detectChanges();
+
+      const mockDate = new Date('2026-02-10T10:30:00Z');
+      const mockFeeding = {
+        id: 123,
+        child: 1,
+        feeding_type: 'bottle' as const,
+        fed_at: mockDate.toISOString(),
+        amount_oz: 3.5,
+        created_at: mockDate.toISOString(),
+        updated_at: mockDate.toISOString(),
+      };
+
+      vi.mocked(dateTimeService.toUTC).mockReturnValue(mockDate.toISOString());
+      vi.mocked(feedingsService.create).mockReturnValue(of(mockFeeding));
+
+      component.quickLogBottleLow();
+
+      // Should use custom amount (3.5) instead of calculated amount (4)
+      expect(feedingsService.create).toHaveBeenCalledWith(1, {
+        feeding_type: 'bottle',
+        fed_at: mockDate.toISOString(),
+        amount_oz: 3.5,
+      });
+      expect(toastService.success).toHaveBeenCalledWith('Bottle feeding recorded: 3.5 oz');
+    });
   });
 });
