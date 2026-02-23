@@ -55,11 +55,49 @@ import {
   FormGroup,
   ReactiveFormsModule,
   Validators,
+  AbstractControl,
+  ValidationErrors,
 } from '@angular/forms';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { ChildrenService } from '../../services/children.service';
 import { ToastService } from '../../services/toast.service';
 import { Child, ChildCreate } from '../../models/child.model';
+
+/**
+ * Validator: Ensures custom bottle amounts follow low < mid < high order.
+ *
+ * Allows:
+ * - Any/all fields can be null (use age-based defaults)
+ * - If multiple fields are set, they must maintain: low < mid < high
+ *
+ * Returns error if amounts are out of order when multiple are set.
+ */
+function bottleAmountsValidator(control: AbstractControl): ValidationErrors | null {
+  const group = control as FormGroup;
+  const low = group.get('custom_bottle_low_oz')?.value;
+  const mid = group.get('custom_bottle_mid_oz')?.value;
+  const high = group.get('custom_bottle_high_oz')?.value;
+
+  // All null or not set is valid
+  if (low === null && mid === null && high === null) {
+    return null;
+  }
+
+  // Check ordering: low < mid < high (only for set values)
+  if (low !== null && mid !== null && low >= mid) {
+    return { bottleAmountsOrder: 'Low amount must be less than recommended amount' };
+  }
+
+  if (mid !== null && high !== null && mid >= high) {
+    return { bottleAmountsOrder: 'Recommended amount must be less than high amount' };
+  }
+
+  if (low !== null && high !== null && low >= high) {
+    return { bottleAmountsOrder: 'Low amount must be less than high amount' };
+  }
+
+  return null;
+}
 
 @Component({
   selector: 'app-child-form',
@@ -98,20 +136,42 @@ export class ChildForm implements OnInit {
   error = signal<string | null>(null);
 
   /**
-   * Child profile form with three required fields.
+   * Child profile form with fields for basic info and optional custom bottle amounts.
    *
-   * - **name**: Child's display name (required, 1-100 characters)
-   * - **date_of_birth**: Birth date (required, ISO date format YYYY-MM-DD)
-   * - **gender**: Gender code (required, one of M/F/O)
+   * **Required fields**:
+   * - **name**: Child's display name (1-100 characters)
+   * - **date_of_birth**: Birth date (ISO date format YYYY-MM-DD)
+   * - **gender**: Gender code (one of M/F/O)
+   *
+   * **Optional fields** (custom quick bottle amounts in oz):
+   * - **custom_bottle_low_oz**: Low amount, or null to use age-based default (0.1-50)
+   * - **custom_bottle_mid_oz**: Recommended amount, or null to use age-based default (0.1-50)
+   * - **custom_bottle_high_oz**: High amount, or null to use age-based default (0.1-50)
    *
    * Default gender is 'M' (boy) - user can change on first load.
+   * Custom amounts default to null (use age-based defaults).
    * Form uses Reactive Forms with validators for frontend validation.
    */
-  childForm = new FormGroup({
-    name: new FormControl('', [Validators.required, Validators.maxLength(100)]),
-    date_of_birth: new FormControl('', [Validators.required]),
-    gender: new FormControl<'M' | 'F' | 'O'>('M', [Validators.required]),
-  });
+  childForm = new FormGroup(
+    {
+      name: new FormControl('', [Validators.required, Validators.maxLength(100)]),
+      date_of_birth: new FormControl('', [Validators.required]),
+      gender: new FormControl<'M' | 'F' | 'O'>('M', [Validators.required]),
+      custom_bottle_low_oz: new FormControl<number | null>(null, [
+        Validators.min(0.1),
+        Validators.max(50),
+      ]),
+      custom_bottle_mid_oz: new FormControl<number | null>(null, [
+        Validators.min(0.1),
+        Validators.max(50),
+      ]),
+      custom_bottle_high_oz: new FormControl<number | null>(null, [
+        Validators.min(0.1),
+        Validators.max(50),
+      ]),
+    },
+    { validators: bottleAmountsValidator }
+  );
 
   /**
    * Initialize component - detect create vs edit mode.
@@ -159,6 +219,9 @@ export class ChildForm implements OnInit {
           name: child.name,
           date_of_birth: child.date_of_birth,
           gender: child.gender,
+          custom_bottle_low_oz: child.custom_bottle_low_oz ?? null,
+          custom_bottle_mid_oz: child.custom_bottle_mid_oz ?? null,
+          custom_bottle_high_oz: child.custom_bottle_high_oz ?? null,
         });
       },
       error: (err: Error) => {
@@ -211,6 +274,9 @@ export class ChildForm implements OnInit {
       name: formData.name,
       date_of_birth: formData.date_of_birth,
       gender: formData.gender,
+      custom_bottle_low_oz: formData.custom_bottle_low_oz ?? null,
+      custom_bottle_mid_oz: formData.custom_bottle_mid_oz ?? null,
+      custom_bottle_high_oz: formData.custom_bottle_high_oz ?? null,
     };
 
     const operation = this.isEdit()
@@ -229,6 +295,21 @@ export class ChildForm implements OnInit {
         this.error.set(err.message);
         this.toast.error(err.message);
       },
+    });
+  }
+
+  /**
+   * Restore quick bottle amounts to defaults (clear custom values).
+   *
+   * Called when user clicks "Restore Defaults" button.
+   * Sets all three custom bottle amount fields to null, which tells the app
+   * to use age-based calculated defaults instead.
+   */
+  restoreDefaultBottleAmounts() {
+    this.childForm.patchValue({
+      custom_bottle_low_oz: null,
+      custom_bottle_mid_oz: null,
+      custom_bottle_high_oz: null,
     });
   }
 

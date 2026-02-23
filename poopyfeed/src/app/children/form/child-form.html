@@ -139,6 +139,121 @@
           </div>
         </div>
 
+        <!-- Custom Quick Bottle Amounts Section -->
+        <fieldset class="border-2 border-slate-200 rounded-xl p-6">
+          <legend class="font-['Fredoka',sans-serif] text-lg font-bold text-slate-900 px-2">
+            <span class="text-2xl">🍼</span> Quick Bottle Amounts (Optional)
+          </legend>
+          <p class="font-['DM_Sans',sans-serif] text-sm text-slate-600 mb-6 mt-4">
+            Customize amounts for quick logging buttons, or leave blank to use age-based defaults.
+          </p>
+
+          <div class="space-y-6 mb-4">
+            <!-- Custom Low Amount -->
+            <div>
+              <label for="custom_bottle_low_oz" class="font-['DM_Sans',sans-serif] block text-sm font-bold text-slate-900 mb-2">
+                Low (oz)
+              </label>
+              <input
+                type="number"
+                id="custom_bottle_low_oz"
+                formControlName="custom_bottle_low_oz"
+                min="0.1"
+                max="50"
+                step="0.1"
+                class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-rose-400 focus:ring-4 focus:ring-rose-200 transition-all outline-none text-slate-900 font-['DM_Sans',sans-serif]"
+                placeholder="e.g., 4.0"
+              />
+              @if (childForm.controls.custom_bottle_low_oz.invalid && childForm.controls.custom_bottle_low_oz.touched) {
+                <p class="font-['DM_Sans',sans-serif] text-red-600 text-sm mt-2 font-medium flex items-center gap-1">
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
+                  </svg>
+                  Amount must be between 0.1 and 50 oz
+                </p>
+              }
+            </div>
+
+            <!-- Custom Mid Amount -->
+            <div>
+              <label for="custom_bottle_mid_oz" class="font-['DM_Sans',sans-serif] block text-sm font-bold text-slate-900 mb-2">
+                Recommended (oz)
+              </label>
+              <input
+                type="number"
+                id="custom_bottle_mid_oz"
+                formControlName="custom_bottle_mid_oz"
+                min="0.1"
+                max="50"
+                step="0.1"
+                class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-rose-400 focus:ring-4 focus:ring-rose-200 transition-all outline-none text-slate-900 font-['DM_Sans',sans-serif]"
+                placeholder="e.g., 5.0"
+              />
+              @if (childForm.controls.custom_bottle_mid_oz.invalid && childForm.controls.custom_bottle_mid_oz.touched) {
+                <p class="font-['DM_Sans',sans-serif] text-red-600 text-sm mt-2 font-medium flex items-center gap-1">
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
+                  </svg>
+                  Amount must be between 0.1 and 50 oz
+                </p>
+              }
+            </div>
+
+            <!-- Custom High Amount -->
+            <div>
+              <label for="custom_bottle_high_oz" class="font-['DM_Sans',sans-serif] block text-sm font-bold text-slate-900 mb-2">
+                High (oz)
+              </label>
+              <input
+                type="number"
+                id="custom_bottle_high_oz"
+                formControlName="custom_bottle_high_oz"
+                min="0.1"
+                max="50"
+                step="0.1"
+                class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-rose-400 focus:ring-4 focus:ring-rose-200 transition-all outline-none text-slate-900 font-['DM_Sans',sans-serif]"
+                placeholder="e.g., 6.0"
+              />
+              @if (childForm.controls.custom_bottle_high_oz.invalid && childForm.controls.custom_bottle_high_oz.touched) {
+                <p class="font-['DM_Sans',sans-serif] text-red-600 text-sm mt-2 font-medium flex items-center gap-1">
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
+                  </svg>
+                  Amount must be between 0.1 and 50 oz
+                </p>
+              }
+            </div>
+          </div>
+
+          <!-- Restore Defaults Button -->
+          <button
+            type="button"
+            (click)="restoreDefaultBottleAmounts()"
+            class="w-full px-4 py-2 rounded-lg font-['DM_Sans',sans-serif] font-semibold text-slate-600 border-2 border-slate-300 hover:border-slate-400 hover:bg-slate-50 transition-all duration-200"
+          >
+            Restore Defaults
+          </button>
+
+          <!-- Cross-field validation error for bottle amounts ordering -->
+          @if (
+            childForm.errors?.['bottleAmountsOrder'] &&
+            (childForm.get('custom_bottle_low_oz')?.touched ||
+              childForm.get('custom_bottle_mid_oz')?.touched ||
+              childForm.get('custom_bottle_high_oz')?.touched)
+          ) {
+            <p class="font-['DM_Sans',sans-serif] text-red-600 text-sm mt-4 font-medium flex items-center gap-1">
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                <path
+                  fill-rule="evenodd"
+                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+              {{ childForm.errors['bottleAmountsOrder'] }}
+            </p>
+          }
+        </fieldset>
+
         <!-- Action Buttons -->
         <div class="flex gap-4 pt-4">
           <!-- Cancel Button -->
