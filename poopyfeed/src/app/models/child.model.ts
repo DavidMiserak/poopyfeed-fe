@@ -49,6 +49,15 @@ export interface Child {
 
   /** Timestamp of most recent feeding (ISO 8601, UTC, or null if none) */
   last_feeding: string | null;
+
+  /** Custom quick bottle amount - low (oz), or null to use age-based default */
+  custom_bottle_low_oz: number | null;
+
+  /** Custom quick bottle amount - mid/recommended (oz), or null to use age-based default */
+  custom_bottle_mid_oz: number | null;
+
+  /** Custom quick bottle amount - high (oz), or null to use age-based default */
+  custom_bottle_high_oz: number | null;
 }
 
 /**
@@ -66,6 +75,15 @@ export interface ChildCreate {
 
   /** Child's gender: 'M', 'F', or 'O' (required) */
   gender: 'M' | 'F' | 'O';
+
+  /** Custom quick bottle amount - low (oz), or null to use age-based default (optional) */
+  custom_bottle_low_oz?: number | null;
+
+  /** Custom quick bottle amount - mid/recommended (oz), or null to use age-based default (optional) */
+  custom_bottle_mid_oz?: number | null;
+
+  /** Custom quick bottle amount - high (oz), or null to use age-based default (optional) */
+  custom_bottle_high_oz?: number | null;
 }
 
 /**
@@ -83,6 +101,15 @@ export interface ChildUpdate {
 
   /** Updated gender (optional, 'M' | 'F' | 'O') */
   gender?: 'M' | 'F' | 'O';
+
+  /** Custom quick bottle amount - low (oz), or null to use age-based default (optional) */
+  custom_bottle_low_oz?: number | null;
+
+  /** Custom quick bottle amount - mid/recommended (oz), or null to use age-based default (optional) */
+  custom_bottle_mid_oz?: number | null;
+
+  /** Custom quick bottle amount - high (oz), or null to use age-based default (optional) */
+  custom_bottle_high_oz?: number | null;
 }
 
 /**

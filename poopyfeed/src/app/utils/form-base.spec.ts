@@ -109,6 +109,9 @@ describe('TrackingFormBase', () => {
     last_diaper_change: null,
     last_nap: null,
     last_feeding: null,
+        custom_bottle_low_oz: null,
+        custom_bottle_mid_oz: null,
+        custom_bottle_high_oz: null,
   };
 
   beforeEach(async () => {

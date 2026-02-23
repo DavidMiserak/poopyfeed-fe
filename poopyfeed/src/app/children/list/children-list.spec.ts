@@ -23,6 +23,9 @@ describe('ChildrenList', () => {
     last_diaper_change: '2024-02-10T14:30:00Z',
     last_nap: '2024-02-10T13:00:00Z',
     last_feeding: '2024-02-10T12:00:00Z',
+        custom_bottle_low_oz: null,
+        custom_bottle_mid_oz: null,
+        custom_bottle_high_oz: null,
   };
 
   const mockChildCoParent: Child = {
@@ -36,6 +39,9 @@ describe('ChildrenList', () => {
     last_diaper_change: '2024-02-10T10:00:00Z',
     last_nap: '2024-02-10T09:00:00Z',
     last_feeding: '2024-02-10T08:00:00Z',
+        custom_bottle_low_oz: null,
+        custom_bottle_mid_oz: null,
+        custom_bottle_high_oz: null,
   };
 
   const mockChildCaregiver: Child = {
@@ -49,6 +55,9 @@ describe('ChildrenList', () => {
     last_diaper_change: '2024-02-10T16:00:00Z',
     last_nap: '2024-02-10T15:00:00Z',
     last_feeding: '2024-02-10T14:00:00Z',
+        custom_bottle_low_oz: null,
+        custom_bottle_mid_oz: null,
+        custom_bottle_high_oz: null,
   };
 
   const mockChildren: Child[] = [
@@ -783,6 +792,9 @@ describe('ChildrenList', () => {
         last_diaper_change: null as any,
         last_nap: '2024-02-10T13:00:00Z',
         last_feeding: '2024-02-10T12:00:00Z',
+            custom_bottle_low_oz: null,
+            custom_bottle_mid_oz: null,
+            custom_bottle_high_oz: null,
       };
       vi.mocked(childrenService.list).mockReturnValue(of([childNoActivity]));
       fixture.detectChanges();
@@ -812,6 +824,9 @@ describe('ChildrenList', () => {
         last_diaper_change: '2024-02-10T14:30:00Z',
         last_nap: null as any,
         last_feeding: '2024-02-10T12:00:00Z',
+            custom_bottle_low_oz: null,
+            custom_bottle_mid_oz: null,
+            custom_bottle_high_oz: null,
       };
       vi.mocked(childrenService.list).mockReturnValue(of([childNoNap]));
       fixture.detectChanges();
@@ -831,6 +846,9 @@ describe('ChildrenList', () => {
         last_diaper_change: '2024-02-10T14:30:00Z',
         last_nap: '2024-02-10T13:00:00Z',
         last_feeding: null as any,
+            custom_bottle_low_oz: null,
+            custom_bottle_mid_oz: null,
+            custom_bottle_high_oz: null,
       };
       vi.mocked(childrenService.list).mockReturnValue(of([childNoFeeding]));
       fixture.detectChanges();

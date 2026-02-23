@@ -397,6 +397,9 @@ describe('QuickLog', () => {
         last_feeding: null,
         last_diaper_change: null,
         last_nap: null,
+          custom_bottle_low_oz: null,
+          custom_bottle_mid_oz: null,
+          custom_bottle_high_oz: null,
       };
       const mockFeeding = { id: 123, child: 1, feeding_type: 'bottle' as const, fed_at: mockDate.toISOString(), amount_oz: 4, created_at: mockDate.toISOString(), updated_at: mockDate.toISOString() };
 
@@ -429,6 +432,9 @@ describe('QuickLog', () => {
         last_feeding: null,
         last_diaper_change: null,
         last_nap: null,
+          custom_bottle_low_oz: null,
+          custom_bottle_mid_oz: null,
+          custom_bottle_high_oz: null,
       };
 
       fixture.componentRef.setInput('child', mockChild);
@@ -455,6 +461,9 @@ describe('QuickLog', () => {
         last_feeding: null,
         last_diaper_change: null,
         last_nap: null,
+          custom_bottle_low_oz: null,
+          custom_bottle_mid_oz: null,
+          custom_bottle_high_oz: null,
       };
 
       fixture.componentRef.setInput('child', mockChild);
@@ -478,6 +487,9 @@ describe('QuickLog', () => {
         last_feeding: null,
         last_diaper_change: null,
         last_nap: null,
+          custom_bottle_low_oz: null,
+          custom_bottle_mid_oz: null,
+          custom_bottle_high_oz: null,
       };
 
       fixture.componentRef.setInput('child', mockChild);
@@ -504,6 +516,9 @@ describe('QuickLog', () => {
         last_feeding: null,
         last_diaper_change: null,
         last_nap: null,
+          custom_bottle_low_oz: null,
+          custom_bottle_mid_oz: null,
+          custom_bottle_high_oz: null,
       };
       const mockFeeding = { id: 123, child: 1, feeding_type: 'bottle' as const, fed_at: mockDate.toISOString(), amount_oz: 5, created_at: mockDate.toISOString(), updated_at: mockDate.toISOString() };
 
@@ -536,6 +551,9 @@ describe('QuickLog', () => {
         last_feeding: null,
         last_diaper_change: null,
         last_nap: null,
+          custom_bottle_low_oz: null,
+          custom_bottle_mid_oz: null,
+          custom_bottle_high_oz: null,
       };
 
       fixture.componentRef.setInput('child', mockChild);
@@ -562,6 +580,9 @@ describe('QuickLog', () => {
         last_feeding: null,
         last_diaper_change: null,
         last_nap: null,
+          custom_bottle_low_oz: null,
+          custom_bottle_mid_oz: null,
+          custom_bottle_high_oz: null,
       };
 
       fixture.componentRef.setInput('child', mockChild);
@@ -592,6 +613,9 @@ describe('QuickLog', () => {
         last_feeding: null,
         last_diaper_change: null,
         last_nap: null,
+          custom_bottle_low_oz: null,
+          custom_bottle_mid_oz: null,
+          custom_bottle_high_oz: null,
       };
       const mockFeeding = { id: 123, child: 1, feeding_type: 'bottle' as const, fed_at: mockDate.toISOString(), amount_oz: 6, created_at: mockDate.toISOString(), updated_at: mockDate.toISOString() };
 
@@ -625,6 +649,9 @@ describe('QuickLog', () => {
         last_feeding: null,
         last_diaper_change: null,
         last_nap: null,
+          custom_bottle_low_oz: null,
+          custom_bottle_mid_oz: null,
+          custom_bottle_high_oz: null,
       };
 
       fixture.componentRef.setInput('child', mockChild);
@@ -644,6 +671,9 @@ describe('QuickLog', () => {
         last_feeding: null,
         last_diaper_change: null,
         last_nap: null,
+          custom_bottle_low_oz: null,
+          custom_bottle_mid_oz: null,
+          custom_bottle_high_oz: null,
       };
 
       fixture.componentRef.setInput('child', mockChild);
@@ -670,6 +700,9 @@ describe('QuickLog', () => {
         last_feeding: null,
         last_diaper_change: null,
         last_nap: null,
+          custom_bottle_low_oz: null,
+          custom_bottle_mid_oz: null,
+          custom_bottle_high_oz: null,
       };
 
       fixture.componentRef.setInput('child', mockChild);
@@ -761,6 +794,9 @@ describe('QuickLog', () => {
           last_feeding: null,
           last_diaper_change: null,
           last_nap: null,
+          custom_bottle_low_oz: null,
+          custom_bottle_mid_oz: null,
+          custom_bottle_high_oz: null,
         };
         fixture.componentRef.setInput('childId', 1);
         fixture.componentRef.setInput('canEdit', true);
@@ -810,6 +846,9 @@ describe('QuickLog', () => {
           last_feeding: null,
           last_diaper_change: null,
           last_nap: null,
+          custom_bottle_low_oz: null,
+          custom_bottle_mid_oz: null,
+          custom_bottle_high_oz: null,
         };
         fixture.componentRef.setInput('childId', 1);
         fixture.componentRef.setInput('child', mockChild);
@@ -879,6 +918,9 @@ describe('QuickLog', () => {
           last_feeding: null,
           last_diaper_change: null,
           last_nap: null,
+          custom_bottle_low_oz: null,
+          custom_bottle_mid_oz: null,
+          custom_bottle_high_oz: null,
         };
 
         fixture.componentRef.setInput('childId', 1);
@@ -1038,6 +1080,9 @@ describe('QuickLog', () => {
         last_feeding: null,
         last_diaper_change: null,
         last_nap: null,
+          custom_bottle_low_oz: null,
+          custom_bottle_mid_oz: null,
+          custom_bottle_high_oz: null,
       };
 
       fixture.componentRef.setInput('child', mockChild);
@@ -1259,6 +1304,9 @@ describe('QuickLog', () => {
         last_feeding: null,
         last_diaper_change: null,
         last_nap: null,
+          custom_bottle_low_oz: null,
+          custom_bottle_mid_oz: null,
+          custom_bottle_high_oz: null,
       };
 
       fixture.componentRef.setInput('child', mockChild);
@@ -1283,6 +1331,9 @@ describe('QuickLog', () => {
         last_feeding: null,
         last_diaper_change: null,
         last_nap: null,
+          custom_bottle_low_oz: null,
+          custom_bottle_mid_oz: null,
+          custom_bottle_high_oz: null,
       };
 
       fixture.componentRef.setInput('child', mockChild);
@@ -1356,6 +1407,9 @@ describe('QuickLog', () => {
         last_feeding: null,
         last_diaper_change: null,
         last_nap: null,
+          custom_bottle_low_oz: null,
+          custom_bottle_mid_oz: null,
+          custom_bottle_high_oz: null,
       };
 
       const mockChild2: Child = {
@@ -1369,6 +1423,9 @@ describe('QuickLog', () => {
         last_feeding: null,
         last_diaper_change: null,
         last_nap: null,
+          custom_bottle_low_oz: null,
+          custom_bottle_mid_oz: null,
+          custom_bottle_high_oz: null,
       };
 
       fixture.componentRef.setInput('child', mockChild1);
@@ -1396,6 +1453,9 @@ describe('QuickLog', () => {
         last_feeding: null,
         last_diaper_change: null,
         last_nap: null,
+          custom_bottle_low_oz: null,
+          custom_bottle_mid_oz: null,
+          custom_bottle_high_oz: null,
       };
 
       fixture.componentRef.setInput('child', mockChild);

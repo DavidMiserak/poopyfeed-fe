@@ -26,6 +26,9 @@ describe('ChildrenService', () => {
     last_diaper_change: '2024-01-15T14:30:00Z',
     last_nap: '2024-01-15T13:00:00Z',
     last_feeding: '2024-01-15T12:00:00Z',
+        custom_bottle_low_oz: null,
+        custom_bottle_mid_oz: null,
+        custom_bottle_high_oz: null,
   };
 
   const mockChildren: Child[] = [
@@ -41,6 +44,9 @@ describe('ChildrenService', () => {
       last_diaper_change: null,
       last_nap: null,
       last_feeding: null,
+          custom_bottle_low_oz: null,
+          custom_bottle_mid_oz: null,
+          custom_bottle_high_oz: null,
     },
   ];
 
@@ -203,6 +209,9 @@ describe('ChildrenService', () => {
       last_diaper_change: null,
       last_nap: null,
       last_feeding: null,
+          custom_bottle_low_oz: null,
+          custom_bottle_mid_oz: null,
+          custom_bottle_high_oz: null,
     };
 
     it('should create a new child', () => {

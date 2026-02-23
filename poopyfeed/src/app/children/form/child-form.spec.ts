@@ -25,6 +25,9 @@ describe('ChildForm', () => {
     last_diaper_change: '2024-02-10T14:30:00Z',
     last_nap: '2024-02-10T13:00:00Z',
     last_feeding: '2024-02-10T12:00:00Z',
+        custom_bottle_low_oz: null,
+        custom_bottle_mid_oz: null,
+        custom_bottle_high_oz: null,
   };
 
   const mockChildMale: Child = {
@@ -38,6 +41,9 @@ describe('ChildForm', () => {
     last_diaper_change: '2024-02-10T14:30:00Z',
     last_nap: '2024-02-10T13:00:00Z',
     last_feeding: '2024-02-10T12:00:00Z',
+        custom_bottle_low_oz: null,
+        custom_bottle_mid_oz: null,
+        custom_bottle_high_oz: null,
   };
 
   const mockChildOther: Child = {
@@ -51,6 +57,9 @@ describe('ChildForm', () => {
     last_diaper_change: '2024-02-10T14:30:00Z',
     last_nap: '2024-02-10T13:00:00Z',
     last_feeding: '2024-02-10T12:00:00Z',
+        custom_bottle_low_oz: null,
+        custom_bottle_mid_oz: null,
+        custom_bottle_high_oz: null,
   };
 
   describe('Create Mode', () => {
@@ -236,6 +245,9 @@ describe('ChildForm', () => {
           name: 'Baby Alice',
           date_of_birth: '2024-01-15',
           gender: 'F',
+          custom_bottle_low_oz: null,
+          custom_bottle_mid_oz: null,
+          custom_bottle_high_oz: null,
         });
       });
 
@@ -550,6 +562,9 @@ describe('ChildForm', () => {
           name: 'Baby Alice Updated',
           date_of_birth: '2024-01-15',
           gender: 'F',
+          custom_bottle_low_oz: null,
+          custom_bottle_mid_oz: null,
+          custom_bottle_high_oz: null,
         });
       });
 
@@ -620,6 +635,9 @@ describe('ChildForm', () => {
           name: 'Baby Alice Updated',
           date_of_birth: '2024-01-15',
           gender: 'F',
+          custom_bottle_low_oz: null,
+          custom_bottle_mid_oz: null,
+          custom_bottle_high_oz: null,
         });
       });
 
@@ -639,6 +657,9 @@ describe('ChildForm', () => {
           name: 'Baby Bob',
           date_of_birth: '2023-06-20',
           gender: 'O',
+          custom_bottle_low_oz: null,
+          custom_bottle_mid_oz: null,
+          custom_bottle_high_oz: null,
         });
       });
     });

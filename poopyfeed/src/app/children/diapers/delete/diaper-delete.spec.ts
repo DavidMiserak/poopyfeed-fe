@@ -28,6 +28,9 @@ describe('DiaperDelete', () => {
     last_diaper_change: '2024-02-10T14:30:00Z',
     last_nap: '2024-02-10T13:00:00Z',
     last_feeding: '2024-02-10T12:00:00Z',
+        custom_bottle_low_oz: null,
+        custom_bottle_mid_oz: null,
+        custom_bottle_high_oz: null,
   };
 
   const mockWetDiaper: DiaperChange = {
