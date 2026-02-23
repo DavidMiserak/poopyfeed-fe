@@ -6,14 +6,15 @@ import {
   signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { ChildrenService } from '../../services/children.service';
 import { Child } from '../../models/child.model';
 import { ErrorCardComponent } from '../../components/error-card/error-card.component';
+import { DeleteConfirmationComponent } from '../../components/delete-confirmation/delete-confirmation.component';
 
 @Component({
   selector: 'app-child-delete',
-  imports: [CommonModule, RouterLink, ErrorCardComponent],
+  imports: [CommonModule, ErrorCardComponent, DeleteConfirmationComponent],
   templateUrl: './child-delete.html',
   styleUrl: './child-delete.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

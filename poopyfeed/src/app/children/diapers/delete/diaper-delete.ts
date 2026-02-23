@@ -6,16 +6,17 @@ import {
   signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { DiapersService } from '../../../services/diapers.service';
 import { ChildrenService } from '../../../services/children.service';
 import { DiaperChange } from '../../../models/diaper.model';
 import { Child } from '../../../models/child.model';
 import { ErrorCardComponent } from '../../../components/error-card/error-card.component';
+import { DeleteConfirmationComponent } from '../../../components/delete-confirmation/delete-confirmation.component';
 
 @Component({
   selector: 'app-diaper-delete',
-  imports: [CommonModule, RouterLink, ErrorCardComponent],
+  imports: [CommonModule, ErrorCardComponent, DeleteConfirmationComponent],
   templateUrl: './diaper-delete.html',
   styleUrl: './diaper-delete.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
