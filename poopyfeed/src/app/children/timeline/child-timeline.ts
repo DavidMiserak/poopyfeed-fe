@@ -1,14 +1,15 @@
 /**
  * Child timeline component - day-by-day activity view for a child.
  *
- * Provides a read-only chronological view of all logged events (feedings, diapers, naps)
+ * Provides a read-only reverse chronological view of all logged events (feedings, diapers, naps)
  * grouped by day. Users navigate between days using Previous/Next buttons, viewing the
- * last 7 days of history.
+ * last 7 days of history, with newest events shown first.
  *
  * Core features:
  * - Day-by-day navigation with Previous/Next buttons
  * - Relative day headers ("Today", "Yesterday", "Monday, Feb 23")
- * - Chronological event display within each day (oldest first)
+ * - Reverse chronological event display within each day (newest first)
+ * - Time gap indicators showing inactive periods between events
  * - Empty state when no events logged on a day
  * - 7-day history limit enforced by button disabled states
  * - Efficient data loading via forkJoin (all 3 types loaded once at init)
@@ -145,9 +146,9 @@ export class ChildTimeline implements OnInit {
    * Activities filtered for the currently selected day
    *
    * Filters allActivities() to only those occurring on selectedDate(),
-   * sorted chronologically (oldest first), with gap information calculated.
+   * sorted reverse chronologically (newest first), with gap information calculated.
    *
-   * @returns Activities for the selected day with gap times in chronological order
+   * @returns Activities for the selected day with gap times in reverse chronological order (newest first)
    */
   dayActivities = computed(() => {
     const selected = this.selectedDate();
@@ -162,17 +163,18 @@ export class ChildTimeline implements OnInit {
       })
       .sort(
         (a, b) =>
-          new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+          new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
       );
 
-    // Calculate gaps between consecutive activities
+    // Calculate gaps between consecutive activities (reverse chronological)
     return activities.map((activity, index) => {
       let gapMinutes: number | null = null;
       let gapStartTime: string | null = null;
       let gapEndTime: string | null = null;
 
-      if (index > 0) {
-        const prevActivity = activities[index - 1];
+      // In reverse chronological order, the previous activity in time is at index + 1
+      if (index < activities.length - 1) {
+        const prevActivity = activities[index + 1];
 
         // For naps, use the end time; for others, use the timestamp
         let prevTime: number;
