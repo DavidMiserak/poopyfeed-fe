@@ -1,0 +1,18 @@
+<div [class]="'bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-12 border-2 ' + bgClass() + ' text-center'">
+  <div class="text-6xl mb-4">{{ emoji() }}</div>
+  <h2 class="font-['Fredoka',sans-serif] text-2xl font-bold text-slate-900 mb-2">
+    {{ title() }}
+  </h2>
+  <p class="font-['DM_Sans',sans-serif] text-slate-600 mb-6">
+    {{ subtitle() }}
+  </p>
+  <button
+    type="button"
+    (click)="add.emit()"
+    class="group relative inline-flex px-6 py-3 rounded-xl font-['DM_Sans',sans-serif] font-bold text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 overflow-hidden"
+    [class]="'border-2 ' + borderClass()"
+  >
+    <span [class]="'absolute inset-0 bg-gradient-to-br ' + gradientClass() + ' transition-transform duration-300 group-hover:scale-110'"></span>
+    <span class="relative z-10">{{ buttonLabel() }}</span>
+  </button>
+</div>

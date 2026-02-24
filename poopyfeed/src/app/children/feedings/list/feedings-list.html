@@ -46,85 +46,46 @@
 
         <!-- Bulk Actions Bar -->
         @if (hasSelectedItems()) {
-          <div class="sticky top-0 z-20 bg-gradient-to-r from-rose-100 to-pink-100 rounded-2xl p-4 border-2 border-rose-300 shadow-lg flex items-center justify-between">
-            <div class="font-['DM_Sans',sans-serif] font-semibold text-slate-900">
-              {{ selectedIds().length }} selected
-            </div>
-            <div class="flex gap-2">
-              <button
-                type="button"
-                (click)="clearSelection()"
-                class="px-4 py-2 rounded-lg bg-white text-slate-700 hover:bg-slate-50 border border-slate-300 font-['DM_Sans',sans-serif] font-medium transition-colors"
-                [disabled]="isBulkDeleting()"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                (click)="bulkDelete()"
-                [disabled]="isBulkDeleting()"
-                class="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 disabled:bg-red-300 text-white font-['DM_Sans',sans-serif] font-medium transition-colors flex items-center gap-2"
-                [attr.aria-busy]="isBulkDeleting()"
-              >
-                @if (isBulkDeleting()) {
-                  <svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                }
-                Delete {{ selectedIds().length }}
-              </button>
-            </div>
-          </div>
+          <app-tracking-bulk-actions
+            [selectedCount]="selectedIds().length"
+            [accentColor]="'rose'"
+            [isDeleting]="isBulkDeleting()"
+            (cancel)="clearSelection()"
+            (delete)="bulkDelete()"
+          />
         }
 
         <!-- Feedings List -->
         @if (feedings().length === 0) {
-          <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-12 border-2 border-rose-400/20 text-center">
-            <div class="text-6xl mb-4">🍼</div>
-            <h2 class="font-['Fredoka',sans-serif] text-2xl font-bold text-slate-900 mb-2">
-              No feedings recorded yet
-            </h2>
-            <p class="font-['DM_Sans',sans-serif] text-slate-600 mb-6">
-              Start tracking {{ child()!.name }}'s feeding schedule
-            </p>
-            <button
-              type="button"
-              (click)="navigateToCreate()"
-              class="group relative inline-flex px-6 py-3 rounded-xl font-['DM_Sans',sans-serif] font-bold text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 overflow-hidden border-2 border-rose-400"
-            >
-              <span class="absolute inset-0 bg-gradient-to-br from-rose-400 to-rose-500 transition-transform duration-300 group-hover:scale-110"></span>
-              <span class="relative z-10">Add First Feeding</span>
-            </button>
-          </div>
+          <app-tracking-empty-state
+            emoji="🍼"
+            title="No feedings recorded yet"
+            [subtitle]="'Start tracking ' + child()!.name + '\'s feeding schedule'"
+            accentColor="rose"
+            buttonLabel="Add First Feeding"
+            (add)="navigateToCreate()"
+          />
         } @else {
           <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-6 border-2 border-rose-400/20">
             <!-- List Header with Select All -->
             @if (canEdit()) {
-              <div class="flex items-center gap-4 p-4 mb-2 border-b border-slate-200">
-                <input
-                  type="checkbox"
-                  [checked]="isAllSelected()"
-                  (change)="toggleSelectAll()"
-                  class="w-5 h-5 text-rose-500 rounded cursor-pointer"
-                  aria-label="Select all feedings"
-                />
-                <span class="text-sm font-['DM_Sans',sans-serif] text-slate-600">
-                  @if (isAllSelected()) {
-                    All selected
-                  } @else if (hasSelectedItems()) {
-                    {{ selectedIds().length }} of {{ feedings().length }} selected
-                  } @else {
-                    Select all
-                  }
-                </span>
-              </div>
+              <app-tracking-list-select-header
+                [isAllSelected]="isAllSelected()"
+                [selectedCount]="selectedIds().length"
+                [totalCount]="feedings().length"
+                accentColor="rose"
+                (toggleSelectAll)="toggleSelectAll()"
+              />
             }
 
             <div class="space-y-4">
               @for (feeding of feedings(); track feeding.id) {
-                <!-- Desktop view -->
-                <div class="hidden sm:flex items-center gap-4 p-4 rounded-xl bg-gradient-to-r from-rose-50 to-pink-50 hover:shadow-md transition-all" [class.ring-2]="selectedIds().includes(feeding.id)" [class.ring-rose-400]="selectedIds().includes(feeding.id)">
+                <app-tracking-item-container
+                  [isSelected]="selectedIds().includes(feeding.id)"
+                  accentColor="rose"
+                >
+                  <!-- Desktop view -->
+                  <div desktop class="flex items-center gap-4 p-4 sm:p-6">
                   <!-- Checkbox -->
                   @if (canEdit()) {
                     <input
@@ -185,10 +146,10 @@
                       </button>
                     </div>
                   }
-                </div>
+                  </div>
 
-                <!-- Mobile view -->
-                <div class="sm:hidden p-4 rounded-xl bg-gradient-to-r from-rose-50 to-pink-50" [class.ring-2]="selectedIds().includes(feeding.id)" [class.ring-rose-400]="selectedIds().includes(feeding.id)">
+                  <!-- Mobile view -->
+                  <div mobile class="space-y-3">
                   <!-- Header with checkbox, icon and title -->
                   <div class="flex items-start gap-3 mb-3">
                     @if (canEdit()) {
@@ -246,7 +207,8 @@
                       </button>
                     </div>
                   }
-                </div>
+                  </div>
+                </app-tracking-item-container>
               }
             </div>
           </div>
