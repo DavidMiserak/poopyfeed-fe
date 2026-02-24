@@ -8,13 +8,33 @@
  */
 
 import { InjectionToken } from '@angular/core';
-import { Chart, registerables } from 'chart.js';
+import {
+  Chart,
+  LineController,
+  BarController,
+  LineElement,
+  BarElement,
+  PointElement,
+  CategoryScale,
+  LinearScale,
+  Legend,
+  Tooltip,
+  Filler,
+} from 'chart.js';
 
-// Register Chart.js components globally (scales, elements, plugins)
-Chart.register(...registerables);
+// Register only the Chart.js components actually used by analytics charts
+Chart.register(
+  LineController,
+  BarController,
+  LineElement,
+  BarElement,
+  PointElement,
+  CategoryScale,
+  LinearScale,
+  Legend,
+  Tooltip,
+  Filler,
+);
 
 /** Injection token providing the Chart.js constructor. */
-export const CHART_FACTORY = new InjectionToken<typeof Chart>('ChartFactory', {
-  providedIn: 'root',
-  factory: () => Chart,
-});
+export const CHART_FACTORY = new InjectionToken<typeof Chart>('ChartFactory');

@@ -28,10 +28,13 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 
+import { Chart } from 'chart.js';
+
 import { AnalyticsService } from '../../services/analytics.service';
 import { ToastService } from '../../services/toast.service';
 import { FeedingTrendsChart } from './feeding-trends-chart';
 import { FeedingOzChart } from './feeding-oz-chart';
+import { CHART_FACTORY } from './chart.token';
 import { DiaperPatternsChart } from './diaper-patterns-chart';
 import { SleepSummaryChart } from './sleep-summary-chart';
 import { TodaySummaryCards } from '../../components/today-summary-cards';
@@ -46,6 +49,7 @@ import { TodaySummaryCards } from '../../components/today-summary-cards';
     SleepSummaryChart,
     TodaySummaryCards,
   ],
+  providers: [{ provide: CHART_FACTORY, useValue: Chart }],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './analytics-dashboard.html',
 })
