@@ -95,6 +95,14 @@ export const routes: Routes = [
         title: 'Catch-Up Mode - PoopyFeed',
       },
       {
+        path: ':childId/timeline',
+        loadComponent: () =>
+          import('./children/timeline/child-timeline').then(
+            (m) => m.ChildTimeline
+          ),
+        title: 'Timeline - PoopyFeed',
+      },
+      {
         path: ':childId/feedings',
         children: [
           {

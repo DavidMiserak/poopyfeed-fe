@@ -136,6 +136,7 @@ export class ChildDashboard implements OnInit {
   isNavigatingToNap = signal(false);
   isNavigatingToAnalytics = signal(false);
   isNavigatingToCatchUp = signal(false);
+  isNavigatingToTimeline = signal(false);
 
   /**
    * Computed permission: Can current user add tracking records?
@@ -351,6 +352,23 @@ export class ChildDashboard implements OnInit {
     if (childId) {
       this.isNavigatingToCatchUp.set(true);
       this.router.navigate(['/children', childId, 'catch-up']);
+    }
+  }
+
+  /**
+   * Navigate to timeline view.
+   *
+   * Sets loading spinner on button and navigates to:
+   * /children/:childId/timeline
+   *
+   * Timeline displays a day-by-day view of all logged events (feedings,
+   * diapers, naps) for the last 7 days with Previous/Next navigation.
+   */
+  navigateToTimeline(): void {
+    const childId = this.child()?.id;
+    if (childId) {
+      this.isNavigatingToTimeline.set(true);
+      this.router.navigate(['/children', childId, 'timeline']);
     }
   }
 
