@@ -7,9 +7,6 @@
  * - Mobile-first responsive design
  */
 
-/* Import Google Fonts - Design System: Fredoka (headings) + DM Sans (body) */
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fredoka:wght@600;700&display=swap');
-
 @import "tailwindcss";
 
 @theme {

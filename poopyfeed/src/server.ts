@@ -4,6 +4,7 @@ import {
   isMainModule,
   writeResponseToNodeResponse,
 } from '@angular/ssr/node';
+import compression from 'compression';
 import express from 'express';
 import { join } from 'node:path';
 
@@ -11,6 +12,7 @@ const browserDistFolder = join(import.meta.dirname, '../browser');
 
 const app = express();
 app.disable('x-powered-by');
+app.use(compression());
 const angularApp = new AngularNodeAppEngine();
 
 /**
