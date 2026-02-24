@@ -59,7 +59,7 @@ export class AuthService {
       .pipe(
         switchMap(() => {
           // After allauth login, get the auth token
-          return this.http.get<AuthResponse>(`${this.ALLAUTH_BASE}/token/`, {
+          return this.http.post<AuthResponse>(`${this.ALLAUTH_BASE}/token/`, {}, {
             withCredentials: true
           });
         }),
@@ -84,7 +84,7 @@ export class AuthService {
     ).pipe(
       switchMap((response) => {
         // After allauth signup, get the auth token
-        return this.http.get<AuthResponse>(`${this.ALLAUTH_BASE}/token/`, {
+        return this.http.post<AuthResponse>(`${this.ALLAUTH_BASE}/token/`, {}, {
           withCredentials: true
         }).pipe(
           tap((tokenResponse) => {

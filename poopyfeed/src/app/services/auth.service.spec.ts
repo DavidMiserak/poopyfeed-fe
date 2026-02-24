@@ -55,7 +55,7 @@ describe('AuthService', () => {
 
       // Second request: get token
       const tokenReq = httpMock.expectOne('/api/v1/browser/v1/auth/token/');
-      expect(tokenReq.request.method).toBe('GET');
+      expect(tokenReq.request.method).toBe('POST');
       expect(tokenReq.request.withCredentials).toBe(true);
       tokenReq.flush(mockTokenResponse);
     });
@@ -127,7 +127,7 @@ describe('AuthService', () => {
 
       // Second request: get token
       const tokenReq = httpMock.expectOne('/api/v1/browser/v1/auth/token/');
-      expect(tokenReq.request.method).toBe('GET');
+      expect(tokenReq.request.method).toBe('POST');
       expect(tokenReq.request.withCredentials).toBe(true);
       tokenReq.flush(mockTokenResponse);
     });
