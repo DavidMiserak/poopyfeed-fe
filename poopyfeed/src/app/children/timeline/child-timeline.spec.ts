@@ -7,6 +7,8 @@ import { ChildrenService } from '../../services/children.service';
 import { FeedingsService } from '../../services/feedings.service';
 import { DiapersService } from '../../services/diapers.service';
 import { NapsService } from '../../services/naps.service';
+import { ToastService } from '../../services/toast.service';
+import { DateTimeService } from '../../services/datetime.service';
 import { ErrorCardComponent } from '../../components/error-card/error-card.component';
 import { Child } from '../../models/child.model';
 import { Feeding } from '../../models/feeding.model';
@@ -99,9 +101,16 @@ describe('ChildTimeline', () => {
     };
     const napsServiceMock = {
       list: vi.fn(() => of(mockNaps)),
+      create: vi.fn(),
     };
     const routerMock = {
       navigate: vi.fn(),
+    };
+    const toastServiceMock = {
+      success: vi.fn(),
+      error: vi.fn(),
+      warning: vi.fn(),
+      info: vi.fn(),
     };
 
     await TestBed.configureTestingModule({
@@ -112,6 +121,8 @@ describe('ChildTimeline', () => {
         { provide: FeedingsService, useValue: feedingsServiceMock },
         { provide: DiapersService, useValue: diapersServiceMock },
         { provide: NapsService, useValue: napsServiceMock },
+        { provide: ToastService, useValue: toastServiceMock },
+        { provide: DateTimeService, useValue: {} },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -568,6 +579,59 @@ describe('ChildTimeline', () => {
       expect(activitiesWithGap[1].gapEndTime).toBe('10:30');
       // Third activity (feeding): no gap (last/oldest)
       expect(activitiesWithGap[2].gapMinutes).toBeNull();
+    });
+  });
+
+  describe('add nap for gaps', () => {
+    beforeEach(() => {
+      component.ngOnInit();
+    });
+
+    it('should return true for owner role', () => {
+      expect(component.canAddNap()).toBeTruthy();
+    });
+
+    it('should return false for caregiver role', () => {
+      component.child.set({
+        ...mockChild,
+        user_role: 'caregiver',
+      });
+      expect(component.canAddNap()).toBeFalsy();
+    });
+
+    it('should return true for co-parent role', () => {
+      component.child.set({
+        ...mockChild,
+        user_role: 'co-parent',
+      });
+      expect(component.canAddNap()).toBeTruthy();
+    });
+
+    it('should create nap with gap times', () => {
+      const napsServiceMock = TestBed.inject(NapsService) as any;
+      const toastServiceMock = TestBed.inject(ToastService) as any;
+
+      const newNap = {
+        ...mockNaps[0],
+        id: 99,
+        napped_at: `${todayStr}T08:00:00Z`,
+        ended_at: `${todayStr}T10:30:00Z`,
+      };
+
+      vi.mocked(napsServiceMock.create).mockReturnValue(of(newNap));
+
+      component.childId.set(1);
+      component.dayOffset.set(0);
+      component.addNapForGap('08:00', '10:30');
+
+      expect(napsServiceMock.create).toHaveBeenCalled();
+      expect(toastServiceMock.success).toHaveBeenCalledWith('Nap recorded');
+
+      // Verify nap was added to timeline
+      const activities = component.allActivities();
+      const addedNap = activities.find((a) => a.id === 99);
+      expect(addedNap).toBeTruthy();
+      expect(addedNap?.type).toBe('nap');
     });
   });
 });

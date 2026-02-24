@@ -695,5 +695,6 @@ describe('NapForm', () => {
         expect(component.error()).toBe('Second error');
       });
     });
+
   });
 });

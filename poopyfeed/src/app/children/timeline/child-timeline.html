@@ -163,6 +163,21 @@
                     <span class="font-['DM_Sans',sans-serif] text-xs font-medium text-slate-400 px-2 bg-white rounded">
                       {{ itemWithGap.gapStartTime }} - {{ itemWithGap.gapEndTime }} ({{ formatGapTime(itemWithGap.gapMinutes) }})
                     </span>
+                    @if (itemWithGap.gapMinutes >= 120 && canAddNap()) {
+                      <button
+                        (click)="addNapForGap(itemWithGap.gapStartTime, itemWithGap.gapEndTime)"
+                        [disabled]="isAddingNap()"
+                        class="px-3 py-1 rounded-lg bg-gradient-to-r from-indigo-400 to-indigo-500 text-white text-xs font-medium hover:shadow-md transition-shadow disabled:opacity-60 disabled:cursor-not-allowed"
+                        [attr.aria-label]="'Add nap from ' + itemWithGap.gapStartTime + ' to ' + itemWithGap.gapEndTime"
+                        [attr.aria-busy]="isAddingNap()"
+                      >
+                        @if (isAddingNap()) {
+                          <span class="inline-block animate-spin">⟳</span>
+                        } @else {
+                          Add nap
+                        }
+                      </button>
+                    }
                     <div class="flex-1 h-px bg-gradient-to-l from-slate-200 to-transparent"></div>
                   </div>
                 }

@@ -55,6 +55,8 @@ import { FeedingsService } from '../../services/feedings.service';
 import { DiapersService } from '../../services/diapers.service';
 import { NapsService } from '../../services/naps.service';
 import { ChildrenService } from '../../services/children.service';
+import { ToastService } from '../../services/toast.service';
+import { DateTimeService } from '../../services/datetime.service';
 import { Feeding } from '../../models/feeding.model';
 import { DiaperChange } from '../../models/diaper.model';
 import { Nap } from '../../models/nap.model';
@@ -110,6 +112,8 @@ export class ChildTimeline implements OnInit {
   private feedingsService = inject(FeedingsService);
   private diapersService = inject(DiapersService);
   private napsService = inject(NapsService);
+  private toastService = inject(ToastService);
+  private datetimeService = inject(DateTimeService);
 
   /** Child ID from URL (/children/123/timeline) */
   childId = signal<number | null>(null);
@@ -128,6 +132,9 @@ export class ChildTimeline implements OnInit {
 
   /** Error message from API calls */
   error = signal<string | null>(null);
+
+  /** Loading state for "Add nap" button */
+  isAddingNap = signal(false);
 
   /**
    * Selected date computed from dayOffset
@@ -467,6 +474,67 @@ export class ChildTimeline implements OnInit {
       return `${hours}h`;
     }
     return `${hours}h ${mins}m`;
+  }
+
+  /**
+   * Check if user can add naps (owner or co-parent, not caregiver)
+   *
+   * @returns True if user has permission to add naps
+   */
+  canAddNap(): boolean {
+    const role = this.child()?.user_role;
+    return role === 'owner' || role === 'co-parent';
+  }
+
+  /**
+   * Quickly create a nap for a gap between activities
+   *
+   * Called when parent clicks "Add nap" on a gap indicator.
+   * Creates nap directly with gap start/end times, shows toast, and updates timeline.
+   *
+   * @param gapStartTime Start time of gap (HH:mm format)
+   * @param gapEndTime End time of gap (HH:mm format)
+   */
+  addNapForGap(gapStartTime: string, gapEndTime: string): void {
+    const childId = this.childId();
+    if (!childId || this.isAddingNap()) return;
+
+    this.isAddingNap.set(true);
+
+    // Convert times to full datetime strings for the selected day
+    const selectedDate = this.selectedDate();
+    const dateStr = selectedDate.toISOString().split('T')[0];
+
+    const startDateTime = new Date(`${dateStr}T${gapStartTime}:00Z`);
+    const endDateTime = new Date(`${dateStr}T${gapEndTime}:00Z`);
+
+    // Create nap via API
+    this.napsService
+      .create(childId, {
+        napped_at: startDateTime.toISOString(),
+        ended_at: endDateTime.toISOString(),
+        notes: undefined,
+      })
+      .subscribe({
+        next: (newNap) => {
+          this.toastService.success('Nap recorded');
+
+          // Add nap to timeline immediately
+          const activity = {
+            id: newNap.id,
+            type: 'nap' as const,
+            timestamp: newNap.napped_at,
+            data: newNap,
+          };
+
+          this.allActivities.update((activities) => [...activities, activity]);
+          this.isAddingNap.set(false);
+        },
+        error: (err: Error) => {
+          this.toastService.error(err.message || 'Failed to record nap');
+          this.isAddingNap.set(false);
+        },
+      });
   }
 
   /**
