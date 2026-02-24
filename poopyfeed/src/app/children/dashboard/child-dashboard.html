@@ -56,17 +56,16 @@
           </div>
         </div>
 
-        <!-- Skeleton: Actions Card -->
+        <!-- Skeleton: Quick Actions Card -->
         <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-6 border-2 border-orange-400/20 animate-pulse">
           <div class="h-7 w-24 rounded-lg bg-gradient-to-r from-slate-200 to-slate-300 mb-4"></div>
-          <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-            <div class="h-24 rounded-2xl bg-gradient-to-r from-slate-200 to-slate-300"></div>
-            <div class="h-24 rounded-2xl bg-gradient-to-r from-slate-200 to-slate-300"></div>
+          <div class="grid grid-cols-3 gap-4">
             <div class="h-24 rounded-2xl bg-gradient-to-r from-slate-200 to-slate-300"></div>
             <div class="h-24 rounded-2xl bg-gradient-to-r from-slate-200 to-slate-300"></div>
             <div class="h-24 rounded-2xl bg-gradient-to-r from-slate-200 to-slate-300"></div>
           </div>
         </div>
+
 
         <!-- Skeleton: Recent Activity Card -->
         <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-6 border-2 border-amber-400/20 animate-pulse">
@@ -77,6 +76,16 @@
             <div class="h-14 rounded-xl bg-gradient-to-r from-slate-50 to-slate-100"></div>
             <div class="h-14 rounded-xl bg-gradient-to-r from-slate-50 to-slate-100"></div>
             <div class="h-14 rounded-xl bg-gradient-to-r from-slate-50 to-slate-100"></div>
+          </div>
+        </div>
+
+        <!-- Skeleton: Power Actions Card -->
+        <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-6 border-2 border-purple-400/20 animate-pulse">
+          <div class="h-7 w-40 rounded-lg bg-gradient-to-r from-slate-200 to-slate-300 mb-4"></div>
+          <div class="grid grid-cols-3 gap-4">
+            <div class="h-24 rounded-2xl bg-gradient-to-r from-slate-200 to-slate-300"></div>
+            <div class="h-24 rounded-2xl bg-gradient-to-r from-slate-200 to-slate-300"></div>
+            <div class="h-24 rounded-2xl bg-gradient-to-r from-slate-200 to-slate-300"></div>
           </div>
         </div>
 
@@ -251,12 +260,12 @@
           <app-today-summary-cards [summary]="todaySummaryData()" />
         </div>
 
-        <!-- Actions -->
+        <!-- Quick Actions -->
         <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-6 border-2 border-orange-400/20">
           <h2 class="font-['Fredoka',sans-serif] text-2xl font-bold text-slate-900 mb-4">
             Actions
           </h2>
-          <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <!-- Add Feeding Button -->
             <button
               (click)="navigateToFeedings()"
@@ -310,7 +319,50 @@
                 }
               </span>
             </button>
+          </div>
+        </div>
 
+        <!-- Recent Activity -->
+        <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-6 border-2 border-amber-400/20">
+          <h2 class="font-['Fredoka',sans-serif] text-2xl font-bold text-slate-900 mb-4">
+            Recent Activity
+          </h2>
+
+          @if (recentActivity().length === 0) {
+            <div class="text-center py-12">
+              <div class="text-6xl mb-4">📝</div>
+              <p class="font-['DM_Sans',sans-serif] text-slate-600 mb-4">
+                No activity recorded yet
+              </p>
+              <p class="font-['DM_Sans',sans-serif] text-sm text-slate-500">
+                Use the quick actions above to start tracking!
+              </p>
+            </div>
+          } @else {
+            <div class="space-y-3">
+              @for (item of recentActivity(); track item.type + '-' + item.id) {
+                <div class="flex items-center gap-4 p-4 rounded-xl bg-gradient-to-r from-slate-50 to-slate-100/50 hover:shadow-md transition-shadow">
+                  <div class="text-3xl flex-shrink-0">{{ getActivityIcon(item.type) }}</div>
+                  <div class="flex-1">
+                    <p class="font-['DM_Sans',sans-serif] font-semibold text-slate-900">
+                      {{ getActivityTitle(item) }}
+                    </p>
+                    <p class="font-['DM_Sans',sans-serif] text-sm text-slate-500">
+                      {{ formatTimestamp(item.timestamp) }}
+                    </p>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Power Actions -->
+        <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-6 border-2 border-purple-400/20">
+          <h2 class="font-['Fredoka',sans-serif] text-2xl font-bold text-slate-900 mb-4">
+            Power Actions
+          </h2>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <!-- Analytics Button -->
             <button
               (click)="navigateToAnalytics()"
@@ -365,41 +417,6 @@
               </span>
             </button>
           </div>
-        </div>
-
-        <!-- Recent Activity -->
-        <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-6 border-2 border-amber-400/20">
-          <h2 class="font-['Fredoka',sans-serif] text-2xl font-bold text-slate-900 mb-4">
-            Recent Activity
-          </h2>
-
-          @if (recentActivity().length === 0) {
-            <div class="text-center py-12">
-              <div class="text-6xl mb-4">📝</div>
-              <p class="font-['DM_Sans',sans-serif] text-slate-600 mb-4">
-                No activity recorded yet
-              </p>
-              <p class="font-['DM_Sans',sans-serif] text-sm text-slate-500">
-                Use the quick actions above to start tracking!
-              </p>
-            </div>
-          } @else {
-            <div class="space-y-3">
-              @for (item of recentActivity(); track item.type + '-' + item.id) {
-                <div class="flex items-center gap-4 p-4 rounded-xl bg-gradient-to-r from-slate-50 to-slate-100/50 hover:shadow-md transition-shadow">
-                  <div class="text-3xl flex-shrink-0">{{ getActivityIcon(item.type) }}</div>
-                  <div class="flex-1">
-                    <p class="font-['DM_Sans',sans-serif] font-semibold text-slate-900">
-                      {{ getActivityTitle(item) }}
-                    </p>
-                    <p class="font-['DM_Sans',sans-serif] text-sm text-slate-500">
-                      {{ formatTimestamp(item.timestamp) }}
-                    </p>
-                  </div>
-                </div>
-              }
-            </div>
-          }
         </div>
 
         <!-- Navigation Cards -->
