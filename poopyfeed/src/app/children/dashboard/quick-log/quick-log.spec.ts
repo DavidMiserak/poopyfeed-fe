@@ -475,11 +475,13 @@ describe('QuickLog', () => {
     });
 
     it('should not log bottle when amount is below minimum', () => {
-      // Newborn with 2 oz -> 2 - 1 = 1 oz (still valid as >= 0.1)
+      // Baby is exactly 1 week old -> 2 oz recommended -> 2 - 1 = 1 oz (still valid as >= 0.1)
+      const oneDayAgo = new Date();
+      oneDayAgo.setDate(oneDayAgo.getDate() - 7); // Exactly 1 week old
       const mockChild: Child = {
         id: 1,
         name: 'Baby',
-        date_of_birth: '2026-02-10', // Newborn -> 2 oz recommended
+        date_of_birth: oneDayAgo.toISOString().split('T')[0], // YYYY-MM-DD format
         gender: 'M',
         user_role: 'owner',
         created_at: new Date().toISOString(),
@@ -487,9 +489,9 @@ describe('QuickLog', () => {
         last_feeding: null,
         last_diaper_change: null,
         last_nap: null,
-          custom_bottle_low_oz: null,
-          custom_bottle_mid_oz: null,
-          custom_bottle_high_oz: null,
+        custom_bottle_low_oz: null,
+        custom_bottle_mid_oz: null,
+        custom_bottle_high_oz: null,
       };
 
       fixture.componentRef.setInput('child', mockChild);
