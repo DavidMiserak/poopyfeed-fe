@@ -613,15 +613,15 @@ describe('ChildTimeline', () => {
       expect(component.canAddNap()).toBeTruthy();
     });
 
-    it('should create nap with gap timestamps', () => {
+    it('should create nap with gap timestamps adjusted by ±1 minute', () => {
       const napsServiceMock = TestBed.inject(NapsService) as any;
       const toastServiceMock = TestBed.inject(ToastService) as any;
 
       const newNap = {
         ...mockNaps[0],
         id: 99,
-        napped_at: `${todayStr}T08:00:00Z`,
-        ended_at: `${todayStr}T10:30:00Z`,
+        napped_at: `${todayStr}T08:01:00Z`,
+        ended_at: `${todayStr}T10:29:00Z`,
       };
 
       vi.mocked(napsServiceMock.create).mockReturnValue(of(newNap));
@@ -633,12 +633,11 @@ describe('ChildTimeline', () => {
       const endTimestamp = `${todayStr}T10:30:00Z`;
       component.addNapForGap(startTimestamp, endTimestamp);
 
-      // Verify napsService.create was called with the exact timestamps
-      expect(napsServiceMock.create).toHaveBeenCalledWith(1, {
-        napped_at: startTimestamp,
-        ended_at: endTimestamp,
-        notes: undefined,
-      });
+      // Verify napsService.create was called with adjusted times (±1 minute)
+      const callArgs = napsServiceMock.create.mock.calls[0][1];
+      expect(callArgs.napped_at).toContain(`${todayStr}T08:01:00`); // +1 minute
+      expect(callArgs.ended_at).toContain(`${todayStr}T10:29:00`); // -1 minute
+      expect(callArgs.notes).toBeUndefined();
 
       expect(toastServiceMock.success).toHaveBeenCalledWith('Nap recorded');
 

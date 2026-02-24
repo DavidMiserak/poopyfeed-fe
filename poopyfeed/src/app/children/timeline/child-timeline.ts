@@ -503,7 +503,7 @@ export class ChildTimeline implements OnInit {
    *
    * Called when parent clicks "Add nap" on a gap indicator.
    * Creates nap directly with gap start/end timestamps, shows toast, and updates timeline.
-   * Timestamps are passed directly as UTC ISO strings from the gap data.
+   * Adjusts times by ±1 minute to avoid conflicts with surrounding activities.
    *
    * @param gapStartTimestamp Start timestamp of gap (UTC ISO 8601)
    * @param gapEndTimestamp End timestamp of gap (UTC ISO 8601)
@@ -514,11 +514,22 @@ export class ChildTimeline implements OnInit {
 
     this.isAddingNap.set(true);
 
-    // Create nap via API using the actual UTC timestamps
+    // Adjust times to avoid conflicts with surrounding activities
+    // Add 1 minute to start time, subtract 1 minute from end time
+    const startDate = new Date(gapStartTimestamp);
+    const endDate = new Date(gapEndTimestamp);
+
+    startDate.setMinutes(startDate.getMinutes() + 1);
+    endDate.setMinutes(endDate.getMinutes() - 1);
+
+    const adjustedStartTime = startDate.toISOString();
+    const adjustedEndTime = endDate.toISOString();
+
+    // Create nap via API using the adjusted timestamps
     this.napsService
       .create(childId, {
-        napped_at: gapStartTimestamp,
-        ended_at: gapEndTimestamp,
+        napped_at: adjustedStartTime,
+        ended_at: adjustedEndTime,
         notes: undefined,
       })
       .subscribe({
