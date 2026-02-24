@@ -57,7 +57,6 @@ import { Nap } from '../../models/nap.model';
 import { TodaySummaryData } from '../../models/analytics.model';
 import { QuickLog } from './quick-log/quick-log';
 import { TodaySummaryCards } from '../../components/today-summary-cards';
-import { LoadingStateComponent } from '../../components/loading-state/loading-state.component';
 import { ErrorCardComponent } from '../../components/error-card/error-card.component';
 import {
   getChildAgeLong,
@@ -89,7 +88,6 @@ interface ActivityItem {
     RouterLink,
     QuickLog,
     TodaySummaryCards,
-    LoadingStateComponent,
     ErrorCardComponent,
   ],
   templateUrl: './child-dashboard.html',
