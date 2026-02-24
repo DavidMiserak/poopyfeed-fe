@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router, provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
-import { ChildTimeline } from './child-timeline';
+import { ChildTimeline, ActivityItem } from './child-timeline';
 import { ChildrenService } from '../../services/children.service';
 import { FeedingsService } from '../../services/feedings.service';
 import { DiapersService } from '../../services/diapers.service';
@@ -242,28 +242,28 @@ describe('ChildTimeline', () => {
       component.dayOffset.set(0);
       fixture.detectChanges();
 
-      const activities = component.dayActivities();
-      expect(activities.length).toBe(3);
-      expect(activities[0].timestamp).toBe(`${todayStr}T08:00:00Z`);
-      expect(activities[1].timestamp).toBe(`${todayStr}T10:30:00Z`);
-      expect(activities[2].timestamp).toBe(`${todayStr}T13:00:00Z`);
+      const activitiesWithGap = component.dayActivities();
+      expect(activitiesWithGap.length).toBe(3);
+      expect(activitiesWithGap[0].activity.timestamp).toBe(`${todayStr}T08:00:00Z`);
+      expect(activitiesWithGap[1].activity.timestamp).toBe(`${todayStr}T10:30:00Z`);
+      expect(activitiesWithGap[2].activity.timestamp).toBe(`${todayStr}T13:00:00Z`);
     });
 
     it('should display events for yesterday', () => {
       component.dayOffset.set(1);
       fixture.detectChanges();
 
-      const activities = component.dayActivities();
-      expect(activities.length).toBe(1);
-      expect(activities[0].type).toBe('feeding');
+      const activitiesWithGap = component.dayActivities();
+      expect(activitiesWithGap.length).toBe(1);
+      expect(activitiesWithGap[0].activity.type).toBe('feeding');
     });
 
     it('should show empty state when no events on day', () => {
       component.dayOffset.set(3);
       fixture.detectChanges();
 
-      const activities = component.dayActivities();
-      expect(activities.length).toBe(0);
+      const activitiesWithGap = component.dayActivities();
+      expect(activitiesWithGap.length).toBe(0);
     });
   });
 
@@ -273,7 +273,7 @@ describe('ChildTimeline', () => {
     });
 
     it('should format bottle feeding title', () => {
-      const item = {
+      const item: ActivityItem = {
         id: 1,
         type: 'feeding' as const,
         timestamp: mockFeedings[0].fed_at,
@@ -294,7 +294,7 @@ describe('ChildTimeline', () => {
         created_at: `${todayStr}T12:05:00Z`,
         updated_at: `${todayStr}T12:05:00Z`,
       };
-      const item = {
+      const item: ActivityItem = {
         id: 3,
         type: 'feeding' as const,
         timestamp: breastFeeding.fed_at,
@@ -304,7 +304,7 @@ describe('ChildTimeline', () => {
     });
 
     it('should format diaper change title for wet', () => {
-      const item = {
+      const item: ActivityItem = {
         id: 1,
         type: 'diaper' as const,
         timestamp: mockDiapers[0].changed_at,
@@ -322,7 +322,7 @@ describe('ChildTimeline', () => {
         created_at: `${todayStr}T14:05:00Z`,
         updated_at: `${todayStr}T14:05:00Z`,
       };
-      const item = {
+      const item: ActivityItem = {
         id: 2,
         type: 'diaper' as const,
         timestamp: dirtyDiaper.changed_at,
@@ -332,7 +332,7 @@ describe('ChildTimeline', () => {
     });
 
     it('should format nap title', () => {
-      const item = {
+      const item: ActivityItem = {
         id: 1,
         type: 'nap' as const,
         timestamp: mockNaps[0].napped_at,
@@ -372,17 +372,109 @@ describe('ChildTimeline', () => {
     });
   });
 
+  describe('gap detection', () => {
+    beforeEach(() => {
+      component.ngOnInit();
+    });
+
+    it('should not show gap for first activity', () => {
+      component.dayOffset.set(0);
+      const activitiesWithGap = component.dayActivities();
+
+      expect(activitiesWithGap[0].gapMinutes).toBeNull();
+    });
+
+    it('should detect gap between feeding at 08:00 and diaper at 10:30', () => {
+      component.dayOffset.set(0);
+      const activitiesWithGap = component.dayActivities();
+
+      // Second activity (diaper at 10:30) should have gap
+      // Gap = 10:30 - 08:00 = 150 minutes = 2h 30m
+      expect(activitiesWithGap[1].gapMinutes).toBe(150);
+      expect(activitiesWithGap[1].gapStartTime).toBe('08:00');
+      expect(activitiesWithGap[1].gapEndTime).toBe('10:30');
+    });
+
+    it('should not show gap if less than 5 minutes', () => {
+      // Add a feeding 3 minutes after another
+      const newFeeding: Feeding = {
+        id: 99,
+        child: 1,
+        feeding_type: 'bottle',
+        amount_oz: 2,
+        fed_at: `${todayStr}T08:03:00Z`,
+        created_at: `${todayStr}T08:03:00Z`,
+        updated_at: `${todayStr}T08:03:00Z`,
+      };
+
+      component.allActivities.set([
+        ...component.allActivities(),
+        {
+          id: 99,
+          type: 'feeding',
+          timestamp: newFeeding.fed_at,
+          data: newFeeding,
+        },
+      ]);
+
+      component.dayOffset.set(0);
+      const activitiesWithGap = component.dayActivities();
+
+      // Find the new feeding (should be second after 08:00 feeding)
+      const newFeedingActivity = activitiesWithGap.find(
+        (a) => a.activity.id === 99
+      );
+      expect(newFeedingActivity?.gapMinutes).toBeNull();
+      expect(newFeedingActivity?.gapStartTime).toBeNull();
+      expect(newFeedingActivity?.gapEndTime).toBeNull();
+    });
+
+    it('should format gap time in minutes only', () => {
+      expect(component.formatGapTime(30)).toBe('30m');
+      expect(component.formatGapTime(45)).toBe('45m');
+    });
+
+    it('should format gap time in hours only', () => {
+      expect(component.formatGapTime(60)).toBe('1h');
+      expect(component.formatGapTime(120)).toBe('2h');
+    });
+
+    it('should format gap time in hours and minutes', () => {
+      expect(component.formatGapTime(90)).toBe('1h 30m');
+      expect(component.formatGapTime(150)).toBe('2h 30m');
+      expect(component.formatGapTime(125)).toBe('2h 5m');
+    });
+  });
+
   describe('mixed event types on same day', () => {
     it('should display all event types in chronological order', () => {
       component.ngOnInit();
       fixture.detectChanges();
       component.dayOffset.set(0);
 
-      const activities = component.dayActivities();
-      expect(activities.length).toBe(3);
-      expect(activities[0].type).toBe('feeding');
-      expect(activities[1].type).toBe('diaper');
-      expect(activities[2].type).toBe('nap');
+      const activitiesWithGap = component.dayActivities();
+      expect(activitiesWithGap.length).toBe(3);
+      expect(activitiesWithGap[0].activity.type).toBe('feeding');
+      expect(activitiesWithGap[1].activity.type).toBe('diaper');
+      expect(activitiesWithGap[2].activity.type).toBe('nap');
+    });
+
+    it('should calculate gaps between different activity types', () => {
+      component.ngOnInit();
+      fixture.detectChanges();
+      component.dayOffset.set(0);
+
+      const activitiesWithGap = component.dayActivities();
+      // First activity: no gap
+      expect(activitiesWithGap[0].gapMinutes).toBeNull();
+      // Second activity (diaper): should have gap from feeding
+      expect(activitiesWithGap[1].gapMinutes).toBe(150);
+      expect(activitiesWithGap[1].gapStartTime).toBe('08:00');
+      expect(activitiesWithGap[1].gapEndTime).toBe('10:30');
+      // Third activity (nap): should have gap from diaper
+      expect(activitiesWithGap[2].gapMinutes).toBe(150);
+      expect(activitiesWithGap[2].gapStartTime).toBe('10:30');
+      expect(activitiesWithGap[2].gapEndTime).toBe('13:00');
     });
   });
 });

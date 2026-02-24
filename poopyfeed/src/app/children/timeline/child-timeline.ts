@@ -75,11 +75,24 @@ import {
  * and display by day. Contains discriminator (type) and timestamp field for
  * unified sorting across activity types.
  */
-interface ActivityItem {
+export interface ActivityItem {
   id: number;
   type: 'feeding' | 'diaper' | 'nap';
   timestamp: string;
   data: Feeding | DiaperChange | Nap;
+}
+
+/**
+ * Activity item with gap information.
+ *
+ * Wraps an ActivityItem and includes gap time before it.
+ * Used to display time gaps between consecutive events.
+ */
+interface ActivityWithGap {
+  activity: ActivityItem;
+  gapMinutes: number | null; // null if first event or gap < 5 minutes
+  gapStartTime: string | null; // Previous activity time (HH:mm format)
+  gapEndTime: string | null; // Current activity time (HH:mm format)
 }
 
 @Component({
@@ -132,15 +145,15 @@ export class ChildTimeline implements OnInit {
    * Activities filtered for the currently selected day
    *
    * Filters allActivities() to only those occurring on selectedDate(),
-   * sorted chronologically (oldest first).
+   * sorted chronologically (oldest first), with gap information calculated.
    *
-   * @returns Activities for the selected day in chronological order
+   * @returns Activities for the selected day with gap times in chronological order
    */
   dayActivities = computed(() => {
     const selected = this.selectedDate();
     const selectedDateString = selected.toISOString().split('T')[0];
 
-    return this.allActivities()
+    const activities = this.allActivities()
       .filter((activity) => {
         const activityDate = new Date(activity.timestamp)
           .toISOString()
@@ -151,6 +164,49 @@ export class ChildTimeline implements OnInit {
         (a, b) =>
           new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
       );
+
+    // Calculate gaps between consecutive activities
+    return activities.map((activity, index) => {
+      let gapMinutes: number | null = null;
+      let gapStartTime: string | null = null;
+      let gapEndTime: string | null = null;
+
+      if (index > 0) {
+        const prevActivity = activities[index - 1];
+        const prevTime = new Date(prevActivity.timestamp).getTime();
+        const currentTime = new Date(activity.timestamp).getTime();
+        const diffMs = currentTime - prevTime;
+        const diffMinutes = Math.round(diffMs / (1000 * 60));
+
+        // Only show gap if it's at least 5 minutes
+        if (diffMinutes >= 5) {
+          gapMinutes = diffMinutes;
+
+          // Format times as HH:mm
+          const prevDate = new Date(prevActivity.timestamp);
+          const currDate = new Date(activity.timestamp);
+
+          gapStartTime = prevDate.toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false,
+          });
+
+          gapEndTime = currDate.toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false,
+          });
+        }
+      }
+
+      return {
+        activity,
+        gapMinutes,
+        gapStartTime,
+        gapEndTime,
+      };
+    });
   });
 
   /**
@@ -377,6 +433,29 @@ export class ChildTimeline implements OnInit {
    */
   formatMinutes(minutes: number): string {
     return formatMinutesUtil(Math.round(minutes));
+  }
+
+  /**
+   * Format gap time in minutes to readable string.
+   *
+   * Returns:
+   * - Under 60 minutes: "30m"
+   * - Exact hours: "2h"
+   * - Hours and minutes: "2h 15m"
+   *
+   * @param gapMinutes Gap duration in minutes
+   * @returns Formatted gap time string
+   */
+  formatGapTime(gapMinutes: number): string {
+    if (gapMinutes < 60) {
+      return `${gapMinutes}m`;
+    }
+    const hours = Math.floor(gapMinutes / 60);
+    const mins = gapMinutes % 60;
+    if (mins === 0) {
+      return `${hours}h`;
+    }
+    return `${hours}h ${mins}m`;
   }
 
   /**

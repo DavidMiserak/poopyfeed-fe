@@ -107,15 +107,27 @@
             </div>
           } @else {
             <div class="space-y-3">
-              @for (item of dayActivities(); track item.type + '-' + item.id) {
+              @for (itemWithGap of dayActivities(); track itemWithGap.activity.type + '-' + itemWithGap.activity.id) {
+                <!-- Time Gap Indicator -->
+                @if (itemWithGap.gapMinutes && itemWithGap.gapStartTime && itemWithGap.gapEndTime) {
+                  <div class="flex items-center gap-3 px-4 py-2">
+                    <div class="flex-1 h-px bg-gradient-to-r from-slate-200 to-transparent"></div>
+                    <span class="font-['DM_Sans',sans-serif] text-xs font-medium text-slate-400 px-2 bg-white rounded">
+                      {{ itemWithGap.gapStartTime }} - {{ itemWithGap.gapEndTime }} ({{ formatGapTime(itemWithGap.gapMinutes) }})
+                    </span>
+                    <div class="flex-1 h-px bg-gradient-to-l from-slate-200 to-transparent"></div>
+                  </div>
+                }
+
+                <!-- Activity Item -->
                 <div class="flex items-start gap-4 p-4 rounded-xl bg-gradient-to-r from-slate-50 to-slate-100/50 hover:shadow-md transition-shadow">
-                  <div class="text-3xl flex-shrink-0 mt-1">{{ getActivityIcon(item.type) }}</div>
+                  <div class="text-3xl flex-shrink-0 mt-1">{{ getActivityIcon(itemWithGap.activity.type) }}</div>
                   <div class="flex-1 min-w-0">
                     <p class="font-['DM_Sans',sans-serif] font-semibold text-slate-900">
-                      {{ getActivityTitle(item) }}
+                      {{ getActivityTitle(itemWithGap.activity) }}
                     </p>
                     <p class="font-['DM_Sans',sans-serif] text-sm text-slate-500">
-                      {{ item.timestamp | date: 'HH:mm' }} • {{ formatTimestamp(item.timestamp) }}
+                      {{ itemWithGap.activity.timestamp | date: 'HH:mm' }} • {{ formatTimestamp(itemWithGap.activity.timestamp) }}
                     </p>
                   </div>
                 </div>
