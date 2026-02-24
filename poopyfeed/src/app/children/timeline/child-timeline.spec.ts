@@ -113,6 +113,12 @@ describe('ChildTimeline', () => {
       info: vi.fn(),
     };
 
+    const dateTimeServiceMock = {
+      toUTC: vi.fn((date: Date) => date.toISOString()),
+      toLocal: vi.fn(),
+      toInputFormat: vi.fn(),
+    };
+
     await TestBed.configureTestingModule({
       imports: [ChildTimeline, ErrorCardComponent],
       providers: [
@@ -122,7 +128,7 @@ describe('ChildTimeline', () => {
         { provide: DiapersService, useValue: diapersServiceMock },
         { provide: NapsService, useValue: napsServiceMock },
         { provide: ToastService, useValue: toastServiceMock },
-        { provide: DateTimeService, useValue: {} },
+        { provide: DateTimeService, useValue: dateTimeServiceMock },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -607,7 +613,7 @@ describe('ChildTimeline', () => {
       expect(component.canAddNap()).toBeTruthy();
     });
 
-    it('should create nap with gap times', () => {
+    it('should create nap with gap timestamps', () => {
       const napsServiceMock = TestBed.inject(NapsService) as any;
       const toastServiceMock = TestBed.inject(ToastService) as any;
 
@@ -622,9 +628,18 @@ describe('ChildTimeline', () => {
 
       component.childId.set(1);
       component.dayOffset.set(0);
-      component.addNapForGap('08:00', '10:30');
 
-      expect(napsServiceMock.create).toHaveBeenCalled();
+      const startTimestamp = `${todayStr}T08:00:00Z`;
+      const endTimestamp = `${todayStr}T10:30:00Z`;
+      component.addNapForGap(startTimestamp, endTimestamp);
+
+      // Verify napsService.create was called with the exact timestamps
+      expect(napsServiceMock.create).toHaveBeenCalledWith(1, {
+        napped_at: startTimestamp,
+        ended_at: endTimestamp,
+        notes: undefined,
+      });
+
       expect(toastServiceMock.success).toHaveBeenCalledWith('Nap recorded');
 
       // Verify nap was added to timeline

@@ -94,8 +94,10 @@ export interface ActivityItem {
 interface ActivityWithGap {
   activity: ActivityItem;
   gapMinutes: number | null; // null if first event or gap < 5 minutes
-  gapStartTime: string | null; // Previous activity time (HH:mm format)
-  gapEndTime: string | null; // Current activity time (HH:mm format)
+  gapStartTime: string | null; // Previous activity time (HH:mm format for display)
+  gapEndTime: string | null; // Current activity time (HH:mm format for display)
+  gapStartTimestamp: string | null; // Previous activity UTC timestamp (ISO 8601)
+  gapEndTimestamp: string | null; // Current activity UTC timestamp (ISO 8601)
 }
 
 @Component({
@@ -178,21 +180,25 @@ export class ChildTimeline implements OnInit {
       let gapMinutes: number | null = null;
       let gapStartTime: string | null = null;
       let gapEndTime: string | null = null;
+      let gapStartTimestamp: string | null = null;
+      let gapEndTimestamp: string | null = null;
 
       // In reverse chronological order, the previous activity in time is at index + 1
       if (index < activities.length - 1) {
         const prevActivity = activities[index + 1];
 
         // For naps, use the end time; for others, use the timestamp
-        let prevTime: number;
+        let prevTimestamp: string;
         if (prevActivity.type === 'nap') {
           const nap = prevActivity.data as Nap;
-          prevTime = new Date(nap.ended_at || prevActivity.timestamp).getTime();
+          prevTimestamp = nap.ended_at || prevActivity.timestamp;
         } else {
-          prevTime = new Date(prevActivity.timestamp).getTime();
+          prevTimestamp = prevActivity.timestamp;
         }
 
-        const currentTime = new Date(activity.timestamp).getTime();
+        const currentTimestamp = activity.timestamp;
+        const prevTime = new Date(prevTimestamp).getTime();
+        const currentTime = new Date(currentTimestamp).getTime();
         const diffMs = currentTime - prevTime;
         const diffMinutes = Math.round(diffMs / (1000 * 60));
 
@@ -200,9 +206,9 @@ export class ChildTimeline implements OnInit {
         if (diffMinutes >= 5) {
           gapMinutes = diffMinutes;
 
-          // Format times as HH:mm
+          // Format times as HH:mm for display
           const prevDate = new Date(prevTime);
-          const currDate = new Date(activity.timestamp);
+          const currDate = new Date(currentTime);
 
           gapStartTime = prevDate.toLocaleTimeString('en-US', {
             hour: '2-digit',
@@ -215,6 +221,10 @@ export class ChildTimeline implements OnInit {
             minute: '2-digit',
             hour12: false,
           });
+
+          // Store actual UTC timestamps for creating nap
+          gapStartTimestamp = prevTimestamp;
+          gapEndTimestamp = currentTimestamp;
         }
       }
 
@@ -223,6 +233,8 @@ export class ChildTimeline implements OnInit {
         gapMinutes,
         gapStartTime,
         gapEndTime,
+        gapStartTimestamp,
+        gapEndTimestamp,
       };
     });
   });
@@ -490,29 +502,23 @@ export class ChildTimeline implements OnInit {
    * Quickly create a nap for a gap between activities
    *
    * Called when parent clicks "Add nap" on a gap indicator.
-   * Creates nap directly with gap start/end times, shows toast, and updates timeline.
+   * Creates nap directly with gap start/end timestamps, shows toast, and updates timeline.
+   * Timestamps are passed directly as UTC ISO strings from the gap data.
    *
-   * @param gapStartTime Start time of gap (HH:mm format)
-   * @param gapEndTime End time of gap (HH:mm format)
+   * @param gapStartTimestamp Start timestamp of gap (UTC ISO 8601)
+   * @param gapEndTimestamp End timestamp of gap (UTC ISO 8601)
    */
-  addNapForGap(gapStartTime: string, gapEndTime: string): void {
+  addNapForGap(gapStartTimestamp: string, gapEndTimestamp: string): void {
     const childId = this.childId();
     if (!childId || this.isAddingNap()) return;
 
     this.isAddingNap.set(true);
 
-    // Convert times to full datetime strings for the selected day
-    const selectedDate = this.selectedDate();
-    const dateStr = selectedDate.toISOString().split('T')[0];
-
-    const startDateTime = new Date(`${dateStr}T${gapStartTime}:00Z`);
-    const endDateTime = new Date(`${dateStr}T${gapEndTime}:00Z`);
-
-    // Create nap via API
+    // Create nap via API using the actual UTC timestamps
     this.napsService
       .create(childId, {
-        napped_at: startDateTime.toISOString(),
-        ended_at: endDateTime.toISOString(),
+        napped_at: gapStartTimestamp,
+        ended_at: gapEndTimestamp,
         notes: undefined,
       })
       .subscribe({

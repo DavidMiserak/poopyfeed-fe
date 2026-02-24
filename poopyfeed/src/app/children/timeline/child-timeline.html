@@ -165,7 +165,7 @@
                     </span>
                     @if (itemWithGap.gapMinutes >= 120 && canAddNap()) {
                       <button
-                        (click)="addNapForGap(itemWithGap.gapStartTime, itemWithGap.gapEndTime)"
+                        (click)="addNapForGap(itemWithGap.gapStartTimestamp!, itemWithGap.gapEndTimestamp!)"
                         [disabled]="isAddingNap()"
                         class="px-3 py-1 rounded-lg bg-gradient-to-r from-indigo-400 to-indigo-500 text-white text-xs font-medium hover:shadow-md transition-shadow disabled:opacity-60 disabled:cursor-not-allowed"
                         [attr.aria-label]="'Add nap from ' + itemWithGap.gapStartTime + ' to ' + itemWithGap.gapEndTime"
