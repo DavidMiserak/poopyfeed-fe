@@ -173,7 +173,16 @@ export class ChildTimeline implements OnInit {
 
       if (index > 0) {
         const prevActivity = activities[index - 1];
-        const prevTime = new Date(prevActivity.timestamp).getTime();
+
+        // For naps, use the end time; for others, use the timestamp
+        let prevTime: number;
+        if (prevActivity.type === 'nap') {
+          const nap = prevActivity.data as Nap;
+          prevTime = new Date(nap.ended_at || prevActivity.timestamp).getTime();
+        } else {
+          prevTime = new Date(prevActivity.timestamp).getTime();
+        }
+
         const currentTime = new Date(activity.timestamp).getTime();
         const diffMs = currentTime - prevTime;
         const diffMinutes = Math.round(diffMs / (1000 * 60));
@@ -183,7 +192,7 @@ export class ChildTimeline implements OnInit {
           gapMinutes = diffMinutes;
 
           // Format times as HH:mm
-          const prevDate = new Date(prevActivity.timestamp);
+          const prevDate = new Date(prevTime);
           const currDate = new Date(activity.timestamp);
 
           gapStartTime = prevDate.toLocaleTimeString('en-US', {

@@ -444,6 +444,96 @@ describe('ChildTimeline', () => {
       expect(component.formatGapTime(150)).toBe('2h 30m');
       expect(component.formatGapTime(125)).toBe('2h 5m');
     });
+
+    it('should calculate gap from nap end time, not start time', () => {
+      // Nap: 13:00 - 13:45 (45 minutes)
+      // Feeding: 14:30
+      // Gap should be 13:45 - 14:30 = 45 minutes, not 13:00 - 14:30 = 90 minutes
+      const napWithFeeding: Feeding = {
+        id: 100,
+        child: 1,
+        feeding_type: 'bottle',
+        amount_oz: 5,
+        fed_at: `${todayStr}T14:30:00Z`,
+        created_at: `${todayStr}T14:30:00Z`,
+        updated_at: `${todayStr}T14:30:00Z`,
+      };
+
+      component.allActivities.set([
+        ...component.allActivities(),
+        {
+          id: 100,
+          type: 'feeding',
+          timestamp: napWithFeeding.fed_at,
+          data: napWithFeeding,
+        },
+      ]);
+
+      component.dayOffset.set(0);
+      const activitiesWithGap = component.dayActivities();
+
+      // Find the feeding that comes after the nap
+      const feedingAfterNap = activitiesWithGap.find(
+        (a) => a.activity.id === 100
+      );
+
+      // Gap from nap end (13:45) to feeding (14:30) = 45 minutes
+      expect(feedingAfterNap?.gapMinutes).toBe(45);
+      expect(feedingAfterNap?.gapStartTime).toBe('13:45');
+      expect(feedingAfterNap?.gapEndTime).toBe('14:30');
+    });
+
+    it('should handle nap with null ended_at by falling back to timestamp', () => {
+      // Create a nap with null ended_at (edge case)
+      const napWithoutEndTime: Nap = {
+        id: 101,
+        child: 1,
+        duration_minutes: 45,
+        napped_at: `${todayStr}T13:00:00Z`,
+        ended_at: null,
+        created_at: `${todayStr}T14:00:00Z`,
+        updated_at: `${todayStr}T14:00:00Z`,
+      };
+
+      const feedingAfterNap: Feeding = {
+        id: 102,
+        child: 1,
+        feeding_type: 'bottle',
+        amount_oz: 5,
+        fed_at: `${todayStr}T14:00:00Z`,
+        created_at: `${todayStr}T14:00:00Z`,
+        updated_at: `${todayStr}T14:00:00Z`,
+      };
+
+      component.allActivities.set([
+        ...component.allActivities(),
+        {
+          id: 101,
+          type: 'nap',
+          timestamp: napWithoutEndTime.napped_at,
+          data: napWithoutEndTime,
+        },
+        {
+          id: 102,
+          type: 'feeding',
+          timestamp: feedingAfterNap.fed_at,
+          data: feedingAfterNap,
+        },
+      ]);
+
+      component.dayOffset.set(0);
+      const activitiesWithGap = component.dayActivities();
+
+      // Find the feeding that comes after the nap
+      const feedingActivity = activitiesWithGap.find(
+        (a) => a.activity.id === 102
+      );
+
+      // Should fall back to nap start time (13:00 - 14:00 = 60 minutes)
+      expect(feedingActivity?.gapMinutes).toBe(60);
+      expect(feedingActivity?.gapStartTime).toBe('13:00');
+      expect(feedingActivity?.gapEndTime).toBe('14:00');
+    });
   });
 
   describe('mixed event types on same day', () => {
