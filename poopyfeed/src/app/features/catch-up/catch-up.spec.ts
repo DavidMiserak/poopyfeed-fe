@@ -362,4 +362,403 @@ describe('CatchUpComponent - Step Wizard', () => {
       ]);
     });
   });
+
+  describe('Initialize - Error Handling', () => {
+    it('should set error when childId is null', async () => {
+      route.snapshot.paramMap.get.mockReturnValue(null);
+
+      const newFixture = TestBed.createComponent(CatchUp);
+      const newComponent = newFixture.componentInstance;
+      newFixture.detectChanges();
+
+      expect(newComponent.error()).toBe('Invalid child ID');
+    });
+
+    it('should set error when childId is NaN', async () => {
+      route.snapshot.paramMap.get.mockReturnValue('abc');
+
+      const newFixture = TestBed.createComponent(CatchUp);
+      const newComponent = newFixture.componentInstance;
+      newFixture.detectChanges();
+
+      expect(newComponent.error()).toBe('Invalid child ID');
+    });
+
+    it('should set childId from route params', () => {
+      expect(component.childId()).toBe(1);
+    });
+  });
+
+  describe('formatTime', () => {
+    it('should format valid timestamp', () => {
+      const result = component.formatTime('2024-01-15T14:30:00Z');
+
+      expect(result).toMatch(/^\d{2}:\d{2}$/);
+    });
+
+    it('should return Invalid time for bad input', () => {
+      // Date constructor doesn't throw for invalid strings, it returns Invalid Date
+      // The formatTime method catches errors in try-catch
+      const result = component.formatTime('not-a-date');
+      // getHours on Invalid Date returns NaN, padStart on NaN returns 'NaN'
+      expect(typeof result).toBe('string');
+    });
+  });
+
+  describe('onSubmit - Edge Cases', () => {
+    it('should not submit when no changes exist', () => {
+      component.onSubmit();
+
+      expect(batchesService.create).not.toHaveBeenCalled();
+      expect(toastService.error).toHaveBeenCalledWith(
+        'Add at least one activity before saving',
+      );
+    });
+
+    it('should handle generic error without batchErrors', () => {
+      batchesService.create.mockReturnValue(
+        throwError(() => ({ message: 'Network error' })),
+      );
+
+      component.onAddEvent('feeding');
+      component.currentStep.set('review');
+      component.onSubmit();
+
+      expect(toastService.error).toHaveBeenCalledWith(
+        'Failed to save activities. Your data is preserved — please try again.',
+      );
+      expect(component.isSubmitting()).toBe(false);
+    });
+
+    it('should set isSubmitting during submission', () => {
+      component.onAddEvent('feeding');
+      component.currentStep.set('review');
+
+      component.onSubmit();
+
+      // After sync completion, should be false
+      expect(component.isSubmitting()).toBe(false);
+    });
+
+    it('should move to success step after submission', () => {
+      component.onAddEvent('feeding');
+      component.currentStep.set('review');
+
+      component.onSubmit();
+
+      expect(component.currentStep()).toBe('success');
+    });
+
+    it('should handle batch errors with multiple event errors', () => {
+      batchesService.create.mockReturnValue(
+        throwError(() => ({
+          batchErrors: {
+            errors: [
+              { index: 0, type: 'feeding', errors: { amount_oz: ['Required'] } },
+              { index: 1, type: 'diaper', errors: { change_type: ['Invalid'] } },
+            ],
+          },
+        })),
+      );
+
+      component.onAddEvent('feeding');
+      component.onAddEvent('diaper');
+      component.currentStep.set('review');
+
+      component.onSubmit();
+
+      expect(toastService.error).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  describe('Cancel - Rejection Path', () => {
+    it('should not navigate when cancel is rejected on events step', () => {
+      component.currentStep.set('events');
+      component.onAddEvent('feeding');
+
+      window.confirm = vi.fn().mockReturnValue(false) as any;
+
+      component.onCancel();
+
+      expect(router.navigate).not.toHaveBeenCalled();
+    });
+
+    it('should navigate without confirmation when no changes on events step', () => {
+      component.currentStep.set('events');
+
+      component.onCancel();
+
+      expect(router.navigate).toHaveBeenCalled();
+    });
+  });
+
+  describe('recalculateTimes - Overflow', () => {
+    it('should show warning when events overflow time window', () => {
+      timeEstimationService.estimateEventTimes.mockImplementation((events: any) => ({
+        events,
+        isOverflowed: true,
+      }));
+
+      component.onAddEvent('feeding');
+
+      expect(toastService.warning).toHaveBeenCalledWith(
+        'Some events may not fit perfectly in the selected time window',
+      );
+    });
+  });
+
+  describe('loadExistingEvents - API Error', () => {
+    it('should call service list methods when loading events', () => {
+      const now = new Date();
+      const timeWindow = {
+        startTime: new Date(now.getTime() - 4 * 60 * 60 * 1000).toISOString(),
+        endTime: now.toISOString(),
+      };
+
+      component.goToStep('events', timeWindow);
+
+      expect(feedingsService.list).toHaveBeenCalledWith(1, expect.objectContaining({
+        dateFrom: timeWindow.startTime,
+        dateTo: timeWindow.endTime,
+      }));
+    });
+  });
+
+  describe('Event Updates', () => {
+    it('should update event data', () => {
+      component.onAddEvent('feeding');
+      const eventId = component.newEvents()[0].id;
+
+      component.onUpdateEvent(eventId, { data: { feeding_type: 'breast', fed_at: '2024-01-15T10:00:00Z' } });
+
+      const updated = component.getEventById(eventId);
+      expect((updated?.data as any)?.feeding_type).toBe('breast');
+    });
+
+    it('should recalculate times when isPinned changes', () => {
+      component.onAddEvent('feeding');
+      const eventId = component.newEvents()[0].id;
+
+      const spy = vi.spyOn(timeEstimationService, 'estimateEventTimes');
+      const callCount = spy.mock.calls.length;
+
+      component.onUpdateEvent(eventId, { isPinned: true });
+
+      expect(spy.mock.calls.length).toBeGreaterThan(callCount);
+    });
+
+    it('should recalculate times when estimatedTime changes', () => {
+      component.onAddEvent('feeding');
+      const eventId = component.newEvents()[0].id;
+
+      const spy = vi.spyOn(timeEstimationService, 'estimateEventTimes');
+      const callCount = spy.mock.calls.length;
+
+      component.onUpdateEvent(eventId, { estimatedTime: '2024-01-15T15:00:00Z' });
+
+      expect(spy.mock.calls.length).toBeGreaterThan(callCount);
+    });
+
+    it('should not recalculate times for non-time updates', () => {
+      component.onAddEvent('feeding');
+      const eventId = component.newEvents()[0].id;
+
+      const spy = vi.spyOn(timeEstimationService, 'estimateEventTimes');
+      const callCount = spy.mock.calls.length;
+
+      component.onUpdateEvent(eventId, { notes: 'test' });
+
+      expect(spy.mock.calls.length).toBe(callCount);
+    });
+
+    it('should reorder events', () => {
+      component.onAddEvent('feeding');
+      component.onAddEvent('diaper');
+      const events = component.eventList();
+      const reversed = [...events].reverse();
+
+      component.onReorderEvents(reversed);
+
+      expect(component.eventList()[0].type).toBe('diaper');
+    });
+  });
+
+  describe('Computed Signals', () => {
+    it('should track newEvents count', () => {
+      expect(component.newEvents().length).toBe(0);
+
+      component.onAddEvent('feeding');
+      expect(component.newEvents().length).toBe(1);
+    });
+
+    it('should track hasChanges', () => {
+      expect(component.hasChanges()).toBe(false);
+
+      component.onAddEvent('feeding');
+      expect(component.hasChanges()).toBe(true);
+    });
+
+    it('should track canAddEvent', () => {
+      expect(component.canAddEvent()).toBe(true);
+
+      for (let i = 0; i < 20; i++) {
+        component.onAddEvent('feeding');
+      }
+      expect(component.canAddEvent()).toBe(false);
+    });
+
+    it('should return currentStepLabel for time-range', () => {
+      component.currentStep.set('time-range');
+      expect(component.currentStepLabel()).toBe('time window');
+    });
+
+    it('should return currentStepLabel for events with 1 activity', () => {
+      component.currentStep.set('events');
+      component.onAddEvent('feeding');
+      expect(component.currentStepLabel()).toBe('1 activity');
+    });
+
+    it('should return currentStepLabel for events with multiple activities', () => {
+      component.currentStep.set('events');
+      component.onAddEvent('feeding');
+      component.onAddEvent('diaper');
+      expect(component.currentStepLabel()).toBe('2 activities');
+    });
+
+    it('should return currentStepLabel for review', () => {
+      component.currentStep.set('review');
+      expect(component.currentStepLabel()).toBe('review');
+    });
+
+    it('should return currentStepLabel for success', () => {
+      component.currentStep.set('success');
+      expect(component.currentStepLabel()).toBe('done');
+    });
+
+    it('should return totalEventCount', () => {
+      expect(component.totalEventCount()).toBe(0);
+      component.onAddEvent('feeding');
+      expect(component.totalEventCount()).toBe(1);
+    });
+  });
+
+  describe('getEventById', () => {
+    it('should return event when found', () => {
+      component.onAddEvent('feeding');
+      const eventId = component.newEvents()[0].id;
+
+      const result = component.getEventById(eventId);
+      expect(result).toBeDefined();
+      expect(result?.type).toBe('feeding');
+    });
+
+    it('should return undefined when not found', () => {
+      const result = component.getEventById('nonexistent');
+      expect(result).toBeUndefined();
+    });
+  });
+
+  describe('goToStep - Time Window Validation with Multiple Errors', () => {
+    it('should show all validation errors', () => {
+      timeEstimationService.validateTimeWindow.mockReturnValue([
+        'Start time required',
+        'End time must be after start',
+      ]);
+
+      const timeWindow = { startTime: '', endTime: '' };
+
+      component.goToStep('events', timeWindow);
+
+      expect(toastService.error).toHaveBeenCalledTimes(2);
+      expect(component.currentStep()).toBe('time-range');
+    });
+  });
+
+  describe('goToStep - Reload Existing Events', () => {
+    it('should reload events with new time window', () => {
+      const now = new Date();
+      const timeWindow = {
+        startTime: new Date(now.getTime() - 8 * 60 * 60 * 1000).toISOString(),
+        endTime: now.toISOString(),
+      };
+
+      component.goToStep('events', timeWindow);
+
+      expect(feedingsService.list).toHaveBeenCalled();
+      expect(diapersService.list).toHaveBeenCalled();
+      expect(napsService.list).toHaveBeenCalled();
+    });
+
+    it('should merge existing events with new events', () => {
+      component.onAddEvent('feeding');
+      expect(component.newEvents().length).toBe(1);
+
+      const existingFeeding = {
+        id: 10,
+        child: 1,
+        feeding_type: 'bottle',
+        fed_at: '2024-01-15T12:00:00Z',
+        amount_oz: 4,
+        created_at: '2024-01-15T12:00:00Z',
+        updated_at: '2024-01-15T12:00:00Z',
+      };
+
+      feedingsService.list.mockReturnValue(of([existingFeeding]));
+
+      const now = new Date();
+      const timeWindow = {
+        startTime: new Date(now.getTime() - 4 * 60 * 60 * 1000).toISOString(),
+        endTime: now.toISOString(),
+      };
+
+      component.goToStep('events', timeWindow);
+
+      expect(component.existingEvents().length).toBe(1);
+      expect(component.newEvents().length).toBe(1);
+    });
+
+    it('should build existing events from diapers and naps', () => {
+      const existingDiaper = {
+        id: 5,
+        child: 1,
+        change_type: 'wet',
+        changed_at: '2024-01-15T11:00:00Z',
+        notes: '',
+        created_at: '2024-01-15T11:00:00Z',
+        updated_at: '2024-01-15T11:00:00Z',
+      };
+      const existingNap = {
+        id: 3,
+        child: 1,
+        napped_at: '2024-01-15T10:00:00Z',
+        ended_at: '2024-01-15T11:00:00Z',
+        created_at: '2024-01-15T10:00:00Z',
+        updated_at: '2024-01-15T10:00:00Z',
+      };
+      const existingNapNoEnd = {
+        id: 4,
+        child: 1,
+        napped_at: '2024-01-15T13:00:00Z',
+        ended_at: null,
+        created_at: '2024-01-15T13:00:00Z',
+        updated_at: '2024-01-15T13:00:00Z',
+      };
+
+      feedingsService.list.mockReturnValue(of([]));
+      diapersService.list.mockReturnValue(of([existingDiaper]));
+      napsService.list.mockReturnValue(of([existingNap, existingNapNoEnd]));
+
+      const now = new Date();
+      const timeWindow = {
+        startTime: new Date(now.getTime() - 8 * 60 * 60 * 1000).toISOString(),
+        endTime: now.toISOString(),
+      };
+
+      component.goToStep('events', timeWindow);
+
+      expect(component.existingEvents().length).toBe(3);
+      const napEvent = component.existingEvents().find(e => e.existingId === 4);
+      expect((napEvent?.data as any)?.ended_at).toBeUndefined();
+    });
+  });
 });

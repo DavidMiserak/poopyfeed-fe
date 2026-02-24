@@ -905,4 +905,71 @@ describe('ChildDashboard', () => {
       });
     });
   });
+
+  describe('Navigation with null child', () => {
+    beforeEach(() => {
+      setupWithData();
+      component.child.set(null);
+    });
+
+    it('should not navigate to feedings when child is null', () => {
+      component.navigateToFeedings();
+      expect(component.isNavigatingToFeeding()).toBe(false);
+    });
+
+    it('should not navigate to diapers when child is null', () => {
+      component.navigateToDiapers();
+      expect(component.isNavigatingToDiaper()).toBe(false);
+    });
+
+    it('should not navigate to naps when child is null', () => {
+      component.navigateToNaps();
+      expect(component.isNavigatingToNap()).toBe(false);
+    });
+
+    it('should not navigate to analytics when child is null', () => {
+      component.navigateToAnalytics();
+      expect(component.isNavigatingToAnalytics()).toBe(false);
+    });
+
+    it('should not navigate to catch-up when child is null', () => {
+      component.navigateToCatchUp();
+      expect(component.isNavigatingToCatchUp()).toBe(false);
+    });
+
+    it('should not navigate to timeline when child is null', () => {
+      component.navigateToTimeline();
+      expect(component.isNavigatingToTimeline()).toBe(false);
+    });
+  });
+
+  describe('Permission computed signals with null child', () => {
+    beforeEach(() => {
+      setupWithData();
+      component.child.set(null);
+    });
+
+    it('canAdd should be false when child is null', () => {
+      expect(component.canAdd()).toBe(false);
+    });
+
+    it('canEdit should be false when child is null', () => {
+      expect(component.canEdit()).toBe(false);
+    });
+
+    it('canManageSharing should be false when child is null', () => {
+      expect(component.canManageSharing()).toBe(false);
+    });
+  });
+
+  describe('onQuickLogged', () => {
+    it('should not reload when childId is null', () => {
+      setupWithData();
+      const getSpy = vi.spyOn(childrenService, 'get');
+      getSpy.mockClear();
+      component.childId.set(null);
+      component.onQuickLogged();
+      expect(getSpy).not.toHaveBeenCalled();
+    });
+  });
 });

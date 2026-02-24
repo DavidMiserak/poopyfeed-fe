@@ -258,4 +258,229 @@ describe('EventCard', () => {
       expect(component.eventForm.get('change_type')?.value).toBe('both');
     });
   });
+
+  describe('Toggle Expand', () => {
+    it('should toggle expand state for existing event', () => {
+      fixture.componentRef.setInput('event', mockExistingFeedingEvent);
+      fixture.detectChanges();
+
+      expect(component.isExpanded()).toBe(false);
+      component.toggleExpand();
+      expect(component.isExpanded()).toBe(true);
+      component.toggleExpand();
+      expect(component.isExpanded()).toBe(false);
+    });
+
+    it('should not toggle for new event', () => {
+      fixture.componentRef.setInput('event', mockNewFeedingEvent);
+      fixture.detectChanges();
+
+      component.toggleExpand();
+      expect(component.isExpanded()).toBe(false);
+    });
+
+    it('should show expanded content for existing event', () => {
+      fixture.componentRef.setInput('event', mockExistingFeedingEvent);
+      fixture.detectChanges();
+
+      component.toggleExpand();
+      fixture.detectChanges();
+
+      const expandedContent = fixture.nativeElement.textContent;
+      expect(expandedContent).toContain('locked existing event');
+    });
+  });
+
+  describe('Feeding Validators', () => {
+    it('should set amount_oz required validator for bottle', () => {
+      fixture.componentRef.setInput('event', mockNewFeedingEvent);
+      fixture.detectChanges();
+
+      component.setFeedingType('bottle');
+
+      const amountControl = component.eventForm.get('amount_oz');
+      amountControl?.setValue(null);
+      expect(amountControl?.hasError('required')).toBe(true);
+    });
+
+    it('should clear amount_oz validator for breast', () => {
+      fixture.componentRef.setInput('event', mockNewFeedingEvent);
+      fixture.detectChanges();
+
+      component.setFeedingType('breast');
+
+      const amountControl = component.eventForm.get('amount_oz');
+      amountControl?.setValue(null);
+      expect(amountControl?.hasError('required')).toBe(false);
+    });
+
+    it('should set duration_minutes min validator for breast', () => {
+      fixture.componentRef.setInput('event', mockNewFeedingEvent);
+      fixture.detectChanges();
+
+      component.setFeedingType('breast');
+
+      const durationControl = component.eventForm.get('duration_minutes');
+      durationControl?.setValue(-5);
+      expect(durationControl?.hasError('min')).toBe(true);
+    });
+
+    it('should clear duration_minutes validator for bottle', () => {
+      fixture.componentRef.setInput('event', mockNewFeedingEvent);
+      fixture.detectChanges();
+
+      component.setFeedingType('bottle');
+
+      const durationControl = component.eventForm.get('duration_minutes');
+      durationControl?.setValue(-5);
+      expect(durationControl?.valid).toBe(true);
+    });
+  });
+
+  describe('Form Initialization', () => {
+    it('should initialize form with nap data', () => {
+      const mockNapEvent: CatchUpEvent = {
+        id: 'event-nap-1',
+        type: 'nap',
+        estimatedTime: '2024-01-15T10:00:00Z',
+        isPinned: false,
+        isExisting: false,
+        data: {
+          napped_at: '2024-01-15T10:00:00Z',
+          ended_at: '2024-01-15T11:00:00Z',
+        },
+      };
+
+      fixture.componentRef.setInput('event', mockNapEvent);
+      fixture.detectChanges();
+
+      expect(dateTimeService.toInputFormat).toHaveBeenCalledTimes(2);
+      expect(component.eventForm.get('napped_at')?.value).toBeTruthy();
+      expect(component.eventForm.get('ended_at')?.value).toBeTruthy();
+    });
+
+    it('should initialize form with feeding data including side and notes', () => {
+      const mockFeedingWithDetails: CatchUpEvent = {
+        id: 'event-feeding-2',
+        type: 'feeding',
+        estimatedTime: '2024-01-15T10:00:00Z',
+        isPinned: false,
+        isExisting: false,
+        data: {
+          feeding_type: 'breast',
+          duration_minutes: 15,
+          side: 'left',
+          notes: 'Good feeding session',
+        } as any,
+      };
+
+      fixture.componentRef.setInput('event', mockFeedingWithDetails);
+      fixture.detectChanges();
+
+      expect(component.eventForm.get('feeding_type')?.value).toBe('breast');
+      expect(component.eventForm.get('duration_minutes')?.value).toBe(15);
+      expect(component.eventForm.get('side')?.value).toBe('left');
+      expect(component.eventForm.get('notes')?.value).toBe('Good feeding session');
+    });
+
+    it('should initialize form with diaper data', () => {
+      const mockDiaperEvent: CatchUpEvent = {
+        id: 'event-diaper-1',
+        type: 'diaper',
+        estimatedTime: '2024-01-15T10:00:00Z',
+        isPinned: false,
+        isExisting: false,
+        data: {
+          change_type: 'dirty',
+          changed_at: '2024-01-15T10:00:00Z',
+        } as any,
+      };
+
+      fixture.componentRef.setInput('event', mockDiaperEvent);
+      fixture.detectChanges();
+
+      expect(component.eventForm.get('change_type')?.value).toBe('dirty');
+    });
+
+    it('should not initialize form for existing event', () => {
+      fixture.componentRef.setInput('event', mockExistingFeedingEvent);
+      fixture.detectChanges();
+
+      // Form keeps defaults since existing event skips initializeForm patching
+      expect(component.eventForm.get('feeding_type')?.value).toBe('bottle');
+    });
+  });
+
+  describe('Nap Event Template', () => {
+    it('should show nap form fields for nap event', () => {
+      const mockNapEvent: CatchUpEvent = {
+        id: 'event-nap-1',
+        type: 'nap',
+        estimatedTime: '2024-01-15T10:00:00Z',
+        isPinned: false,
+        isExisting: false,
+        data: { napped_at: '2024-01-15T10:00:00Z' },
+      };
+
+      fixture.componentRef.setInput('event', mockNapEvent);
+      fixture.detectChanges();
+
+      const html = fixture.nativeElement.innerHTML;
+      expect(html).toContain('Nap Start');
+      expect(html).toContain('Nap End');
+    });
+  });
+
+  describe('Diaper Event Template', () => {
+    it('should show diaper type buttons for diaper event', () => {
+      const mockDiaperEvent: CatchUpEvent = {
+        id: 'event-diaper-1',
+        type: 'diaper',
+        estimatedTime: '2024-01-15T10:00:00Z',
+        isPinned: false,
+        isExisting: false,
+        data: { change_type: 'wet', changed_at: '2024-01-15T10:00:00Z' } as any,
+      };
+
+      fixture.componentRef.setInput('event', mockDiaperEvent);
+      fixture.detectChanges();
+
+      const html = fixture.nativeElement.textContent;
+      expect(html).toContain('Wet');
+      expect(html).toContain('Dirty');
+      expect(html).toContain('Both');
+    });
+  });
+
+  describe('formatTime', () => {
+    it('should format estimated time using formatTimestamp', () => {
+      fixture.componentRef.setInput('event', mockNewFeedingEvent);
+      fixture.detectChanges();
+
+      const result = component.formatTime();
+      expect(typeof result).toBe('string');
+    });
+  });
+
+  describe('Validation Errors Display', () => {
+    it('should display validation errors when present', () => {
+      fixture.componentRef.setInput('event', mockNewFeedingEvent);
+      fixture.detectChanges();
+
+      component.validationErrors.set(['Amount is required', 'Invalid feeding type']);
+      fixture.detectChanges();
+
+      const html = fixture.nativeElement.textContent;
+      expect(html).toContain('Amount is required');
+      expect(html).toContain('Invalid feeding type');
+    });
+
+    it('should not display error section when no errors', () => {
+      fixture.componentRef.setInput('event', mockNewFeedingEvent);
+      fixture.detectChanges();
+
+      const errorSection = fixture.nativeElement.querySelector('.bg-red-50');
+      expect(errorSection).toBeFalsy();
+    });
+  });
 });

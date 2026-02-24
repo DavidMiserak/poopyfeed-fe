@@ -1068,4 +1068,71 @@ describe('FeedingsList - Core Functionality Tests', () => {
       expect(component.error()).toBe('Previous error');
     });
   });
+
+  describe('Branch coverage - null/edge cases', () => {
+    it('canEdit should be false when child is null', () => {
+      component.child.set(null);
+      expect(component.canEdit()).toBe(false);
+    });
+
+    it('isAllSelected should be false when feedings list is empty', () => {
+      component.allFeedings.set([]);
+      expect(component.isAllSelected()).toBe(false);
+    });
+
+    it('should not navigate to create when childId is null', () => {
+      component.childId.set(null);
+      component.navigateToCreate();
+      expect(router.navigate).not.toHaveBeenCalled();
+    });
+
+    it('should not navigate to edit when childId is null', () => {
+      component.childId.set(null);
+      component.navigateToEdit(1);
+      expect(router.navigate).not.toHaveBeenCalled();
+    });
+
+    it('should not navigate to delete when childId is null', () => {
+      component.childId.set(null);
+      component.navigateToDelete(1);
+      expect(router.navigate).not.toHaveBeenCalled();
+    });
+
+    it('should not navigate to dashboard when childId is null', () => {
+      component.childId.set(null);
+      component.navigateToDashboard();
+      expect(router.navigate).not.toHaveBeenCalled();
+    });
+
+    it('should format singular minute correctly', () => {
+      const oneMinAgo = new Date(Date.now() - 61 * 1000).toISOString();
+      expect(component.formatTimeAgo(oneMinAgo)).toContain('1 min ago');
+    });
+
+    it('should format singular hour correctly', () => {
+      const oneHourAgo = new Date(Date.now() - 61 * 60 * 1000).toISOString();
+      expect(component.formatTimeAgo(oneHourAgo)).toContain('1 hour ago');
+    });
+
+    it('should format singular day correctly', () => {
+      const oneDayAgo = new Date(Date.now() - 25 * 60 * 60 * 1000).toISOString();
+      expect(component.formatTimeAgo(oneDayAgo)).toContain('1 day ago');
+    });
+
+    it('should abort bulkDelete when childId is null', () => {
+      window.confirm = vi.fn().mockReturnValue(true) as any;
+      component.selectedIds.set([1, 2]);
+      component.childId.set(null);
+
+      component.bulkDelete();
+
+      expect(component.isBulkDeleting()).toBe(false);
+    });
+
+    it('should toggle selectAll on empty list', () => {
+      component.allFeedings.set([]);
+      component.toggleSelectAll();
+      expect(component.selectedIds()).toEqual([]);
+    });
+  });
 });

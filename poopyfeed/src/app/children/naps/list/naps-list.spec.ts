@@ -679,4 +679,97 @@ describe('NapsList - Core Functionality Tests', () => {
       expect(loadComplete).toBe(true);
     });
   });
+
+  describe('Branch coverage - null/edge cases', () => {
+    it('canEdit should be false when child is null', () => {
+      component.child.set(null);
+      expect(component.canEdit()).toBe(false);
+    });
+
+    it('isAllSelected should be false when naps list is empty', () => {
+      component.allNaps.set([]);
+      expect(component.isAllSelected()).toBe(false);
+    });
+
+    it('should not navigate to create when childId is null', () => {
+      component.childId.set(null);
+      component.navigateToCreate();
+      expect(router.navigate).not.toHaveBeenCalled();
+    });
+
+    it('should not navigate to edit when childId is null', () => {
+      component.childId.set(null);
+      component.navigateToEdit(1);
+      expect(router.navigate).not.toHaveBeenCalled();
+    });
+
+    it('should not navigate to delete when childId is null', () => {
+      component.childId.set(null);
+      component.navigateToDelete(1);
+      expect(router.navigate).not.toHaveBeenCalled();
+    });
+
+    it('should not navigate to dashboard when childId is null', () => {
+      component.childId.set(null);
+      component.navigateToDashboard();
+      expect(router.navigate).not.toHaveBeenCalled();
+    });
+
+    it('should format singular minute correctly', () => {
+      const oneMinAgo = new Date(Date.now() - 61 * 1000).toISOString();
+      expect(component.formatTimeAgo(oneMinAgo)).toContain('1 min ago');
+    });
+
+    it('should format singular hour correctly', () => {
+      const oneHourAgo = new Date(Date.now() - 61 * 60 * 1000).toISOString();
+      expect(component.formatTimeAgo(oneHourAgo)).toContain('1 hour ago');
+    });
+
+    it('should format singular day correctly', () => {
+      const oneDayAgo = new Date(Date.now() - 25 * 60 * 60 * 1000).toISOString();
+      expect(component.formatTimeAgo(oneDayAgo)).toContain('1 day ago');
+    });
+
+    it('should format duration with hours only (no remaining minutes)', () => {
+      expect(component.formatDuration(120)).toBe('2h');
+    });
+
+    it('should format duration with minutes only', () => {
+      expect(component.formatDuration(45)).toBe('45m');
+    });
+
+    it('should format duration with hours and minutes', () => {
+      expect(component.formatDuration(90)).toBe('1h 30m');
+    });
+
+    it('should format duration null', () => {
+      expect(component.formatDuration(null)).toBe('');
+    });
+
+    it('should abort bulkDelete when childId is null', () => {
+      window.confirm = vi.fn().mockReturnValue(true) as any;
+      component.selectedIds.set([1, 2]);
+      component.childId.set(null);
+
+      component.bulkDelete();
+
+      expect(component.isBulkDeleting()).toBe(false);
+    });
+
+    it('should toggle selectAll on empty list', () => {
+      component.allNaps.set([]);
+      component.toggleSelectAll();
+      expect(component.selectedIds()).toEqual([]);
+    });
+
+    it('should handle ngOnInit with no childId in route', () => {
+      const activatedRoute = TestBed.inject(ActivatedRoute);
+      activatedRoute.snapshot.paramMap.get = vi.fn().mockReturnValue(null) as any;
+      (childrenService.get as ReturnType<typeof vi.fn>).mockClear();
+
+      component.ngOnInit();
+
+      expect(childrenService.get).not.toHaveBeenCalled();
+    });
+  });
 });

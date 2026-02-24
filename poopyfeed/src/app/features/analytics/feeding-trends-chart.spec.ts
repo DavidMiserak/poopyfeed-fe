@@ -287,4 +287,114 @@ describe('FeedingTrendsChart', () => {
       expect(container?.classList.contains('shadow-lg')).toBe(true);
     });
   });
+
+  describe('Branch coverage - hasData edge cases', () => {
+    it('should have hasData false when daily_data is empty', () => {
+      fixture.componentRef.setInput('data', {
+        ...mockData,
+        daily_data: [],
+      });
+      expect(component.hasData()).toBe(false);
+    });
+
+    it('should have hasData false when daily_data is undefined', () => {
+      fixture.componentRef.setInput('data', {
+        ...mockData,
+        daily_data: undefined,
+      });
+      expect(component.hasData()).toBe(false);
+    });
+
+    it('should have hasData false when data is null', () => {
+      fixture.componentRef.setInput('data', null);
+      expect(component.hasData()).toBe(false);
+    });
+  });
+
+  describe('Branch coverage - chart rendering', () => {
+    it('should not render chart when loading', async () => {
+      fixture.componentRef.setInput('data', mockData);
+      fixture.componentRef.setInput('isLoading', true);
+      await fixture.whenStable();
+
+      expect(mockChartConstructor).not.toHaveBeenCalled();
+    });
+
+    it('should handle chart factory error', async () => {
+      const errorChartConstructor = vi.fn(() => {
+        throw new Error('Canvas error');
+      });
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      await TestBed.resetTestingModule();
+      await TestBed.configureTestingModule({
+        imports: [FeedingTrendsChart],
+        providers: [{ provide: CHART_FACTORY, useValue: errorChartConstructor }],
+      }).compileComponents();
+
+      const newFixture = TestBed.createComponent(FeedingTrendsChart);
+      newFixture.componentRef.setInput('data', mockData);
+      newFixture.componentRef.setInput('isLoading', false);
+      await newFixture.whenStable();
+
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Failed to render feeding trends chart:',
+        expect.any(Error)
+      );
+      consoleSpy.mockRestore();
+      newFixture.destroy();
+    });
+
+    it('should handle tooltip afterLabel with null duration', async () => {
+      const dataWithNullDuration: FeedingTrends = {
+        ...mockData,
+        daily_data: [{ date: '2024-01-01', count: 2, average_duration: null, total_oz: 10 }],
+      };
+      fixture.componentRef.setInput('data', dataWithNullDuration);
+      fixture.componentRef.setInput('isLoading', false);
+      await fixture.whenStable();
+
+      const config = mockChartConstructor.mock.calls[0][1];
+      const afterLabel = config.options?.plugins?.tooltip?.callbacks?.afterLabel;
+      if (afterLabel) {
+        const result = afterLabel({ dataIndex: 0, parsed: { y: 2 } } as any);
+        expect(result).toBe('');
+      }
+    });
+
+    it('should format duration in tooltip when present', async () => {
+      fixture.componentRef.setInput('data', mockData);
+      fixture.componentRef.setInput('isLoading', false);
+      await fixture.whenStable();
+
+      const config = mockChartConstructor.mock.calls[0][1];
+      const afterLabel = config.options?.plugins?.tooltip?.callbacks?.afterLabel;
+      if (afterLabel) {
+        const result = afterLabel({ dataIndex: 0, parsed: { y: 5 } } as any);
+        expect(result).toContain('Avg duration: 12.5 min');
+      }
+    });
+
+    it('should destroy old chart when re-rendering', async () => {
+      fixture.componentRef.setInput('data', mockData);
+      fixture.componentRef.setInput('isLoading', false);
+      await fixture.whenStable();
+
+      fixture.componentRef.setInput('data', {
+        ...mockData,
+        daily_data: [{ date: '2024-02-01', count: 3, average_duration: 15.0, total_oz: 15 }],
+      });
+      await fixture.whenStable();
+
+      expect(mockDestroyFn).toHaveBeenCalled();
+    });
+
+    it('should show spinner when loading', async () => {
+      fixture.componentRef.setInput('isLoading', true);
+      await fixture.whenStable();
+
+      const spinner = fixture.nativeElement.querySelector('.animate-spin');
+      expect(spinner).toBeTruthy();
+    });
+  });
 });

@@ -262,4 +262,84 @@ describe('TrackingFilterComponent', () => {
       expect(component.filterLabel()).toBe('Type');
     });
   });
+
+  describe('onTypeChange()', () => {
+    it('should update filters when type changes', () => {
+      let lastCriteria: any;
+      component.filterChange.subscribe((criteria) => {
+        lastCriteria = criteria;
+      });
+
+      const event = new Event('change');
+      const target = { value: 'bottle' } as HTMLSelectElement;
+      Object.defineProperty(event, 'target', { value: target, enumerable: true });
+
+      component.onTypeChange(event);
+
+      expect(lastCriteria.type).toBe('bottle');
+    });
+
+    it('should clear type when empty', () => {
+      component.filters.set({ type: 'bottle' });
+
+      let lastCriteria: any;
+      component.filterChange.subscribe((criteria) => {
+        lastCriteria = criteria;
+      });
+
+      const event = new Event('change');
+      const target = { value: '' } as HTMLSelectElement;
+      Object.defineProperty(event, 'target', { value: target, enumerable: true });
+
+      component.onTypeChange(event);
+
+      expect(lastCriteria.type).toBeUndefined();
+    });
+  });
+
+  describe('Template rendering - active filter badges', () => {
+    it('should show dateFrom badge when filter is active', () => {
+      component.filters.set({ dateFrom: '2024-01-15' });
+      fixture.detectChanges();
+
+      const el = fixture.nativeElement as HTMLElement;
+      expect(el.textContent).toContain('From:');
+    });
+
+    it('should show dateTo badge when filter is active', () => {
+      component.filters.set({ dateTo: '2024-01-31' });
+      fixture.detectChanges();
+
+      const el = fixture.nativeElement as HTMLElement;
+      expect(el.textContent).toContain('To:');
+    });
+
+    it('should show type badge when filter is active', () => {
+      fixture.componentRef.setInput('typeOptions', [
+        { value: 'bottle', label: 'Bottle' },
+      ]);
+      component.filters.set({ type: 'bottle' });
+      fixture.detectChanges();
+
+      const el = fixture.nativeElement as HTMLElement;
+      expect(el.textContent).toContain('Bottle');
+    });
+
+    it('should show clear button when filters are active', () => {
+      component.filters.set({ dateFrom: '2024-01-15' });
+      fixture.detectChanges();
+
+      const clearButton = fixture.nativeElement.querySelector('button');
+      expect(clearButton?.textContent?.trim()).toBe('Clear');
+    });
+
+    it('should not show badges when no filters active', () => {
+      component.filters.set({});
+      fixture.detectChanges();
+
+      const el = fixture.nativeElement as HTMLElement;
+      expect(el.textContent).not.toContain('From:');
+      expect(el.textContent).not.toContain('To:');
+    });
+  });
 });

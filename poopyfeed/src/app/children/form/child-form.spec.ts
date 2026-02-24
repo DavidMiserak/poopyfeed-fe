@@ -1042,4 +1042,51 @@ describe('ChildForm', () => {
       });
     });
   });
+
+  describe('Branch coverage - restoreDefaultBottleAmounts', () => {
+    it('should clear custom bottle amounts to null', () => {
+      component.childForm.patchValue({
+        custom_bottle_low_oz: 2,
+        custom_bottle_mid_oz: 4,
+        custom_bottle_high_oz: 6,
+      });
+
+      component.restoreDefaultBottleAmounts();
+
+      expect(component.childForm.get('custom_bottle_low_oz')?.value).toBeNull();
+      expect(component.childForm.get('custom_bottle_mid_oz')?.value).toBeNull();
+      expect(component.childForm.get('custom_bottle_high_oz')?.value).toBeNull();
+    });
+  });
+
+  describe('Branch coverage - create mode (no id in route)', () => {
+    it('should not be in edit mode when no id in route', async () => {
+      const createModeRoute = {
+        paramMap: of(new Map()),
+        queryParamMap: of(new Map()),
+        snapshot: {
+          paramMap: {
+            get: vi.fn(() => null),
+          },
+        },
+      } as any;
+
+      await TestBed.resetTestingModule();
+      await TestBed.configureTestingModule({
+        imports: [ChildForm],
+        providers: [
+          { provide: ChildrenService, useValue: { get: vi.fn(), create: vi.fn(), update: vi.fn() } },
+          { provide: ToastService, useValue: { success: vi.fn(), error: vi.fn() } },
+          { provide: Router, useValue: { navigate: vi.fn(), parseUrl: vi.fn(), createUrlTree: vi.fn(), serializeUrl: vi.fn(() => ''), events: of() } as any },
+          { provide: ActivatedRoute, useValue: createModeRoute },
+        ],
+      }).compileComponents();
+
+      const createFixture = TestBed.createComponent(ChildForm);
+      const createComponent = createFixture.componentInstance;
+      createFixture.detectChanges();
+
+      expect(createComponent.isEdit()).toBe(false);
+    });
+  });
 });

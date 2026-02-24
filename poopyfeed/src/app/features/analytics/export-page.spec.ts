@@ -168,4 +168,118 @@ describe('ExportPage', () => {
       expect(toastService.error).toHaveBeenCalledWith('Child ID is missing');
     });
   });
+
+  describe('Branch coverage - ngOnInit validation', () => {
+    it('should handle missing childId param in route', async () => {
+      const noIdRoute = {
+        snapshot: {
+          paramMap: {
+            get: () => null,
+          },
+        },
+      };
+
+      await TestBed.resetTestingModule();
+      await TestBed.configureTestingModule({
+        imports: [ExportPage],
+        providers: [
+          AnalyticsService,
+          ToastService,
+          { provide: ActivatedRoute, useValue: noIdRoute },
+        ],
+      }).compileComponents();
+
+      const newToast = TestBed.inject(ToastService);
+      const newRouter = TestBed.inject(Router);
+      vi.spyOn(newToast, 'error');
+      vi.spyOn(newRouter, 'navigate');
+
+      const newFixture = TestBed.createComponent(ExportPage);
+      newFixture.detectChanges();
+
+      expect(newToast.error).toHaveBeenCalledWith('Child ID is required');
+      expect(newRouter.navigate).toHaveBeenCalledWith(['/children']);
+    });
+
+    it('should handle non-numeric childId param', async () => {
+      const badIdRoute = {
+        snapshot: {
+          paramMap: {
+            get: (key: string) => (key === 'childId' ? 'abc' : null),
+          },
+        },
+      };
+
+      await TestBed.resetTestingModule();
+      await TestBed.configureTestingModule({
+        imports: [ExportPage],
+        providers: [
+          AnalyticsService,
+          ToastService,
+          { provide: ActivatedRoute, useValue: badIdRoute },
+        ],
+      }).compileComponents();
+
+      const newToast = TestBed.inject(ToastService);
+      const newRouter = TestBed.inject(Router);
+      vi.spyOn(newToast, 'error');
+      vi.spyOn(newRouter, 'navigate');
+
+      const newFixture = TestBed.createComponent(ExportPage);
+      newFixture.detectChanges();
+
+      expect(newToast.error).toHaveBeenCalledWith('Invalid child ID');
+      expect(newRouter.navigate).toHaveBeenCalledWith(['/children']);
+    });
+  });
+
+  describe('Branch coverage - isExporting state', () => {
+    it('should set isExporting to false after CSV export completes', async () => {
+      const mockBlob = new Blob(['csv data']);
+      vi.spyOn(analyticsService, 'exportCSV').mockReturnValue(of(mockBlob));
+      vi.spyOn(router, 'navigate');
+
+      component.onExportDialogSubmit({ format: 'csv', days: 7 });
+
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      expect(component.isExporting()).toBe(false);
+    });
+
+    it('should set isExporting to false after PDF export completes', async () => {
+      vi.spyOn(analyticsService, 'exportPDFAsync').mockReturnValue(
+        of({ task_id: 'job-1', status: 'pending' as const, created_at: '', expires_at: '' })
+      );
+
+      component.onExportDialogSubmit({ format: 'pdf', days: 14 });
+
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      expect(component.isExporting()).toBe(false);
+    });
+
+    it('should set isExporting to false after CSV export error', async () => {
+      vi.spyOn(analyticsService, 'exportCSV').mockReturnValue(throwError(() => new Error('fail')));
+      vi.spyOn(toastService, 'error');
+
+      component.onExportDialogSubmit({ format: 'csv', days: 30 });
+
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      expect(component.isExporting()).toBe(false);
+    });
+
+    it('should set isExporting to false after PDF export error', async () => {
+      vi.spyOn(analyticsService, 'exportPDFAsync').mockReturnValue(throwError(() => new Error('fail')));
+      vi.spyOn(toastService, 'error');
+
+      component.onExportDialogSubmit({ format: 'pdf', days: 30 });
+
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      expect(component.isExporting()).toBe(false);
+    });
+  });
+
+  describe('ngOnDestroy', () => {
+    it('should cleanup subscriptions on destroy', () => {
+      expect(() => component.ngOnDestroy()).not.toThrow();
+    });
+  });
 });

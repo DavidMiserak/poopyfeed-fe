@@ -1647,4 +1647,210 @@ describe('QuickLog', () => {
       expect(toastService.success).toHaveBeenCalledWith('Bottle feeding recorded: 3.5 oz');
     });
   });
+
+  describe('Branch coverage - bottle amount edge cases', () => {
+    beforeEach(() => {
+      fixture.componentRef.setInput('childId', 1);
+      fixture.componentRef.setInput('canEdit', true);
+    });
+
+    it('bottleAmount should return null when child has no date_of_birth', () => {
+      const childNoDob: Child = {
+        id: 1,
+        name: 'Baby',
+        date_of_birth: '',
+        gender: 'F',
+        user_role: 'owner',
+        created_at: '2024-01-15T10:00:00Z',
+        updated_at: '2024-01-15T10:00:00Z',
+        last_diaper_change: null,
+        last_nap: null,
+        last_feeding: null,
+        custom_bottle_low_oz: null,
+        custom_bottle_mid_oz: null,
+        custom_bottle_high_oz: null,
+      };
+      fixture.componentRef.setInput('child', childNoDob);
+      fixture.detectChanges();
+      expect(component.bottleAmount()).toBeNull();
+    });
+
+    it('bottleAmount should return null when child is null', () => {
+      fixture.componentRef.setInput('child', null);
+      fixture.detectChanges();
+      expect(component.bottleAmount()).toBeNull();
+    });
+
+    it('bottleAmountLow should return null when base amount is null', () => {
+      fixture.componentRef.setInput('child', null);
+      fixture.detectChanges();
+      expect(component.bottleAmountLow()).toBeNull();
+    });
+
+    it('bottleAmountMid should return null when base amount is null', () => {
+      fixture.componentRef.setInput('child', null);
+      fixture.detectChanges();
+      expect(component.bottleAmountMid()).toBeNull();
+    });
+
+    it('bottleAmountHigh should return null when base amount is null', () => {
+      fixture.componentRef.setInput('child', null);
+      fixture.detectChanges();
+      expect(component.bottleAmountHigh()).toBeNull();
+    });
+
+    it('bottleAmountLow should return null when calculated amount is below 0.1', () => {
+      // A very young baby would have a base amount of ~1, so low = 0 which is < 0.1
+      const newbornChild: Child = {
+        id: 1,
+        name: 'Newborn',
+        date_of_birth: new Date().toISOString().split('T')[0],
+        gender: 'M',
+        user_role: 'owner',
+        created_at: '2024-01-15T10:00:00Z',
+        updated_at: '2024-01-15T10:00:00Z',
+        last_diaper_change: null,
+        last_nap: null,
+        last_feeding: null,
+        custom_bottle_low_oz: null,
+        custom_bottle_mid_oz: null,
+        custom_bottle_high_oz: null,
+      };
+      fixture.componentRef.setInput('child', newbornChild);
+      fixture.detectChanges();
+
+      const base = component.bottleAmount();
+      if (base !== null && base - 1 < 0.1) {
+        expect(component.bottleAmountLow()).toBeNull();
+      } else {
+        expect(component.bottleAmountLow()).not.toBeNull();
+      }
+    });
+
+    it('should not log bottle when amount is null', () => {
+      fixture.componentRef.setInput('child', null);
+      fixture.detectChanges();
+
+      component.quickLogBottleLow();
+      expect(feedingsService.create).not.toHaveBeenCalled();
+    });
+
+    it('should not log bottle mid when amount is null', () => {
+      fixture.componentRef.setInput('child', null);
+      fixture.detectChanges();
+
+      component.quickLogBottleMid();
+      expect(feedingsService.create).not.toHaveBeenCalled();
+    });
+
+    it('should not log bottle high when amount is null', () => {
+      fixture.componentRef.setInput('child', null);
+      fixture.detectChanges();
+
+      component.quickLogBottleHigh();
+      expect(feedingsService.create).not.toHaveBeenCalled();
+    });
+
+    it('should not log wet diaper when already logging', () => {
+      component.isLoggingWetDiaper.set(true);
+      component.quickLogWetDiaper();
+      expect(diapersService.create).not.toHaveBeenCalled();
+    });
+
+    it('should not log dirty diaper when already logging', () => {
+      component.isLoggingDirtyDiaper.set(true);
+      component.quickLogDirtyDiaper();
+      expect(diapersService.create).not.toHaveBeenCalled();
+    });
+
+    it('should not log both diaper when already logging', () => {
+      component.isLoggingBothDiaper.set(true);
+      component.quickLogBothDiaper();
+      expect(diapersService.create).not.toHaveBeenCalled();
+    });
+
+    it('should not log wet diaper when canEdit is false', () => {
+      fixture.componentRef.setInput('canEdit', false);
+      fixture.detectChanges();
+      component.quickLogWetDiaper();
+      expect(diapersService.create).not.toHaveBeenCalled();
+    });
+
+    it('should not log dirty diaper when canEdit is false', () => {
+      fixture.componentRef.setInput('canEdit', false);
+      fixture.detectChanges();
+      component.quickLogDirtyDiaper();
+      expect(diapersService.create).not.toHaveBeenCalled();
+    });
+
+    it('should not log both diaper when canEdit is false', () => {
+      fixture.componentRef.setInput('canEdit', false);
+      fixture.detectChanges();
+      component.quickLogBothDiaper();
+      expect(diapersService.create).not.toHaveBeenCalled();
+    });
+
+    it('should handle error from wet diaper service', () => {
+      vi.mocked(dateTimeService.toUTC).mockReturnValue(new Date().toISOString());
+      vi.mocked(diapersService.create).mockReturnValue(throwError(() => new Error('Network error')));
+
+      component.quickLogWetDiaper();
+
+      expect(component.isLoggingWetDiaper()).toBe(false);
+      expect(toastService.error).toHaveBeenCalledWith('Network error');
+    });
+
+    it('should handle error from dirty diaper service', () => {
+      vi.mocked(dateTimeService.toUTC).mockReturnValue(new Date().toISOString());
+      vi.mocked(diapersService.create).mockReturnValue(throwError(() => new Error('Server error')));
+
+      component.quickLogDirtyDiaper();
+
+      expect(component.isLoggingDirtyDiaper()).toBe(false);
+      expect(toastService.error).toHaveBeenCalledWith('Server error');
+    });
+
+    it('should handle error from both diaper service', () => {
+      vi.mocked(dateTimeService.toUTC).mockReturnValue(new Date().toISOString());
+      vi.mocked(diapersService.create).mockReturnValue(throwError(() => new Error('Timeout')));
+
+      component.quickLogBothDiaper();
+
+      expect(component.isLoggingBothDiaper()).toBe(false);
+      expect(toastService.error).toHaveBeenCalledWith('Timeout');
+    });
+
+    it('should emit quickLogged after successful wet diaper', () => {
+      vi.mocked(dateTimeService.toUTC).mockReturnValue(new Date().toISOString());
+      vi.mocked(diapersService.create).mockReturnValue(of({} as any));
+      const spy = vi.spyOn(component.quickLogged, 'emit');
+
+      component.quickLogWetDiaper();
+
+      expect(spy).toHaveBeenCalled();
+      expect(toastService.success).toHaveBeenCalledWith('Wet diaper recorded successfully');
+    });
+
+    it('should emit quickLogged after successful dirty diaper', () => {
+      vi.mocked(dateTimeService.toUTC).mockReturnValue(new Date().toISOString());
+      vi.mocked(diapersService.create).mockReturnValue(of({} as any));
+      const spy = vi.spyOn(component.quickLogged, 'emit');
+
+      component.quickLogDirtyDiaper();
+
+      expect(spy).toHaveBeenCalled();
+      expect(toastService.success).toHaveBeenCalledWith('Dirty diaper recorded successfully');
+    });
+
+    it('should emit quickLogged after successful both diaper', () => {
+      vi.mocked(dateTimeService.toUTC).mockReturnValue(new Date().toISOString());
+      vi.mocked(diapersService.create).mockReturnValue(of({} as any));
+      const spy = vi.spyOn(component.quickLogged, 'emit');
+
+      component.quickLogBothDiaper();
+
+      expect(spy).toHaveBeenCalled();
+      expect(toastService.success).toHaveBeenCalledWith('Wet and dirty diaper recorded successfully');
+    });
+  });
 });

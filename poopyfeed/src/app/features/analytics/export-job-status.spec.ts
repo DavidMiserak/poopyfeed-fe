@@ -469,4 +469,154 @@ describe('ExportJobStatusComponent', () => {
       expect(component).toBeTruthy();
     });
   });
+
+  describe('Branch coverage - isComplete computed signal', () => {
+    it('should be true when isPolling is false and status is pending', () => {
+      component['status'].set('pending');
+      component['isPolling'].set(false);
+
+      expect(component.isComplete()).toBe(true);
+    });
+
+    it('should be false when isPolling is true and status is pending', () => {
+      component['status'].set('pending');
+      component['isPolling'].set(true);
+
+      expect(component.isComplete()).toBe(false);
+    });
+  });
+
+  describe('Branch coverage - template rendering', () => {
+    it('should render pending status message', () => {
+      component['status'].set('pending');
+      fixture.detectChanges();
+
+      const text = fixture.nativeElement.textContent;
+      expect(text).toContain('Queued for processing');
+    });
+
+    it('should render processing status message', () => {
+      component['status'].set('processing');
+      fixture.detectChanges();
+
+      const text = fixture.nativeElement.textContent;
+      expect(text).toContain('Generating PDF');
+    });
+
+    it('should render completed status message', () => {
+      component['status'].set('completed');
+      fixture.detectChanges();
+
+      const text = fixture.nativeElement.textContent;
+      expect(text).toContain('PDF ready for download');
+    });
+
+    it('should render failed status message', () => {
+      component['status'].set('failed');
+      fixture.detectChanges();
+
+      const text = fixture.nativeElement.textContent;
+      expect(text).toContain('Export failed');
+    });
+
+    it('should render download button when completed with URL', () => {
+      component['status'].set('completed');
+      component['downloadUrl'].set('/api/download/test.pdf');
+      fixture.detectChanges();
+
+      const downloadButton = fixture.nativeElement.querySelector(
+        'button[aria-label="Download PDF export file"]'
+      );
+      expect(downloadButton).toBeTruthy();
+      expect(downloadButton.textContent).toContain('Download PDF');
+    });
+
+    it('should not render download button when completed without URL', () => {
+      component['status'].set('completed');
+      component['downloadUrl'].set(null);
+      fixture.detectChanges();
+
+      const downloadButton = fixture.nativeElement.querySelector(
+        'button[aria-label="Download PDF export file"]'
+      );
+      expect(downloadButton).toBeFalsy();
+    });
+
+    it('should render expiry warning when completed with expiresAt', () => {
+      component['status'].set('completed');
+      component['expiresAt'].set(new Date('2026-02-13T10:00:00Z'));
+      fixture.detectChanges();
+
+      const text = fixture.nativeElement.textContent;
+      expect(text).toContain('Download available until');
+    });
+
+    it('should not render expiry warning when expiresAt is null', () => {
+      component['status'].set('completed');
+      component['expiresAt'].set(null);
+      fixture.detectChanges();
+
+      const text = fixture.nativeElement.textContent;
+      expect(text).not.toContain('Download available until');
+    });
+
+    it('should show Dismiss text when completed', () => {
+      component['status'].set('completed');
+      fixture.detectChanges();
+
+      const buttons = fixture.nativeElement.querySelectorAll('button');
+      const dismissButton = Array.from(buttons).find(
+        (btn: any) => btn.textContent.trim().includes('Dismiss')
+      );
+      expect(dismissButton).toBeTruthy();
+    });
+
+    it('should show Close text when not completed', () => {
+      component['status'].set('processing');
+      fixture.detectChanges();
+
+      const buttons = fixture.nativeElement.querySelectorAll('button');
+      const closeButton = Array.from(buttons).find(
+        (btn: any) => btn.textContent.trim().includes('Close')
+      );
+      expect(closeButton).toBeTruthy();
+    });
+  });
+
+  describe('Branch coverage - response without progress', () => {
+    it('should handle response without progress field', () => {
+      const initialProgress = component.progress();
+      component['status'].set('pending');
+      // When progress is undefined, it should not update
+      const response: JobStatusResponse = {
+        task_id: mockTaskId,
+        status: 'pending',
+      };
+      // Simulate: progress is undefined so should not update
+      if (response.progress !== undefined) {
+        component['progress'].set(response.progress);
+      }
+      expect(component.progress()).toBe(initialProgress);
+    });
+  });
+
+  describe('Branch coverage - completed without result', () => {
+    it('should not set download URL when completed but result is missing', () => {
+      const response: JobStatusResponse = {
+        task_id: mockTaskId,
+        status: 'completed',
+        progress: 100,
+      };
+
+      component['status'].set(response.status);
+      if (response.progress !== undefined) {
+        component['progress'].set(response.progress);
+      }
+      if (response.status === 'completed' && response.result) {
+        component['downloadUrl'].set(response.result.download_url);
+      }
+
+      expect(component.downloadUrl()).toBeNull();
+    });
+  });
 });

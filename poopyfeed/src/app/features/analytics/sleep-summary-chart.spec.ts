@@ -133,5 +133,122 @@ describe('SleepSummaryChart', () => {
       fixture.componentRef.setInput('data', mockData);
       expect(component.hasData()).toBe(true);
     });
+
+    it('should have hasData false when daily_data is empty array', () => {
+      fixture.componentRef.setInput('data', {
+        ...mockData,
+        daily_data: [],
+      });
+      expect(component.hasData()).toBe(false);
+    });
+
+    it('should have hasData false when daily_data is undefined', () => {
+      fixture.componentRef.setInput('data', {
+        ...mockData,
+        daily_data: undefined,
+      });
+      expect(component.hasData()).toBe(false);
+    });
+  });
+
+  describe('Chart rendering edge cases', () => {
+    it('should not render chart when loading', async () => {
+      fixture.componentRef.setInput('data', mockData);
+      fixture.componentRef.setInput('isLoading', true);
+      await fixture.whenStable();
+
+      expect(mockChartConstructor).not.toHaveBeenCalled();
+    });
+
+    it('should not render chart when data is null', async () => {
+      fixture.componentRef.setInput('data', null);
+      fixture.componentRef.setInput('isLoading', false);
+      await fixture.whenStable();
+
+      expect(mockChartConstructor).not.toHaveBeenCalled();
+    });
+
+    it('should destroy old chart before rendering new one', async () => {
+      fixture.componentRef.setInput('data', mockData);
+      fixture.componentRef.setInput('isLoading', false);
+      await fixture.whenStable();
+
+      expect(mockChartConstructor).toHaveBeenCalledTimes(1);
+
+      // Update data to trigger re-render
+      fixture.componentRef.setInput('data', {
+        ...mockData,
+        daily_data: [{ date: '2024-02-01', count: 4, average_duration: 40.0, total_oz: null }],
+      });
+      await fixture.whenStable();
+
+      expect(mockDestroyFn).toHaveBeenCalled();
+    });
+
+    it('should handle chart factory error', async () => {
+      const errorChartConstructor = vi.fn(() => {
+        throw new Error('Canvas not supported');
+      });
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      await TestBed.resetTestingModule();
+      await TestBed.configureTestingModule({
+        imports: [SleepSummaryChart],
+        providers: [{ provide: CHART_FACTORY, useValue: errorChartConstructor }],
+      }).compileComponents();
+
+      const newFixture = TestBed.createComponent(SleepSummaryChart);
+      newFixture.componentRef.setInput('data', mockData);
+      newFixture.componentRef.setInput('isLoading', false);
+      await newFixture.whenStable();
+
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Failed to render sleep summary chart:',
+        expect.any(Error)
+      );
+      consoleSpy.mockRestore();
+      newFixture.destroy();
+    });
+
+    it('should handle data with null average_duration in tooltip', async () => {
+      const dataWithNullDuration = {
+        ...mockData,
+        daily_data: [{ date: '2024-01-01', count: 2, average_duration: null, total_oz: null }],
+      };
+      fixture.componentRef.setInput('data', dataWithNullDuration);
+      fixture.componentRef.setInput('isLoading', false);
+      await fixture.whenStable();
+
+      expect(mockChartConstructor).toHaveBeenCalled();
+
+      // Verify the tooltip afterLabel callback handles null duration
+      const config = mockChartConstructor.mock.calls[0][1];
+      const afterLabel = config.options?.plugins?.tooltip?.callbacks?.afterLabel;
+      if (afterLabel) {
+        const result = afterLabel({ dataIndex: 0, parsed: { y: 2 } } as any);
+        expect(result).toBe('');
+      }
+    });
+
+    it('should format duration in tooltip when present', async () => {
+      fixture.componentRef.setInput('data', mockData);
+      fixture.componentRef.setInput('isLoading', false);
+      await fixture.whenStable();
+
+      const config = mockChartConstructor.mock.calls[0][1];
+      const afterLabel = config.options?.plugins?.tooltip?.callbacks?.afterLabel;
+      if (afterLabel) {
+        const result = afterLabel({ dataIndex: 0, parsed: { y: 3 } } as any);
+        expect(result).toContain('Avg duration: 45.0 min');
+      }
+    });
+
+    it('should show spinner when loading', async () => {
+      fixture.componentRef.setInput('isLoading', true);
+      await fixture.whenStable();
+
+      const spinner = fixture.nativeElement.querySelector('.animate-spin');
+      expect(spinner).toBeTruthy();
+    });
   });
 });

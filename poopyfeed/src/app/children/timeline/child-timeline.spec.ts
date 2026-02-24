@@ -648,4 +648,48 @@ describe('ChildTimeline', () => {
       expect(addedNap?.type).toBe('nap');
     });
   });
+
+  describe('Branch coverage - null/edge cases', () => {
+    it('canAddNap should return false when child is null', () => {
+      component.child.set(null);
+      expect(component.canAddNap()).toBe(false);
+    });
+
+    it('canAddNap should return false for caregiver', () => {
+      component.child.set({ ...mockChild, user_role: 'caregiver' });
+      expect(component.canAddNap()).toBe(false);
+    });
+
+    it('canAddNap should return true for co-parent', () => {
+      component.child.set({ ...mockChild, user_role: 'co-parent' });
+      expect(component.canAddNap()).toBe(true);
+    });
+
+    it('addNapForGap should bail when childId is null', () => {
+      component.childId.set(null);
+      component.addNapForGap('2024-01-15T10:00:00Z', '2024-01-15T12:00:00Z');
+      // If it didn't bail, isAddingNap would be true
+      expect(component.isAddingNap()).toBe(false);
+    });
+
+    it('addNapForGap should bail when isAddingNap is already true', () => {
+      component.childId.set(1);
+      component.isAddingNap.set(true);
+      component.addNapForGap('2024-01-15T10:00:00Z', '2024-01-15T12:00:00Z');
+      // isAddingNap should still be true (didn't change state)
+      expect(component.isAddingNap()).toBe(true);
+    });
+
+    it('formatGapTime should format hours only when no remaining minutes', () => {
+      expect(component.formatGapTime(120)).toBe('2h');
+    });
+
+    it('formatGapTime should format hours and minutes', () => {
+      expect(component.formatGapTime(90)).toBe('1h 30m');
+    });
+
+    it('formatGapTime should format minutes only when less than 60', () => {
+      expect(component.formatGapTime(45)).toBe('45m');
+    });
+  });
 });
