@@ -34,40 +34,7 @@ import { ExportOptions } from '../../models/analytics.model';
   selector: 'app-export-page',
   imports: [CommonModule, ExportDialogComponent, ExportJobStatusComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <!-- Back link -->
-      <div class="mb-6">
-        <a
-          (click)="goBack()"
-          class="text-orange-600 hover:text-orange-700 font-medium cursor-pointer flex items-center gap-2"
-        >
-          ← Back to Analytics
-        </a>
-      </div>
-
-      <!-- Export dialog or job status -->
-      @if (!showJobStatus()) {
-        <!-- Export Dialog (full page) -->
-        <div class="flex justify-center">
-          <app-export-dialog
-            [isSubmitting]="isExporting()"
-            (submitEvent)="onExportDialogSubmit($event)"
-            (cancelEvent)="onExportDialogCancel()"
-          />
-        </div>
-      } @else if (jobTaskId(); as taskId) {
-        <!-- Job Status Polling (full page) -->
-        <div class="flex justify-center">
-          <app-export-job-status
-            [taskId]="taskId"
-            [childId]="childId()!"
-            (dismissEvent)="onJobStatusDismiss()"
-          />
-        </div>
-      }
-    </div>
-  `,
+  templateUrl: './export-page.html',
 })
 export class ExportPage implements OnInit, OnDestroy {
   private router = inject(Router);

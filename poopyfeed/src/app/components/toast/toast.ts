@@ -11,34 +11,7 @@ import { ToastService } from '../../services/toast.service';
   selector: 'app-toast',
   standalone: true,
   imports: [CommonModule],
-  template: `
-    <div class="fixed top-4 right-4 z-[999] space-y-2" aria-live="polite" aria-atomic="true">
-      @for (toast of toastService.toasts$(); track toast.id) {
-        <div
-          class="min-w-80 max-w-md rounded-lg shadow-lg p-4 border-l-4 animate-in fade-in slide-in-from-top-2 duration-300"
-          [ngClass]="getToastClasses(toast.type)"
-          role="alert"
-        >
-          <div class="flex items-start gap-3">
-            <span class="text-xl">
-              {{ getIconEmoji(toast.type) }}
-            </span>
-            <div class="flex-1">
-              <p class="font-medium">{{ getTitle(toast.type) }}</p>
-              <p class="text-sm opacity-90 mt-1">{{ toast.message }}</p>
-            </div>
-            <button
-              (click)="toastService.remove(toast.id)"
-              class="text-xl leading-none hover:opacity-70 transition-opacity"
-              aria-label="Close notification"
-            >
-              ✕
-            </button>
-          </div>
-        </div>
-      }
-    </div>
-  `,
+  templateUrl: './toast.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Toast {

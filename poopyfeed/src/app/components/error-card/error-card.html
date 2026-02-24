@@ -1,0 +1,32 @@
+<div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-8 border-2 border-red-200">
+  <div class="text-center">
+    <div class="text-6xl mb-4">😞</div>
+    <h2
+      class="font-['Fredoka',sans-serif] text-2xl font-bold text-slate-900 mb-2"
+    >
+      Oops! Something went wrong
+    </h2>
+    <p class="font-['DM_Sans',sans-serif] text-slate-600 mb-6">
+      {{ errorMessage() }}
+    </p>
+
+    @if (useRouter()) {
+      <a
+        [routerLink]="backRoute()"
+        [class]="buildButtonClass()"
+      >
+        <span class="absolute inset-0" [class]="buildGradientClass()"></span>
+        <span class="relative z-10">{{ backButtonText() }}</span>
+      </a>
+    } @else {
+      <button
+        type="button"
+        (click)="backAction.emit()"
+        [class]="buildButtonClass()"
+      >
+        <span class="absolute inset-0" [class]="buildGradientClass()"></span>
+        <span class="relative z-10">{{ backButtonText() }}</span>
+      </button>
+    }
+  </div>
+</div>
