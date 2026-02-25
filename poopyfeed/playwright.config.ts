@@ -45,7 +45,7 @@ export default defineConfig({
         ...devices['Desktop Firefox'],
         storageState: 'e2e/.auth/user.json',
       },
-      testMatch: /(children|feedings|diapers|naps|sharing)\.e2e\.spec\.ts/,
+      testMatch: /(children|feedings|diapers|naps|sharing|analytics)\.e2e\.spec\.ts/,
       dependencies: ['setup'],
     },
     {
@@ -54,7 +54,7 @@ export default defineConfig({
         ...devices['Desktop Chrome'],
         storageState: 'e2e/.auth/user.json',
       },
-      testMatch: /(children|feedings|diapers|naps|sharing)\.e2e\.spec\.ts/,
+      testMatch: /(children|feedings|diapers|naps|sharing|analytics)\.e2e\.spec\.ts/,
       dependencies: ['setup'],
     },
   ],
