@@ -1,7 +1,6 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  computed,
   inject,
   OnInit,
   signal,
@@ -10,7 +9,8 @@ import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FeedingsService } from '../../../services/feedings.service';
 import { ChildrenService } from '../../../services/children.service';
-import { FilterService, FilterCriteria } from '../../../services/filter.service';
+import { TrackingListService } from '../../../services/tracking-list.service';
+import { FilterCriteria } from '../../../services/filter.service';
 import {
   TrackingFilterComponent,
   LoadingStateComponent,
@@ -21,8 +21,7 @@ import {
   TrackingEmptyStateComponent,
   TrackingItemContainerComponent,
 } from '../../../components';
-import { Feeding, FEEDING_TYPE_LABELS } from '../../../models/feeding.model';
-import { Child } from '../../../models/child.model';
+import { Feeding } from '../../../models/feeding.model';
 import { formatActivityAge } from '../../../utils/date.utils';
 
 @Component({
@@ -47,16 +46,9 @@ export class FeedingsList implements OnInit {
   private route = inject(ActivatedRoute);
   private feedingsService = inject(FeedingsService);
   private childrenService = inject(ChildrenService);
-  private filterService = inject(FilterService);
+  private listService = inject(TrackingListService<Feeding>);
 
   childId = signal<number | null>(null);
-  child = signal<Child | null>(null);
-  allFeedings = signal<Feeding[]>([]);
-  filters = signal<FilterCriteria>({});
-  isLoading = signal(true);
-  error = signal<string | null>(null);
-  selectedIds = signal<number[]>([]);
-  isBulkDeleting = signal(false);
 
   // Feeding type options for filter dropdown
   feedingTypeOptions = [
@@ -64,26 +56,18 @@ export class FeedingsList implements OnInit {
     { value: 'breast', label: 'Breast' },
   ];
 
-  // Computed: feedings after filtering
-  feedings = computed(() => {
-    const criteria = this.filters();
-    const all = this.allFeedings();
-
-    // Apply filtering
-    return this.filterService.filter(all, criteria, 'fed_at', 'feeding_type');
-  });
-
-  canEdit = computed(() => {
-    const role = this.child()?.user_role;
-    return role === 'owner' || role === 'co-parent';
-  });
-
-  hasSelectedItems = computed(() => this.selectedIds().length > 0);
-
-  isAllSelected = computed(() => {
-    const feedingList = this.feedings();
-    return feedingList.length > 0 && this.selectedIds().length === feedingList.length;
-  });
+  // Expose service state directly
+  child = this.listService.child;
+  allItems = this.listService.allItems;
+  filteredItems = this.listService.filteredItems;
+  filters = this.listService.filters;
+  isLoading = this.listService.isLoading;
+  error = this.listService.error;
+  selectedIds = this.listService.selectedIds;
+  isBulkDeleting = this.listService.isBulkDeleting;
+  canEdit = this.listService.canEdit;
+  hasSelectedItems = this.listService.hasSelectedItems;
+  isAllSelected = this.listService.isAllSelected;
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('childId');
@@ -94,37 +78,44 @@ export class FeedingsList implements OnInit {
   }
 
   loadData(childId: number) {
-    this.isLoading.set(true);
-    this.error.set(null);
+    this.listService.isLoading.set(true);
+    this.listService.error.set(null);
 
-    // Load child info first to get name
+    // Load child info first
     this.childrenService.get(childId).subscribe({
       next: (child) => {
-        this.child.set(child);
+        this.listService.child.set(child);
         this.loadFeedings(childId);
       },
       error: (err: Error) => {
-        this.error.set(err.message);
-        this.isLoading.set(false);
+        this.listService.error.set(err.message);
+        this.listService.isLoading.set(false);
       },
     });
   }
 
-  loadFeedings(childId: number) {
+  private loadFeedings(childId: number) {
     this.feedingsService.list(childId).subscribe({
       next: (feedings) => {
-        this.allFeedings.set(feedings);
-        this.isLoading.set(false);
+        // Initialize service with feedings and configuration
+        this.listService.initialize({
+          timestampField: 'fed_at',
+          typeField: 'feeding_type',
+          resourceName: 'feeding',
+          deleteConfirmMessage: (count: number) => `Delete ${count} feeding(s)? This cannot be undone.`,
+        });
+        this.listService.allItems.set(feedings);
+        this.listService.isLoading.set(false);
       },
       error: (err: Error) => {
-        this.error.set(err.message);
-        this.isLoading.set(false);
+        this.listService.error.set(err.message);
+        this.listService.isLoading.set(false);
       },
     });
   }
 
   onFilterChange(criteria: FilterCriteria): void {
-    this.filters.set(criteria);
+    this.listService.filters.set(criteria);
   }
 
   navigateToCreate() {
@@ -185,63 +176,23 @@ export class FeedingsList implements OnInit {
   }
 
   toggleSelection(feedingId: number): void {
-    const current = this.selectedIds();
-    if (current.includes(feedingId)) {
-      this.selectedIds.set(current.filter(id => id !== feedingId));
-    } else {
-      this.selectedIds.set([...current, feedingId]);
-    }
+    this.listService.toggleSelection(feedingId);
   }
 
   toggleSelectAll(): void {
-    const feedingList = this.feedings();
-    if (this.isAllSelected()) {
-      this.selectedIds.set([]);
-    } else {
-      this.selectedIds.set(feedingList.map(f => f.id));
-    }
+    this.listService.toggleSelectAll();
   }
 
   clearSelection(): void {
-    this.selectedIds.set([]);
+    this.listService.clearSelection();
   }
 
   bulkDelete(): void {
-    if (!confirm(`Delete ${this.selectedIds().length} feeding(s)? This cannot be undone.`)) {
-      return;
-    }
-
-    this.isBulkDeleting.set(true);
-    const ids = this.selectedIds();
     const childId = this.childId();
+    if (!childId) return;
 
-    if (!childId) {
-      this.isBulkDeleting.set(false);
-      return;
-    }
-
-    // Delete all selected items sequentially
-    let completed = 0;
-    ids.forEach(id => {
-      this.feedingsService.delete(childId, id).subscribe({
-        next: () => {
-          completed++;
-          if (completed === ids.length) {
-            // All deletions complete
-            this.allFeedings.set(
-              this.allFeedings().filter(f => !ids.includes(f.id))
-            );
-            this.selectedIds.set([]);
-            this.isBulkDeleting.set(false);
-          }
-        },
-        error: () => {
-          completed++;
-          if (completed === ids.length) {
-            this.isBulkDeleting.set(false);
-          }
-        },
-      });
-    });
+    this.listService.bulkDelete((id: number) =>
+      this.feedingsService.delete(childId, id)
+    );
   }
 }

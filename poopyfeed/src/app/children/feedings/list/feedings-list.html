@@ -56,7 +56,7 @@
         }
 
         <!-- Feedings List -->
-        @if (feedings().length === 0) {
+        @if (filteredItems().length === 0) {
           <app-tracking-empty-state
             emoji="🍼"
             title="No feedings recorded yet"
@@ -72,14 +72,14 @@
               <app-tracking-list-select-header
                 [isAllSelected]="isAllSelected()"
                 [selectedCount]="selectedIds().length"
-                [totalCount]="feedings().length"
+                [totalCount]="filteredItems().length"
                 accentColor="rose"
                 (toggleSelectAll)="toggleSelectAll()"
               />
             }
 
             <div class="space-y-4">
-              @for (feeding of feedings(); track feeding.id) {
+              @for (feeding of filteredItems(); track feeding.id) {
                 <app-tracking-item-container
                   [isSelected]="selectedIds().includes(feeding.id)"
                   accentColor="rose"

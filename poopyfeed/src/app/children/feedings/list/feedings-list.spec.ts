@@ -147,7 +147,7 @@ describe('FeedingsList - Batch Operations', () => {
 
   describe('toggleSelectAll', () => {
     it('should select all items when none selected', () => {
-      component.allFeedings.set(mockFeedings);
+      component.allItems.set(mockFeedings);
       fixture.detectChanges();
 
       component.toggleSelectAll();
@@ -157,7 +157,7 @@ describe('FeedingsList - Batch Operations', () => {
 
     it('should deselect all items when all selected', () => {
       component.selectedIds.set([1, 2, 3]);
-      component.allFeedings.set(mockFeedings);
+      component.allItems.set(mockFeedings);
       fixture.detectChanges();
 
       component.toggleSelectAll();
@@ -166,7 +166,7 @@ describe('FeedingsList - Batch Operations', () => {
     });
 
     it('should select all filtered items', () => {
-      component.allFeedings.set(mockFeedings);
+      component.allItems.set(mockFeedings);
       component.filters.set({ type: 'bottle' });
       fixture.detectChanges();
 
@@ -215,7 +215,7 @@ describe('FeedingsList - Batch Operations', () => {
 
   describe('isAllSelected computed', () => {
     it('should return true when all items selected', () => {
-      component.allFeedings.set(mockFeedings);
+      component.allItems.set(mockFeedings);
       component.selectedIds.set([1, 2, 3]);
       fixture.detectChanges();
 
@@ -223,7 +223,7 @@ describe('FeedingsList - Batch Operations', () => {
     });
 
     it('should return false when partial selection', () => {
-      component.allFeedings.set(mockFeedings);
+      component.allItems.set(mockFeedings);
       component.selectedIds.set([1, 2]);
       fixture.detectChanges();
 
@@ -231,7 +231,7 @@ describe('FeedingsList - Batch Operations', () => {
     });
 
     it('should return false when no selection', () => {
-      component.allFeedings.set(mockFeedings);
+      component.allItems.set(mockFeedings);
       component.selectedIds.set([]);
       fixture.detectChanges();
 
@@ -239,7 +239,7 @@ describe('FeedingsList - Batch Operations', () => {
     });
 
     it('should account for filtered items', () => {
-      component.allFeedings.set(mockFeedings);
+      component.allItems.set(mockFeedings);
       component.filters.set({ type: 'bottle' }); // 2 items match
       fixture.detectChanges();
 
@@ -252,7 +252,7 @@ describe('FeedingsList - Batch Operations', () => {
   describe('bulkDelete', () => {
     it('should prompt for confirmation', () => {
       const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
-      component.allFeedings.set(mockFeedings);
+      component.allItems.set(mockFeedings);
       component.selectedIds.set([1, 2]);
 
       component.bulkDelete();
@@ -265,7 +265,7 @@ describe('FeedingsList - Batch Operations', () => {
 
     it('should not delete if user cancels confirmation', () => {
       const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(false);
-      component.allFeedings.set(mockFeedings);
+      component.allItems.set(mockFeedings);
       component.selectedIds.set([1, 2]);
 
       component.bulkDelete();
@@ -277,7 +277,7 @@ describe('FeedingsList - Batch Operations', () => {
     it('should delete selected items', () => {
       const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
       component.childId.set(1);
-      component.allFeedings.set(mockFeedings);
+      component.allItems.set(mockFeedings);
       component.selectedIds.set([1, 2]);
 
       component.bulkDelete();
@@ -292,13 +292,13 @@ describe('FeedingsList - Batch Operations', () => {
       (feedingsService.delete as any).mockReturnValue(of(void 0));
 
       component.childId.set(1);
-      component.allFeedings.set(mockFeedings);
+      component.allItems.set(mockFeedings);
       component.selectedIds.set([1, 3]);
 
       component.bulkDelete();
 
       await new Promise(resolve => setTimeout(resolve, 100));
-      expect(component.allFeedings()).toEqual([mockFeedings[1]]); // Only feeding 2 remains
+      expect(component.allItems()).toEqual([mockFeedings[1]]); // Only feeding 2 remains
       confirmSpy.mockRestore();
     });
 
@@ -307,7 +307,7 @@ describe('FeedingsList - Batch Operations', () => {
       (feedingsService.delete as any).mockReturnValue(of(void 0));
 
       component.childId.set(1);
-      component.allFeedings.set(mockFeedings);
+      component.allItems.set(mockFeedings);
       component.selectedIds.set([1, 2, 3]);
 
       component.bulkDelete();
@@ -322,7 +322,7 @@ describe('FeedingsList - Batch Operations', () => {
       (feedingsService.delete as any).mockReturnValue(of(void 0));
 
       component.childId.set(1);
-      component.allFeedings.set(mockFeedings);
+      component.allItems.set(mockFeedings);
       component.selectedIds.set([1, 2]);
 
       expect(component.isBulkDeleting()).toBeFalsy();
@@ -340,7 +340,7 @@ describe('FeedingsList - Batch Operations', () => {
       (feedingsService.delete as any).mockReturnValue(of(void 0));
 
       component.childId.set(1);
-      component.allFeedings.set(mockFeedings);
+      component.allItems.set(mockFeedings);
       component.selectedIds.set([1, 2]);
 
       component.bulkDelete();
@@ -362,7 +362,7 @@ describe('FeedingsList - Batch Operations', () => {
       );
 
       component.childId.set(1);
-      component.allFeedings.set(mockFeedings);
+      component.allItems.set(mockFeedings);
       component.selectedIds.set([1, 2, 3]);
 
       component.bulkDelete();
@@ -391,7 +391,7 @@ describe('FeedingsList - Batch Operations', () => {
       (feedingsService.delete as any).mockReturnValue(of(void 0));
 
       component.childId.set(1);
-      component.allFeedings.set(mockFeedings);
+      component.allItems.set(mockFeedings);
       component.child.set(mockChild);
       fixture.detectChanges();
 
@@ -404,13 +404,13 @@ describe('FeedingsList - Batch Operations', () => {
 
       await new Promise(resolve => setTimeout(resolve, 100));
       expect(component.selectedIds()).toEqual([]);
-      expect(component.allFeedings()).toEqual([]);
+      expect(component.allItems()).toEqual([]);
       expect(component.hasSelectedItems()).toBeFalsy();
       confirmSpy.mockRestore();
     });
 
     it('should maintain selection state across filter changes', () => {
-      component.allFeedings.set(mockFeedings);
+      component.allItems.set(mockFeedings);
       component.selectedIds.set([1, 3]);
 
       // Apply filter
@@ -466,7 +466,7 @@ describe('FeedingsList - Batch Operations', () => {
       });
 
       component.childId.set(1);
-      component.allFeedings.set(mockFeedings);
+      component.allItems.set(mockFeedings);
       component.selectedIds.set([1, 2]);
 
       component.bulkDelete();
@@ -479,21 +479,21 @@ describe('FeedingsList - Batch Operations', () => {
 
   describe('edge cases', () => {
     it('should handle empty allFeedings array', () => {
-      component.allFeedings.set([]);
-      expect(component.allFeedings()).toEqual([]);
+      component.allItems.set([]);
+      expect(component.allItems()).toEqual([]);
     });
 
     it('should handle null filters gracefully', () => {
-      component.allFeedings.set(mockFeedings);
+      component.allItems.set(mockFeedings);
       component.filters.set(null as any);
 
       expect(() => {
-        component.allFeedings();
+        component.allItems();
       }).not.toThrow();
     });
 
     it('should handle selection with empty feedings', () => {
-      component.allFeedings.set([]);
+      component.allItems.set([]);
       component.toggleSelectAll();
 
       expect(component.selectedIds()).toEqual([]);
@@ -501,7 +501,7 @@ describe('FeedingsList - Batch Operations', () => {
     });
 
     it('should handle toggle select with no feedings', () => {
-      component.allFeedings.set([]);
+      component.allItems.set([]);
       component.selectedIds.set([]);
 
       component.toggleSelectAll();
@@ -512,7 +512,7 @@ describe('FeedingsList - Batch Operations', () => {
     it('should handle bulkDelete with no childId', () => {
       const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
       component.childId.set(null);
-      component.allFeedings.set(mockFeedings);
+      component.allItems.set(mockFeedings);
       component.selectedIds.set([1, 2]);
 
       component.bulkDelete();
@@ -522,7 +522,7 @@ describe('FeedingsList - Batch Operations', () => {
     });
 
     it('should handle toggleSelection with invalid id', () => {
-      component.allFeedings.set(mockFeedings);
+      component.allItems.set(mockFeedings);
       component.selectedIds.set([]);
 
       component.toggleSelection(999); // ID not in list
@@ -656,7 +656,7 @@ describe('FeedingsList - Core Functionality Tests', () => {
     });
 
     it('should initialize with empty feedings', () => {
-      expect(component.allFeedings()).toEqual([]);
+      expect(component.allItems()).toEqual([]);
     });
 
     it('should initialize with isLoading=true', () => {
@@ -686,7 +686,7 @@ describe('FeedingsList - Core Functionality Tests', () => {
       component.ngOnInit();
       await new Promise(resolve => setTimeout(resolve, 10));
 
-      expect(component.allFeedings()).toHaveLength(3);
+      expect(component.allItems()).toHaveLength(3);
     });
 
     it('should set isLoading=false after load', async () => {
@@ -874,23 +874,23 @@ describe('FeedingsList - Core Functionality Tests', () => {
 
   describe('Filtering', () => {
     beforeEach(() => {
-      component.allFeedings.set(mockFeedings);
+      component.allItems.set(mockFeedings);
       fixture.detectChanges();
     });
 
-    it('should have feedings computed property', () => {
-      expect(component.feedings).toBeDefined();
+    it('should have filteredItems computed property', () => {
+      expect(component.filteredItems).toBeDefined();
     });
 
     it('should return all feedings when no filters', () => {
-      expect(component.feedings()).toHaveLength(3);
+      expect(component.filteredItems()).toHaveLength(3);
     });
 
     it('should filter by feeding type', () => {
       component.onFilterChange({ type: 'bottle' });
       fixture.detectChanges();
 
-      const filtered = component.feedings();
+      const filtered = component.filteredItems();
       expect(filtered.length).toBe(2); // Two bottle feedings
       expect(filtered.every(f => f.feeding_type === 'bottle')).toBeTruthy();
     });
@@ -902,7 +902,7 @@ describe('FeedingsList - Core Functionality Tests', () => {
       });
       fixture.detectChanges();
 
-      expect(component.feedings()).toHaveLength(3); // All on same day
+      expect(component.filteredItems()).toHaveLength(3); // All on same day
     });
   });
 
@@ -938,9 +938,9 @@ describe('FeedingsList - Core Functionality Tests', () => {
 
   describe('Empty States', () => {
     it('should handle empty feeding list', () => {
-      component.allFeedings.set([]);
+      component.allItems.set([]);
 
-      expect(component.feedings()).toEqual([]);
+      expect(component.filteredItems()).toEqual([]);
     });
 
     it('should handle no selections', () => {
@@ -950,9 +950,9 @@ describe('FeedingsList - Core Functionality Tests', () => {
 
   describe('Signal Reactivity', () => {
     it('should update allFeedings reactively', () => {
-      component.allFeedings.set(mockFeedings);
+      component.allItems.set(mockFeedings);
 
-      expect(component.allFeedings()).toHaveLength(3);
+      expect(component.allItems()).toHaveLength(3);
     });
 
     it('should update filters reactively', () => {
@@ -998,8 +998,8 @@ describe('FeedingsList - Core Functionality Tests', () => {
     });
 
     it('should clear previous data when childId changes', async () => {
-      component.allFeedings.set(mockFeedings);
-      expect(component.allFeedings().length).toBe(3);
+      component.allItems.set(mockFeedings);
+      expect(component.allItems().length).toBe(3);
 
       const mockRoute = TestBed.inject(ActivatedRoute);
       const originalGet = mockRoute.snapshot.paramMap.get;
@@ -1009,7 +1009,7 @@ describe('FeedingsList - Core Functionality Tests', () => {
       component.ngOnInit();
       await new Promise(resolve => setTimeout(resolve, 10));
 
-      expect(component.allFeedings()).toEqual([]);
+      expect(component.allItems()).toEqual([]);
 
       mockRoute.snapshot.paramMap.get = originalGet;
     });
@@ -1017,25 +1017,25 @@ describe('FeedingsList - Core Functionality Tests', () => {
 
   describe('Filter State Transitions', () => {
     it('should update filtered list immediately when filters change', () => {
-      component.allFeedings.set(mockFeedings);
-      expect(component.feedings().length).toBe(3);
+      component.allItems.set(mockFeedings);
+      expect(component.filteredItems().length).toBe(3);
 
       component.filters.set({ type: 'bottle' });
-      expect(component.feedings().length).toBe(2);
+      expect(component.filteredItems().length).toBe(2);
     });
 
     it('should handle rapid filter changes correctly', () => {
-      component.allFeedings.set(mockFeedings);
+      component.allItems.set(mockFeedings);
       component.filters.set({ type: 'bottle' });
       component.filters.set({ type: 'breast' });
       component.filters.set({ type: 'bottle' });
 
-      const filtered = component.feedings();
+      const filtered = component.filteredItems();
       expect(filtered.every((f: Feeding) => f.feeding_type === 'bottle')).toBe(true);
     });
 
     it('should handle isAllSelected computed during filter transitions', () => {
-      component.allFeedings.set(mockFeedings);
+      component.allItems.set(mockFeedings);
       component.selectedIds.set([1, 3]);
       expect(component.isAllSelected()).toBe(false);
 
@@ -1048,7 +1048,7 @@ describe('FeedingsList - Core Functionality Tests', () => {
     it('should handle selection changes during bulk delete operation', async () => {
       const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
       component.childId.set(1);
-      component.allFeedings.set(mockFeedings);
+      component.allItems.set(mockFeedings);
       component.selectedIds.set([1, 2]);
 
       component.bulkDelete();
@@ -1061,7 +1061,7 @@ describe('FeedingsList - Core Functionality Tests', () => {
 
     it('should preserve error state when filters change', () => {
       component.error.set('Previous error');
-      component.allFeedings.set([]);
+      component.allItems.set([]);
 
       component.filters.set({ type: 'bottle' });
 
@@ -1076,7 +1076,7 @@ describe('FeedingsList - Core Functionality Tests', () => {
     });
 
     it('isAllSelected should be false when feedings list is empty', () => {
-      component.allFeedings.set([]);
+      component.allItems.set([]);
       expect(component.isAllSelected()).toBe(false);
     });
 
@@ -1130,7 +1130,7 @@ describe('FeedingsList - Core Functionality Tests', () => {
     });
 
     it('should toggle selectAll on empty list', () => {
-      component.allFeedings.set([]);
+      component.allItems.set([]);
       component.toggleSelectAll();
       expect(component.selectedIds()).toEqual([]);
     });
