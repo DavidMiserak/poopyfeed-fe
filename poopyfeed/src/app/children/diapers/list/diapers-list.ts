@@ -1,7 +1,6 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  computed,
   inject,
   OnInit,
   signal,
@@ -10,7 +9,8 @@ import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { DiapersService } from '../../../services/diapers.service';
 import { ChildrenService } from '../../../services/children.service';
-import { FilterService, FilterCriteria } from '../../../services/filter.service';
+import { TrackingListService } from '../../../services/tracking-list.service';
+import { FilterCriteria } from '../../../services/filter.service';
 import {
   TrackingFilterComponent,
   LoadingStateComponent,
@@ -21,8 +21,7 @@ import {
   TrackingEmptyStateComponent,
   TrackingItemContainerComponent,
 } from '../../../components';
-import { DiaperChange, CHANGE_TYPE_LABELS } from '../../../models/diaper.model';
-import { Child } from '../../../models/child.model';
+import { DiaperChange } from '../../../models/diaper.model';
 import { formatActivityAge } from '../../../utils/date.utils';
 
 @Component({
@@ -47,16 +46,9 @@ export class DiapersList implements OnInit {
   private route = inject(ActivatedRoute);
   private diapersService = inject(DiapersService);
   private childrenService = inject(ChildrenService);
-  private filterService = inject(FilterService);
+  private listService = inject(TrackingListService<DiaperChange>);
 
   childId = signal<number | null>(null);
-  child = signal<Child | null>(null);
-  allDiapers = signal<DiaperChange[]>([]);
-  filters = signal<FilterCriteria>({});
-  isLoading = signal(true);
-  error = signal<string | null>(null);
-  selectedIds = signal<number[]>([]);
-  isBulkDeleting = signal(false);
 
   // Diaper change type options for filter dropdown
   changeTypeOptions = [
@@ -65,26 +57,18 @@ export class DiapersList implements OnInit {
     { value: 'both', label: 'Both' },
   ];
 
-  // Computed: diapers after filtering
-  diapers = computed(() => {
-    const criteria = this.filters();
-    const all = this.allDiapers();
-
-    // Apply filtering
-    return this.filterService.filter(all, criteria, 'changed_at', 'change_type');
-  });
-
-  canEdit = computed(() => {
-    const role = this.child()?.user_role;
-    return role === 'owner' || role === 'co-parent';
-  });
-
-  hasSelectedItems = computed(() => this.selectedIds().length > 0);
-
-  isAllSelected = computed(() => {
-    const diaperList = this.diapers();
-    return diaperList.length > 0 && this.selectedIds().length === diaperList.length;
-  });
+  // Expose service state directly
+  child = this.listService.child;
+  allItems = this.listService.allItems;
+  filteredItems = this.listService.filteredItems;
+  filters = this.listService.filters;
+  isLoading = this.listService.isLoading;
+  error = this.listService.error;
+  selectedIds = this.listService.selectedIds;
+  isBulkDeleting = this.listService.isBulkDeleting;
+  canEdit = this.listService.canEdit;
+  hasSelectedItems = this.listService.hasSelectedItems;
+  isAllSelected = this.listService.isAllSelected;
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('childId');
@@ -95,36 +79,42 @@ export class DiapersList implements OnInit {
   }
 
   loadData(childId: number) {
-    this.isLoading.set(true);
-    this.error.set(null);
+    this.listService.isLoading.set(true);
+    this.listService.error.set(null);
 
     this.childrenService.get(childId).subscribe({
       next: (child) => {
-        this.child.set(child);
+        this.listService.child.set(child);
         this.loadDiapers(childId);
       },
       error: (err: Error) => {
-        this.error.set(err.message);
-        this.isLoading.set(false);
+        this.listService.error.set(err.message);
+        this.listService.isLoading.set(false);
       },
     });
   }
 
-  loadDiapers(childId: number) {
+  private loadDiapers(childId: number) {
     this.diapersService.list(childId).subscribe({
       next: (diapers) => {
-        this.allDiapers.set(diapers);
-        this.isLoading.set(false);
+        this.listService.initialize({
+          timestampField: 'changed_at',
+          typeField: 'change_type',
+          resourceName: 'diaper change',
+          deleteConfirmMessage: (count: number) => `Delete ${count} diaper change(s)? This cannot be undone.`,
+        });
+        this.listService.allItems.set(diapers);
+        this.listService.isLoading.set(false);
       },
       error: (err: Error) => {
-        this.error.set(err.message);
-        this.isLoading.set(false);
+        this.listService.error.set(err.message);
+        this.listService.isLoading.set(false);
       },
     });
   }
 
   onFilterChange(criteria: FilterCriteria): void {
-    this.filters.set(criteria);
+    this.listService.filters.set(criteria);
   }
 
   navigateToCreate() {
@@ -196,63 +186,23 @@ export class DiapersList implements OnInit {
   }
 
   toggleSelection(diaperId: number): void {
-    const current = this.selectedIds();
-    if (current.includes(diaperId)) {
-      this.selectedIds.set(current.filter(id => id !== diaperId));
-    } else {
-      this.selectedIds.set([...current, diaperId]);
-    }
+    this.listService.toggleSelection(diaperId);
   }
 
   toggleSelectAll(): void {
-    const diaperList = this.diapers();
-    if (this.isAllSelected()) {
-      this.selectedIds.set([]);
-    } else {
-      this.selectedIds.set(diaperList.map(d => d.id));
-    }
+    this.listService.toggleSelectAll();
   }
 
   clearSelection(): void {
-    this.selectedIds.set([]);
+    this.listService.clearSelection();
   }
 
   bulkDelete(): void {
-    if (!confirm(`Delete ${this.selectedIds().length} diaper change(s)? This cannot be undone.`)) {
-      return;
-    }
-
-    this.isBulkDeleting.set(true);
-    const ids = this.selectedIds();
     const childId = this.childId();
+    if (!childId) return;
 
-    if (!childId) {
-      this.isBulkDeleting.set(false);
-      return;
-    }
-
-    // Delete all selected items sequentially
-    let completed = 0;
-    ids.forEach(id => {
-      this.diapersService.delete(childId, id).subscribe({
-        next: () => {
-          completed++;
-          if (completed === ids.length) {
-            // All deletions complete
-            this.allDiapers.set(
-              this.allDiapers().filter(d => !ids.includes(d.id))
-            );
-            this.selectedIds.set([]);
-            this.isBulkDeleting.set(false);
-          }
-        },
-        error: () => {
-          completed++;
-          if (completed === ids.length) {
-            this.isBulkDeleting.set(false);
-          }
-        },
-      });
-    });
+    this.listService.bulkDelete((id: number) =>
+      this.diapersService.delete(childId, id)
+    );
   }
 }

@@ -1,7 +1,6 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  computed,
   inject,
   OnInit,
   signal,
@@ -10,7 +9,8 @@ import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { NapsService } from '../../../services/naps.service';
 import { ChildrenService } from '../../../services/children.service';
-import { FilterService, FilterCriteria } from '../../../services/filter.service';
+import { TrackingListService } from '../../../services/tracking-list.service';
+import { FilterCriteria } from '../../../services/filter.service';
 import {
   TrackingFilterComponent,
   LoadingStateComponent,
@@ -22,7 +22,6 @@ import {
   TrackingItemContainerComponent,
 } from '../../../components';
 import { Nap } from '../../../models/nap.model';
-import { Child } from '../../../models/child.model';
 import { formatActivityAge } from '../../../utils/date.utils';
 
 @Component({
@@ -47,37 +46,22 @@ export class NapsList implements OnInit {
   private route = inject(ActivatedRoute);
   private napsService = inject(NapsService);
   private childrenService = inject(ChildrenService);
-  private filterService = inject(FilterService);
+  private listService = inject(TrackingListService<Nap>);
 
   childId = signal<number | null>(null);
-  child = signal<Child | null>(null);
-  allNaps = signal<Nap[]>([]);
-  filters = signal<FilterCriteria>({});
-  isLoading = signal(true);
-  error = signal<string | null>(null);
-  selectedIds = signal<number[]>([]);
-  isBulkDeleting = signal(false);
 
-  // Computed: naps after filtering (date range only, no type filter)
-  naps = computed(() => {
-    const criteria = this.filters();
-    const all = this.allNaps();
-
-    // Apply filtering (no type field for naps)
-    return this.filterService.filter(all, criteria, 'napped_at');
-  });
-
-  canEdit = computed(() => {
-    const role = this.child()?.user_role;
-    return role === 'owner' || role === 'co-parent';
-  });
-
-  hasSelectedItems = computed(() => this.selectedIds().length > 0);
-
-  isAllSelected = computed(() => {
-    const napList = this.naps();
-    return napList.length > 0 && this.selectedIds().length === napList.length;
-  });
+  // Expose service state directly
+  child = this.listService.child;
+  allItems = this.listService.allItems;
+  filteredItems = this.listService.filteredItems;
+  filters = this.listService.filters;
+  isLoading = this.listService.isLoading;
+  error = this.listService.error;
+  selectedIds = this.listService.selectedIds;
+  isBulkDeleting = this.listService.isBulkDeleting;
+  canEdit = this.listService.canEdit;
+  hasSelectedItems = this.listService.hasSelectedItems;
+  isAllSelected = this.listService.isAllSelected;
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('childId');
@@ -88,36 +72,41 @@ export class NapsList implements OnInit {
   }
 
   loadData(childId: number) {
-    this.isLoading.set(true);
-    this.error.set(null);
+    this.listService.isLoading.set(true);
+    this.listService.error.set(null);
 
     this.childrenService.get(childId).subscribe({
       next: (child) => {
-        this.child.set(child);
+        this.listService.child.set(child);
         this.loadNaps(childId);
       },
       error: (err: Error) => {
-        this.error.set(err.message);
-        this.isLoading.set(false);
+        this.listService.error.set(err.message);
+        this.listService.isLoading.set(false);
       },
     });
   }
 
-  loadNaps(childId: number) {
+  private loadNaps(childId: number) {
     this.napsService.list(childId).subscribe({
       next: (naps) => {
-        this.allNaps.set(naps);
-        this.isLoading.set(false);
+        this.listService.initialize({
+          timestampField: 'napped_at',
+          resourceName: 'nap',
+          deleteConfirmMessage: (count: number) => `Delete ${count} nap(s)? This cannot be undone.`,
+        });
+        this.listService.allItems.set(naps);
+        this.listService.isLoading.set(false);
       },
       error: (err: Error) => {
-        this.error.set(err.message);
-        this.isLoading.set(false);
+        this.listService.error.set(err.message);
+        this.listService.isLoading.set(false);
       },
     });
   }
 
   onFilterChange(criteria: FilterCriteria): void {
-    this.filters.set(criteria);
+    this.listService.filters.set(criteria);
   }
 
   navigateToCreate() {
@@ -186,63 +175,23 @@ export class NapsList implements OnInit {
   }
 
   toggleSelection(napId: number): void {
-    const current = this.selectedIds();
-    if (current.includes(napId)) {
-      this.selectedIds.set(current.filter(id => id !== napId));
-    } else {
-      this.selectedIds.set([...current, napId]);
-    }
+    this.listService.toggleSelection(napId);
   }
 
   toggleSelectAll(): void {
-    const napList = this.naps();
-    if (this.isAllSelected()) {
-      this.selectedIds.set([]);
-    } else {
-      this.selectedIds.set(napList.map(n => n.id));
-    }
+    this.listService.toggleSelectAll();
   }
 
   clearSelection(): void {
-    this.selectedIds.set([]);
+    this.listService.clearSelection();
   }
 
   bulkDelete(): void {
-    if (!confirm(`Delete ${this.selectedIds().length} nap(s)? This cannot be undone.`)) {
-      return;
-    }
-
-    this.isBulkDeleting.set(true);
-    const ids = this.selectedIds();
     const childId = this.childId();
+    if (!childId) return;
 
-    if (!childId) {
-      this.isBulkDeleting.set(false);
-      return;
-    }
-
-    // Delete all selected items sequentially
-    let completed = 0;
-    ids.forEach(id => {
-      this.napsService.delete(childId, id).subscribe({
-        next: () => {
-          completed++;
-          if (completed === ids.length) {
-            // All deletions complete
-            this.allNaps.set(
-              this.allNaps().filter(n => !ids.includes(n.id))
-            );
-            this.selectedIds.set([]);
-            this.isBulkDeleting.set(false);
-          }
-        },
-        error: () => {
-          completed++;
-          if (completed === ids.length) {
-            this.isBulkDeleting.set(false);
-          }
-        },
-      });
-    });
+    this.listService.bulkDelete((id: number) =>
+      this.napsService.delete(childId, id)
+    );
   }
 }

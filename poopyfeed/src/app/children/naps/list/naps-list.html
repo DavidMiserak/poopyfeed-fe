@@ -56,7 +56,7 @@
         }
 
         <!-- Naps List -->
-        @if (naps().length === 0) {
+        @if (filteredItems().length === 0) {
           <app-tracking-empty-state
             emoji="😴"
             title="No naps recorded yet"
@@ -72,14 +72,14 @@
               <app-tracking-list-select-header
                 [isAllSelected]="isAllSelected()"
                 [selectedCount]="selectedIds().length"
-                [totalCount]="naps().length"
+                [totalCount]="filteredItems().length"
                 accentColor="amber"
                 (toggleSelectAll)="toggleSelectAll()"
               />
             }
 
             <div class="space-y-4">
-              @for (nap of naps(); track nap.id) {
+              @for (nap of filteredItems(); track nap.id) {
                 <app-tracking-item-container
                   [isSelected]="selectedIds().includes(nap.id)"
                   accentColor="amber"
