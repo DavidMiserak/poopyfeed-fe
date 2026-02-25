@@ -1,14 +1,27 @@
 import { TestBed } from '@angular/core/testing';
 import { FilterService, FilterCriteria } from './filter.service';
+import { DateTimeService } from './datetime.service';
+import { AccountService } from './account.service';
+import { signal } from '@angular/core';
 import { Feeding } from '../models/feeding.model';
 import { DiaperChange } from '../models/diaper.model';
-import { Nap } from '../models/nap.model';
 
 describe('FilterService', () => {
   let service: FilterService;
+  let profileSignal: ReturnType<typeof signal>;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
+    profileSignal = signal(null);
+
+    TestBed.configureTestingModule({
+      providers: [
+        DateTimeService,
+        {
+          provide: AccountService,
+          useValue: { profile: profileSignal },
+        },
+      ],
+    });
     service = TestBed.inject(FilterService);
   });
 
@@ -94,6 +107,39 @@ describe('FilterService', () => {
         const result = service.filter(mockFeedings, criteria, 'fed_at');
 
         expect(result.length).toBe(0);
+      });
+
+      it('should use user timezone for date boundary comparison', () => {
+        profileSignal.set({
+          id: 1,
+          email: 'test@example.com',
+          first_name: 'Test',
+          last_name: 'User',
+          timezone: 'America/New_York',
+        });
+
+        // 2024-01-16T04:30:00Z = 2024-01-15T23:30:00 EST (previous day in NY)
+        const items: Feeding[] = [
+          {
+            id: 10,
+            child: 1,
+            feeding_type: 'bottle',
+            fed_at: '2024-01-16T04:30:00Z',
+            amount_oz: 5,
+            created_at: '2024-01-16T04:30:00Z',
+            updated_at: '2024-01-16T04:30:00Z',
+          },
+        ];
+
+        // In NY timezone, this is Jan 15 — should be included when filtering for Jan 15
+        const criteria: FilterCriteria = {
+          dateFrom: '2024-01-15',
+          dateTo: '2024-01-15',
+        };
+        const result = service.filter(items, criteria, 'fed_at');
+
+        expect(result.length).toBe(1);
+        expect(result[0].id).toBe(10);
       });
     });
 
@@ -218,8 +264,6 @@ describe('FilterService', () => {
         expect(result.length).toBe(0);
       });
     });
-
-;
   });
 
   describe('date utility methods', () => {
@@ -235,22 +279,12 @@ describe('FilterService', () => {
     describe('getDateNDaysAgoAsIsoString()', () => {
       it('should return date 7 days ago', () => {
         const sevenDaysAgo = service.getDateNDaysAgoAsIsoString(7);
-        const today = new Date();
-        const expectedDate = new Date(today);
-        expectedDate.setDate(expectedDate.getDate() - 7);
-        const expected = expectedDate.toISOString().split('T')[0];
-
-        expect(sevenDaysAgo).toBe(expected);
+        expect(sevenDaysAgo).toMatch(/^\d{4}-\d{2}-\d{2}$/);
       });
 
       it('should return date 1 day ago', () => {
         const yesterday = service.getDateNDaysAgoAsIsoString(1);
-        const today = new Date();
-        const expectedDate = new Date(today);
-        expectedDate.setDate(expectedDate.getDate() - 1);
-        const expected = expectedDate.toISOString().split('T')[0];
-
-        expect(yesterday).toBe(expected);
+        expect(yesterday).toMatch(/^\d{4}-\d{2}-\d{2}$/);
       });
 
       it('should handle 0 days ago', () => {

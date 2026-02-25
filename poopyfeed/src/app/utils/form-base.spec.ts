@@ -4,6 +4,7 @@ import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { TrackingFormBase, TrackingService } from './form-base';
 import { ChildrenService } from '../services/children.service';
 import { DateTimeService } from '../services/datetime.service';
+import { AccountService } from '../services/account.service';
 import { ToastService } from '../services/toast.service';
 import { Child } from '../models/child.model';
 import { Component, inject, signal } from '@angular/core';
@@ -154,6 +155,10 @@ describe('TrackingFormBase', () => {
         {
           provide: DateTimeService,
           useClass: DateTimeService,
+        },
+        {
+          provide: AccountService,
+          useValue: { profile: signal(null) },
         },
         {
           provide: ToastService,

@@ -3,10 +3,12 @@ import { FeedingsList } from './feedings-list';
 import { FeedingsService } from '../../../services/feedings.service';
 import { ChildrenService } from '../../../services/children.service';
 import { FilterService } from '../../../services/filter.service';
+import { AccountService } from '../../../services/account.service';
 import { ToastService } from '../../../services/toast.service';
 import { Router } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
 import { of, throwError, Observable } from 'rxjs';
+import { signal } from '@angular/core';
 import { Feeding } from '../../../models/feeding.model';
 import { Child } from '../../../models/child.model';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
@@ -84,6 +86,7 @@ describe('FeedingsList - Batch Operations', () => {
         { provide: ChildrenService, useValue: childrenServiceMock },
         { provide: Router, useValue: routerMock },
         FilterService,
+        { provide: AccountService, useValue: { profile: signal(null) } },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -629,6 +632,7 @@ describe('FeedingsList - Core Functionality Tests', () => {
         { provide: ChildrenService, useValue: childrenServiceMock },
         { provide: Router, useValue: routerMock },
         FilterService,
+        { provide: AccountService, useValue: { profile: signal(null) } },
         {
           provide: ActivatedRoute,
           useValue: {

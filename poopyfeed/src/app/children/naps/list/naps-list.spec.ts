@@ -3,9 +3,11 @@ import { NapsList } from './naps-list';
 import { NapsService } from '../../../services/naps.service';
 import { ChildrenService } from '../../../services/children.service';
 import { FilterService, FilterCriteria } from '../../../services/filter.service';
+import { AccountService } from '../../../services/account.service';
 import { Router } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
 import { of, throwError, Observable } from 'rxjs';
+import { signal } from '@angular/core';
 import { Nap } from '../../../models/nap.model';
 import { Child } from '../../../models/child.model';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
@@ -81,6 +83,7 @@ describe('NapsList - Batch Operations', () => {
         { provide: ChildrenService, useValue: childrenServiceMock },
         { provide: Router, useValue: routerMock },
         FilterService,
+        { provide: AccountService, useValue: { profile: signal(null) } },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -333,6 +336,7 @@ describe('NapsList - Core Functionality Tests', () => {
         { provide: ChildrenService, useValue: childrenServiceMock },
         { provide: Router, useValue: routerMock },
         FilterService,
+        { provide: AccountService, useValue: { profile: signal(null) } },
         {
           provide: ActivatedRoute,
           useValue: {

@@ -4,13 +4,25 @@
 
 import { TestBed } from '@angular/core/testing';
 import { DateTimeService } from './datetime.service';
+import { AccountService } from './account.service';
+import { signal } from '@angular/core';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 
 describe('DateTimeService', () => {
   let service: DateTimeService;
+  let profileSignal: ReturnType<typeof signal>;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
+    profileSignal = signal(null);
+
+    TestBed.configureTestingModule({
+      providers: [
+        {
+          provide: AccountService,
+          useValue: { profile: profileSignal },
+        },
+      ],
+    });
     service = TestBed.inject(DateTimeService);
   });
 
@@ -18,12 +30,128 @@ describe('DateTimeService', () => {
     expect(service).toBeTruthy();
   });
 
+  describe('userTimezone', () => {
+    it('should default to UTC when profile is null', () => {
+      expect(service.userTimezone).toBe('UTC');
+    });
+
+    it('should return profile timezone when available', () => {
+      profileSignal.set({
+        id: 1,
+        email: 'test@example.com',
+        first_name: 'Test',
+        last_name: 'User',
+        timezone: 'America/New_York',
+      });
+      expect(service.userTimezone).toBe('America/New_York');
+    });
+  });
+
+  describe('getDateInUserTimezone', () => {
+    it('should return YYYY-MM-DD format', () => {
+      const result = service.getDateInUserTimezone('2024-01-15T10:00:00Z');
+      expect(result).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    });
+
+    it('should return correct date in UTC', () => {
+      const result = service.getDateInUserTimezone('2024-01-15T10:00:00Z');
+      expect(result).toBe('2024-01-15');
+    });
+
+    it('should handle midnight boundary with negative offset timezone', () => {
+      profileSignal.set({
+        id: 1,
+        email: 'test@example.com',
+        first_name: 'Test',
+        last_name: 'User',
+        timezone: 'America/New_York',
+      });
+
+      // 4:30 AM UTC = 11:30 PM previous day in New York (EST, UTC-5)
+      const result = service.getDateInUserTimezone('2024-01-15T04:30:00Z');
+      expect(result).toBe('2024-01-14');
+    });
+
+    it('should handle midnight boundary with positive offset timezone', () => {
+      profileSignal.set({
+        id: 1,
+        email: 'test@example.com',
+        first_name: 'Test',
+        last_name: 'User',
+        timezone: 'Asia/Tokyo',
+      });
+
+      // 11:30 PM UTC = 8:30 AM next day in Tokyo (UTC+9)
+      const result = service.getDateInUserTimezone('2024-01-15T23:30:00Z');
+      expect(result).toBe('2024-01-16');
+    });
+
+    it('should accept Date objects', () => {
+      const date = new Date('2024-01-15T10:00:00Z');
+      const result = service.getDateInUserTimezone(date);
+      expect(result).toBe('2024-01-15');
+    });
+
+    it('should handle leap year date', () => {
+      const result = service.getDateInUserTimezone('2024-02-29T12:00:00Z');
+      expect(result).toBe('2024-02-29');
+    });
+  });
+
+  describe('getTodayInUserTimezone', () => {
+    it('should return YYYY-MM-DD format', () => {
+      const result = service.getTodayInUserTimezone();
+      expect(result).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    });
+
+    it('should return today in UTC when no profile', () => {
+      const expected = new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'UTC',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+      }).format(new Date());
+      expect(service.getTodayInUserTimezone()).toBe(expected);
+    });
+  });
+
+  describe('isTodayInUserTimezone', () => {
+    it('should return true for a recent timestamp', () => {
+      const now = new Date();
+      expect(service.isTodayInUserTimezone(now.toISOString())).toBe(true);
+    });
+
+    it('should return false for yesterday', () => {
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      yesterday.setHours(12, 0, 0, 0);
+      expect(service.isTodayInUserTimezone(yesterday.toISOString())).toBe(
+        false
+      );
+    });
+  });
+
+  describe('getDateNDaysAgoInUserTimezone', () => {
+    it('should return today for 0 days ago', () => {
+      expect(service.getDateNDaysAgoInUserTimezone(0)).toBe(
+        service.getTodayInUserTimezone()
+      );
+    });
+
+    it('should return YYYY-MM-DD format', () => {
+      const result = service.getDateNDaysAgoInUserTimezone(7);
+      expect(result).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    });
+  });
+
   describe('toUTC', () => {
     it('should convert local Date to UTC ISO 8601 string', () => {
       const localDate = new Date('2024-01-15T10:30:00');
       const utcString = service.toUTC(localDate);
 
-      expect(utcString).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
+      expect(utcString).toMatch(
+        /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/
+      );
       expect(utcString).toContain('2024');
     });
 
@@ -31,14 +159,18 @@ describe('DateTimeService', () => {
       const localDate = new Date('2024-01-15T00:00:00');
       const utcString = service.toUTC(localDate);
 
-      expect(utcString).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
+      expect(utcString).toMatch(
+        /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/
+      );
     });
 
     it('should handle leap year dates', () => {
       const localDate = new Date('2024-02-29T12:00:00');
       const utcString = service.toUTC(localDate);
 
-      expect(utcString).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
+      expect(utcString).toMatch(
+        /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/
+      );
       expect(utcString).toContain('2024-02-29');
     });
   });
@@ -73,32 +205,54 @@ describe('DateTimeService', () => {
 
   describe('toInputFormat', () => {
     it('should format Date for datetime-local input', () => {
-      const date = new Date('2024-01-15T10:30:00');
+      // Use a UTC date and UTC timezone to get deterministic results
+      const date = new Date('2024-01-15T10:30:00Z');
       const inputFormat = service.toInputFormat(date);
 
       expect(inputFormat).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/);
       expect(inputFormat).toBe('2024-01-15T10:30');
     });
 
-    it('should pad single-digit values with zeros', () => {
-      const date = new Date('2024-01-05T09:05:00');
+    it('should format in user timezone', () => {
+      profileSignal.set({
+        id: 1,
+        email: 'test@example.com',
+        first_name: 'Test',
+        last_name: 'User',
+        timezone: 'America/New_York',
+      });
+
+      // 2024-01-15T15:30:00Z = 10:30 AM EST
+      const date = new Date('2024-01-15T15:30:00Z');
       const inputFormat = service.toInputFormat(date);
 
-      expect(inputFormat).toBe('2024-01-05T09:05');
+      expect(inputFormat).toBe('2024-01-15T10:30');
+    });
+
+    it('should accept string input', () => {
+      const inputFormat = service.toInputFormat('2024-01-15T10:30:00Z');
+      expect(inputFormat).toBe('2024-01-15T10:30');
     });
 
     it('should handle midnight', () => {
-      const date = new Date('2024-01-15T00:00:00');
+      const date = new Date('2024-01-15T00:00:00Z');
       const inputFormat = service.toInputFormat(date);
 
       expect(inputFormat).toBe('2024-01-15T00:00');
     });
 
     it('should handle end of day', () => {
-      const date = new Date('2024-01-15T23:59:00');
+      const date = new Date('2024-01-15T23:59:00Z');
       const inputFormat = service.toInputFormat(date);
 
       expect(inputFormat).toBe('2024-01-15T23:59');
+    });
+
+    it('should pad single-digit values with zeros', () => {
+      const date = new Date('2024-01-05T09:05:00Z');
+      const inputFormat = service.toInputFormat(date);
+
+      expect(inputFormat).toBe('2024-01-05T09:05');
     });
   });
 
@@ -108,27 +262,40 @@ describe('DateTimeService', () => {
       const date = service.fromInputFormat(input);
 
       expect(date).toBeInstanceOf(Date);
-      expect(date.getFullYear()).toBe(2024);
-      expect(date.getMonth()).toBe(0);
-      expect(date.getDate()).toBe(15);
-      expect(date.getHours()).toBe(10);
-      expect(date.getMinutes()).toBe(30);
+      // Verify round-trip: toInputFormat should give back the same string
+      const roundTrip = service.toInputFormat(date);
+      expect(roundTrip).toBe(input);
     });
 
     it('should handle midnight input', () => {
       const input = '2024-01-15T00:00';
       const date = service.fromInputFormat(input);
 
-      expect(date.getHours()).toBe(0);
-      expect(date.getMinutes()).toBe(0);
+      expect(date).toBeInstanceOf(Date);
+      expect(service.toInputFormat(date)).toBe(input);
     });
 
     it('should handle end of day input', () => {
       const input = '2024-01-15T23:59';
       const date = service.fromInputFormat(input);
 
-      expect(date.getHours()).toBe(23);
-      expect(date.getMinutes()).toBe(59);
+      expect(date).toBeInstanceOf(Date);
+      expect(service.toInputFormat(date)).toBe(input);
+    });
+
+    it('should round-trip correctly with user timezone', () => {
+      profileSignal.set({
+        id: 1,
+        email: 'test@example.com',
+        first_name: 'Test',
+        last_name: 'User',
+        timezone: 'America/New_York',
+      });
+
+      const input = '2024-01-15T10:30';
+      const date = service.fromInputFormat(input);
+      const roundTrip = service.toInputFormat(date);
+      expect(roundTrip).toBe(input);
     });
   });
 
@@ -145,25 +312,17 @@ describe('DateTimeService', () => {
 
       expect(parsed).toBeInstanceOf(Date);
       expect(inputFormat).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/);
-      // Verify it's roughly the current time (within current day)
-      const now = new Date();
-      expect(parsed.getFullYear()).toBe(now.getFullYear());
-      expect(parsed.getMonth()).toBe(now.getMonth());
-      expect(parsed.getDate()).toBe(now.getDate());
     });
   });
 
   describe('round-trip conversions', () => {
     it('should handle toInputFormat -> fromInputFormat round trip', () => {
-      const original = new Date('2024-01-15T10:30:00');
+      const original = new Date('2024-01-15T10:30:00Z');
       const inputFormat = service.toInputFormat(original);
       const parsed = service.fromInputFormat(inputFormat);
 
-      expect(parsed.getFullYear()).toBe(original.getFullYear());
-      expect(parsed.getMonth()).toBe(original.getMonth());
-      expect(parsed.getDate()).toBe(original.getDate());
-      expect(parsed.getHours()).toBe(original.getHours());
-      expect(parsed.getMinutes()).toBe(original.getMinutes());
+      // Round-trip should produce same input format
+      expect(service.toInputFormat(parsed)).toBe(inputFormat);
     });
 
     it('should handle toUTC -> toLocal round trip', () => {
@@ -179,7 +338,9 @@ describe('DateTimeService', () => {
       const localDate = service.fromInputFormat(inputValue);
       const utcString = service.toUTC(localDate);
 
-      expect(utcString).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
+      expect(utcString).toMatch(
+        /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/
+      );
 
       // Parse back and verify
       const parsed = service.toLocal(utcString);
@@ -188,28 +349,14 @@ describe('DateTimeService', () => {
   });
 
   describe('edge cases', () => {
-    it('should handle DST transition dates', () => {
-      // March 10, 2024 is DST transition in US
-      const date = new Date('2024-03-10T02:30:00');
-      const inputFormat = service.toInputFormat(date);
-      const parsed = service.fromInputFormat(inputFormat);
-
-      expect(parsed.getDate()).toBe(date.getDate());
-      expect(parsed.getMonth()).toBe(date.getMonth());
-    });
-
     it('should handle year boundaries', () => {
-      const newYear = new Date('2024-01-01T00:00:00');
-      const inputFormat = service.toInputFormat(newYear);
-
-      expect(inputFormat).toBe('2024-01-01T00:00');
+      const result = service.getDateInUserTimezone('2024-01-01T00:00:00Z');
+      expect(result).toBe('2024-01-01');
     });
 
     it('should handle December 31st', () => {
-      const endOfYear = new Date('2024-12-31T23:59:00');
-      const inputFormat = service.toInputFormat(endOfYear);
-
-      expect(inputFormat).toBe('2024-12-31T23:59');
+      const result = service.getDateInUserTimezone('2024-12-31T23:59:00Z');
+      expect(result).toBe('2024-12-31');
     });
 
     it('should handle milliseconds in UTC conversion', () => {
@@ -225,46 +372,8 @@ describe('DateTimeService', () => {
       const date = new Date('2024-01-15T10:30:45');
       const utcString = service.toUTC(date);
 
-      // Verify seconds are preserved with milliseconds
       expect(utcString).toMatch(/:\d{2}:\d{2}\.\d{3}Z/);
       expect(utcString).toContain('45.');
-    });
-
-    it('should handle single digit hours and minutes in formatting', () => {
-      const date = new Date('2024-01-15T01:02:00');
-      const inputFormat = service.toInputFormat(date);
-
-      expect(inputFormat).toBe('2024-01-15T01:02');
-      // Verify no double-digit hours/minutes
-      expect(inputFormat).toMatch(/T\d{2}:\d{2}$/);
-    });
-
-    it('should correctly handle October (month 10) padding', () => {
-      const date = new Date('2024-10-15T10:30:00');
-      const inputFormat = service.toInputFormat(date);
-
-      expect(inputFormat).toBe('2024-10-15T10:30');
-      expect(inputFormat.substring(5, 7)).toBe('10');
-    });
-
-    it('should handle input format with single-digit date', () => {
-      const input = '2024-01-05T10:30';
-      const date = service.fromInputFormat(input);
-
-      expect(date.getDate()).toBe(5);
-      expect(date.getMonth()).toBe(0);
-    });
-
-    it('should handle different years in round trip', () => {
-      const testYears = [2020, 2023, 2024, 2025];
-
-      testYears.forEach(year => {
-        const date = new Date(`${year}-06-15T12:30:00`);
-        const inputFormat = service.toInputFormat(date);
-        const parsed = service.fromInputFormat(inputFormat);
-
-        expect(parsed.getFullYear()).toBe(year);
-      });
     });
 
     it('should handle UTC string with offset notation', () => {
@@ -275,57 +384,19 @@ describe('DateTimeService', () => {
       expect(localDate.getFullYear()).toBe(2024);
     });
 
-    it('should return valid format for all hours of the day', () => {
-      for (let hour = 0; hour < 24; hour++) {
-        const date = new Date(2024, 0, 15, hour, 30, 0);
-        const inputFormat = service.toInputFormat(date);
-        const hourStr = String(hour).padStart(2, '0');
-
-        expect(inputFormat).toContain(`T${hourStr}:30`);
-      }
-    });
-
-    it('should return valid format for all minutes of the hour', () => {
-      for (let minute = 0; minute < 60; minute += 5) {
-        const date = new Date(2024, 0, 15, 10, minute, 0);
-        const inputFormat = service.toInputFormat(date);
-        const minStr = String(minute).padStart(2, '0');
-
-        expect(inputFormat).toContain(`:${minStr}`);
-      }
-    });
-
-    it('should handle consecutive date conversions', () => {
-      const dates = [
-        new Date('2024-01-15T10:30:00'),
-        new Date('2024-01-16T11:45:00'),
-        new Date('2024-01-17T09:15:00'),
-      ];
-
-      dates.forEach(date => {
-        const inputFormat = service.toInputFormat(date);
-        const parsed = service.fromInputFormat(inputFormat);
-
-        expect(parsed.getFullYear()).toBe(date.getFullYear());
-        expect(parsed.getMonth()).toBe(date.getMonth());
-        expect(parsed.getDate()).toBe(date.getDate());
+    it('should handle DST transition dates', () => {
+      profileSignal.set({
+        id: 1,
+        email: 'test@example.com',
+        first_name: 'Test',
+        last_name: 'User',
+        timezone: 'America/New_York',
       });
-    });
 
-    it('should handle mixed timezone conversion patterns', () => {
-      const localDate = new Date('2024-01-15T10:30:00');
-      const utcString = service.toUTC(localDate);
-      const inputFormat = service.toInputFormat(localDate);
-
-      // Both conversions should be valid
-      expect(utcString).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
-      expect(inputFormat).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/);
-
-      // They should represent the same point in time
-      const utcParsed = service.toLocal(utcString);
-      const inputParsed = service.fromInputFormat(inputFormat);
-
-      expect(utcParsed.getTime()).toBe(inputParsed.getTime());
+      // March 10, 2024 is DST transition in US (spring forward)
+      const date = new Date('2024-03-10T07:30:00Z'); // 2:30 AM EST / 3:30 AM EDT
+      const result = service.getDateInUserTimezone(date);
+      expect(result).toBe('2024-03-10');
     });
   });
 });

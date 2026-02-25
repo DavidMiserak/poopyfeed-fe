@@ -6,8 +6,10 @@
 
 import { TestBed } from '@angular/core/testing';
 import { of, throwError, Subject } from 'rxjs';
+import { signal } from '@angular/core';
 import { TrackingListService } from './tracking-list.service';
 import { FilterService } from './filter.service';
+import { AccountService } from './account.service';
 import { Child } from '../models/child.model';
 
 interface TestItem {
@@ -44,7 +46,14 @@ describe('TrackingListService<T>', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [TrackingListService, FilterService],
+      providers: [
+        TrackingListService,
+        FilterService,
+        {
+          provide: AccountService,
+          useValue: { profile: signal(null) },
+        },
+      ],
     });
     service = TestBed.inject(TrackingListService<TestItem>);
     filterService = TestBed.inject(FilterService);

@@ -21,6 +21,7 @@ import { HttpClient, HttpParams, HttpErrorResponse } from '@angular/common/http'
 import { Observable, throwError, map } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 import { ErrorHandler } from './error.utils';
+import { DateTimeService } from './datetime.service';
 import {
   FeedingTrends,
   DiaperPatterns,
@@ -42,6 +43,7 @@ import {
 })
 export class AnalyticsService {
   private http = inject(HttpClient);
+  private datetimeService = inject(DateTimeService);
   private readonly API_BASE = '/api/v1/analytics/children';
 
   /**
@@ -370,7 +372,7 @@ export class AnalyticsService {
    * @returns Filename string (e.g., "analytics-1-2026-02-12.csv")
    */
   private generateCSVFilename(childId: number): string {
-    const date = new Date().toISOString().split('T')[0];
+    const date = this.datetimeService.getTodayInUserTimezone();
     return `analytics-${childId}-${date}.csv`;
   }
 

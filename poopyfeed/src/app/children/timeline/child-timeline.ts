@@ -68,7 +68,6 @@ import {
   getChildAgeLong,
   getGenderIconDetailed,
   formatMinutes as formatMinutesUtil,
-  isToday,
 } from '../../utils/date.utils';
 
 /**
@@ -139,35 +138,31 @@ export class ChildTimeline implements OnInit {
   isAddingNap = signal(false);
 
   /**
-   * Selected date computed from dayOffset
+   * Selected date string (YYYY-MM-DD) computed from dayOffset in user's timezone.
    *
    * Calculates the actual calendar date based on how many days back the user
    * has navigated. Used to filter activities for the displayed day.
    */
-  selectedDate = computed(() => {
-    const today = new Date();
-    const date = new Date(today);
-    date.setDate(date.getDate() - this.dayOffset());
-    return date;
+  selectedDateString = computed(() => {
+    return this.datetimeService.getDateNDaysAgoInUserTimezone(this.dayOffset());
   });
 
   /**
    * Activities filtered for the currently selected day
    *
-   * Filters allActivities() to only those occurring on selectedDate(),
+   * Filters allActivities() to only those occurring on selectedDateString(),
    * sorted reverse chronologically (newest first), with gap information calculated.
    *
    * @returns Activities for the selected day with gap times in reverse chronological order (newest first)
    */
   dayActivities = computed(() => {
-    const selected = this.selectedDate();
-    const selectedDateString = selected.toISOString().split('T')[0];
+    const selectedDateString = this.selectedDateString();
 
     const activities = this.allActivities()
       .filter((activity) => {
-        const activityDate = new Date(activity.timestamp)
-          .toISOString()
-          .split('T')[0];
+        const activityDate = this.datetimeService.getDateInUserTimezone(
+          activity.timestamp
+        );
         return activityDate === selectedDateString;
       })
       .sort(
@@ -240,7 +235,7 @@ export class ChildTimeline implements OnInit {
   });
 
   /**
-   * Day header label computed from selectedDate
+   * Day header label computed from selectedDateString
    *
    * Returns relative or formatted day label:
    * - "Today" if selectedDate is today
@@ -250,34 +245,30 @@ export class ChildTimeline implements OnInit {
    * @returns Human-readable day label
    */
   dayHeader = computed(() => {
-    const selected = this.selectedDate();
-    const today = new Date();
+    const selectedStr = this.selectedDateString();
+    const todayStr = this.datetimeService.getTodayInUserTimezone();
 
     // Check if today
-    if (
-      selected.getFullYear() === today.getFullYear() &&
-      selected.getMonth() === today.getMonth() &&
-      selected.getDate() === today.getDate()
-    ) {
+    if (selectedStr === todayStr) {
       return 'Today';
     }
 
     // Check if yesterday
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-    if (
-      selected.getFullYear() === yesterday.getFullYear() &&
-      selected.getMonth() === yesterday.getMonth() &&
-      selected.getDate() === yesterday.getDate()
-    ) {
+    const yesterdayStr = this.datetimeService.getDateNDaysAgoInUserTimezone(1);
+    if (selectedStr === yesterdayStr) {
       return 'Yesterday';
     }
 
-    // Format as "Weekday, Mon DD"
-    const weekday = selected.toLocaleString('en-US', { weekday: 'long' });
-    const monthDay = selected.toLocaleString('en-US', {
+    // Format as "Weekday, Mon DD" using the date string
+    const date = new Date(selectedStr + 'T12:00:00Z');
+    const weekday = date.toLocaleString('en-US', {
+      weekday: 'long',
+      timeZone: 'UTC',
+    });
+    const monthDay = date.toLocaleString('en-US', {
       month: 'short',
       day: 'numeric',
+      timeZone: 'UTC',
     });
     return `${weekday}, ${monthDay}`;
   });
@@ -336,16 +327,12 @@ export class ChildTimeline implements OnInit {
     this.isLoading.set(true);
     this.error.set(null);
 
-    // Calculate 7-day date range
-    const today = new Date();
-    const startDate = new Date(today);
-    startDate.setDate(startDate.getDate() - 6); // 6 days ago
-    const endDate = new Date(today);
-    endDate.setDate(endDate.getDate() + 1); // Include all of today
-
-    const formatDate = (date: Date) => date.toISOString().split('T')[0];
-    const startDateStr = formatDate(startDate);
-    const endDateStr = formatDate(endDate);
+    // Calculate 7-day date range in user's timezone
+    const startDateStr = this.datetimeService.getDateNDaysAgoInUserTimezone(6);
+    // Include all of today by setting end to tomorrow
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const endDateStr = this.datetimeService.getDateInUserTimezone(tomorrow);
 
     forkJoin({
       child: this.childrenService.get(childId),

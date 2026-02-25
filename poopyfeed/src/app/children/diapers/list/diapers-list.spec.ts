@@ -5,9 +5,11 @@ import { DiapersList } from './diapers-list';
 import { DiapersService } from '../../../services/diapers.service';
 import { ChildrenService } from '../../../services/children.service';
 import { FilterService, FilterCriteria } from '../../../services/filter.service';
+import { AccountService } from '../../../services/account.service';
 import { TrackingFilterComponent } from '../../../components/tracking-filter/tracking-filter';
 import { DiaperChange } from '../../../models/diaper.model';
 import { Child } from '../../../models/child.model';
+import { signal } from '@angular/core';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 
 describe('DiapersList - Batch Operations', () => {
@@ -78,6 +80,7 @@ describe('DiapersList - Batch Operations', () => {
         { provide: ChildrenService, useValue: childrenServiceMock },
         { provide: Router, useValue: routerMock },
         FilterService,
+        { provide: AccountService, useValue: { profile: signal(null) } },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -272,6 +275,7 @@ describe('DiapersList - Comprehensive Tests', () => {
         { provide: Router, useValue: routerMock },
         { provide: ActivatedRoute, useValue: activatedRouteMock },
         FilterService,
+        { provide: AccountService, useValue: { profile: signal(null) } },
       ],
     }).compileComponents();
 
@@ -722,6 +726,7 @@ describe('DiapersList - Route and Concurrent Operations', () => {
         { provide: ChildrenService, useValue: childrenServiceMock },
         { provide: Router, useValue: routerMock },
         FilterService,
+        { provide: AccountService, useValue: { profile: signal(null) } },
         {
           provide: ActivatedRoute,
           useValue: {

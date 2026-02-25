@@ -5,7 +5,8 @@
  * Used by Feedings, Diapers, and Naps list components.
  */
 
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
+import { DateTimeService } from './datetime.service';
 
 /**
  * Generic filter criteria that all tracking types support
@@ -25,6 +26,8 @@ export type TimestampedItem = Record<string, unknown>;
   providedIn: 'root',
 })
 export class FilterService {
+  private datetimeService = inject(DateTimeService);
+
   /**
    * Filter items by date range and optional type.
    *
@@ -32,6 +35,9 @@ export class FilterService {
    * - fed_at (feedings)
    * - changed_at (diapers)
    * - napped_at (naps)
+   *
+   * Date comparisons use the user's configured timezone to determine which
+   * calendar day a UTC timestamp falls on.
    *
    * @param items Items to filter
    * @param criteria Filter criteria (dates and optional type)
@@ -60,20 +66,13 @@ export class FilterService {
       // Date range filtering
       if (criteria.dateFrom || criteria.dateTo) {
         const itemRecord = item as Record<string, unknown>;
-        const itemDate = this.extractDate(itemRecord[timestampField] as string);
-        if (!itemDate) return false;
+        const timestamp = itemRecord[timestampField] as string;
+        if (!timestamp) return false;
 
-        if (criteria.dateFrom) {
-          const fromDate = new Date(criteria.dateFrom);
-          if (itemDate < fromDate) return false;
-        }
+        const itemDateStr = this.datetimeService.getDateInUserTimezone(timestamp);
 
-        if (criteria.dateTo) {
-          const toDate = new Date(criteria.dateTo);
-          // Include entire dateTo day (add 1 day)
-          toDate.setDate(toDate.getDate() + 1);
-          if (itemDate >= toDate) return false;
-        }
+        if (criteria.dateFrom && itemDateStr < criteria.dateFrom) return false;
+        if (criteria.dateTo && itemDateStr > criteria.dateTo) return false;
       }
 
       // Type filtering
@@ -88,41 +87,20 @@ export class FilterService {
   }
 
   /**
-   * Extract date from ISO timestamp string.
-   * Handles UTC conversion for comparison.
-   *
-   * @param timestamp ISO 8601 UTC timestamp
-   * @returns Date object at start of day (local time)
-   */
-  private extractDate(timestamp: string): Date | null {
-    if (!timestamp) return null;
-    try {
-      const date = new Date(timestamp);
-      // Return start of day in local timezone
-      return new Date(date.getFullYear(), date.getMonth(), date.getDate());
-    } catch {
-      return null;
-    }
-  }
-
-  /**
-   * Get today's date as ISO string (YYYY-MM-DD) in local timezone.
+   * Get today's date as ISO string (YYYY-MM-DD) in user's timezone.
    */
   getTodayAsIsoString(): string {
-    const today = new Date();
-    return today.toISOString().split('T')[0];
+    return this.datetimeService.getTodayInUserTimezone();
   }
 
   /**
-   * Get date N days ago as ISO string (YYYY-MM-DD).
+   * Get date N days ago as ISO string (YYYY-MM-DD) in user's timezone.
    *
    * @param daysAgo Number of days in the past
    * @returns ISO date string
    */
   getDateNDaysAgoAsIsoString(daysAgo: number): string {
-    const date = new Date();
-    date.setDate(date.getDate() - daysAgo);
-    return date.toISOString().split('T')[0];
+    return this.datetimeService.getDateNDaysAgoInUserTimezone(daysAgo);
   }
 
   /**

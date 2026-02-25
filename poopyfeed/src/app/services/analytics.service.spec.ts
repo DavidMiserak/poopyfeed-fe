@@ -13,6 +13,8 @@ import {
   HttpTestingController,
 } from '@angular/common/http/testing';
 import { AnalyticsService } from './analytics.service';
+import { AccountService } from './account.service';
+import { signal } from '@angular/core';
 import {
   FeedingTrends,
   DiaperPatterns,
@@ -126,7 +128,14 @@ describe('AnalyticsService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting()],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        {
+          provide: AccountService,
+          useValue: { profile: signal(null) },
+        },
+      ],
     });
     service = TestBed.inject(AnalyticsService);
     httpMock = TestBed.inject(HttpTestingController);

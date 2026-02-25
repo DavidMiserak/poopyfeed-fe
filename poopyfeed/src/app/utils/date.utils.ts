@@ -208,19 +208,13 @@ export function formatActivityAge(timestamp: string): string {
 }
 
 /**
- * Check if a UTC timestamp is from today (current date in local timezone).
+ * Check if a UTC timestamp is from today (current date in browser's local timezone).
  *
- * Used to identify today's activities for dashboard summaries and "today's count"
- * features. Compares calendar dates (year/month/day), not 24-hour windows.
+ * @deprecated Use `DateTimeService.isTodayInUserTimezone()` instead, which respects
+ * the user's configured timezone preference rather than the browser's local timezone.
  *
  * @param utcTimestamp ISO datetime string (UTC format from API)
- * @returns True if timestamp is from today, false otherwise
- *
- * @example
- * isToday('2024-01-15T10:30:00Z') // True if today is Jan 15
- * isToday('2024-01-14T23:59:59Z') // False if today is Jan 15
- *
- * Use case: Dashboard "Today's summary" counts (todayFeedings, todayDiapers, todayNaps)
+ * @returns True if timestamp is from today in browser's local timezone
  */
 export function isToday(utcTimestamp: string): boolean {
   const date = new Date(utcTimestamp);

@@ -125,7 +125,7 @@
               {{ dayHeader() }}
             </h2>
             <div class="text-sm font-['DM_Sans',sans-serif] text-slate-600">
-              {{ selectedDate() | date: 'MMM d, yyyy' }}
+              {{ selectedDateString() + 'T12:00:00Z' | date: 'MMM d, yyyy' : 'UTC' }}
             </div>
           </div>
 

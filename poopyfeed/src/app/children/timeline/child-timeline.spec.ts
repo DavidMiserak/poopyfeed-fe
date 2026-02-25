@@ -36,10 +36,20 @@ describe('ChildTimeline', () => {
   };
 
   const today = new Date();
-  const todayStr = today.toISOString().split('T')[0];
+  const todayStr = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'UTC',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(today);
   const yesterday = new Date(today);
   yesterday.setDate(yesterday.getDate() - 1);
-  const yesterdayStr = yesterday.toISOString().split('T')[0];
+  const yesterdayStr = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'UTC',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(yesterday);
 
   const mockFeedings: Feeding[] = [
     {
@@ -117,6 +127,36 @@ describe('ChildTimeline', () => {
       toUTC: vi.fn((date: Date) => date.toISOString()),
       toLocal: vi.fn(),
       toInputFormat: vi.fn(),
+      get userTimezone() {
+        return 'UTC';
+      },
+      getDateInUserTimezone: vi.fn((date: Date | string) => {
+        const d = typeof date === 'string' ? new Date(date) : date;
+        return new Intl.DateTimeFormat('en-CA', {
+          timeZone: 'UTC',
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+        }).format(d);
+      }),
+      getTodayInUserTimezone: vi.fn(() => {
+        return new Intl.DateTimeFormat('en-CA', {
+          timeZone: 'UTC',
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+        }).format(new Date());
+      }),
+      getDateNDaysAgoInUserTimezone: vi.fn((daysAgo: number) => {
+        const date = new Date();
+        date.setDate(date.getDate() - daysAgo);
+        return new Intl.DateTimeFormat('en-CA', {
+          timeZone: 'UTC',
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+        }).format(date);
+      }),
     };
 
     await TestBed.configureTestingModule({
