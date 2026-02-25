@@ -166,7 +166,11 @@
           } @else {
             <div class="space-y-3 mb-6">
               @for (invite of invites(); track invite.id) {
-                <div class="p-4 rounded-xl bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200">
+                <div
+                  class="p-4 rounded-xl bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200"
+                  data-testid="invite-item"
+                  [attr.data-invite-token]="invite.token"
+                >
                   <!-- Badges and token -->
                   <div class="flex flex-wrap items-center gap-2 mb-2">
                     <span [class]="'inline-flex px-3 py-1 rounded-full text-xs font-semibold border ' + getRoleBadgeColor(invite.role)">

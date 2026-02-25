@@ -48,7 +48,12 @@ export class InviteAccept implements OnInit {
 
     this.sharingService.acceptInvite(token).subscribe({
       next: (response) => {
-        this.child.set(response.child);
+        const childInfo =
+          response.child ?? {
+            id: (response as unknown as { id: number }).id,
+            name: (response as unknown as { name: string }).name,
+          };
+        this.child.set(childInfo);
         this.isProcessing.set(false);
 
         // Auto-redirect after 3 seconds
