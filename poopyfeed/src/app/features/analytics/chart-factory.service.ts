@@ -25,6 +25,15 @@ export class ChartFactoryService {
   }
 
   /**
+   * Get the cached Chart.js constructor synchronously.
+   * Must only be called after getChart() has resolved.
+   * Used by the DI provider factory (Angular doesn't await async factories).
+   */
+  getCachedChart() {
+    return chartConstructor;
+  }
+
+  /**
    * Dynamically import and register Chart.js with required plugins.
    */
   private async loadChartJs() {

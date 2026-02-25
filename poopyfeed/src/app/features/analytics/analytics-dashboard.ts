@@ -51,9 +51,9 @@ import { ChartFactoryService } from './chart-factory.service';
   providers: [
     {
       provide: CHART_FACTORY,
-      useFactory: async () => {
+      useFactory: () => {
         const service = inject(ChartFactoryService);
-        return service.getChart();
+        return service.getCachedChart();
       },
     },
   ],
