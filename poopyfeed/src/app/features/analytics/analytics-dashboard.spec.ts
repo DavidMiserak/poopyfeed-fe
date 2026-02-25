@@ -10,6 +10,7 @@ import { of, throwError } from 'rxjs';
 import { AnalyticsDashboard } from './analytics-dashboard';
 import { AnalyticsService } from '../../services/analytics.service';
 import { ToastService } from '../../services/toast.service';
+import { ChartFactoryService } from './chart-factory.service';
 
 describe('AnalyticsDashboard', () => {
   let component: AnalyticsDashboard;
@@ -90,12 +91,20 @@ describe('AnalyticsDashboard', () => {
       },
     };
 
+    // Mock ChartFactoryService
+    const mockChartFactoryService = {
+      getChart: vi.fn().mockResolvedValue({
+        register: vi.fn(),
+      }),
+    };
+
     await TestBed.configureTestingModule({
       imports: [AnalyticsDashboard],
       providers: [
         AnalyticsService,
         ToastService,
         { provide: ActivatedRoute, useValue: activatedRoute },
+        { provide: ChartFactoryService, useValue: mockChartFactoryService },
       ],
     }).compileComponents();
 
@@ -119,7 +128,7 @@ describe('AnalyticsDashboard', () => {
   });
 
   describe('Data Loading', () => {
-    it('should load all analytics data in parallel', () => {
+    it('should load all analytics data in parallel', async () => {
       vi.spyOn(analyticsService, 'getFeedingTrends').mockReturnValue(of(mockFeedingTrends));
       vi.spyOn(analyticsService, 'getDiaperPatterns').mockReturnValue(of(mockDiaperPatterns));
       vi.spyOn(analyticsService, 'getSleepSummary').mockReturnValue(of(mockSleepSummary));
@@ -127,6 +136,7 @@ describe('AnalyticsDashboard', () => {
       vi.spyOn(analyticsService, 'getWeeklySummary').mockReturnValue(of(mockWeeklySummary));
 
       fixture.detectChanges();
+      await component.ngOnInit();
 
       expect(analyticsService.getFeedingTrends).toHaveBeenCalledWith(1, 30);
       expect(analyticsService.getDiaperPatterns).toHaveBeenCalledWith(1, 30);

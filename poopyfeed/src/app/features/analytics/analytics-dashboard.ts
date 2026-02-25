@@ -28,8 +28,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 
-import { Chart } from 'chart.js';
-
 import { AnalyticsService } from '../../services/analytics.service';
 import { ToastService } from '../../services/toast.service';
 import { FeedingTrendsChart } from './feeding-trends-chart';
@@ -38,6 +36,7 @@ import { CHART_FACTORY } from './chart.token';
 import { DiaperPatternsChart } from './diaper-patterns-chart';
 import { SleepSummaryChart } from './sleep-summary-chart';
 import { TodaySummaryCards } from '../../components/today-summary-cards';
+import { ChartFactoryService } from './chart-factory.service';
 
 @Component({
   selector: 'app-analytics-dashboard',
@@ -49,7 +48,15 @@ import { TodaySummaryCards } from '../../components/today-summary-cards';
     SleepSummaryChart,
     TodaySummaryCards,
   ],
-  providers: [{ provide: CHART_FACTORY, useValue: Chart }],
+  providers: [
+    {
+      provide: CHART_FACTORY,
+      useFactory: async () => {
+        const service = inject(ChartFactoryService);
+        return service.getChart();
+      },
+    },
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './analytics-dashboard.html',
 })
@@ -58,6 +65,7 @@ export class AnalyticsDashboard implements OnInit {
   private router = inject(Router);
   private analyticsService = inject(AnalyticsService);
   private toast = inject(ToastService);
+  private chartFactory = inject(ChartFactoryService);
 
   childId = signal<number | null>(null);
   isLoading = signal(true);
@@ -80,7 +88,7 @@ export class AnalyticsDashboard implements OnInit {
     return feedingHasData || diaperHasData || sleepHasData;
   });
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     const idParam = this.route.snapshot.paramMap.get('childId');
 
     if (!idParam) {
@@ -97,6 +105,16 @@ export class AnalyticsDashboard implements OnInit {
     }
 
     this.childId.set(id);
+
+    // Lazy-load Chart.js before rendering charts
+    try {
+      await this.chartFactory.getChart();
+    } catch (err) {
+      this.error.set('Failed to load chart library');
+      this.isLoading.set(false);
+      return;
+    }
+
     this.loadAnalytics(id);
   }
 

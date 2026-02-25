@@ -1,40 +1,17 @@
 /**
- * Chart.js injection token for dependency injection.
+ * Chart.js injection token for dependency injection with lazy loading.
  *
  * Wraps the Chart.js constructor in an Angular InjectionToken so
- * chart components can receive it via DI. This enables reliable
- * test mocking via TestBed providers, which works regardless of
- * how the AOT compiler bundles external dependencies.
+ * chart components can receive it via DI. Chart.js is lazy-loaded
+ * on demand (when first chart component initializes) to reduce
+ * initial bundle size by ~60 KB.
+ *
+ * The lazy-loading factory is provided by analytics-dashboard component,
+ * which dynamically imports Chart.js only when the analytics route loads.
  */
 
 import { InjectionToken } from '@angular/core';
-import {
-  Chart,
-  LineController,
-  BarController,
-  LineElement,
-  BarElement,
-  PointElement,
-  CategoryScale,
-  LinearScale,
-  Legend,
-  Tooltip,
-  Filler,
-} from 'chart.js';
+import type { Chart } from 'chart.js';
 
-// Register only the Chart.js components actually used by analytics charts
-Chart.register(
-  LineController,
-  BarController,
-  LineElement,
-  BarElement,
-  PointElement,
-  CategoryScale,
-  LinearScale,
-  Legend,
-  Tooltip,
-  Filler,
-);
-
-/** Injection token providing the Chart.js constructor. */
+/** Injection token providing the Chart.js constructor (lazy-loaded). */
 export const CHART_FACTORY = new InjectionToken<typeof Chart>('ChartFactory');
