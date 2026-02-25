@@ -23,6 +23,7 @@ import {
 } from '../../../components';
 import { Feeding, FEEDING_TYPE_LABELS } from '../../../models/feeding.model';
 import { Child } from '../../../models/child.model';
+import { formatActivityAge } from '../../../utils/date.utils';
 
 @Component({
   selector: 'app-feedings-list',
@@ -167,20 +168,7 @@ export class FeedingsList implements OnInit {
   }
 
   formatTimeAgo(dateTimeStr: string): string {
-    const date = new Date(dateTimeStr);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffMins = Math.floor(diffMs / (1000 * 60));
-
-    if (diffMins < 60) {
-      return `${diffMins} ${diffMins === 1 ? 'min' : 'mins'} ago`;
-    } else if (diffMins < 1440) {
-      const hours = Math.floor(diffMins / 60);
-      return `${hours} ${hours === 1 ? 'hour' : 'hours'} ago`;
-    } else {
-      const days = Math.floor(diffMins / 1440);
-      return `${days} ${days === 1 ? 'day' : 'days'} ago`;
-    }
+    return formatActivityAge(dateTimeStr);
   }
 
   getFeedingIcon(feeding: Feeding): string {
