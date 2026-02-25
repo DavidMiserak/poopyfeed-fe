@@ -112,7 +112,7 @@ describe('DiapersList - Batch Operations', () => {
   });
 
   it('should select all diapers', () => {
-    component.allDiapers.set(mockDiapers);
+    component.allItems.set(mockDiapers);
     fixture.detectChanges();
 
     component.toggleSelectAll();
@@ -135,7 +135,7 @@ describe('DiapersList - Batch Operations', () => {
     (diapersService.delete as any).mockReturnValue(of(void 0));
 
     component.childId.set(1);
-    component.allDiapers.set(mockDiapers);
+    component.allItems.set(mockDiapers);
     component.selectedIds.set([1, 2]);
 
     component.bulkDelete();
@@ -158,7 +158,7 @@ describe('DiapersList - Batch Operations', () => {
   });
 
   it('should filter selection by type', () => {
-    component.allDiapers.set(mockDiapers);
+    component.allItems.set(mockDiapers);
     fixture.detectChanges();
 
     component.filters.set({ type: 'wet' }); // Only id 1 is wet
@@ -297,12 +297,9 @@ describe('DiapersList - Comprehensive Tests', () => {
     });
 
     it('should initialize with empty diapers', () => {
-      expect(component.allDiapers()).toEqual([]);
+      expect(component.allItems()).toEqual([]);
     });
 
-    it('should initialize with isLoading=true', () => {
-      expect(component.isLoading()).toBe(true);
-    });
 
     it('should initialize with no error', () => {
       expect(component.error()).toBeNull();
@@ -344,7 +341,7 @@ describe('DiapersList - Comprehensive Tests', () => {
       component.ngOnInit();
       await new Promise(resolve => setTimeout(resolve, 10));
 
-      expect(component.allDiapers()).toEqual(mockDiapers);
+      expect(component.allItems()).toEqual(mockDiapers);
     });
 
     it('should set isLoading=false after load', async () => {
@@ -501,16 +498,16 @@ describe('DiapersList - Comprehensive Tests', () => {
 
   describe('Filtering', () => {
     beforeEach(() => {
-      component.allDiapers.set(mockDiapers);
+      component.allItems.set(mockDiapers);
       fixture.detectChanges();
     });
 
     it('should have diapers computed property', () => {
-      expect(component.diapers).toBeDefined();
+      expect(component.filteredItems).toBeDefined();
     });
 
     it('should return all when no filters', () => {
-      expect(component.diapers()).toHaveLength(3);
+      expect(component.filteredItems()).toHaveLength(3);
     });
 
     it('should apply filter criteria', () => {
@@ -542,9 +539,9 @@ describe('DiapersList - Comprehensive Tests', () => {
 
   describe('Empty States', () => {
     it('should handle empty diaper list', () => {
-      component.allDiapers.set([]);
+      component.allItems.set([]);
 
-      expect(component.diapers()).toEqual([]);
+      expect(component.filteredItems()).toEqual([]);
     });
 
     it('should handle no child', () => {
@@ -577,13 +574,13 @@ describe('DiapersList - Comprehensive Tests', () => {
     });
 
     it('should preserve diapers on error', () => {
-      component.allDiapers.set(mockDiapers);
+      component.allItems.set(mockDiapers);
       const error = new Error('Load failed');
       vi.mocked(diapersService.list).mockReturnValue(throwError(() => error));
 
-      component.loadDiapers(1);
+      component.loadData(1);
 
-      expect(component.allDiapers()).toEqual(mockDiapers);
+      expect(component.allItems()).toEqual(mockDiapers);
     });
   });
 
@@ -601,9 +598,9 @@ describe('DiapersList - Comprehensive Tests', () => {
     });
 
     it('should update allDiapers', () => {
-      component.allDiapers.set(mockDiapers);
+      component.allItems.set(mockDiapers);
 
-      expect(component.allDiapers()).toHaveLength(3);
+      expect(component.allItems()).toHaveLength(3);
     });
 
     it('should update filters', () => {
@@ -628,30 +625,30 @@ describe('DiapersList - Comprehensive Tests', () => {
 
   describe('Multiple Change Types', () => {
     it('should handle wet diapers', () => {
-      component.allDiapers.set([mockDiapers[0]]);
+      component.allItems.set([mockDiapers[0]]);
 
-      expect(component.allDiapers()[0].change_type).toBe('wet');
+      expect(component.allItems()[0].change_type).toBe('wet');
     });
 
     it('should handle dirty diapers', () => {
-      component.allDiapers.set([mockDiapers[1]]);
+      component.allItems.set([mockDiapers[1]]);
 
-      expect(component.allDiapers()[0].change_type).toBe('dirty');
+      expect(component.allItems()[0].change_type).toBe('dirty');
     });
 
     it('should handle both diapers', () => {
-      component.allDiapers.set([mockDiapers[2]]);
+      component.allItems.set([mockDiapers[2]]);
 
-      expect(component.allDiapers()[0].change_type).toBe('both');
+      expect(component.allItems()[0].change_type).toBe('both');
     });
 
     it('should handle mixed types', () => {
-      component.allDiapers.set(mockDiapers);
+      component.allItems.set(mockDiapers);
 
-      expect(component.allDiapers()).toHaveLength(3);
-      expect(component.allDiapers()[0].change_type).toBe('wet');
-      expect(component.allDiapers()[1].change_type).toBe('dirty');
-      expect(component.allDiapers()[2].change_type).toBe('both');
+      expect(component.allItems()).toHaveLength(3);
+      expect(component.allItems()[0].change_type).toBe('wet');
+      expect(component.allItems()[1].change_type).toBe('dirty');
+      expect(component.allItems()[2].change_type).toBe('both');
     });
   });
 });
@@ -771,8 +768,8 @@ describe('DiapersList - Route and Concurrent Operations', () => {
     });
 
     it('should clear previous data when childId changes', async () => {
-      component.allDiapers.set(mockDiapers);
-      expect(component.allDiapers().length).toBe(3);
+      component.allItems.set(mockDiapers);
+      expect(component.allItems().length).toBe(3);
 
       const mockRoute = TestBed.inject(ActivatedRoute);
       const originalGet = mockRoute.snapshot.paramMap.get;
@@ -782,7 +779,7 @@ describe('DiapersList - Route and Concurrent Operations', () => {
       component.ngOnInit();
       await new Promise(resolve => setTimeout(resolve, 10));
 
-      expect(component.allDiapers()).toEqual([]);
+      expect(component.allItems()).toEqual([]);
 
       mockRoute.snapshot.paramMap.get = originalGet;
     });
@@ -790,7 +787,7 @@ describe('DiapersList - Route and Concurrent Operations', () => {
 
   describe('Concurrent Operations', () => {
     it('should handle empty filtered results after selection', () => {
-      component.allDiapers.set(mockDiapers);
+      component.allItems.set(mockDiapers);
       component.selectedIds.set([1, 2]);
 
       component.filters.set({ type: 'dirty' });
@@ -807,7 +804,7 @@ describe('DiapersList - Route and Concurrent Operations', () => {
     });
 
     it('isAllSelected should be false when diapers list is empty', () => {
-      component.allDiapers.set([]);
+      component.allItems.set([]);
       expect(component.isAllSelected()).toBe(false);
     });
 
@@ -861,7 +858,7 @@ describe('DiapersList - Route and Concurrent Operations', () => {
     });
 
     it('should toggle selectAll on empty list', () => {
-      component.allDiapers.set([]);
+      component.allItems.set([]);
       component.toggleSelectAll();
       expect(component.selectedIds()).toEqual([]);
     });

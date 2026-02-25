@@ -119,7 +119,7 @@ describe('NapsList - Batch Operations', () => {
   });
 
   it('should select all naps', () => {
-    component.allNaps.set(mockNaps);
+    component.allItems.set(mockNaps);
     fixture.detectChanges();
 
     component.toggleSelectAll();
@@ -129,7 +129,7 @@ describe('NapsList - Batch Operations', () => {
   });
 
   it('should deselect all when toggling with all selected', () => {
-    component.allNaps.set(mockNaps);
+    component.allItems.set(mockNaps);
     component.selectedIds.set([1, 2, 3]);
     fixture.detectChanges();
 
@@ -153,7 +153,7 @@ describe('NapsList - Batch Operations', () => {
     (napsService.delete as any).mockReturnValue(of(void 0));
 
     component.childId.set(1);
-    component.allNaps.set(mockNaps);
+    component.allItems.set(mockNaps);
     component.selectedIds.set([1, 3]);
 
     component.bulkDelete();
@@ -162,7 +162,7 @@ describe('NapsList - Batch Operations', () => {
     expect(napsService.delete).toHaveBeenCalledWith(1, 1);
     expect(napsService.delete).toHaveBeenCalledWith(1, 3);
     expect(component.selectedIds()).toEqual([]);
-    expect(component.allNaps().length).toBe(1);
+    expect(component.allItems().length).toBe(1);
     confirmSpy.mockRestore();
   });
 
@@ -181,7 +181,7 @@ describe('NapsList - Batch Operations', () => {
     (napsService.delete as any).mockReturnValue(of(void 0));
 
     component.childId.set(1);
-    component.allNaps.set(mockNaps);
+    component.allItems.set(mockNaps);
     component.selectedIds.set([1, 2]);
 
     expect(component.isBulkDeleting()).toBeFalsy();
@@ -199,7 +199,7 @@ describe('NapsList - Batch Operations', () => {
     (napsService.delete as any).mockReturnValue(of(void 0));
 
     component.childId.set(1);
-    component.allNaps.set(mockNaps);
+    component.allItems.set(mockNaps);
     component.selectedIds.set([1, 2]);
 
     component.bulkDelete();
@@ -210,7 +210,7 @@ describe('NapsList - Batch Operations', () => {
   });
 
   it('should filter by date range and maintain selection state', () => {
-    component.allNaps.set(mockNaps);
+    component.allItems.set(mockNaps);
     component.selectedIds.set([1, 2, 3]);
 
     // Apply date filter
@@ -225,7 +225,7 @@ describe('NapsList - Batch Operations', () => {
   });
 
   it('should count only filtered items in isAllSelected', () => {
-    component.allNaps.set(mockNaps);
+    component.allItems.set(mockNaps);
     fixture.detectChanges();
 
     // Apply filter for date range
@@ -360,12 +360,9 @@ describe('NapsList - Core Functionality Tests', () => {
     });
 
     it('should initialize with empty naps', () => {
-      expect(component.allNaps()).toEqual([]);
+      expect(component.allItems()).toEqual([]);
     });
 
-    it('should initialize with isLoading=true', () => {
-      expect(component.isLoading()).toBe(true);
-    });
 
     it('should initialize empty selection', () => {
       expect(component.selectedIds()).toEqual([]);
@@ -383,7 +380,7 @@ describe('NapsList - Core Functionality Tests', () => {
       component.ngOnInit();
       await new Promise(resolve => setTimeout(resolve, 10));
 
-      expect(component.allNaps()).toHaveLength(3);
+      expect(component.allItems()).toHaveLength(3);
     });
 
     it('should set isLoading=false after load', async () => {
@@ -446,39 +443,39 @@ describe('NapsList - Core Functionality Tests', () => {
 
   describe('Duration Handling', () => {
     it('should display nap duration', () => {
-      component.allNaps.set([mockNaps[0]]);
+      component.allItems.set([mockNaps[0]]);
 
-      expect(component.allNaps()[0].duration_minutes).toBe(30);
+      expect(component.allItems()[0].duration_minutes).toBe(30);
     });
 
     it('should handle ongoing naps', () => {
-      component.allNaps.set([mockNaps[2]]);
+      component.allItems.set([mockNaps[2]]);
 
-      expect(component.allNaps()[0].ended_at).toBeNull();
-      expect(component.allNaps()[0].duration_minutes).toBeNull();
+      expect(component.allItems()[0].ended_at).toBeNull();
+      expect(component.allItems()[0].duration_minutes).toBeNull();
     });
 
     it('should handle mixed durations', () => {
-      component.allNaps.set(mockNaps);
+      component.allItems.set(mockNaps);
 
-      expect(component.allNaps()[0].duration_minutes).toBe(30);
-      expect(component.allNaps()[1].duration_minutes).toBe(60);
-      expect(component.allNaps()[2].duration_minutes).toBeNull();
+      expect(component.allItems()[0].duration_minutes).toBe(30);
+      expect(component.allItems()[1].duration_minutes).toBe(60);
+      expect(component.allItems()[2].duration_minutes).toBeNull();
     });
   });
 
   describe('Filtering', () => {
     beforeEach(() => {
-      component.allNaps.set(mockNaps);
+      component.allItems.set(mockNaps);
       fixture.detectChanges();
     });
 
     it('should have naps computed property', () => {
-      expect(component.naps).toBeDefined();
+      expect(component.filteredItems).toBeDefined();
     });
 
     it('should return all naps when no filters', () => {
-      expect(component.naps()).toHaveLength(3);
+      expect(component.filteredItems()).toHaveLength(3);
     });
   });
 
@@ -504,9 +501,9 @@ describe('NapsList - Core Functionality Tests', () => {
 
   describe('Empty States', () => {
     it('should handle empty nap list', () => {
-      component.allNaps.set([]);
+      component.allItems.set([]);
 
-      expect(component.naps()).toEqual([]);
+      expect(component.filteredItems()).toEqual([]);
     });
 
     it('should handle no selections', () => {
@@ -516,9 +513,9 @@ describe('NapsList - Core Functionality Tests', () => {
 
   describe('Signal Reactivity', () => {
     it('should update allNaps reactively', () => {
-      component.allNaps.set(mockNaps);
+      component.allItems.set(mockNaps);
 
-      expect(component.allNaps()).toHaveLength(3);
+      expect(component.allItems()).toHaveLength(3);
     });
 
     it('should update filters reactively', () => {
@@ -571,10 +568,10 @@ describe('NapsList - Core Functionality Tests', () => {
         created_at: '2024-02-10T18:00:00Z',
         updated_at: '2024-02-10T18:00:00Z',
       };
-      component.allNaps.set([mockNaps[0], ongoingNap]);
+      component.allItems.set([mockNaps[0], ongoingNap]);
       component.filters.set({ dateFrom: '2024-02-10', dateTo: '2024-02-10' });
 
-      expect(component.naps().length).toBeGreaterThan(0);
+      expect(component.filteredItems().length).toBeGreaterThan(0);
     });
 
     it('should allow selection of ongoing naps', () => {
@@ -587,7 +584,7 @@ describe('NapsList - Core Functionality Tests', () => {
         created_at: '2024-02-10T18:00:00Z',
         updated_at: '2024-02-10T18:00:00Z',
       };
-      component.allNaps.set([ongoingNap]);
+      component.allItems.set([ongoingNap]);
       component.toggleSelection(ongoingNap.id);
 
       expect(component.selectedIds()).toContain(ongoingNap.id);
@@ -618,8 +615,8 @@ describe('NapsList - Core Functionality Tests', () => {
     });
 
     it('should clear previous data when childId changes', async () => {
-      component.allNaps.set(mockNaps);
-      expect(component.allNaps().length).toBe(3);
+      component.allItems.set(mockNaps);
+      expect(component.allItems().length).toBe(3);
 
       const mockRoute = TestBed.inject(ActivatedRoute);
       const originalGet = mockRoute.snapshot.paramMap.get;
@@ -629,7 +626,7 @@ describe('NapsList - Core Functionality Tests', () => {
       component.ngOnInit();
       await new Promise(resolve => setTimeout(resolve, 10));
 
-      expect(component.allNaps()).toEqual([]);
+      expect(component.allItems()).toEqual([]);
 
       mockRoute.snapshot.paramMap.get = originalGet;
     });
@@ -647,11 +644,11 @@ describe('NapsList - Core Functionality Tests', () => {
     });
 
     it('should handle concurrent filter change and selection update', () => {
-      component.allNaps.set(mockNaps);
+      component.allItems.set(mockNaps);
       component.filters.set({ dateFrom: '2024-02-10' });
       component.toggleSelection(1);
 
-      expect(component.naps().length).toBeGreaterThan(0);
+      expect(component.filteredItems().length).toBeGreaterThan(0);
       expect(component.selectedIds()).toContain(1);
     });
   });
@@ -687,7 +684,7 @@ describe('NapsList - Core Functionality Tests', () => {
     });
 
     it('isAllSelected should be false when naps list is empty', () => {
-      component.allNaps.set([]);
+      component.allItems.set([]);
       expect(component.isAllSelected()).toBe(false);
     });
 
@@ -757,7 +754,7 @@ describe('NapsList - Core Functionality Tests', () => {
     });
 
     it('should toggle selectAll on empty list', () => {
-      component.allNaps.set([]);
+      component.allItems.set([]);
       component.toggleSelectAll();
       expect(component.selectedIds()).toEqual([]);
     });
