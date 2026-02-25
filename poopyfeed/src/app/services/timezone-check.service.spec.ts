@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
-import { of, throwError } from 'rxjs';
+import { provideRouter, Router } from '@angular/router';
+import { of } from 'rxjs';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { TimezoneCheckService } from './timezone-check.service';
 import { AccountService } from './account.service';
@@ -15,10 +16,20 @@ const mockProfile: UserProfile = {
   timezone: 'America/New_York',
 };
 
+function getDifferentTz(): string {
+  const browserTz = DateTimeService.getBrowserTimezone();
+  return browserTz === 'America/New_York'
+    ? 'America/Chicago'
+    : 'America/New_York';
+}
+
 describe('TimezoneCheckService', () => {
   let service: TimezoneCheckService;
   let profileSignal: ReturnType<typeof signal<UserProfile | null>>;
-  let accountServiceMock: { profile: typeof profileSignal; updateProfile: ReturnType<typeof vi.fn> };
+  let accountServiceMock: {
+    profile: typeof profileSignal;
+    updateProfile: ReturnType<typeof vi.fn>;
+  };
 
   beforeEach(() => {
     sessionStorage.clear();
@@ -30,6 +41,7 @@ describe('TimezoneCheckService', () => {
 
     TestBed.configureTestingModule({
       providers: [
+        provideRouter([]),
         TimezoneCheckService,
         { provide: AccountService, useValue: accountServiceMock },
       ],
@@ -54,16 +66,12 @@ describe('TimezoneCheckService', () => {
     });
 
     it('should show when timezones differ', () => {
-      const browserTz = DateTimeService.getBrowserTimezone();
-      const differentTz = browserTz === 'America/New_York' ? 'America/Chicago' : 'America/New_York';
-      profileSignal.set({ ...mockProfile, timezone: differentTz });
+      profileSignal.set({ ...mockProfile, timezone: getDifferentTz() });
       expect(service.showBanner()).toBe(true);
     });
 
     it('should not show after dismiss', () => {
-      const browserTz = DateTimeService.getBrowserTimezone();
-      const differentTz = browserTz === 'America/New_York' ? 'America/Chicago' : 'America/New_York';
-      profileSignal.set({ ...mockProfile, timezone: differentTz });
+      profileSignal.set({ ...mockProfile, timezone: getDifferentTz() });
       expect(service.showBanner()).toBe(true);
 
       service.dismiss();
@@ -72,12 +80,12 @@ describe('TimezoneCheckService', () => {
 
     it('should not show while timezone update is in progress', () => {
       const browserTz = DateTimeService.getBrowserTimezone();
-      const differentTz = browserTz === 'America/New_York' ? 'America/Chicago' : 'America/New_York';
-      profileSignal.set({ ...mockProfile, timezone: differentTz });
+      profileSignal.set({ ...mockProfile, timezone: getDifferentTz() });
       expect(service.showBanner()).toBe(true);
 
-      // updateToDetectedTimezone sets updating=true synchronously
-      accountServiceMock.updateProfile.mockReturnValue(of({ ...mockProfile, timezone: browserTz! }));
+      accountServiceMock.updateProfile.mockReturnValue(
+        of({ ...mockProfile, timezone: browserTz! })
+      );
       service.updateToDetectedTimezone();
       expect(service.showBanner()).toBe(false);
     });
@@ -90,11 +98,38 @@ describe('TimezoneCheckService', () => {
     });
 
     it('should hide the banner', () => {
-      const browserTz = DateTimeService.getBrowserTimezone();
-      const differentTz = browserTz === 'America/New_York' ? 'America/Chicago' : 'America/New_York';
-      profileSignal.set({ ...mockProfile, timezone: differentTz });
+      profileSignal.set({ ...mockProfile, timezone: getDifferentTz() });
 
       service.dismiss();
+      expect(service.showBanner()).toBe(false);
+    });
+  });
+
+  describe('clearDismissal', () => {
+    it('should re-show banner after it was dismissed', () => {
+      profileSignal.set({ ...mockProfile, timezone: getDifferentTz() });
+      service.dismiss();
+      expect(service.showBanner()).toBe(false);
+
+      service.clearDismissal();
+      expect(service.showBanner()).toBe(true);
+    });
+
+    it('should remove sessionStorage key', () => {
+      service.dismiss();
+      expect(sessionStorage.getItem('tz-banner-dismissed')).toBe('true');
+
+      service.clearDismissal();
+      expect(sessionStorage.getItem('tz-banner-dismissed')).toBeNull();
+    });
+
+    it('should not show banner if timezones match after clearing', () => {
+      const browserTz = DateTimeService.getBrowserTimezone();
+      profileSignal.set({ ...mockProfile, timezone: getDifferentTz() });
+      service.dismiss();
+
+      profileSignal.set({ ...mockProfile, timezone: browserTz! });
+      service.clearDismissal();
       expect(service.showBanner()).toBe(false);
     });
   });
@@ -112,16 +147,13 @@ describe('TimezoneCheckService', () => {
 
   describe('finishUpdate', () => {
     it('should re-enable banner after update completes', () => {
-      const browserTz = DateTimeService.getBrowserTimezone();
-      const differentTz = browserTz === 'America/New_York' ? 'America/Chicago' : 'America/New_York';
-      profileSignal.set({ ...mockProfile, timezone: differentTz });
+      profileSignal.set({ ...mockProfile, timezone: getDifferentTz() });
 
       accountServiceMock.updateProfile.mockReturnValue(of({ ...mockProfile }));
       service.updateToDetectedTimezone();
       expect(service.showBanner()).toBe(false);
 
       service.finishUpdate();
-      // Profile still has differentTz so mismatch is still present
       expect(service.showBanner()).toBe(true);
     });
   });
@@ -147,6 +179,35 @@ describe('TimezoneCheckService', () => {
       expect(result).toBeUndefined();
     });
   });
+
+  describe('navigation refresh', () => {
+    it('should refresh browserTimezone on route navigation', async () => {
+      const router = TestBed.inject(Router);
+
+      service.browserTimezone.set('Old/Zone');
+      expect(service.browserTimezone()).toBe('Old/Zone');
+
+      await router.navigateByUrl('/');
+
+      const expected = DateTimeService.getBrowserTimezone();
+      expect(service.browserTimezone()).toBe(expected);
+    });
+
+    it('should re-evaluate banner after navigation refreshes timezone', async () => {
+      const router = TestBed.inject(Router);
+      const browserTz = DateTimeService.getBrowserTimezone()!;
+
+      profileSignal.set({ ...mockProfile, timezone: browserTz });
+      expect(service.showBanner()).toBe(false);
+
+      service.browserTimezone.set('Different/Zone');
+      expect(service.showBanner()).toBe(true);
+
+      await router.navigateByUrl('/');
+      // Navigation refreshes browserTimezone back to real value, which matches profile
+      expect(service.showBanner()).toBe(false);
+    });
+  });
 });
 
 describe('TimezoneCheckService (pre-dismissed session)', () => {
@@ -160,6 +221,7 @@ describe('TimezoneCheckService (pre-dismissed session)', () => {
 
     TestBed.configureTestingModule({
       providers: [
+        provideRouter([]),
         TimezoneCheckService,
         {
           provide: AccountService,
@@ -176,9 +238,7 @@ describe('TimezoneCheckService (pre-dismissed session)', () => {
   });
 
   it('should not show banner when sessionStorage already has dismissed flag', () => {
-    const browserTz = DateTimeService.getBrowserTimezone();
-    const differentTz = browserTz === 'America/New_York' ? 'America/Chicago' : 'America/New_York';
-    profileSignal.set({ ...mockProfile, timezone: differentTz });
+    profileSignal.set({ ...mockProfile, timezone: getDifferentTz() });
 
     expect(service.showBanner()).toBe(false);
   });

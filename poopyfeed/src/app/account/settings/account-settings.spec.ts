@@ -6,10 +6,13 @@ import {
 import { provideHttpClient } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
 import { AccountSettings } from './account-settings';
+import { TimezoneCheckService } from '../../services/timezone-check.service';
 import { UserProfile } from '../../models/user.model';
+import { vi } from 'vitest';
 
 describe('AccountSettings', () => {
   let httpMock: HttpTestingController;
+  let tzCheckMock: { clearDismissal: ReturnType<typeof vi.fn> };
 
   const mockProfile: UserProfile = {
     id: 1,
@@ -20,12 +23,15 @@ describe('AccountSettings', () => {
   };
 
   beforeEach(async () => {
+    tzCheckMock = { clearDismissal: vi.fn() };
+
     await TestBed.configureTestingModule({
       imports: [AccountSettings],
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
         provideRouter([]),
+        { provide: TimezoneCheckService, useValue: tzCheckMock },
       ],
     }).compileComponents();
 
@@ -129,6 +135,35 @@ describe('AccountSettings', () => {
     req.flush({ ...mockProfile, timezone: 'America/New_York' });
 
     expect(component.timezoneSuccess()).toBe('Timezone updated successfully.');
+  });
+
+  it('should clear timezone banner dismissal on successful timezone update', () => {
+    const fixture = createComponent();
+    const component = fixture.componentInstance;
+
+    component.timezoneForm.patchValue({ timezone: 'America/Chicago' });
+    component.onTimezoneSubmit();
+
+    const req = httpMock.expectOne('/api/v1/account/profile/');
+    req.flush({ ...mockProfile, timezone: 'America/Chicago' });
+
+    expect(tzCheckMock.clearDismissal).toHaveBeenCalled();
+  });
+
+  it('should not clear timezone banner dismissal on failed timezone update', () => {
+    const fixture = createComponent();
+    const component = fixture.componentInstance;
+
+    component.timezoneForm.patchValue({ timezone: 'Invalid/Zone' });
+    component.onTimezoneSubmit();
+
+    const req = httpMock.expectOne('/api/v1/account/profile/');
+    req.flush(
+      { timezone: ['Invalid timezone.'] },
+      { status: 400, statusText: 'Bad Request' }
+    );
+
+    expect(tzCheckMock.clearDismissal).not.toHaveBeenCalled();
   });
 
   it('should submit password change', () => {

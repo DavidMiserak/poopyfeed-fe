@@ -15,6 +15,7 @@ import {
 import { Router, RouterLink } from '@angular/router';
 import { AccountService } from '../../services/account.service';
 import { AuthService } from '../../services/auth.service';
+import { TimezoneCheckService } from '../../services/timezone-check.service';
 import { ToastService } from '../../services/toast.service';
 import { TIMEZONES } from '../timezones';
 
@@ -29,6 +30,7 @@ export class AccountSettings implements OnInit {
   private authService = inject(AuthService);
   private router = inject(Router);
   private toast = inject(ToastService);
+  private tzCheck = inject(TimezoneCheckService);
 
   timezones = TIMEZONES;
   isLoading = signal(true);
@@ -139,6 +141,7 @@ export class AccountSettings implements OnInit {
           this.timezoneSubmitting.set(false);
           this.timezoneSuccess.set('Timezone updated successfully.');
           this.toast.success('Timezone updated successfully');
+          this.tzCheck.clearDismissal();
         },
         error: (err: Error) => {
           this.timezoneSubmitting.set(false);

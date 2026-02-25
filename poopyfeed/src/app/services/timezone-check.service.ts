@@ -1,10 +1,13 @@
 /**
  * Detects mismatches between the user's profile timezone preference
- * and the browser's actual timezone. Offers session-scoped dismissal
- * so users aren't repeatedly prompted.
+ * and the browser's actual timezone. Re-checks on every navigation.
+ * Offers session-scoped dismissal so users aren't repeatedly prompted.
  */
 
-import { computed, inject, Injectable, signal } from '@angular/core';
+import { computed, DestroyRef, inject, Injectable, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NavigationEnd, Router } from '@angular/router';
+import { filter } from 'rxjs';
 import { AccountService } from './account.service';
 import { DateTimeService } from './datetime.service';
 
@@ -15,6 +18,8 @@ const SESSION_KEY = 'tz-banner-dismissed';
 })
 export class TimezoneCheckService {
   private accountService = inject(AccountService);
+  private router = inject(Router);
+  private destroyRef = inject(DestroyRef);
 
   private dismissed = signal(this.wasDismissedThisSession());
   private updating = signal(false);
@@ -44,12 +49,34 @@ export class TimezoneCheckService {
     () => this.accountService.profile()?.timezone ?? 'UTC'
   );
 
+  constructor() {
+    this.router.events
+      .pipe(
+        filter((e): e is NavigationEnd => e instanceof NavigationEnd),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => this.refreshBrowserTimezone());
+  }
+
   dismiss(): void {
     this.dismissed.set(true);
     try {
       sessionStorage.setItem(SESSION_KEY, 'true');
     } catch {
       // sessionStorage may be unavailable (private browsing, SSR)
+    }
+  }
+
+  /**
+   * Clear the session dismissal so the banner can reappear.
+   * Called when the user manually changes their timezone in account settings.
+   */
+  clearDismissal(): void {
+    this.dismissed.set(false);
+    try {
+      sessionStorage.removeItem(SESSION_KEY);
+    } catch {
+      // sessionStorage may be unavailable
     }
   }
 
@@ -68,6 +95,13 @@ export class TimezoneCheckService {
   /** Mark updating as complete (called after subscribe completes). */
   finishUpdate(): void {
     this.updating.set(false);
+  }
+
+  private refreshBrowserTimezone(): void {
+    const tz = DateTimeService.getBrowserTimezone();
+    if (tz) {
+      this.browserTimezone.set(tz);
+    }
   }
 
   private wasDismissedThisSession(): boolean {
