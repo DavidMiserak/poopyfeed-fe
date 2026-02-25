@@ -81,7 +81,7 @@
     </button>
   </div>
 
-  <!-- Mobile menu panel -->
+  <!-- Mobile menu panel: inert when closed so focusable descendants are not in tab order (fixes aria-hidden-focus). -->
   <nav
     id="mobile-menu"
     class="sm:hidden overflow-hidden transition-[max-height,opacity] duration-300 ease-in-out bg-white/95 backdrop-blur-md"
@@ -90,6 +90,7 @@
     [class.max-h-64]="menuOpen()"
     [class.opacity-100]="menuOpen()"
     [attr.aria-hidden]="!menuOpen()"
+    [attr.inert]="!menuOpen()"
     aria-label="Mobile navigation"
   >
     <div class="max-w-7xl mx-auto px-4 pb-4 pt-2 flex flex-col gap-1">
