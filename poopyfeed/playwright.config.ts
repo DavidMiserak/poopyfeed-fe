@@ -6,13 +6,13 @@ import { defineConfig, devices } from '@playwright/test';
  * Prerequisites: Full stack must be running (e.g. `make run` from repo root).
  * Frontend at baseURL proxies /api to the backend; E2E runs against the app as a user would.
  *
- * Browsers: Firefox is default (reliable on Linux). Use --project=chromium for Chrome.
- * In container (make test-e2e): runs with BASE_URL=http://frontend:4200.
+ * Auth fixture: "setup" runs first (signup + save storageState). Projects that need a
+ * logged-in user use storageState and depend on "setup"; auth tests run without state.
  *
- * Run from repo root: make test-e2e (container) or make test-e2e-local (host, Firefox)
+ * Browsers: Firefox is default. In container (make test-e2e): BASE_URL=http://frontend:4200.
+ *
+ * Run from repo root: make test-e2e (container) or make test-e2e-local (host)
  * Run from front-end/poopyfeed: npm run test:e2e
- *
- * Override base URL: BASE_URL=http://localhost:4200 npm run test:e2e
  */
 export default defineConfig({
   testDir: './e2e',
@@ -28,8 +28,35 @@ export default defineConfig({
     video: 'on-first-retry',
   },
   projects: [
-    { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
-    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+    { name: 'setup', testMatch: /auth\.setup\.ts/ },
+    {
+      name: 'firefox',
+      use: { ...devices['Desktop Firefox'] },
+      testMatch: /auth\.e2e\.spec\.ts/,
+    },
+    {
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'] },
+      testMatch: /auth\.e2e\.spec\.ts/,
+    },
+    {
+      name: 'firefox-authenticated',
+      use: {
+        ...devices['Desktop Firefox'],
+        storageState: 'e2e/.auth/user.json',
+      },
+      testMatch: /children\.e2e\.spec\.ts/,
+      dependencies: ['setup'],
+    },
+    {
+      name: 'chromium-authenticated',
+      use: {
+        ...devices['Desktop Chrome'],
+        storageState: 'e2e/.auth/user.json',
+      },
+      testMatch: /children\.e2e\.spec\.ts/,
+      dependencies: ['setup'],
+    },
   ],
   timeout: 30_000,
   expect: { timeout: 10_000 },
