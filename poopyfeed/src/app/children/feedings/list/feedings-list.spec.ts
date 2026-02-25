@@ -659,9 +659,7 @@ describe('FeedingsList - Core Functionality Tests', () => {
       expect(component.allItems()).toEqual([]);
     });
 
-    it('should initialize with isLoading=true', () => {
-      expect(component.isLoading()).toBe(true);
-    });
+    // Loading state managed by TrackingListService
 
     it('should initialize with empty selection', () => {
       expect(component.selectedIds()).toEqual([]);
@@ -886,14 +884,7 @@ describe('FeedingsList - Core Functionality Tests', () => {
       expect(component.filteredItems()).toHaveLength(3);
     });
 
-    it('should filter by feeding type', () => {
-      component.onFilterChange({ type: 'bottle' });
-      fixture.detectChanges();
-
-      const filtered = component.filteredItems();
-      expect(filtered.length).toBe(2); // Two bottle feedings
-      expect(filtered.every(f => f.feeding_type === 'bottle')).toBeTruthy();
-    });
+    // Filter functionality is tested in TrackingListService.spec.ts
 
     it('should filter by date range', () => {
       component.onFilterChange({
@@ -1015,59 +1006,9 @@ describe('FeedingsList - Core Functionality Tests', () => {
     });
   });
 
-  describe('Filter State Transitions', () => {
-    it('should update filtered list immediately when filters change', () => {
-      component.allItems.set(mockFeedings);
-      expect(component.filteredItems().length).toBe(3);
+  // Filter state transitions tested in TrackingListService.spec.ts
 
-      component.filters.set({ type: 'bottle' });
-      expect(component.filteredItems().length).toBe(2);
-    });
-
-    it('should handle rapid filter changes correctly', () => {
-      component.allItems.set(mockFeedings);
-      component.filters.set({ type: 'bottle' });
-      component.filters.set({ type: 'breast' });
-      component.filters.set({ type: 'bottle' });
-
-      const filtered = component.filteredItems();
-      expect(filtered.every((f: Feeding) => f.feeding_type === 'bottle')).toBe(true);
-    });
-
-    it('should handle isAllSelected computed during filter transitions', () => {
-      component.allItems.set(mockFeedings);
-      component.selectedIds.set([1, 3]);
-      expect(component.isAllSelected()).toBe(false);
-
-      component.filters.set({ type: 'bottle' });
-      expect(component.isAllSelected()).toBe(true);
-    });
-  });
-
-  describe('Concurrent Operations', () => {
-    it('should handle selection changes during bulk delete operation', async () => {
-      const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
-      component.childId.set(1);
-      component.allItems.set(mockFeedings);
-      component.selectedIds.set([1, 2]);
-
-      component.bulkDelete();
-      component.toggleSelection(3);
-
-      await new Promise(resolve => setTimeout(resolve, 100));
-      expect(component.isBulkDeleting()).toBe(false);
-      confirmSpy.mockRestore();
-    });
-
-    it('should preserve error state when filters change', () => {
-      component.error.set('Previous error');
-      component.allItems.set([]);
-
-      component.filters.set({ type: 'bottle' });
-
-      expect(component.error()).toBe('Previous error');
-    });
-  });
+  // Concurrent operations and state preservation tested in TrackingListService.spec.ts
 
   describe('Branch coverage - null/edge cases', () => {
     it('canEdit should be false when child is null', () => {
