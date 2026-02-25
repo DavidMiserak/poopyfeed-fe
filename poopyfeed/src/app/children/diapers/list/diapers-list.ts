@@ -11,14 +11,16 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { DiapersService } from '../../../services/diapers.service';
 import { ChildrenService } from '../../../services/children.service';
 import { FilterService, FilterCriteria } from '../../../services/filter.service';
-import { TrackingFilterComponent } from '../../../components/tracking-filter/tracking-filter';
-import { LoadingStateComponent } from '../../../components/loading-state/loading-state.component';
-import { ErrorCardComponent } from '../../../components/error-card/error-card.component';
-import { TrackingListHeaderComponent } from '../../../components/tracking-list-header/tracking-list-header.component';
-import { TrackingBulkActionsComponent } from '../../../components/tracking-bulk-actions/tracking-bulk-actions.component';
-import { TrackingListSelectHeaderComponent } from '../../../components/tracking-list-select-header/tracking-list-select-header.component';
-import { TrackingEmptyStateComponent } from '../../../components/tracking-empty-state/tracking-empty-state.component';
-import { TrackingItemContainerComponent } from '../../../components/tracking-item-container/tracking-item-container.component';
+import {
+  TrackingFilterComponent,
+  LoadingStateComponent,
+  ErrorCardComponent,
+  TrackingListHeaderComponent,
+  TrackingBulkActionsComponent,
+  TrackingListSelectHeaderComponent,
+  TrackingEmptyStateComponent,
+  TrackingItemContainerComponent,
+} from '../../../components';
 import { DiaperChange, CHANGE_TYPE_LABELS } from '../../../models/diaper.model';
 import { Child } from '../../../models/child.model';
 
