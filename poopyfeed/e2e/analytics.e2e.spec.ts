@@ -46,4 +46,51 @@ test.describe('Analytics', () => {
       page.getByText('No Activity Data Yet')
     ).toBeVisible({ timeout: 15000 });
   });
+
+  test('user can export CSV and get a download', async ({ page }) => {
+    await page.goto('/children');
+    await expect(
+      page.getByRole('heading', { name: 'My Children' })
+    ).toBeVisible();
+
+    if (await page.getByRole('heading', { name: 'No children yet!' }).isVisible()) {
+      await page.getByRole('link', { name: 'Add Your First Baby' }).click();
+      await page.getByLabel("Baby's Name").fill(TRACK_CHILD_NAME);
+      await page.getByLabel('Date of Birth').fill('2024-06-01');
+      await page.getByRole('radio', { name: 'Female' }).click({ force: true });
+      await page.getByRole('button', { name: 'Add Baby' }).click();
+      await expect(page).toHaveURL(/\/children$/);
+    }
+
+    const firstChildHeading = page.getByRole('heading', { level: 3 }).first();
+    await firstChildHeading.click();
+
+    await expect(page).toHaveURL(/\/children\/(\d+)\/dashboard/);
+    const url = page.url();
+    const childIdMatch = url.match(/\/children\/(\d+)\//);
+    expect(childIdMatch).toBeTruthy();
+    const childId = childIdMatch![1];
+
+    await page.goto(`/children/${childId}/analytics/export`);
+
+    await expect(
+      page.getByRole('heading', { name: 'Export Analytics' })
+    ).toBeVisible();
+    await expect(
+      page.getByRole('radio', { name: /Export as CSV/ })
+    ).toBeVisible();
+    await page.getByRole('radio', { name: /Export as CSV/ }).check();
+
+    const downloadPromise = page.waitForEvent('download', { timeout: 15000 });
+    await page
+      .getByRole('button', { name: 'Confirm and start export' })
+      .click();
+
+    const download = await downloadPromise;
+    expect(download.suggestedFilename()).toMatch(/\.csv$/i);
+
+    await expect(page).toHaveURL(new RegExp(`/children/${childId}/analytics$`), {
+      timeout: 10000,
+    });
+  });
 });
