@@ -689,6 +689,208 @@ describe('ChildTimeline', () => {
     });
   });
 
+  describe('timezone day boundary filtering', () => {
+    /**
+     * These tests verify that dayActivities correctly filters activities
+     * when the user's timezone shifts day boundaries relative to UTC.
+     *
+     * Uses fixed dates (not new Date()) and controls selectedDateString
+     * via dayOffset + mock to ensure deterministic results.
+     */
+
+    it('should place 4:30 AM UTC activity on Jan 15 in EST (11:30 PM EST)', () => {
+      const dateTimeServiceMock = TestBed.inject(DateTimeService) as any;
+      vi.mocked(dateTimeServiceMock.getDateInUserTimezone).mockImplementation(
+        (date: Date | string) => {
+          const d = typeof date === 'string' ? new Date(date) : date;
+          return new Intl.DateTimeFormat('en-CA', {
+            timeZone: 'America/New_York',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+          }).format(d);
+        }
+      );
+      vi.mocked(
+        dateTimeServiceMock.getDateNDaysAgoInUserTimezone
+      ).mockReturnValue('2024-01-15');
+
+      // 4:30 AM UTC Jan 16 = 11:30 PM EST Jan 15
+      component.allActivities.set([
+        {
+          id: 50,
+          type: 'feeding',
+          timestamp: '2024-01-16T04:30:00Z',
+          data: {
+            id: 50, child: 1, feeding_type: 'bottle', amount_oz: 5,
+            fed_at: '2024-01-16T04:30:00Z',
+            created_at: '2024-01-16T04:30:00Z',
+            updated_at: '2024-01-16T04:30:00Z',
+          } as Feeding,
+        },
+      ]);
+
+      // dayOffset=1 triggers selectedDateString recomputation → '2024-01-15'
+      component.dayOffset.set(1);
+
+      const activities = component.dayActivities();
+      expect(activities.length).toBe(1);
+      expect(activities[0].activity.id).toBe(50);
+    });
+
+    it('should place 5:01 AM UTC activity on Jan 16 in EST (12:01 AM EST)', () => {
+      const dateTimeServiceMock = TestBed.inject(DateTimeService) as any;
+      vi.mocked(dateTimeServiceMock.getDateInUserTimezone).mockImplementation(
+        (date: Date | string) => {
+          const d = typeof date === 'string' ? new Date(date) : date;
+          return new Intl.DateTimeFormat('en-CA', {
+            timeZone: 'America/New_York',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+          }).format(d);
+        }
+      );
+      vi.mocked(
+        dateTimeServiceMock.getDateNDaysAgoInUserTimezone
+      ).mockReturnValue('2024-01-16');
+
+      // 5:01 AM UTC Jan 16 = 12:01 AM EST Jan 16
+      component.allActivities.set([
+        {
+          id: 51,
+          type: 'diaper',
+          timestamp: '2024-01-16T05:01:00Z',
+          data: {
+            id: 51, child: 1, change_type: 'wet',
+            changed_at: '2024-01-16T05:01:00Z',
+            created_at: '2024-01-16T05:01:00Z',
+            updated_at: '2024-01-16T05:01:00Z',
+          } as DiaperChange,
+        },
+      ]);
+
+      // dayOffset=2 triggers selectedDateString recomputation → '2024-01-16'
+      component.dayOffset.set(2);
+
+      const activities = component.dayActivities();
+      expect(activities.length).toBe(1);
+      expect(activities[0].activity.id).toBe(51);
+    });
+
+    it('should split activities at EST midnight into correct days', () => {
+      const dateTimeServiceMock = TestBed.inject(DateTimeService) as any;
+      vi.mocked(dateTimeServiceMock.getDateInUserTimezone).mockImplementation(
+        (date: Date | string) => {
+          const d = typeof date === 'string' ? new Date(date) : date;
+          return new Intl.DateTimeFormat('en-CA', {
+            timeZone: 'America/New_York',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+          }).format(d);
+        }
+      );
+
+      // 4:00 AM UTC Jan 16 = 11:00 PM EST Jan 15 (previous day)
+      // 5:00 AM UTC Jan 16 = 12:00 AM EST Jan 16 (current day)
+      component.allActivities.set([
+        {
+          id: 60,
+          type: 'feeding',
+          timestamp: '2024-01-16T04:00:00Z',
+          data: {
+            id: 60, child: 1, feeding_type: 'bottle', amount_oz: 5,
+            fed_at: '2024-01-16T04:00:00Z',
+            created_at: '2024-01-16T04:00:00Z',
+            updated_at: '2024-01-16T04:00:00Z',
+          } as Feeding,
+        },
+        {
+          id: 61,
+          type: 'diaper',
+          timestamp: '2024-01-16T05:00:00Z',
+          data: {
+            id: 61, child: 1, change_type: 'wet',
+            changed_at: '2024-01-16T05:00:00Z',
+            created_at: '2024-01-16T05:00:00Z',
+            updated_at: '2024-01-16T05:00:00Z',
+          } as DiaperChange,
+        },
+      ]);
+
+      // View Jan 15 in EST — should only show the 11 PM feeding
+      vi.mocked(
+        dateTimeServiceMock.getDateNDaysAgoInUserTimezone
+      ).mockReturnValue('2024-01-15');
+      component.dayOffset.set(1);
+
+      let dayActs = component.dayActivities();
+      expect(dayActs.length).toBe(1);
+      expect(dayActs[0].activity.id).toBe(60);
+
+      // View Jan 16 in EST — should only show the midnight diaper
+      vi.mocked(
+        dateTimeServiceMock.getDateNDaysAgoInUserTimezone
+      ).mockReturnValue('2024-01-16');
+      component.dayOffset.set(2);
+
+      dayActs = component.dayActivities();
+      expect(dayActs.length).toBe(1);
+      expect(dayActs[0].activity.id).toBe(61);
+    });
+
+    it('should correctly filter with positive timezone offset (Asia/Tokyo)', () => {
+      const dateTimeServiceMock = TestBed.inject(DateTimeService) as any;
+      vi.mocked(dateTimeServiceMock.getDateInUserTimezone).mockImplementation(
+        (date: Date | string) => {
+          const d = typeof date === 'string' ? new Date(date) : date;
+          return new Intl.DateTimeFormat('en-CA', {
+            timeZone: 'Asia/Tokyo',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+          }).format(d);
+        }
+      );
+
+      // 11 PM UTC Jan 15 = 8 AM Tokyo Jan 16
+      component.allActivities.set([
+        {
+          id: 70,
+          type: 'nap',
+          timestamp: '2024-01-15T23:00:00Z',
+          data: {
+            id: 70, child: 1, duration_minutes: 30,
+            napped_at: '2024-01-15T23:00:00Z',
+            ended_at: '2024-01-15T23:30:00Z',
+            created_at: '2024-01-15T23:00:00Z',
+            updated_at: '2024-01-15T23:00:00Z',
+          } as Nap,
+        },
+      ]);
+
+      // In Tokyo, this activity is on Jan 16
+      vi.mocked(
+        dateTimeServiceMock.getDateNDaysAgoInUserTimezone
+      ).mockReturnValue('2024-01-16');
+      component.dayOffset.set(1);
+
+      let dayActs = component.dayActivities();
+      expect(dayActs.length).toBe(1);
+      expect(dayActs[0].activity.id).toBe(70);
+
+      // Viewing Jan 15 in Tokyo should NOT show this activity
+      vi.mocked(
+        dateTimeServiceMock.getDateNDaysAgoInUserTimezone
+      ).mockReturnValue('2024-01-15');
+      component.dayOffset.set(2);
+
+      dayActs = component.dayActivities();
+      expect(dayActs.length).toBe(0);
+    });
+  });
+
   describe('Branch coverage - null/edge cases', () => {
     it('canAddNap should return false when child is null', () => {
       component.child.set(null);

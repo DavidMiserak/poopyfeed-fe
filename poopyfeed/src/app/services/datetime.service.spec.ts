@@ -348,6 +348,144 @@ describe('DateTimeService', () => {
     });
   });
 
+  describe('timezone day boundary edge cases', () => {
+    const setTimezone = (tz: string) => {
+      profileSignal.set({
+        id: 1,
+        email: 'test@example.com',
+        first_name: 'Test',
+        last_name: 'User',
+        timezone: tz,
+      });
+    };
+
+    describe('negative offset (America/New_York, UTC-5)', () => {
+      beforeEach(() => setTimezone('America/New_York'));
+
+      it('should place 4:30 AM UTC on previous day in EST (11:30 PM EST)', () => {
+        const result = service.getDateInUserTimezone('2024-06-15T04:30:00Z');
+        expect(result).toBe('2024-06-15'); // EDT in June (UTC-4), so 12:30 AM same day
+      });
+
+      it('should place 4:30 AM UTC on previous day in EST winter (11:30 PM EST)', () => {
+        // January = EST (UTC-5): 4:30 AM UTC = 11:30 PM Jan 14 EST
+        const result = service.getDateInUserTimezone('2024-01-15T04:30:00Z');
+        expect(result).toBe('2024-01-14');
+      });
+
+      it('should place 5:01 AM UTC on same day in EST winter (12:01 AM EST)', () => {
+        // 5:01 AM UTC = 12:01 AM Jan 15 EST
+        const result = service.getDateInUserTimezone('2024-01-15T05:01:00Z');
+        expect(result).toBe('2024-01-15');
+      });
+
+      it('should place 4:59 AM UTC on previous day in EST winter (11:59 PM EST)', () => {
+        // 4:59 AM UTC = 11:59 PM Jan 14 EST
+        const result = service.getDateInUserTimezone('2024-01-15T04:59:00Z');
+        expect(result).toBe('2024-01-14');
+      });
+
+      it('should place midnight UTC on previous day in EST winter (7:00 PM EST)', () => {
+        // 0:00 UTC Jan 15 = 7:00 PM Jan 14 EST
+        const result = service.getDateInUserTimezone('2024-01-15T00:00:00Z');
+        expect(result).toBe('2024-01-14');
+      });
+    });
+
+    describe('positive offset (Asia/Tokyo, UTC+9)', () => {
+      beforeEach(() => setTimezone('Asia/Tokyo'));
+
+      it('should place 1:00 AM Tokyo (4:00 PM UTC previous day) on the Tokyo date', () => {
+        // 4:00 PM UTC Jan 14 = 1:00 AM Jan 15 Tokyo
+        const result = service.getDateInUserTimezone('2024-01-14T16:00:00Z');
+        expect(result).toBe('2024-01-15');
+      });
+
+      it('should place 11:00 PM UTC on next day in Tokyo (8:00 AM next day)', () => {
+        // 11:00 PM UTC Jan 15 = 8:00 AM Jan 16 Tokyo
+        const result = service.getDateInUserTimezone('2024-01-15T23:00:00Z');
+        expect(result).toBe('2024-01-16');
+      });
+
+      it('should place 2:59 PM UTC on same day in Tokyo (11:59 PM Tokyo)', () => {
+        // 2:59 PM UTC Jan 15 = 11:59 PM Jan 15 Tokyo
+        const result = service.getDateInUserTimezone('2024-01-15T14:59:00Z');
+        expect(result).toBe('2024-01-15');
+      });
+
+      it('should place 3:00 PM UTC on next day in Tokyo (midnight Tokyo)', () => {
+        // 3:00 PM UTC Jan 15 = 12:00 AM Jan 16 Tokyo
+        const result = service.getDateInUserTimezone('2024-01-15T15:00:00Z');
+        expect(result).toBe('2024-01-16');
+      });
+    });
+
+    describe('half-hour offset (Asia/Kolkata, UTC+5:30)', () => {
+      beforeEach(() => setTimezone('Asia/Kolkata'));
+
+      it('should place 6:29 PM UTC on same day in Kolkata (11:59 PM IST)', () => {
+        // 6:29 PM UTC Jan 15 = 11:59 PM Jan 15 IST
+        const result = service.getDateInUserTimezone('2024-01-15T18:29:00Z');
+        expect(result).toBe('2024-01-15');
+      });
+
+      it('should place 6:30 PM UTC on next day in Kolkata (midnight IST)', () => {
+        // 6:30 PM UTC Jan 15 = 12:00 AM Jan 16 IST
+        const result = service.getDateInUserTimezone('2024-01-15T18:30:00Z');
+        expect(result).toBe('2024-01-16');
+      });
+
+      it('should correctly shift day boundary at 5:30 AM IST', () => {
+        // Midnight UTC Jan 15 = 5:30 AM Jan 15 IST
+        const result = service.getDateInUserTimezone('2024-01-15T00:00:00Z');
+        expect(result).toBe('2024-01-15');
+      });
+    });
+
+    describe('getDateInUserTimezone cross-day verification', () => {
+      it('should return different dates for same UTC timestamp in different timezones', () => {
+        // 4:30 AM UTC Jan 15
+        const utcTimestamp = '2024-01-15T04:30:00Z';
+
+        // UTC: Jan 15
+        profileSignal.set(null);
+        expect(service.getDateInUserTimezone(utcTimestamp)).toBe('2024-01-15');
+
+        // New York (EST, UTC-5): Jan 14 (11:30 PM)
+        setTimezone('America/New_York');
+        expect(service.getDateInUserTimezone(utcTimestamp)).toBe('2024-01-14');
+
+        // Tokyo (UTC+9): Jan 15 (1:30 PM)
+        setTimezone('Asia/Tokyo');
+        expect(service.getDateInUserTimezone(utcTimestamp)).toBe('2024-01-15');
+      });
+
+      it('should produce different dates across day boundary for positive offset', () => {
+        // 3:00 PM UTC Jan 15
+        const utcTimestamp = '2024-01-15T15:00:00Z';
+
+        // UTC: Jan 15
+        profileSignal.set(null);
+        expect(service.getDateInUserTimezone(utcTimestamp)).toBe('2024-01-15');
+
+        // Tokyo (UTC+9): Jan 16 (midnight)
+        setTimezone('Asia/Tokyo');
+        expect(service.getDateInUserTimezone(utcTimestamp)).toBe('2024-01-16');
+      });
+    });
+
+    describe('isTodayInUserTimezone with fixed dates', () => {
+      it('should consider late-night EST timestamp as today if today in EST', () => {
+        setTimezone('America/New_York');
+
+        // Create a timestamp that is "now" in New York
+        const now = new Date();
+        // This should always be "today" regardless of timezone
+        expect(service.isTodayInUserTimezone(now.toISOString())).toBe(true);
+      });
+    });
+  });
+
   describe('edge cases', () => {
     it('should handle year boundaries', () => {
       const result = service.getDateInUserTimezone('2024-01-01T00:00:00Z');

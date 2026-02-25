@@ -266,6 +266,214 @@ describe('FilterService', () => {
     });
   });
 
+  describe('timezone boundary filtering', () => {
+    const setTimezone = (tz: string) => {
+      profileSignal.set({
+        id: 1,
+        email: 'test@example.com',
+        first_name: 'Test',
+        last_name: 'User',
+        timezone: tz,
+      });
+    };
+
+    describe('late-night activity in negative offset timezone (America/New_York)', () => {
+      beforeEach(() => setTimezone('America/New_York'));
+
+      it('should include 11 PM EST feeding when filtering for that EST date', () => {
+        // 11 PM EST Jan 15 = 4 AM UTC Jan 16
+        const items: Feeding[] = [
+          {
+            id: 1,
+            child: 1,
+            feeding_type: 'bottle',
+            fed_at: '2024-01-16T04:00:00Z', // 11 PM EST Jan 15
+            amount_oz: 5,
+            created_at: '2024-01-16T04:00:00Z',
+            updated_at: '2024-01-16T04:00:00Z',
+          },
+        ];
+
+        const criteria: FilterCriteria = {
+          dateFrom: '2024-01-15',
+          dateTo: '2024-01-15',
+        };
+        const result = service.filter(items, criteria, 'fed_at');
+
+        expect(result.length).toBe(1);
+        expect(result[0].id).toBe(1);
+      });
+
+      it('should exclude 11 PM EST feeding when filtering for the UTC date', () => {
+        // 11 PM EST Jan 15 = 4 AM UTC Jan 16
+        const items: Feeding[] = [
+          {
+            id: 1,
+            child: 1,
+            feeding_type: 'bottle',
+            fed_at: '2024-01-16T04:00:00Z', // 11 PM EST Jan 15
+            amount_oz: 5,
+            created_at: '2024-01-16T04:00:00Z',
+            updated_at: '2024-01-16T04:00:00Z',
+          },
+        ];
+
+        // Filtering for Jan 16 (UTC date) should NOT include this in EST
+        const criteria: FilterCriteria = {
+          dateFrom: '2024-01-16',
+          dateTo: '2024-01-16',
+        };
+        const result = service.filter(items, criteria, 'fed_at');
+
+        expect(result.length).toBe(0);
+      });
+    });
+
+    describe('early-morning activity in positive offset timezone (Asia/Tokyo)', () => {
+      beforeEach(() => setTimezone('Asia/Tokyo'));
+
+      it('should include 1 AM Tokyo feeding when filtering for the Tokyo date', () => {
+        // 1 AM Tokyo Jan 16 = 4 PM UTC Jan 15
+        const items: Feeding[] = [
+          {
+            id: 1,
+            child: 1,
+            feeding_type: 'bottle',
+            fed_at: '2024-01-15T16:00:00Z', // 1 AM Tokyo Jan 16
+            amount_oz: 5,
+            created_at: '2024-01-15T16:00:00Z',
+            updated_at: '2024-01-15T16:00:00Z',
+          },
+        ];
+
+        const criteria: FilterCriteria = {
+          dateFrom: '2024-01-16',
+          dateTo: '2024-01-16',
+        };
+        const result = service.filter(items, criteria, 'fed_at');
+
+        expect(result.length).toBe(1);
+        expect(result[0].id).toBe(1);
+      });
+
+      it('should exclude 1 AM Tokyo feeding when filtering for the UTC date', () => {
+        // 1 AM Tokyo Jan 16 = 4 PM UTC Jan 15
+        const items: Feeding[] = [
+          {
+            id: 1,
+            child: 1,
+            feeding_type: 'bottle',
+            fed_at: '2024-01-15T16:00:00Z', // 1 AM Tokyo Jan 16
+            amount_oz: 5,
+            created_at: '2024-01-15T16:00:00Z',
+            updated_at: '2024-01-15T16:00:00Z',
+          },
+        ];
+
+        // Filtering for Jan 15 (UTC date) should NOT include this in Tokyo
+        const criteria: FilterCriteria = {
+          dateFrom: '2024-01-15',
+          dateTo: '2024-01-15',
+        };
+        const result = service.filter(items, criteria, 'fed_at');
+
+        expect(result.length).toBe(0);
+      });
+    });
+
+    describe('activities spanning midnight in user timezone', () => {
+      beforeEach(() => setTimezone('America/New_York'));
+
+      it('should split activities across midnight boundary into correct days', () => {
+        const items: Feeding[] = [
+          {
+            id: 1,
+            child: 1,
+            feeding_type: 'bottle',
+            fed_at: '2024-01-16T04:50:00Z', // 11:50 PM EST Jan 15
+            amount_oz: 5,
+            created_at: '2024-01-16T04:50:00Z',
+            updated_at: '2024-01-16T04:50:00Z',
+          },
+          {
+            id: 2,
+            child: 1,
+            feeding_type: 'bottle',
+            fed_at: '2024-01-16T05:10:00Z', // 12:10 AM EST Jan 16
+            amount_oz: 4,
+            created_at: '2024-01-16T05:10:00Z',
+            updated_at: '2024-01-16T05:10:00Z',
+          },
+        ];
+
+        // Filter for Jan 15 (EST) — should only include the 11:50 PM feeding
+        const jan15Criteria: FilterCriteria = {
+          dateFrom: '2024-01-15',
+          dateTo: '2024-01-15',
+        };
+        const jan15Result = service.filter(items, jan15Criteria, 'fed_at');
+        expect(jan15Result.length).toBe(1);
+        expect(jan15Result[0].id).toBe(1);
+
+        // Filter for Jan 16 (EST) — should only include the 12:10 AM feeding
+        const jan16Criteria: FilterCriteria = {
+          dateFrom: '2024-01-16',
+          dateTo: '2024-01-16',
+        };
+        const jan16Result = service.filter(items, jan16Criteria, 'fed_at');
+        expect(jan16Result.length).toBe(1);
+        expect(jan16Result[0].id).toBe(2);
+      });
+    });
+
+    describe('single-day filter with dateFrom = dateTo', () => {
+      beforeEach(() => setTimezone('Asia/Tokyo'));
+
+      it('should include only activities on that local day', () => {
+        const items: Feeding[] = [
+          {
+            id: 1,
+            child: 1,
+            feeding_type: 'bottle',
+            fed_at: '2024-01-15T14:59:00Z', // 11:59 PM Tokyo Jan 15
+            amount_oz: 5,
+            created_at: '2024-01-15T14:59:00Z',
+            updated_at: '2024-01-15T14:59:00Z',
+          },
+          {
+            id: 2,
+            child: 1,
+            feeding_type: 'bottle',
+            fed_at: '2024-01-15T15:00:00Z', // 12:00 AM Tokyo Jan 16
+            amount_oz: 4,
+            created_at: '2024-01-15T15:00:00Z',
+            updated_at: '2024-01-15T15:00:00Z',
+          },
+          {
+            id: 3,
+            child: 1,
+            feeding_type: 'bottle',
+            fed_at: '2024-01-14T15:00:00Z', // 12:00 AM Tokyo Jan 15
+            amount_oz: 3,
+            created_at: '2024-01-14T15:00:00Z',
+            updated_at: '2024-01-14T15:00:00Z',
+          },
+        ];
+
+        // Filter for exactly Jan 15 in Tokyo
+        const criteria: FilterCriteria = {
+          dateFrom: '2024-01-15',
+          dateTo: '2024-01-15',
+        };
+        const result = service.filter(items, criteria, 'fed_at');
+
+        // Should include items 1 (11:59 PM Tokyo Jan 15) and 3 (12:00 AM Tokyo Jan 15)
+        expect(result.length).toBe(2);
+        expect(result.map((r) => r.id).sort()).toEqual([1, 3]);
+      });
+    });
+  });
+
   describe('date utility methods', () => {
     describe('getTodayAsIsoString()', () => {
       it('should return today date in ISO format', () => {
