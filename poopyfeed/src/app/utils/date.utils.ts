@@ -208,25 +208,6 @@ export function formatActivityAge(timestamp: string): string {
 }
 
 /**
- * Check if a UTC timestamp is from today (current date in browser's local timezone).
- *
- * @deprecated Use `DateTimeService.isTodayInUserTimezone()` instead, which respects
- * the user's configured timezone preference rather than the browser's local timezone.
- *
- * @param utcTimestamp ISO datetime string (UTC format from API)
- * @returns True if timestamp is from today in browser's local timezone
- */
-export function isToday(utcTimestamp: string): boolean {
-  const date = new Date(utcTimestamp);
-  const now = new Date();
-  return (
-    date.getFullYear() === now.getFullYear() &&
-    date.getMonth() === now.getMonth() &&
-    date.getDate() === now.getDate()
-  );
-}
-
-/**
  * Get generic baby emoji for all genders.
  *
  * Universal gender-neutral emoji for displays where gender distinction is unnecessary.

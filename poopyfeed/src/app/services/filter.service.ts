@@ -110,11 +110,6 @@ export class FilterService {
    * @returns Formatted date string
    */
   formatDateForDisplay(isoDate: string): string {
-    const date = new Date(isoDate + 'T00:00:00'); // Add time to avoid timezone issues
-    return date.toLocaleDateString('en-US', {
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric',
-    });
+    return this.datetimeService.formatDateForDisplay(isoDate);
   }
 }

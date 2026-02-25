@@ -486,6 +486,267 @@ describe('DateTimeService', () => {
     });
   });
 
+  describe('formatDateTime', () => {
+    it('should format in UTC when no profile is set', () => {
+      // No profile = UTC. 10:30 AM UTC should display as 10:30 AM
+      const result = service.formatDateTime('2024-01-15T10:30:00Z');
+      expect(result).toContain('Jan');
+      expect(result).toContain('15');
+      expect(result).toContain('2024');
+      expect(result).toContain('10:30');
+      expect(result).toContain('AM');
+    });
+
+    it('should respect user timezone for formatting', () => {
+      profileSignal.set({
+        id: 1,
+        email: 'test@example.com',
+        first_name: 'Test',
+        last_name: 'User',
+        timezone: 'America/New_York',
+      });
+
+      // 2024-01-15T15:30:00Z = 10:30 AM EST
+      const result = service.formatDateTime('2024-01-15T15:30:00Z');
+      expect(result).toContain('10:30');
+      expect(result).toContain('AM');
+    });
+
+    it('should shift the date when timezone crosses midnight', () => {
+      profileSignal.set({
+        id: 1,
+        email: 'test@example.com',
+        first_name: 'Test',
+        last_name: 'User',
+        timezone: 'America/New_York',
+      });
+
+      // 2024-01-15T04:00:00Z = Jan 14, 11:00 PM EST
+      const result = service.formatDateTime('2024-01-15T04:00:00Z');
+      expect(result).toContain('Jan');
+      expect(result).toContain('14');
+      expect(result).toContain('11:00');
+      expect(result).toContain('PM');
+    });
+
+    it('should handle DST transition (spring forward)', () => {
+      profileSignal.set({
+        id: 1,
+        email: 'test@example.com',
+        first_name: 'Test',
+        last_name: 'User',
+        timezone: 'America/New_York',
+      });
+
+      // March 10, 2024 2:00 AM EST -> 3:00 AM EDT (spring forward)
+      // 7:30 AM UTC on March 10 = 3:30 AM EDT (after spring forward)
+      const result = service.formatDateTime('2024-03-10T07:30:00Z');
+      expect(result).toContain('3:30');
+      expect(result).toContain('AM');
+      expect(result).toContain('Mar');
+    });
+  });
+
+  describe('formatTimeOnly', () => {
+    it('should format time in UTC by default', () => {
+      const result = service.formatTimeOnly('2024-01-15T10:30:00Z');
+      expect(result).toContain('10:30');
+      expect(result).toContain('AM');
+    });
+
+    it('should format time in user timezone', () => {
+      profileSignal.set({
+        id: 1,
+        email: 'test@example.com',
+        first_name: 'Test',
+        last_name: 'User',
+        timezone: 'America/New_York',
+      });
+
+      // 2024-01-15T15:30:00Z = 10:30 AM EST
+      const result = service.formatTimeOnly('2024-01-15T15:30:00Z');
+      expect(result).toContain('10:30');
+      expect(result).toContain('AM');
+    });
+
+    it('should handle PM times', () => {
+      const result = service.formatTimeOnly('2024-01-15T15:30:00Z');
+      expect(result).toContain('3:30');
+      expect(result).toContain('PM');
+    });
+
+    it('should handle midnight (12:00 AM)', () => {
+      const result = service.formatTimeOnly('2024-01-15T00:00:00Z');
+      expect(result).toContain('12:00');
+      expect(result).toContain('AM');
+    });
+
+    it('should handle noon (12:00 PM)', () => {
+      const result = service.formatTimeOnly('2024-01-15T12:00:00Z');
+      expect(result).toContain('12:00');
+      expect(result).toContain('PM');
+    });
+
+    it('should handle DST transition correctly', () => {
+      profileSignal.set({
+        id: 1,
+        email: 'test@example.com',
+        first_name: 'Test',
+        last_name: 'User',
+        timezone: 'America/New_York',
+      });
+
+      // Nov 3 2024 fall back: 6:30 AM UTC = 1:30 AM EST (after falling back)
+      const result = service.formatTimeOnly('2024-11-03T06:30:00Z');
+      expect(result).toContain('1:30');
+      expect(result).toContain('AM');
+    });
+  });
+
+  describe('formatDateForDisplay', () => {
+    it('should format as weekday, month day', () => {
+      const result = service.formatDateForDisplay('2024-01-15');
+      expect(result).toContain('Mon');
+      expect(result).toContain('Jan');
+      expect(result).toContain('15');
+    });
+
+    it('should handle different dates', () => {
+      const result = service.formatDateForDisplay('2024-12-25');
+      expect(result).toContain('Wed');
+      expect(result).toContain('Dec');
+      expect(result).toContain('25');
+    });
+
+    it('should handle leap year date', () => {
+      const result = service.formatDateForDisplay('2024-02-29');
+      expect(result).toContain('Thu');
+      expect(result).toContain('Feb');
+      expect(result).toContain('29');
+    });
+
+    it('should handle year boundary (Jan 1)', () => {
+      const result = service.formatDateForDisplay('2024-01-01');
+      expect(result).toContain('Mon');
+      expect(result).toContain('Jan');
+      expect(result).toContain('1');
+    });
+
+    it('should handle year boundary (Dec 31)', () => {
+      const result = service.formatDateForDisplay('2024-12-31');
+      expect(result).toContain('Tue');
+      expect(result).toContain('Dec');
+      expect(result).toContain('31');
+    });
+
+    it('should not shift date regardless of user timezone', () => {
+      profileSignal.set({
+        id: 1,
+        email: 'test@example.com',
+        first_name: 'Test',
+        last_name: 'User',
+        timezone: 'Pacific/Auckland',
+      });
+
+      const result = service.formatDateForDisplay('2024-06-15');
+      expect(result).toContain('15');
+      expect(result).toContain('Jun');
+    });
+  });
+
+  describe('formatTime24h', () => {
+    it('should format as 24-hour time in UTC', () => {
+      const result = service.formatTime24h('2024-01-15T15:30:00Z');
+      expect(result).toMatch(/15.+30/);
+    });
+
+    it('should format in user timezone', () => {
+      profileSignal.set({
+        id: 1,
+        email: 'test@example.com',
+        first_name: 'Test',
+        last_name: 'User',
+        timezone: 'America/New_York',
+      });
+
+      // 2024-01-15T15:30:00Z = 10:30 EST
+      const result = service.formatTime24h('2024-01-15T15:30:00Z');
+      expect(result).toMatch(/10.+30/);
+    });
+
+    it('should handle midnight in UTC', () => {
+      const result = service.formatTime24h('2024-01-15T00:00:00Z');
+      expect(result).toMatch(/00.+00|24.+00/);
+    });
+  });
+
+  describe('formatTimeHHmm', () => {
+    it('should return HH:mm format', () => {
+      const result = service.formatTimeHHmm('2024-01-15T15:30:00Z');
+      expect(result).toMatch(/^\d{2}:\d{2}$/);
+    });
+
+    it('should use user timezone', () => {
+      profileSignal.set({
+        id: 1,
+        email: 'test@example.com',
+        first_name: 'Test',
+        last_name: 'User',
+        timezone: 'America/New_York',
+      });
+
+      // 2024-01-15T15:30:00Z = 10:30 in EST
+      const result = service.formatTimeHHmm('2024-01-15T15:30:00Z');
+      expect(result).toBe('10:30');
+    });
+
+    it('should handle midnight', () => {
+      const result = service.formatTimeHHmm('2024-01-15T00:00:00Z');
+      expect(result).toBe('00:00');
+    });
+
+    it('should handle end of day', () => {
+      const result = service.formatTimeHHmm('2024-01-15T23:59:00Z');
+      expect(result).toBe('23:59');
+    });
+
+    it('should handle positive offset timezone', () => {
+      profileSignal.set({
+        id: 1,
+        email: 'test@example.com',
+        first_name: 'Test',
+        last_name: 'User',
+        timezone: 'Asia/Tokyo',
+      });
+
+      // 15:30 UTC = 00:30 next day in Tokyo (UTC+9)
+      const result = service.formatTimeHHmm('2024-01-15T15:30:00Z');
+      expect(result).toBe('00:30');
+    });
+
+    it('should handle DST transition correctly', () => {
+      profileSignal.set({
+        id: 1,
+        email: 'test@example.com',
+        first_name: 'Test',
+        last_name: 'User',
+        timezone: 'America/New_York',
+      });
+
+      // March 10 2024 spring forward: 7:30 AM UTC = 3:30 AM EDT
+      const result = service.formatTimeHHmm('2024-03-10T07:30:00Z');
+      expect(result).toBe('03:30');
+    });
+  });
+
+  describe('getBrowserTimezone', () => {
+    it('should return a timezone string', () => {
+      const tz = DateTimeService.getBrowserTimezone();
+      expect(typeof tz).toBe('string');
+      expect(tz!.length).toBeGreaterThan(0);
+    });
+  });
+
   describe('edge cases', () => {
     it('should handle year boundaries', () => {
       const result = service.getDateInUserTimezone('2024-01-01T00:00:00Z');

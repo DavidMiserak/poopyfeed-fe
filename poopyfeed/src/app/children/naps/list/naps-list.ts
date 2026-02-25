@@ -23,6 +23,7 @@ import {
 } from '../../../components';
 import { Nap } from '../../../models/nap.model';
 import { formatActivityAge } from '../../../utils/date.utils';
+import { DateTimeService } from '../../../services/datetime.service';
 
 @Component({
   selector: 'app-naps-list',
@@ -47,6 +48,7 @@ export class NapsList implements OnInit {
   private napsService = inject(NapsService);
   private childrenService = inject(ChildrenService);
   private listService = inject(TrackingListService<Nap>);
+  private datetimeService = inject(DateTimeService);
 
   childId = signal<number | null>(null);
 
@@ -138,15 +140,7 @@ export class NapsList implements OnInit {
   }
 
   formatDateTime(dateTimeStr: string): string {
-    const date = new Date(dateTimeStr);
-    return date.toLocaleString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true,
-    });
+    return this.datetimeService.formatDateTime(dateTimeStr);
   }
 
   formatTimeAgo(dateTimeStr: string): string {
@@ -166,12 +160,7 @@ export class NapsList implements OnInit {
   }
 
   formatTimeOnly(dateTimeStr: string): string {
-    const date = new Date(dateTimeStr);
-    return date.toLocaleString('en-US', {
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true,
-    });
+    return this.datetimeService.formatTimeOnly(dateTimeStr);
   }
 
   toggleSelection(napId: number): void {

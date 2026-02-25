@@ -127,6 +127,12 @@ describe('ChildTimeline', () => {
       toUTC: vi.fn((date: Date) => date.toISOString()),
       toLocal: vi.fn(),
       toInputFormat: vi.fn(),
+      formatTimeHHmm: vi.fn((utcString: string) => {
+        const d = new Date(utcString);
+        const hh = String(d.getUTCHours()).padStart(2, '0');
+        const mm = String(d.getUTCMinutes()).padStart(2, '0');
+        return `${hh}:${mm}`;
+      }),
       get userTimezone() {
         return 'UTC';
       },

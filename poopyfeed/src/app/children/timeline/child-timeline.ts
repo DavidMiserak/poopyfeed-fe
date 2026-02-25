@@ -205,17 +205,9 @@ export class ChildTimeline implements OnInit {
           const prevDate = new Date(prevTime);
           const currDate = new Date(currentTime);
 
-          gapStartTime = prevDate.toLocaleTimeString('en-US', {
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false,
-          });
+          gapStartTime = this.datetimeService.formatTimeHHmm(prevTimestamp);
 
-          gapEndTime = currDate.toLocaleTimeString('en-US', {
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false,
-          });
+          gapEndTime = this.datetimeService.formatTimeHHmm(currentTimestamp);
 
           // Store actual UTC timestamps for creating nap
           gapStartTimestamp = prevTimestamp;
@@ -546,6 +538,8 @@ export class ChildTimeline implements OnInit {
    */
   getActivityIcon = (type: 'feeding' | 'diaper' | 'nap') => getActivityIcon(type);
   formatTimestamp = (timestamp: string) => formatActivityAge(timestamp);
+  formatTimeHHmm = (timestamp: string) => this.datetimeService.formatTimeHHmm(timestamp);
   getGenderIcon = (gender: 'M' | 'F' | 'O') => getGenderIconDetailed(gender);
   getChildAge = (dateOfBirth: string) => getChildAgeLong(dateOfBirth);
+  userTimezone = computed(() => this.datetimeService.userTimezone);
 }

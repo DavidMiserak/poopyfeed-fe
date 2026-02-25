@@ -23,6 +23,7 @@ import {
 } from '../../../components';
 import { Feeding } from '../../../models/feeding.model';
 import { formatActivityAge } from '../../../utils/date.utils';
+import { DateTimeService } from '../../../services/datetime.service';
 
 @Component({
   selector: 'app-feedings-list',
@@ -47,6 +48,7 @@ export class FeedingsList implements OnInit {
   private feedingsService = inject(FeedingsService);
   private childrenService = inject(ChildrenService);
   private listService = inject(TrackingListService<Feeding>);
+  private datetimeService = inject(DateTimeService);
 
   childId = signal<number | null>(null);
 
@@ -147,15 +149,7 @@ export class FeedingsList implements OnInit {
   }
 
   formatDateTime(dateTimeStr: string): string {
-    const date = new Date(dateTimeStr);
-    return date.toLocaleString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true,
-    });
+    return this.datetimeService.formatDateTime(dateTimeStr);
   }
 
   formatTimeAgo(dateTimeStr: string): string {

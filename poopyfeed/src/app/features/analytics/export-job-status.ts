@@ -70,6 +70,7 @@ import { CommonModule } from '@angular/common';
 import { timer, Subject, takeUntil, switchMap, finalize } from 'rxjs';
 import { AnalyticsService } from '../../services/analytics.service';
 import { ToastService } from '../../services/toast.service';
+import { DateTimeService } from '../../services/datetime.service';
 import { JobStatusResponse } from '../../models/analytics.model';
 
 @Component({
@@ -89,6 +90,7 @@ export class ExportJobStatusComponent implements OnInit, OnDestroy {
   // Injected services
   private analyticsService = inject(AnalyticsService);
   private toast = inject(ToastService);
+  private datetimeService = inject(DateTimeService);
 
   // State signals
   status = signal<'pending' | 'processing' | 'completed' | 'failed'>('pending');
@@ -97,6 +99,8 @@ export class ExportJobStatusComponent implements OnInit, OnDestroy {
   expiresAt = signal<Date | null>(null);
   error = signal<string | null>(null);
   isPolling = signal(true);
+
+  userTimezone = computed(() => this.datetimeService.userTimezone);
 
   // Computed signals
   isComplete = computed(

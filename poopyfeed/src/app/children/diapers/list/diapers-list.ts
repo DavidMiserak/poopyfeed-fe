@@ -23,6 +23,7 @@ import {
 } from '../../../components';
 import { DiaperChange } from '../../../models/diaper.model';
 import { formatActivityAge } from '../../../utils/date.utils';
+import { DateTimeService } from '../../../services/datetime.service';
 
 @Component({
   selector: 'app-diapers-list',
@@ -47,6 +48,7 @@ export class DiapersList implements OnInit {
   private diapersService = inject(DiapersService);
   private childrenService = inject(ChildrenService);
   private listService = inject(TrackingListService<DiaperChange>);
+  private datetimeService = inject(DateTimeService);
 
   childId = signal<number | null>(null);
 
@@ -152,15 +154,7 @@ export class DiapersList implements OnInit {
   }
 
   formatDateTime(dateTimeStr: string): string {
-    const date = new Date(dateTimeStr);
-    return date.toLocaleString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true,
-    });
+    return this.datetimeService.formatDateTime(dateTimeStr);
   }
 
   formatTimeAgo(dateTimeStr: string): string {

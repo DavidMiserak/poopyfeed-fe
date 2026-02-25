@@ -13,6 +13,7 @@ import { Feeding } from '../../../models/feeding.model';
 import { Child } from '../../../models/child.model';
 import { ErrorCardComponent } from '../../../components/error-card/error-card.component';
 import { DeleteConfirmationComponent } from '../../../components/delete-confirmation/delete-confirmation.component';
+import { DateTimeService } from '../../../services/datetime.service';
 
 @Component({
   selector: 'app-feeding-delete',
@@ -26,6 +27,7 @@ export class FeedingDelete implements OnInit {
   private route = inject(ActivatedRoute);
   private feedingsService = inject(FeedingsService);
   private childrenService = inject(ChildrenService);
+  private datetimeService = inject(DateTimeService);
 
   childId = signal<number | null>(null);
   child = signal<Child | null>(null);
@@ -94,15 +96,7 @@ export class FeedingDelete implements OnInit {
   }
 
   formatDateTime(dateTimeStr: string): string {
-    const date = new Date(dateTimeStr);
-    return date.toLocaleString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true,
-    });
+    return this.datetimeService.formatDateTime(dateTimeStr);
   }
 
   getFeedingDetails(feeding: Feeding): string {

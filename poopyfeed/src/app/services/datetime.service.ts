@@ -166,4 +166,125 @@ export class DateTimeService {
   nowAsInputFormat(): string {
     return this.toInputFormat(new Date());
   }
+
+  /**
+   * Format a UTC timestamp as a full date-time string in the user's timezone.
+   *
+   * Output: "Jan 15, 2024, 3:30 PM"
+   *
+   * @param utcString ISO datetime string from API
+   * @returns Localized date-time string in user's timezone
+   */
+  formatDateTime(utcString: string): string {
+    const date = new Date(utcString);
+    return date.toLocaleString('en-US', {
+      timeZone: this.userTimezone,
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    });
+  }
+
+  /**
+   * Format a UTC timestamp as time-only in the user's timezone.
+   *
+   * Output: "3:30 PM"
+   *
+   * @param utcString ISO datetime string from API
+   * @returns Localized time string in user's timezone
+   */
+  formatTimeOnly(utcString: string): string {
+    const date = new Date(utcString);
+    return date.toLocaleString('en-US', {
+      timeZone: this.userTimezone,
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    });
+  }
+
+  /**
+   * Format an ISO date string (YYYY-MM-DD) for display.
+   *
+   * Output: "Mon, Jan 15"
+   *
+   * The input is a date-only string (no time component), so we anchor it
+   * at noon UTC to avoid any day-shift from timezone conversion.
+   *
+   * @param isoDate ISO date string (YYYY-MM-DD)
+   * @returns Formatted date string
+   */
+  formatDateForDisplay(isoDate: string): string {
+    const date = new Date(isoDate + 'T12:00:00Z');
+    return date.toLocaleDateString('en-US', {
+      timeZone: 'UTC',
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+    });
+  }
+
+  /**
+   * Format a UTC timestamp as 24h time (HH:mm) in user's timezone.
+   *
+   * Output: "15:30"
+   *
+   * @param utcString ISO datetime string from API
+   * @returns 24-hour time string in user's timezone
+   */
+  formatTime24h(utcString: string): string {
+    const date = new Date(utcString);
+    return date.toLocaleTimeString('en-US', {
+      timeZone: this.userTimezone,
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    });
+  }
+
+  /**
+   * Format a UTC timestamp as "HH:mm" using Intl to guarantee consistent output.
+   *
+   * Used by timeline gap indicators where we need exact HH:mm format.
+   *
+   * @param utcString ISO datetime string from API
+   * @returns "HH:mm" string in user's timezone
+   */
+  formatTimeHHmm(utcString: string): string {
+    const date = new Date(utcString);
+    const parts = new Intl.DateTimeFormat('en-US', {
+      timeZone: this.userTimezone,
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    }).formatToParts(date);
+
+    const get = (type: string) =>
+      parts.find((p) => p.type === type)?.value || '';
+
+    let hours = get('hour');
+    if (hours === '24') {
+      hours = '00';
+    }
+    return `${hours}:${get('minute')}`;
+  }
+
+  /**
+   * Get the browser's IANA timezone identifier.
+   *
+   * Returns null during SSR where Intl is not available.
+   */
+  static getBrowserTimezone(): string | null {
+    if (typeof window === 'undefined') {
+      return null;
+    }
+    try {
+      return Intl.DateTimeFormat().resolvedOptions().timeZone;
+    } catch {
+      return null;
+    }
+  }
 }

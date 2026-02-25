@@ -151,7 +151,7 @@
                       {{ getActivityTitle(itemWithGap.activity) }}
                     </p>
                     <p class="font-['DM_Sans',sans-serif] text-sm text-slate-500">
-                      {{ itemWithGap.activity.timestamp | date: 'HH:mm' }} • {{ formatTimestamp(itemWithGap.activity.timestamp) }}
+                      {{ formatTimeHHmm(itemWithGap.activity.timestamp) }} • {{ formatTimestamp(itemWithGap.activity.timestamp) }}
                     </p>
                   </div>
                 </div>

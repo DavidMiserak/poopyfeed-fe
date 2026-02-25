@@ -6,7 +6,6 @@ import {
   getChildAgeLong,
   formatTimestamp,
   formatActivityAge,
-  isToday,
   getGenderIcon,
   getGenderIconDetailed,
   getActivityIcon,
@@ -207,31 +206,6 @@ describe('Date Utilities', () => {
     it('should return hours for older activities', () => {
       const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000);
       expect(formatActivityAge(twoHoursAgo.toISOString())).toContain('hours ago');
-    });
-  });
-
-  describe('isToday', () => {
-    it('should return true for today\'s timestamp', () => {
-      const now = new Date();
-      expect(isToday(now.toISOString())).toBe(true);
-    });
-
-    it('should return true for today at midnight', () => {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      expect(isToday(today.toISOString())).toBe(true);
-    });
-
-    it('should return false for yesterday', () => {
-      const yesterday = new Date();
-      yesterday.setDate(yesterday.getDate() - 1);
-      expect(isToday(yesterday.toISOString())).toBe(false);
-    });
-
-    it('should return false for tomorrow', () => {
-      const tomorrow = new Date();
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      expect(isToday(tomorrow.toISOString())).toBe(false);
     });
   });
 
