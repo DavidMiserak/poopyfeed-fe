@@ -1,0 +1,12 @@
+/* Notification bell dropdown positioning and scroll */
+.notification-bell-wrapper {
+  display: inline-block;
+}
+
+.notification-bell-dropdown {
+  max-height: 24rem;
+}
+
+.notification-bell-item:active {
+  background-color: rgb(241 245 249);
+}

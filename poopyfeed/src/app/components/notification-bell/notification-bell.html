@@ -1,0 +1,88 @@
+<div class="notification-bell-wrapper relative">
+  <button
+    type="button"
+    (click)="toggleDropdown($event)"
+    class="flex items-center justify-center relative w-10 h-10 rounded-lg text-slate-600 transition-colors duration-200 hover:text-rose-600 hover:bg-rose-50 cursor-pointer border-none bg-transparent"
+    [attr.aria-expanded]="dropdownOpen()"
+    aria-controls="notification-dropdown"
+    aria-label="Notifications"
+  >
+    <!-- Bell icon -->
+    <svg
+      class="w-5 h-5"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      stroke-width="2"
+      aria-hidden="true"
+    >
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+      />
+    </svg>
+    @if (notificationService.unreadCount() > 0) {
+      <span
+        class="notification-bell-badge absolute -top-0.5 -right-0.5 min-w-[1.25rem] h-5 px-1 flex items-center justify-center rounded-full bg-rose-500 text-white text-xs font-semibold"
+        aria-label="{{ notificationService.unreadCount() }} unread notifications"
+      >
+        {{ notificationService.unreadCount() > 99 ? '99+' : notificationService.unreadCount() }}
+      </span>
+    }
+  </button>
+
+  @if (dropdownOpen()) {
+    <div
+      id="notification-dropdown"
+      class="notification-bell-dropdown absolute right-0 top-full mt-1 w-80 max-h-96 overflow-hidden rounded-xl bg-white shadow-lg border border-slate-200 z-50 flex flex-col"
+      role="dialog"
+      aria-label="Notification list"
+    >
+      <div class="p-2 border-b border-slate-100 flex items-center justify-between">
+        <span class="text-sm font-semibold text-slate-800">Notifications</span>
+        @if (notificationService.unreadCount() > 0) {
+          <button
+            type="button"
+            (click)="onMarkAllRead($event)"
+            class="text-xs font-medium text-rose-600 hover:text-rose-700 cursor-pointer border-none bg-transparent px-2 py-1 rounded hover:bg-rose-50"
+          >
+            Mark all read
+          </button>
+        }
+      </div>
+      <div class="overflow-y-auto flex-1 min-h-0">
+        @if (listLoading()) {
+          <p class="p-4 text-sm text-slate-500 text-center">Loading…</p>
+        } @else if (notificationService.notifications().length === 0) {
+          <p class="p-4 text-sm text-slate-500 text-center">No notifications yet.</p>
+        } @else {
+          <ul class="py-1" role="list">
+            @for (notif of notificationService.notifications(); track notif.id) {
+              <li>
+                <button
+                  type="button"
+                  (click)="onNotificationClick(notif, $event)"
+                  class="notification-bell-item w-full text-left px-3 py-2.5 flex gap-3 rounded-none border-none bg-transparent cursor-pointer hover:bg-slate-50 transition-colors"
+                  [class.opacity-75]="notif.is_read"
+                >
+                  <span class="text-xl flex-shrink-0 mt-0.5" aria-hidden="true">
+                    {{ getActivityIcon(notif.event_type) }}
+                  </span>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm text-slate-800 truncate">
+                      {{ notif.message }}
+                    </p>
+                    <p class="text-xs text-slate-500 mt-0.5">
+                      {{ formatActivityAge(notif.created_at) }}
+                    </p>
+                  </div>
+                </button>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+    </div>
+  }
+</div>
