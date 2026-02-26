@@ -5,7 +5,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { signal } from '@angular/core';
-import { of } from 'rxjs';
+import { of, throwError, Subject } from 'rxjs';
 import { NotificationBellComponent } from './notification-bell';
 import { NotificationService } from '../../services/notification.service';
 import { ToastService } from '../../services/toast.service';
@@ -22,6 +22,7 @@ describe('NotificationBellComponent', () => {
     markAllRead: ReturnType<typeof vi.fn>;
     startUnreadCountPolling: ReturnType<typeof vi.fn>;
   };
+  let mockToast: { success: ReturnType<typeof vi.fn>; error: ReturnType<typeof vi.fn> };
   let router: Router;
 
   const mockNotification: Notification = {
@@ -36,6 +37,7 @@ describe('NotificationBellComponent', () => {
   };
 
   beforeEach(async () => {
+    mockToast = { success: vi.fn(), error: vi.fn() };
     mockNotificationService = {
       notifications: signal<Notification[]>([]),
       unreadCount: signal(0),
@@ -50,7 +52,7 @@ describe('NotificationBellComponent', () => {
       providers: [
         provideRouter([]),
         { provide: NotificationService, useValue: mockNotificationService },
-        ToastService,
+        { provide: ToastService, useValue: mockToast },
       ],
     }).compileComponents();
 
@@ -174,5 +176,61 @@ describe('NotificationBellComponent', () => {
     fixture.detectChanges();
     expect(compiled.textContent).toContain('Alice logged a feeding for Baby Bob');
     expect(compiled.textContent).toContain('🍼');
+  });
+
+  it('should show loading state while list() is in progress', () => {
+    const listSubject = new Subject<Notification[]>();
+    mockNotificationService.list.mockReturnValue(listSubject);
+    mockNotificationService.notifications.set([]);
+    const bellBtn = compiled.querySelector('button[aria-label="Notifications"]') as HTMLButtonElement;
+    bellBtn.click();
+    fixture.detectChanges();
+    expect(compiled.textContent).toContain('Loading…');
+    listSubject.next([]);
+    listSubject.complete();
+    fixture.detectChanges();
+    expect(compiled.textContent).not.toContain('Loading…');
+  });
+
+  it('should show toast.error when list() fails', () => {
+    mockNotificationService.list.mockReturnValue(
+      throwError(() => new Error('List failed'))
+    );
+    mockNotificationService.notifications.set([]);
+    const bellBtn = compiled.querySelector('button[aria-label="Notifications"]') as HTMLButtonElement;
+    bellBtn.click();
+    fixture.detectChanges();
+    expect(mockToast.error).toHaveBeenCalledWith('List failed');
+  });
+
+  it('should show toast.error when markAsRead() fails', () => {
+    mockNotificationService.markAsRead.mockReturnValue(
+      throwError(() => new Error('Mark read failed'))
+    );
+    mockNotificationService.notifications.set([mockNotification]);
+    fixture.detectChanges();
+    const bellBtn = compiled.querySelector('button[aria-label="Notifications"]') as HTMLButtonElement;
+    bellBtn.click();
+    fixture.detectChanges();
+    const firstItem = compiled.querySelector('.notification-bell-item') as HTMLButtonElement;
+    firstItem.click();
+    expect(mockToast.error).toHaveBeenCalledWith('Mark read failed');
+  });
+
+  it('should show toast.error when markAllRead() fails', () => {
+    mockNotificationService.markAllRead.mockReturnValue(
+      throwError(() => new Error('Mark all failed'))
+    );
+    mockNotificationService.unreadCount.set(1);
+    mockNotificationService.notifications.set([mockNotification]);
+    fixture.detectChanges();
+    const bellBtn = compiled.querySelector('button[aria-label="Notifications"]') as HTMLButtonElement;
+    bellBtn.click();
+    fixture.detectChanges();
+    const markAllReadButton = Array.from(compiled.querySelectorAll('button')).find(
+      (b) => b.textContent?.trim() === 'Mark all read'
+    );
+    markAllReadButton?.click();
+    expect(mockToast.error).toHaveBeenCalledWith('Mark all failed');
   });
 });

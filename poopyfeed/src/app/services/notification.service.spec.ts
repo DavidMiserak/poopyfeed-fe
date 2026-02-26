@@ -166,6 +166,19 @@ describe('NotificationService', () => {
       expect(req.request.method).toBe('PATCH');
       req.flush({ ...mockNotification, is_read: true });
     });
+
+    it('should handle markAsRead error', () => {
+      let errorCaught = false;
+      service.markAsRead(1).subscribe({
+        error: (err: Error) => {
+          expect(err.message).toBeDefined();
+          errorCaught = true;
+        },
+      });
+      const req = httpMock.expectOne('/api/v1/notifications/1/');
+      req.flush(null, { status: 404, statusText: 'Not Found' });
+      expect(errorCaught).toBe(true);
+    });
   });
 
   describe('markAllRead', () => {
@@ -185,6 +198,19 @@ describe('NotificationService', () => {
       expect(req.request.method).toBe('POST');
       req.flush({ updated: 1 });
     });
+
+    it('should handle markAllRead error', () => {
+      let errorCaught = false;
+      service.markAllRead().subscribe({
+        error: (err: Error) => {
+          expect(err.message).toBeDefined();
+          errorCaught = true;
+        },
+      });
+      const req = httpMock.expectOne('/api/v1/notifications/mark-all-read/');
+      req.flush(null, { status: 500, statusText: 'Server Error' });
+      expect(errorCaught).toBe(true);
+    });
   });
 
   describe('getPreferences', () => {
@@ -200,6 +226,19 @@ describe('NotificationService', () => {
       const req = httpMock.expectOne('/api/v1/notifications/preferences/');
       expect(req.request.method).toBe('GET');
       req.flush({ count: 1, next: null, previous: null, results: prefs });
+    });
+
+    it('should handle getPreferences error', () => {
+      let errorCaught = false;
+      service.getPreferences().subscribe({
+        error: (err: Error) => {
+          expect(err.message).toBeDefined();
+          errorCaught = true;
+        },
+      });
+      const req = httpMock.expectOne('/api/v1/notifications/preferences/');
+      req.flush(null, { status: 401, statusText: 'Unauthorized' });
+      expect(errorCaught).toBe(true);
     });
   });
 
@@ -219,6 +258,19 @@ describe('NotificationService', () => {
       expect(req.request.method).toBe('PATCH');
       req.flush(updated);
     });
+
+    it('should handle updatePreference error', () => {
+      let errorCaught = false;
+      service.updatePreference(1, { notify_feedings: false }).subscribe({
+        error: (err: Error) => {
+          expect(err.message).toBeDefined();
+          errorCaught = true;
+        },
+      });
+      const req = httpMock.expectOne('/api/v1/notifications/preferences/1/');
+      req.flush(null, { status: 404, statusText: 'Not Found' });
+      expect(errorCaught).toBe(true);
+    });
   });
 
   describe('getQuietHours', () => {
@@ -234,6 +286,19 @@ describe('NotificationService', () => {
       expect(req.request.method).toBe('GET');
       req.flush(mockQuietHours);
     });
+
+    it('should handle getQuietHours error', () => {
+      let errorCaught = false;
+      service.getQuietHours().subscribe({
+        error: (err: Error) => {
+          expect(err.message).toBeDefined();
+          errorCaught = true;
+        },
+      });
+      const req = httpMock.expectOne('/api/v1/notifications/quiet-hours/');
+      req.flush(null, { status: 500, statusText: 'Server Error' });
+      expect(errorCaught).toBe(true);
+    });
   });
 
   describe('updateQuietHours', () => {
@@ -248,6 +313,19 @@ describe('NotificationService', () => {
       const req = httpMock.expectOne('/api/v1/notifications/quiet-hours/');
       expect(req.request.method).toBe('PATCH');
       req.flush(mockQuietHours);
+    });
+
+    it('should handle updateQuietHours error', () => {
+      let errorCaught = false;
+      service.updateQuietHours({ enabled: true }).subscribe({
+        error: (err: Error) => {
+          expect(err.message).toBeDefined();
+          errorCaught = true;
+        },
+      });
+      const req = httpMock.expectOne('/api/v1/notifications/quiet-hours/');
+      req.flush(null, { status: 400, statusText: 'Bad Request' });
+      expect(errorCaught).toBe(true);
     });
   });
 
