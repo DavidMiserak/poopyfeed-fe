@@ -4,11 +4,13 @@ import * as path from 'path';
 
 const AUTH_DIR = path.join(__dirname, '.auth');
 const AUTH_FILE = path.join(AUTH_DIR, 'user.json');
+const TOKEN_FILE = path.join(AUTH_DIR, 'token.json');
 
 /**
  * Runs once before any project that depends on "setup".
- * Signs up a fresh user and saves storageState so authenticated projects
- * can reuse the session (no per-test signup).
+ * Signs up a fresh user and saves:
+ * - storageState (cookies + localStorage) for authenticated projects
+ * - token.json (auth token only) for tests that need to restore the session quickly (e.g. notifications two-user flow)
  */
 setup('authenticate', async ({ page }) => {
   const email = `e2e-fixture-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@example.com`;
@@ -30,4 +32,9 @@ setup('authenticate', async ({ page }) => {
 
   fs.mkdirSync(AUTH_DIR, { recursive: true });
   await page.context().storageState({ path: AUTH_FILE });
+
+  const token = await page.evaluate(() => localStorage.getItem('auth_token'));
+  if (token) {
+    fs.writeFileSync(TOKEN_FILE, JSON.stringify({ token }), 'utf-8');
+  }
 });

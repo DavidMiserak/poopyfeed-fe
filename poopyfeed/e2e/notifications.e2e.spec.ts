@@ -1,0 +1,231 @@
+import { test, expect } from '@playwright/test';
+
+/**
+ * E2E: Notification bell, dropdown, and two-user notification delivery.
+ *
+ * [Test] Covers:
+ *  - Bell icon visible for authenticated users
+ *  - Empty notification dropdown
+ *  - Full two-user flow: User A shares child → User B logs feeding → User A sees notification
+ *  - Notification preferences visible on child edit page
+ *
+ * Prerequisites:
+ *  - Full stack running (make run). Celery worker must be running for the
+ *    "shared user logging an activity creates a notification" test (notification creation is async).
+ */
+test.describe('Notifications', () => {
+  const CHILD_NAME = 'E2E Notify Baby';
+
+  test('bell icon is visible and dropdown shows empty state', async ({
+    page,
+  }) => {
+    await page.goto('/children');
+    await expect(
+      page.getByRole('heading', { name: 'My Children' })
+    ).toBeVisible();
+
+    // Bell button should be in the header
+    const bell = page.getByRole('button', { name: 'Notifications' }).first();
+    await expect(bell).toBeVisible();
+
+    // Click bell → dropdown shows list (empty or with notifications from other runs)
+    await bell.click();
+    const dialog = page.getByRole('dialog', { name: 'Notification list' });
+    await expect(dialog).toBeVisible();
+    await expect(
+      dialog
+        .getByText('No notifications yet.')
+        .or(dialog.getByRole('list'))
+    ).toBeVisible({ timeout: 10000 });
+  });
+
+  test('shared user logging an activity creates a notification for the owner', async ({
+    page,
+  }) => {
+    test.setTimeout(60_000); // Two users + Celery async notification
+    const fs = await import('fs');
+    const path = await import('path');
+    const tokenPath = path.join(process.cwd(), 'e2e', '.auth', 'token.json');
+
+    // ── Step 1: User A ensures a child exists ──
+    await page.goto('/children');
+    await expect(
+      page.getByRole('heading', { name: 'My Children' })
+    ).toBeVisible();
+
+    if (
+      await page
+        .getByRole('heading', { name: 'No children yet!' })
+        .isVisible()
+    ) {
+      await page.getByRole('link', { name: 'Add Your First Baby' }).click();
+      await page.getByLabel("Baby's Name").fill(CHILD_NAME);
+      await page.getByLabel('Date of Birth').fill('2024-06-01');
+      await page.getByRole('radio', { name: 'Female' }).click({ force: true });
+      await page.getByRole('button', { name: 'Add Baby' }).click();
+      await expect(page).toHaveURL(/\/children$/);
+    }
+
+    // ── Step 2: User A creates an invite link ──
+    const firstChildHeading = page
+      .getByRole('heading', { level: 3 })
+      .first();
+    await firstChildHeading.click();
+    await expect(page).toHaveURL(/\/children\/\d+\/dashboard/);
+
+    await page.getByRole('link', { name: 'Manage Sharing' }).click();
+    await expect(page).toHaveURL(/\/children\/\d+\/sharing$/);
+
+    await page.getByRole('button', { name: 'Create Invite Link' }).click();
+    await expect(page.getByTestId('invite-item').first()).toBeVisible({
+      timeout: 10000,
+    });
+    const token = await page
+      .getByTestId('invite-item')
+      .first()
+      .getAttribute('data-invite-token');
+    expect(token).toBeTruthy();
+
+    // ── Step 3: User A logs out; User B signs up and accepts invite (same flow as invite-accept) ──
+    await page.getByRole('button', { name: 'Log out' }).click();
+    await expect(
+      page.getByRole('link', { name: 'Log in' }).first()
+    ).toBeVisible({ timeout: 5000 });
+
+    const userBEmail = `e2e-notif-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@example.com`;
+    const userBPassword = 'e2e-notif-password-123';
+
+    await page.goto('/signup');
+    await expect(page.locator('#password')).toBeVisible({ timeout: 10000 });
+    await page.locator('#name').fill('User B');
+    await page.getByLabel('Email address').fill(userBEmail);
+    await page.locator('#password').fill(userBPassword);
+    await page.locator('#confirmPassword').fill(userBPassword);
+    await expect(
+      page.getByRole('button', { name: 'Create Account' })
+    ).toBeEnabled({ timeout: 5000 });
+    await page.getByRole('button', { name: 'Create Account' }).click();
+    await expect(page).toHaveURL(/\/children/, { timeout: 15000 });
+
+    await page.goto(`/invites/accept/${token!.trim()}`);
+    await expect(
+      page.getByRole('heading', { name: 'Access Granted! 🎉' })
+    ).toBeVisible({ timeout: 25000 });
+
+    // ── Step 4: User B navigates to shared child and logs a feeding ──
+    await page.getByRole('button', { name: 'View My Children' }).click();
+    await expect(page).toHaveURL(/\/children$/);
+
+    await expect(
+      page.getByRole('heading', { name: 'My Children' })
+    ).toBeVisible({ timeout: 10000 });
+
+    await page.getByRole('heading', { level: 3 }).first().click();
+    await expect(page).toHaveURL(/\/children\/\d+\/dashboard/, {
+      timeout: 10000,
+    });
+
+    await page.getByRole('button', { name: 'Add Feeding' }).click();
+    await expect(page).toHaveURL(/\/children\/\d+\/feedings\/create$/);
+    await page.getByRole('radio', { name: 'Bottle' }).click({ force: true });
+    await page.getByLabel('Amount (oz)').fill('4');
+    await page
+      .getByRole('button', { name: /Add Feeding|Save Feeding/ })
+      .click();
+    await expect(page).toHaveURL(/\/children\/\d+\/feedings$/, {
+      timeout: 15000,
+    });
+
+    // ── Step 5: Restore User A with saved auth token (faster than full storage state) ──
+    const { token: savedToken } = JSON.parse(
+      fs.readFileSync(tokenPath, 'utf-8')
+    ) as { token: string };
+    await page.evaluate(
+      (t) => localStorage.setItem('auth_token', t),
+      savedToken
+    );
+
+    // ── Step 6: User A (restored) opens bell and sees notification ──
+    // Notification is created async by Celery; poll by opening the dropdown until it appears.
+    await page.goto('/children');
+    await expect(
+      page.getByRole('heading', { name: 'My Children' })
+    ).toBeVisible({ timeout: 10000 });
+
+    const bell = page.getByRole('button', { name: 'Notifications' }).first();
+    await expect(bell).toBeVisible();
+    await expect
+      .poll(
+        async () => {
+          await bell.click();
+          await page.waitForTimeout(500);
+          const dialog = page.getByRole('dialog', { name: 'Notification list' });
+          const dialogVisible = await dialog.isVisible().catch(() => false);
+          if (!dialogVisible) return false;
+          const hasNotification = await page
+            .getByText(/logged a feeding/i)
+            .first()
+            .isVisible();
+          if (!hasNotification) {
+            await page.keyboard.press('Escape');
+            await page.waitForTimeout(2000);
+          }
+          return hasNotification;
+        },
+        { timeout: 25000, intervals: [2000] }
+      )
+      .toBe(true);
+  });
+
+  test('child edit page shows notification preference toggles', async ({
+    page,
+  }) => {
+    await page.goto('/children');
+    await expect(
+      page.getByRole('heading', { name: 'My Children' })
+    ).toBeVisible();
+
+    // Ensure a child exists
+    if (
+      await page
+        .getByRole('heading', { name: 'No children yet!' })
+        .isVisible()
+    ) {
+      await page.getByRole('link', { name: 'Add Your First Baby' }).click();
+      await page.getByLabel("Baby's Name").fill(CHILD_NAME);
+      await page.getByLabel('Date of Birth').fill('2024-06-01');
+      await page.getByRole('radio', { name: 'Female' }).click({ force: true });
+      await page.getByRole('button', { name: 'Add Baby' }).click();
+      await expect(page).toHaveURL(/\/children$/);
+    }
+
+    // Navigate to child edit page
+    const firstChildHeading = page
+      .getByRole('heading', { level: 3 })
+      .first();
+    await firstChildHeading.click();
+    await expect(page).toHaveURL(/\/children\/\d+\/dashboard/);
+
+    // Extract child ID from URL and navigate to edit
+    const url = page.url();
+    const childId = url.match(/\/children\/(\d+)\//)?.[1];
+    expect(childId).toBeTruthy();
+    await page.goto(`/children/${childId}/edit`);
+
+    // Wait for the form to load
+    await expect(page.getByLabel("Baby's Name")).toBeVisible({ timeout: 10000 });
+
+    // Notification Preferences section should appear (edit mode)
+    await expect(
+      page.getByRole('group', { name: /Notification Preferences/ })
+    ).toBeVisible({ timeout: 10000 });
+    await expect(
+      page.getByText('Choose which activities trigger notifications')
+    ).toBeVisible();
+
+    // Three toggles should be visible: Feedings, Diaper changes, Naps
+    await expect(page.getByText('Feedings')).toBeVisible();
+    await expect(page.getByText('Diaper changes')).toBeVisible();
+    await expect(page.getByText('Naps')).toBeVisible();
+  });
+});
