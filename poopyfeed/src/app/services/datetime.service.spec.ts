@@ -745,6 +745,24 @@ describe('DateTimeService', () => {
       expect(typeof tz).toBe('string');
       expect(tz!.length).toBeGreaterThan(0);
     });
+
+    it('should return null when window is undefined (SSR)', () => {
+      const originalWindow = globalThis.window;
+      Object.defineProperty(globalThis, 'window', {
+        writable: true,
+        configurable: true,
+        value: undefined,
+      });
+
+      const tz = DateTimeService.getBrowserTimezone();
+
+      Object.defineProperty(globalThis, 'window', {
+        writable: true,
+        configurable: true,
+        value: originalWindow,
+      });
+      expect(tz).toBeNull();
+    });
   });
 
   describe('edge cases', () => {

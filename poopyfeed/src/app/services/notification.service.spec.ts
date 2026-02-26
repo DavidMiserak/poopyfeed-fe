@@ -257,16 +257,50 @@ describe('NotificationService', () => {
       service.startUnreadCountPolling(destroyRef);
       expect(service.isPolling()).toBe(true);
     });
+  });
 
-    it('should not make request when document is undefined (SSR)', () => {
-      const doc = globalThis.document;
-      (globalThis as unknown as { document: undefined }).document = undefined;
+  describe('SSR (document undefined)', () => {
+    let originalDocument: typeof globalThis.document | undefined;
+
+    beforeEach(() => {
+      originalDocument = globalThis.document;
+    });
+
+    afterEach(() => {
+      if (originalDocument !== undefined) {
+        Object.defineProperty(globalThis, 'document', {
+          writable: true,
+          configurable: true,
+          value: originalDocument,
+        });
+      }
+    });
+
+    it('should not start polling when document is undefined', () => {
+      Object.defineProperty(globalThis, 'document', {
+        writable: true,
+        configurable: true,
+        value: undefined,
+      });
+
       const destroyRef = TestBed.inject(DestroyRef);
-
       service.startUnreadCountPolling(destroyRef);
 
-      expect(httpMock.match('/api/v1/notifications/unread-count/').length).toBe(0);
-      (globalThis as unknown as { document: typeof doc }).document = doc;
+      expect(service.isPolling()).toBe(false);
+    });
+
+    it('should not make any unread-count request when document is undefined', () => {
+      Object.defineProperty(globalThis, 'document', {
+        writable: true,
+        configurable: true,
+        value: undefined,
+      });
+
+      const destroyRef = TestBed.inject(DestroyRef);
+      service.startUnreadCountPolling(destroyRef);
+
+      const requests = httpMock.match('/api/v1/notifications/unread-count/');
+      expect(requests.length).toBe(0);
     });
   });
 });
