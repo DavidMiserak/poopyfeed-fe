@@ -90,7 +90,7 @@
     [class.max-h-64]="menuOpen()"
     [class.opacity-100]="menuOpen()"
     [attr.aria-hidden]="!menuOpen()"
-    [attr.inert]="!menuOpen()"
+    [attr.inert]="menuOpen() ? null : true"
     aria-label="Mobile navigation"
   >
     <div class="max-w-7xl mx-auto px-4 pb-4 pt-2 flex flex-col gap-1">
