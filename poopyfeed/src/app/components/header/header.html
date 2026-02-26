@@ -67,20 +67,25 @@
       }
     </nav>
 
-    <!-- Hamburger button (mobile only) -->
-    <button
-      class="sm:hidden flex items-center justify-center w-10 h-10 rounded-lg transition-colors duration-200 hover:bg-rose-50 cursor-pointer border-none bg-transparent"
-      (click)="toggleMenu()"
-      [attr.aria-expanded]="menuOpen()"
-      aria-controls="mobile-menu"
-      aria-label="Toggle navigation menu"
-    >
-      <div class="hamburger-icon" [class.open]="menuOpen()">
-        <span></span>
-        <span></span>
-        <span></span>
-      </div>
-    </button>
+    <!-- Mobile: bell + hamburger (mobile-first: bell visible in top bar) -->
+    <div class="sm:hidden flex items-center gap-1">
+      @if (authService.isAuthenticated()) {
+        <app-notification-bell />
+      }
+      <button
+        class="flex items-center justify-center min-w-11 min-h-11 w-11 h-11 rounded-lg transition-colors duration-200 hover:bg-rose-50 cursor-pointer border-none bg-transparent"
+        (click)="toggleMenu()"
+        [attr.aria-expanded]="menuOpen()"
+        aria-controls="mobile-menu"
+        aria-label="Toggle navigation menu"
+      >
+        <div class="hamburger-icon" [class.open]="menuOpen()">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </button>
+    </div>
   </div>
 
   <!-- Mobile menu panel: inert when closed so focusable descendants are not in tab order (fixes aria-hidden-focus). -->
@@ -110,10 +115,6 @@
         >
           Account
         </a>
-
-        <div class="px-3 py-2">
-          <app-notification-bell />
-        </div>
 
         <div class="h-px bg-slate-100 mx-3" aria-hidden="true"></div>
 

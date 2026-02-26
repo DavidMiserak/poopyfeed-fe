@@ -2,14 +2,14 @@
   <button
     type="button"
     (click)="toggleDropdown($event)"
-    class="flex items-center justify-center relative w-10 h-10 rounded-lg text-slate-600 transition-colors duration-200 hover:text-rose-600 hover:bg-rose-50 cursor-pointer border-none bg-transparent"
+    class="flex items-center justify-center relative min-w-11 min-h-11 w-11 h-11 sm:min-w-0 sm:min-h-0 sm:w-10 sm:h-10 rounded-lg text-slate-600 transition-colors duration-200 hover:text-rose-600 hover:bg-rose-50 active:bg-rose-100 cursor-pointer border-none bg-transparent touch-manipulation"
     [attr.aria-expanded]="dropdownOpen()"
     aria-controls="notification-dropdown"
     aria-label="Notifications"
   >
     <!-- Bell icon -->
     <svg
-      class="w-5 h-5"
+      class="w-6 h-6 sm:w-5 sm:h-5"
       fill="none"
       viewBox="0 0 24 24"
       stroke="currentColor"
@@ -24,7 +24,7 @@
     </svg>
     @if (notificationService.unreadCount() > 0) {
       <span
-        class="notification-bell-badge absolute -top-0.5 -right-0.5 min-w-[1.25rem] h-5 px-1 flex items-center justify-center rounded-full bg-rose-500 text-white text-xs font-semibold"
+        class="notification-bell-badge absolute -top-0.5 -right-0.5 min-w-[1.375rem] h-[1.375rem] sm:min-w-[1.25rem] sm:h-5 px-1 flex items-center justify-center rounded-full bg-rose-500 text-white text-xs font-semibold"
         aria-label="{{ notificationService.unreadCount() }} unread notifications"
       >
         {{ notificationService.unreadCount() > 99 ? '99+' : notificationService.unreadCount() }}
@@ -35,17 +35,17 @@
   @if (dropdownOpen()) {
     <div
       id="notification-dropdown"
-      class="notification-bell-dropdown absolute right-0 top-full mt-1 w-80 max-h-96 overflow-hidden rounded-xl bg-white shadow-lg border border-slate-200 z-50 flex flex-col"
+      class="notification-bell-dropdown absolute right-0 top-full mt-1 w-[calc(100vw-2rem)] max-w-[calc(100vw-2rem)] sm:w-80 sm:max-w-none max-h-96 overflow-hidden rounded-xl bg-white shadow-lg border border-slate-200 z-50 flex flex-col"
       role="dialog"
       aria-label="Notification list"
     >
-      <div class="p-2 border-b border-slate-100 flex items-center justify-between">
-        <span class="text-sm font-semibold text-slate-800">Notifications</span>
+      <div class="p-3 sm:p-2 border-b border-slate-100 flex items-center justify-between gap-2">
+        <span class="text-base sm:text-sm font-semibold text-slate-800">Notifications</span>
         @if (notificationService.unreadCount() > 0) {
           <button
             type="button"
             (click)="onMarkAllRead($event)"
-            class="text-xs font-medium text-rose-600 hover:text-rose-700 cursor-pointer border-none bg-transparent px-2 py-1 rounded hover:bg-rose-50"
+            class="min-h-[2.75rem] sm:min-h-0 text-sm sm:text-xs font-medium text-rose-600 hover:text-rose-700 active:text-rose-800 cursor-pointer border-none bg-transparent px-3 py-2 sm:px-2 sm:py-1 rounded-lg sm:rounded hover:bg-rose-50 active:bg-rose-100 touch-manipulation"
           >
             Mark all read
           </button>
@@ -63,17 +63,17 @@
                 <button
                   type="button"
                   (click)="onNotificationClick(notif, $event)"
-                  class="notification-bell-item w-full text-left px-3 py-2.5 flex gap-3 rounded-none border-none bg-transparent cursor-pointer hover:bg-slate-50 transition-colors"
+                  class="notification-bell-item w-full text-left px-3 py-3 sm:py-2.5 flex gap-3 rounded-none border-none bg-transparent cursor-pointer hover:bg-slate-50 active:bg-slate-100 transition-colors touch-manipulation min-h-[2.75rem] sm:min-h-0"
                   [class.opacity-75]="notif.is_read"
                 >
-                  <span class="text-xl flex-shrink-0 mt-0.5" aria-hidden="true">
+                  <span class="text-2xl sm:text-xl flex-shrink-0 mt-0.5" aria-hidden="true">
                     {{ getActivityIcon(notif.event_type) }}
                   </span>
                   <div class="flex-1 min-w-0">
-                    <p class="text-sm text-slate-800 truncate">
+                    <p class="text-base sm:text-sm text-slate-800 truncate">
                       {{ notif.message }}
                     </p>
-                    <p class="text-xs text-slate-500 mt-0.5">
+                    <p class="text-sm sm:text-xs text-slate-500 mt-0.5">
                       {{ formatActivityAge(notif.created_at) }}
                     </p>
                   </div>
