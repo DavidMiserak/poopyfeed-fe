@@ -1,0 +1,137 @@
+<div class="flex justify-center items-center min-h-[calc(100vh-200px)] px-4 py-8 bg-gradient-to-br from-amber-50 to-orange-50">
+  <div class="w-full max-w-2xl bg-white rounded-lg shadow-md p-8">
+    <!-- Header -->
+    <div class="text-center mb-8">
+      <h1 class="text-3xl font-bold text-gray-900 mb-2">Contact Us</h1>
+      <p class="text-gray-600 text-lg">
+        Have a question or feedback? We'd love to hear from you. Fill out the
+        form below and we'll get back to you as soon as possible.
+      </p>
+    </div>
+
+    <!-- Contact Form -->
+    <form
+      [formGroup]="form"
+      (ngSubmit)="onSubmit()"
+      method="POST"
+      action="https://formspree.io/f/YOUR_FORM_ID"
+      class="space-y-6"
+    >
+      <!-- Name Field -->
+      <div>
+        <label for="contact-name" class="block text-sm font-semibold text-gray-900 mb-2">
+          Full Name
+        </label>
+        <input
+          type="text"
+          id="contact-name"
+          formControlName="name"
+          placeholder="Your full name"
+          [disabled]="isSubmitting"
+          aria-label="Contact form name"
+          data-testid="contact-name-input"
+          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent disabled:opacity-70 disabled:cursor-not-allowed"
+          required
+        />
+        @if (form.get('name')?.invalid && form.get('name')?.touched) {
+        <p class="text-sm text-red-600 mt-1" data-testid="contact-name-error">
+          @if (form.get('name')?.errors?.['required']) { Full name is
+          required. } @if (form.get('name')?.errors?.['minlength']) { Full name
+          must be at least 2 characters. }
+        </p>
+        }
+      </div>
+
+      <!-- Email Field -->
+      <div>
+        <label for="contact-email" class="block text-sm font-semibold text-gray-900 mb-2">
+          Email Address
+        </label>
+        <input
+          type="email"
+          id="contact-email"
+          formControlName="email"
+          placeholder="your@email.com"
+          [disabled]="isSubmitting"
+          aria-label="Contact form email"
+          data-testid="contact-email-input"
+          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent disabled:opacity-70 disabled:cursor-not-allowed"
+          required
+        />
+        @if (form.get('email')?.invalid && form.get('email')?.touched) {
+        <p class="text-sm text-red-600 mt-1" data-testid="contact-email-error">
+          @if (form.get('email')?.errors?.['required']) { Email is required. }
+          @if (form.get('email')?.errors?.['email']) { Please enter a valid
+          email address. }
+        </p>
+        }
+      </div>
+
+      <!-- Subject Field -->
+      <div>
+        <label for="contact-subject" class="block text-sm font-semibold text-gray-900 mb-2">
+          Subject
+        </label>
+        <input
+          type="text"
+          id="contact-subject"
+          formControlName="subject"
+          placeholder="What is this about?"
+          [disabled]="isSubmitting"
+          aria-label="Contact form subject"
+          data-testid="contact-subject-input"
+          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent disabled:opacity-70 disabled:cursor-not-allowed"
+          required
+        />
+        @if (form.get('subject')?.invalid && form.get('subject')?.touched) {
+        <p class="text-sm text-red-600 mt-1" data-testid="contact-subject-error">
+          Subject is required.
+        </p>
+        }
+      </div>
+
+      <!-- Message Field -->
+      <div>
+        <label for="contact-message" class="block text-sm font-semibold text-gray-900 mb-2">
+          Message
+        </label>
+        <textarea
+          id="contact-message"
+          formControlName="message"
+          placeholder="Tell us more about your inquiry..."
+          rows="6"
+          [disabled]="isSubmitting"
+          aria-label="Contact form message"
+          data-testid="contact-message-textarea"
+          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent disabled:opacity-70 disabled:cursor-not-allowed resize-vertical"
+          required
+        ></textarea>
+        @if (form.get('message')?.invalid && form.get('message')?.touched) {
+        <p class="text-sm text-red-600 mt-1" data-testid="contact-message-error">
+          @if (form.get('message')?.errors?.['required']) { Message is
+          required. } @if (form.get('message')?.errors?.['minlength']) {
+          Message must be at least 10 characters.
+          }
+        </p>
+        }
+      </div>
+
+      <!-- Submit Button -->
+      <button
+        type="submit"
+        [disabled]="form.invalid || isSubmitting"
+        data-testid="contact-submit-button"
+        class="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200 transform hover:scale-105 active:scale-100"
+      >
+        @if (isSubmitting) { Sending... } @else { Send Message }
+      </button>
+    </form>
+
+    <!-- Info Footer -->
+    <div class="mt-8 pt-8 border-t border-gray-200 text-center">
+      <p class="text-sm text-gray-600">
+        We aim to respond to all inquiries within 24 hours during business days.
+      </p>
+    </div>
+  </div>
+</div>

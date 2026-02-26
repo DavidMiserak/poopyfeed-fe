@@ -240,4 +240,10 @@ export const routes: Routes = [
       ),
     title: 'Terms of Service - PoopyFeed',
   },
+  {
+    path: 'contact',
+    loadComponent: () =>
+      import('./contact/contact').then((m) => m.Contact),
+    title: 'Contact Us - PoopyFeed',
+  },
 ];
