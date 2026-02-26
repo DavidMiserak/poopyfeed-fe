@@ -14,6 +14,18 @@ export const serverRoutes: ServerRoute[] = [
     path: 'signup',
     renderMode: RenderMode.Prerender,
   },
+  {
+    path: 'privacy',
+    renderMode: RenderMode.Prerender,
+  },
+  {
+    path: 'terms',
+    renderMode: RenderMode.Prerender,
+  },
+  {
+    path: 'contact',
+    renderMode: RenderMode.Prerender,
+  },
   // Protected/dynamic routes - client-only rendering
   // No SEO value and auth guard bypasses SSR anyway, so server-rendering
   // these just produces an empty shell that gets replaced on hydration
