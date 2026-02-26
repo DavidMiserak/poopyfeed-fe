@@ -1,0 +1,15 @@
+.legal-page {
+  scroll-behavior: smooth;
+}
+
+@media print {
+  main {
+    background: #ffffff !important;
+    padding: 0;
+  }
+
+  section {
+    box-shadow: none !important;
+    border: none !important;
+  }
+}

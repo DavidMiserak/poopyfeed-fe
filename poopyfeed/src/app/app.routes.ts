@@ -224,4 +224,20 @@ export const routes: Routes = [
       import('./invites/accept/invite-accept').then((m) => m.InviteAccept),
     title: 'Accept Invite - PoopyFeed',
   },
+  {
+    path: 'privacy',
+    loadComponent: () =>
+      import('./legal/privacy-policy/privacy-policy').then(
+        (m) => m.PrivacyPolicy
+      ),
+    title: 'Privacy Policy - PoopyFeed',
+  },
+  {
+    path: 'terms',
+    loadComponent: () =>
+      import('./legal/terms-of-service/terms-of-service').then(
+        (m) => m.TermsOfService
+      ),
+    title: 'Terms of Service - PoopyFeed',
+  },
 ];
