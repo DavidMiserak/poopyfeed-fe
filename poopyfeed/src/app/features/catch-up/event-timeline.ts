@@ -15,10 +15,12 @@ import {
   output,
   signal,
   computed,
+  inject,
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CatchUpEvent, CATCH_UP_VALIDATION } from '../../models';
+import { DateTimeService } from '../../services/datetime.service';
 import { getActivityIcon, formatActivityAge } from '../../utils/date.utils';
 
 @Component({
@@ -39,6 +41,8 @@ import { getActivityIcon, formatActivityAge } from '../../utils/date.utils';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EventTimeline {
+  private dateTimeService = inject(DateTimeService);
+
   // Input/Output
   events = input<CatchUpEvent[]>([]);
   onAddEvent = output<'feeding' | 'diaper' | 'nap'>();
@@ -60,7 +64,7 @@ export class EventTimeline {
   formatActivityAge = formatActivityAge;
 
   /**
-   * Format event time for display.
+   * Format event time for display (user's profile timezone).
    */
   formatTime(estimatedTime: string): string {
     try {
@@ -68,9 +72,7 @@ export class EventTimeline {
       if (isNaN(date.getTime())) {
         return 'Invalid time';
       }
-      const hours = date.getHours().toString().padStart(2, '0');
-      const minutes = date.getMinutes().toString().padStart(2, '0');
-      return `${hours}:${minutes}`;
+      return this.dateTimeService.formatTime24h(estimatedTime);
     } catch {
       return 'Invalid time';
     }

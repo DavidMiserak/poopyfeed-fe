@@ -331,14 +331,15 @@ export class CatchUp implements OnInit {
   }
 
   /**
-   * Format time for display.
+   * Format time for display (user's profile timezone).
    */
   formatTime(timestamp: string): string {
     try {
       const date = new Date(timestamp);
-      const hours = date.getHours().toString().padStart(2, '0');
-      const minutes = date.getMinutes().toString().padStart(2, '0');
-      return `${hours}:${minutes}`;
+      if (isNaN(date.getTime())) {
+        return 'Invalid time';
+      }
+      return this.dateTimeService.formatTime24h(timestamp);
     } catch {
       return 'Invalid time';
     }

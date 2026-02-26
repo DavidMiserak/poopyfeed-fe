@@ -321,10 +321,8 @@ export class ChildTimeline implements OnInit {
 
     // Calculate 7-day date range in user's timezone
     const startDateStr = this.datetimeService.getDateNDaysAgoInUserTimezone(6);
-    // Include all of today by setting end to tomorrow
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const endDateStr = this.datetimeService.getDateInUserTimezone(tomorrow);
+    // Include all of today by setting end to tomorrow (in user's timezone)
+    const endDateStr = this.datetimeService.getTomorrowInUserTimezone();
 
     forkJoin({
       child: this.childrenService.get(childId),

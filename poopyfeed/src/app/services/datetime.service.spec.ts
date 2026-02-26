@@ -144,6 +144,22 @@ describe('DateTimeService', () => {
     });
   });
 
+  describe('getTomorrowInUserTimezone', () => {
+    it('should return YYYY-MM-DD format', () => {
+      const result = service.getTomorrowInUserTimezone();
+      expect(result).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    });
+
+    it('should return day after getTodayInUserTimezone', () => {
+      const today = service.getTodayInUserTimezone();
+      const tomorrow = service.getTomorrowInUserTimezone();
+      const todayDate = new Date(today + 'T12:00:00Z');
+      const tomorrowDate = new Date(tomorrow + 'T12:00:00Z');
+      const diffDays = (tomorrowDate.getTime() - todayDate.getTime()) / (24 * 60 * 60 * 1000);
+      expect(diffDays).toBe(1);
+    });
+  });
+
   describe('toUTC', () => {
     it('should convert local Date to UTC ISO 8601 string', () => {
       const localDate = new Date('2024-01-15T10:30:00');

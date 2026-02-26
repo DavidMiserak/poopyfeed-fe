@@ -222,8 +222,12 @@ export class EventCard implements OnInit, AfterViewInit {
         };
       case 'nap':
         return {
-          napped_at: formValue.napped_at ? new Date(formValue.napped_at).toISOString() : undefined,
-          ended_at: formValue.ended_at ? new Date(formValue.ended_at).toISOString() : undefined,
+          napped_at: formValue.napped_at
+            ? this.dateTimeService.toUTC(this.dateTimeService.fromInputFormat(formValue.napped_at))
+            : undefined,
+          ended_at: formValue.ended_at
+            ? this.dateTimeService.toUTC(this.dateTimeService.fromInputFormat(formValue.ended_at))
+            : undefined,
           notes: formValue.notes,
         };
       default:

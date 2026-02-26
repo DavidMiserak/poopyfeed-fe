@@ -163,6 +163,16 @@ describe('ChildTimeline', () => {
           day: '2-digit',
         }).format(date);
       }),
+      getTomorrowInUserTimezone: vi.fn(() => {
+        const date = new Date();
+        date.setDate(date.getDate() + 1);
+        return new Intl.DateTimeFormat('en-CA', {
+          timeZone: 'UTC',
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+        }).format(date);
+      }),
     };
 
     await TestBed.configureTestingModule({

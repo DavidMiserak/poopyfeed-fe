@@ -7,6 +7,10 @@
  * All functions assume ISO 8601 format (YYYY-MM-DD for dates, ISO string for timestamps).
  * Timestamps are assumed to be in UTC (as returned by the API).
  *
+ * Date-only parsing: For calendar dates (e.g. date_of_birth), use parseDateOnly() so the
+ * day is stable across timezones. Do not use new Date(isoDate) alone — that parses as UTC
+ * midnight and can shift the calendar day in negative-offset timezones.
+ *
  * Usage patterns:
  * - Age display: Use getChildAge() for lists, getChildAgeLong() for details
  * - Activity timestamps: Use formatTimestamp() for "just now" format,
@@ -15,6 +19,18 @@
  * - Styling: Use getRoleBadgeColor() for role badges
  * - Date checking: Use isToday() to identify today's activities
  */
+
+/**
+ * Parse an ISO date-only string (YYYY-MM-DD) or ISO datetime (take date part) as noon UTC.
+ * Use for calendar-date logic (e.g. age) so the day is stable across timezones.
+ *
+ * @param isoDate ISO date string (YYYY-MM-DD) or full ISO string (only first 10 chars used)
+ * @returns Date instance at noon UTC on that calendar day
+ */
+function parseDateOnly(isoDate: string): Date {
+  const datePart = isoDate.slice(0, 10);
+  return new Date(datePart + 'T12:00:00Z');
+}
 
 /**
  * Calculate child's age in numeric weeks.
@@ -29,7 +45,7 @@
  * getAgeInWeeks('2024-01-01') // Returns current age in weeks
  */
 export function getAgeInWeeks(dateOfBirth: string): number {
-  const birthDate = new Date(dateOfBirth);
+  const birthDate = parseDateOnly(dateOfBirth);
   const today = new Date();
   const diffMs = today.getTime() - birthDate.getTime();
   const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
@@ -49,7 +65,7 @@ export function getAgeInWeeks(dateOfBirth: string): number {
  * getAgeInMonths('2024-01-01') // Returns current age in months
  */
 export function getAgeInMonths(dateOfBirth: string): number {
-  const birthDate = new Date(dateOfBirth);
+  const birthDate = parseDateOnly(dateOfBirth);
   const today = new Date();
   return (
     (today.getFullYear() - birthDate.getFullYear()) * 12 +
@@ -77,7 +93,7 @@ export function getAgeInMonths(dateOfBirth: string): number {
  * Use case: Child list cards, dashboard summaries
  */
 export function getChildAge(dateOfBirth: string): string {
-  const birthDate = new Date(dateOfBirth);
+  const birthDate = parseDateOnly(dateOfBirth);
   const today = new Date();
   const ageInMonths =
     (today.getFullYear() - birthDate.getFullYear()) * 12 +
@@ -117,7 +133,7 @@ export function getChildAge(dateOfBirth: string): string {
  */
 export function getChildAgeLong(dateOfBirth: string): string {
   const today = new Date();
-  const birthDate = new Date(dateOfBirth);
+  const birthDate = parseDateOnly(dateOfBirth);
   const diffMs = today.getTime() - birthDate.getTime();
   const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 

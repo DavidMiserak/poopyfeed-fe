@@ -61,13 +61,33 @@ export class DateTimeService {
   /**
    * Get YYYY-MM-DD for N days ago in user's timezone.
    *
+   * Uses the user's "today" (from profile timezone), subtracts N calendar days
+   * at noon UTC to avoid DST boundary issues, then formats in user TZ.
+   *
    * @param daysAgo Number of days in the past
    * @returns YYYY-MM-DD string
    */
   getDateNDaysAgoInUserTimezone(daysAgo: number): string {
-    const date = new Date();
-    date.setDate(date.getDate() - daysAgo);
-    return this.getDateInUserTimezone(date);
+    const todayStr = this.getTodayInUserTimezone();
+    const [y, m, d] = todayStr.split('-').map(Number);
+    const ref = new Date(Date.UTC(y, m - 1, d, 12, 0, 0));
+    ref.setTime(ref.getTime() - daysAgo * 24 * 60 * 60 * 1000);
+    return this.getDateInUserTimezone(ref);
+  }
+
+  /**
+   * Get YYYY-MM-DD for tomorrow in user's timezone.
+   *
+   * Used for date-range end boundaries (e.g. "include all of today").
+   *
+   * @returns YYYY-MM-DD string
+   */
+  getTomorrowInUserTimezone(): string {
+    const todayStr = this.getTodayInUserTimezone();
+    const [y, m, d] = todayStr.split('-').map(Number);
+    const ref = new Date(Date.UTC(y, m - 1, d, 12, 0, 0));
+    ref.setTime(ref.getTime() + 24 * 60 * 60 * 1000);
+    return this.getDateInUserTimezone(ref);
   }
 
   /**
