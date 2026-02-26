@@ -8,3 +8,4 @@ export * from './diaper.model';
 export * from './nap.model';
 export * from './sharing.model';
 export * from './catch-up.model';
+export * from './notification.model';
