@@ -60,8 +60,10 @@ import {
 } from '@angular/forms';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { ChildrenService } from '../../services/children.service';
+import { NotificationService } from '../../services/notification.service';
 import { ToastService } from '../../services/toast.service';
 import { Child, ChildCreate } from '../../models/child.model';
+import type { NotificationPreference, NotificationPreferenceUpdate } from '../../models/notification.model';
 
 /**
  * Validator: Ensures custom bottle amounts are either all set or all null.
@@ -126,6 +128,7 @@ export class ChildForm implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private childrenService = inject(ChildrenService);
+  private notificationService = inject(NotificationService);
   private toast = inject(ToastService);
 
   /**
@@ -150,6 +153,15 @@ export class ChildForm implements OnInit {
 
   /** Error message from API call or validation */
   error = signal<string | null>(null);
+
+  /** Notification preference for this child (edit mode only). Null until loaded or if none. */
+  notificationPreference = signal<NotificationPreference | null>(null);
+  /** Loading notification preferences (edit mode). */
+  preferenceLoading = signal(false);
+  /** Error loading notification preferences. */
+  preferenceError = signal<string | null>(null);
+  /** Saving a preference toggle (disables toggles briefly). */
+  preferenceSaving = signal(false);
 
   /**
    * Computed error message for bottle amounts validation.
@@ -258,9 +270,52 @@ export class ChildForm implements OnInit {
           custom_bottle_mid_oz: child.custom_bottle_mid_oz ?? null,
           custom_bottle_high_oz: child.custom_bottle_high_oz ?? null,
         });
+        this.loadNotificationPreference(id);
       },
       error: (err: Error) => {
         this.error.set(err.message);
+      },
+    });
+  }
+
+  /**
+   * Load notification preference for the current child (edit mode).
+   * Called after child load succeeds. Updates notificationPreference when found.
+   */
+  private loadNotificationPreference(childId: number) {
+    this.preferenceLoading.set(true);
+    this.preferenceError.set(null);
+    this.notificationService.getPreferences().subscribe({
+      next: (list) => {
+        const pref = list.find((p) => p.child_id === childId) ?? null;
+        this.notificationPreference.set(pref);
+        this.preferenceLoading.set(false);
+      },
+      error: (err: Error) => {
+        this.preferenceError.set(err.message);
+        this.preferenceLoading.set(false);
+      },
+    });
+  }
+
+  /**
+   * Toggle a notification preference and persist via API.
+   * Called when user changes a checkbox in the notification preferences section.
+   */
+  onPreferenceToggle(field: keyof NotificationPreferenceUpdate, value: boolean) {
+    const pref = this.notificationPreference();
+    if (!pref) return;
+
+    this.preferenceSaving.set(true);
+    this.notificationService.updatePreference(pref.id, { [field]: value }).subscribe({
+      next: (updated) => {
+        this.notificationPreference.set(updated);
+        this.preferenceSaving.set(false);
+        this.toast.success('Notification preference updated');
+      },
+      error: (err: Error) => {
+        this.preferenceSaving.set(false);
+        this.toast.error(err.message);
       },
     });
   }

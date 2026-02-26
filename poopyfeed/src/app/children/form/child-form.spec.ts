@@ -4,13 +4,16 @@ import { of, throwError } from 'rxjs';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { ChildForm } from './child-form';
 import { ChildrenService } from '../../services/children.service';
+import { NotificationService } from '../../services/notification.service';
 import { ToastService } from '../../services/toast.service';
 import { Child, ChildCreate } from '../../models/child.model';
+import type { NotificationPreference } from '../../models/notification.model';
 
 describe('ChildForm', () => {
   let component: ChildForm;
   let fixture: ComponentFixture<ChildForm>;
   let childrenService: ChildrenService;
+  let notificationService: NotificationService;
   let toastService: ToastService;
   let router: Router;
 
@@ -77,6 +80,11 @@ describe('ChildForm', () => {
         info: vi.fn(),
       };
 
+      const mockNotificationService = {
+        getPreferences: vi.fn(),
+        updatePreference: vi.fn(),
+      };
+
       const mockRouter = {
         navigate: vi.fn(),
         routerState: { root: {} },
@@ -98,6 +106,7 @@ describe('ChildForm', () => {
         imports: [ChildForm],
         providers: [
           { provide: ChildrenService, useValue: mockChildrenService },
+          { provide: NotificationService, useValue: mockNotificationService },
           { provide: ToastService, useValue: mockToastService },
           { provide: Router, useValue: mockRouter },
           { provide: ActivatedRoute, useValue: mockActivatedRoute },
@@ -107,6 +116,7 @@ describe('ChildForm', () => {
       fixture = TestBed.createComponent(ChildForm);
       component = fixture.componentInstance;
       childrenService = TestBed.inject(ChildrenService);
+      notificationService = TestBed.inject(NotificationService);
       toastService = TestBed.inject(ToastService);
       router = TestBed.inject(Router);
     });
@@ -447,6 +457,20 @@ describe('ChildForm', () => {
         events: of(),
       } as any;
 
+      const mockPreference: NotificationPreference = {
+        id: 10,
+        child_id: 1,
+        child_name: 'Baby Alice',
+        notify_feedings: true,
+        notify_diapers: true,
+        notify_naps: false,
+      };
+
+      const mockNotificationService = {
+        getPreferences: vi.fn().mockReturnValue(of([mockPreference])),
+        updatePreference: vi.fn().mockReturnValue(of({ ...mockPreference, notify_feedings: false })),
+      };
+
       const mockActivatedRoute = {
         paramMap: of(new Map([['id', '1']])),
         queryParamMap: of(new Map()),
@@ -461,6 +485,7 @@ describe('ChildForm', () => {
         imports: [ChildForm],
         providers: [
           { provide: ChildrenService, useValue: mockChildrenService },
+          { provide: NotificationService, useValue: mockNotificationService },
           { provide: ToastService, useValue: mockToastService },
           { provide: Router, useValue: mockRouter },
           { provide: ActivatedRoute, useValue: mockActivatedRoute },
@@ -470,6 +495,7 @@ describe('ChildForm', () => {
       fixture = TestBed.createComponent(ChildForm);
       component = fixture.componentInstance;
       childrenService = TestBed.inject(ChildrenService);
+      notificationService = TestBed.inject(NotificationService);
       toastService = TestBed.inject(ToastService);
       router = TestBed.inject(Router);
     });
@@ -538,6 +564,102 @@ describe('ChildForm', () => {
         component.loadChild(1);
 
         expect(component.error()).toBe('Network timeout');
+      });
+    });
+
+    describe('Notification preferences', () => {
+      beforeEach(() => {
+        vi.mocked(childrenService.get).mockReturnValue(of(mockChild));
+      });
+
+      it('should call getPreferences after child load in edit mode', () => {
+        component.loadChild(1);
+
+        expect(notificationService.getPreferences).toHaveBeenCalled();
+      });
+
+      it('should set notificationPreference when preference found for child', () => {
+        component.loadChild(1);
+
+        const pref = component.notificationPreference();
+        expect(pref).not.toBeNull();
+        expect(pref?.child_id).toBe(1);
+        expect(pref?.notify_feedings).toBe(true);
+        expect(pref?.notify_diapers).toBe(true);
+        expect(pref?.notify_naps).toBe(false);
+      });
+
+      it('should set notificationPreference to null when no preference for child', () => {
+        vi.mocked(notificationService.getPreferences).mockReturnValue(
+          of([{ id: 99, child_id: 999, child_name: 'Other', notify_feedings: true, notify_diapers: true, notify_naps: true }])
+        );
+
+        component.loadChild(1);
+
+        expect(component.notificationPreference()).toBeNull();
+      });
+
+      it('should set preferenceError when getPreferences fails', () => {
+        vi.mocked(notificationService.getPreferences).mockReturnValue(
+          throwError(() => new Error('Preferences load failed'))
+        );
+
+        component.loadChild(1);
+
+        expect(component.preferenceError()).toBe('Preferences load failed');
+      });
+
+      it('should call updatePreference when toggle changed', () => {
+        component.loadChild(1);
+        const pref = component.notificationPreference();
+        expect(pref).not.toBeNull();
+
+        component.onPreferenceToggle('notify_feedings', false);
+
+        expect(notificationService.updatePreference).toHaveBeenCalledWith(pref!.id, { notify_feedings: false });
+      });
+
+      it('should update notificationPreference signal on successful toggle', () => {
+        const updated = {
+          id: 10,
+          child_id: 1,
+          child_name: 'Baby Alice',
+          notify_feedings: false,
+          notify_diapers: true,
+          notify_naps: false,
+        };
+        vi.mocked(notificationService.updatePreference).mockReturnValue(of(updated));
+
+        component.loadChild(1);
+        component.onPreferenceToggle('notify_feedings', false);
+
+        expect(component.notificationPreference()).toEqual(updated);
+      });
+
+      it('should show success toast on successful preference update', () => {
+        component.loadChild(1);
+        component.onPreferenceToggle('notify_diapers', false);
+
+        expect(toastService.success).toHaveBeenCalledWith('Notification preference updated');
+      });
+
+      it('should show error toast and clear preferenceSaving on update error', () => {
+        component.loadChild(1);
+        vi.mocked(notificationService.updatePreference).mockReturnValue(
+          throwError(() => new Error('Update failed'))
+        );
+
+        component.onPreferenceToggle('notify_naps', true);
+
+        expect(toastService.error).toHaveBeenCalledWith('Update failed');
+        expect(component.preferenceSaving()).toBe(false);
+      });
+
+      it('should do nothing when onPreferenceToggle called with no preference', () => {
+        component.notificationPreference.set(null);
+        component.onPreferenceToggle('notify_feedings', false);
+
+        expect(notificationService.updatePreference).not.toHaveBeenCalled();
       });
     });
 
@@ -732,10 +854,16 @@ describe('ChildForm', () => {
         },
       } as any;
 
+      const mockNotificationService = {
+        getPreferences: vi.fn(),
+        updatePreference: vi.fn(),
+      };
+
       await TestBed.configureTestingModule({
         imports: [ChildForm],
         providers: [
           { provide: ChildrenService, useValue: mockChildrenService },
+          { provide: NotificationService, useValue: mockNotificationService },
           { provide: ToastService, useValue: mockToastService },
           { provide: Router, useValue: mockRouter },
           { provide: ActivatedRoute, useValue: mockActivatedRoute },
@@ -844,6 +972,11 @@ describe('ChildForm', () => {
           events: of(),
         } as any;
 
+        const mockNotificationService = {
+          getPreferences: vi.fn(),
+          updatePreference: vi.fn(),
+        };
+
         const mockActivatedRoute = {
           paramMap: of(new Map()),
           queryParamMap: of(new Map()),
@@ -858,6 +991,7 @@ describe('ChildForm', () => {
           imports: [ChildForm],
           providers: [
             { provide: ChildrenService, useValue: mockChildrenService },
+            { provide: NotificationService, useValue: mockNotificationService },
             { provide: ToastService, useValue: mockToastService },
             { provide: Router, useValue: mockRouter },
             { provide: ActivatedRoute, useValue: mockActivatedRoute },
@@ -998,10 +1132,24 @@ describe('ChildForm', () => {
           },
         } as any;
 
+        const mockPreference: NotificationPreference = {
+          id: 10,
+          child_id: 1,
+          child_name: 'Baby Alice',
+          notify_feedings: true,
+          notify_diapers: true,
+          notify_naps: false,
+        };
+        const mockNotificationService = {
+          getPreferences: vi.fn().mockReturnValue(of([mockPreference])),
+          updatePreference: vi.fn(),
+        };
+
         await TestBed.configureTestingModule({
           imports: [ChildForm],
           providers: [
             { provide: ChildrenService, useValue: mockChildrenService },
+            { provide: NotificationService, useValue: mockNotificationService },
             { provide: ToastService, useValue: mockToastService },
             { provide: Router, useValue: mockRouter },
             { provide: ActivatedRoute, useValue: mockActivatedRoute },
@@ -1040,6 +1188,18 @@ describe('ChildForm', () => {
         const submitButton = el.querySelector('button[type="submit"]');
         expect(submitButton?.textContent).toContain('Update Baby');
       });
+
+      it('should render notification preferences section when preference loaded in edit mode', () => {
+        vi.mocked(childrenService.get).mockReturnValue(of(mockChild));
+        component.ngOnInit();
+        fixture.detectChanges();
+
+        const el = fixture.nativeElement as HTMLElement;
+        expect(el.textContent).toContain('Notification Preferences');
+        expect(el.textContent).toContain('Feedings');
+        expect(el.textContent).toContain('Diaper changes');
+        expect(el.textContent).toContain('Naps');
+      });
     });
   });
 
@@ -1076,6 +1236,7 @@ describe('ChildForm', () => {
         imports: [ChildForm],
         providers: [
           { provide: ChildrenService, useValue: { get: vi.fn(), create: vi.fn(), update: vi.fn() } },
+          { provide: NotificationService, useValue: { getPreferences: vi.fn(), updatePreference: vi.fn() } },
           { provide: ToastService, useValue: { success: vi.fn(), error: vi.fn() } },
           { provide: Router, useValue: { navigate: vi.fn(), parseUrl: vi.fn(), createUrlTree: vi.fn(), serializeUrl: vi.fn(() => ''), events: of() } as any },
           { provide: ActivatedRoute, useValue: createModeRoute },

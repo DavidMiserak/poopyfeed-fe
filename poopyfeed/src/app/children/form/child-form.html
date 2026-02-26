@@ -254,6 +254,78 @@
           }
         </fieldset>
 
+        <!-- Notification preferences (edit mode only) -->
+        @if (isEdit()) {
+          <fieldset class="border-2 border-slate-200 rounded-xl p-6" [attr.aria-busy]="preferenceLoading() || preferenceSaving()">
+            <legend class="font-['Fredoka',sans-serif] text-lg font-bold text-slate-900 px-2">
+              <span class="text-2xl">🔔</span> Notification Preferences
+            </legend>
+            <p class="font-['DM_Sans',sans-serif] text-sm text-slate-600 mb-4 mt-4">
+              Choose which activities trigger notifications when someone else logs them for this child.
+            </p>
+
+            @if (preferenceError()) {
+              <div class="bg-gradient-to-r from-red-50 to-rose-50 border-l-4 border-red-500 p-4 mb-4 rounded-xl">
+                <p class="font-['DM_Sans',sans-serif] text-red-700 text-sm font-medium">{{ preferenceError() }}</p>
+              </div>
+            }
+            @if (preferenceLoading()) {
+              <div class="flex items-center gap-2 py-4 text-slate-600 font-['DM_Sans',sans-serif] text-sm">
+                <svg class="w-5 h-5 animate-spin flex-shrink-0" aria-hidden="true" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Loading notification preferences...
+              </div>
+            } @else if (notificationPreference(); as pref) {
+              <div class="space-y-4">
+                <label class="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    [checked]="pref.notify_feedings"
+                    [disabled]="preferenceSaving()"
+                    (change)="onPreferenceToggle('notify_feedings', $any($event.target).checked)"
+                    class="w-5 h-5 rounded border-2 border-slate-200 text-rose-500 focus:ring-rose-400"
+                    aria-describedby="notify-feedings-desc"
+                  />
+                  <span id="notify-feedings-desc" class="font-['DM_Sans',sans-serif] text-sm font-bold text-slate-900">Feedings</span>
+                </label>
+                <label class="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    [checked]="pref.notify_diapers"
+                    [disabled]="preferenceSaving()"
+                    (change)="onPreferenceToggle('notify_diapers', $any($event.target).checked)"
+                    class="w-5 h-5 rounded border-2 border-slate-200 text-rose-500 focus:ring-rose-400"
+                    aria-describedby="notify-diapers-desc"
+                  />
+                  <span id="notify-diapers-desc" class="font-['DM_Sans',sans-serif] text-sm font-bold text-slate-900">Diaper changes</span>
+                </label>
+                <label class="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    [checked]="pref.notify_naps"
+                    [disabled]="preferenceSaving()"
+                    (change)="onPreferenceToggle('notify_naps', $any($event.target).checked)"
+                    class="w-5 h-5 rounded border-2 border-slate-200 text-rose-500 focus:ring-rose-400"
+                    aria-describedby="notify-naps-desc"
+                  />
+                  <span id="notify-naps-desc" class="font-['DM_Sans',sans-serif] text-sm font-bold text-slate-900">Naps</span>
+                </label>
+                @if (preferenceSaving()) {
+                  <p class="font-['DM_Sans',sans-serif] text-slate-500 text-sm flex items-center gap-2">
+                    <svg class="w-4 h-4 animate-spin" aria-hidden="true" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Saving...
+                  </p>
+                }
+              </div>
+            }
+          </fieldset>
+        }
+
         <!-- Action Buttons -->
         <div class="flex gap-4 pt-4">
           <!-- Cancel Button -->
