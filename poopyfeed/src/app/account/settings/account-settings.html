@@ -170,6 +170,82 @@
           </form>
         </div>
 
+        <!-- Quiet Hours Card -->
+        <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-8 border-2 border-rose-200">
+          <h2 class="font-['Fredoka',sans-serif] text-2xl font-bold text-slate-900 mb-1">Quiet Hours</h2>
+          <p class="font-['DM_Sans',sans-serif] text-slate-500 text-sm mb-6">Pause notification delivery during these hours (in your local time)</p>
+
+          @if (quietHoursError()) {
+            <div class="bg-gradient-to-r from-red-50 to-rose-50 border-l-4 border-red-500 p-4 mb-6 rounded-xl">
+              <p class="font-['DM_Sans',sans-serif] text-red-700 text-sm font-medium">{{ quietHoursError() }}</p>
+            </div>
+          }
+          @if (quietHoursSuccess()) {
+            <div class="bg-gradient-to-r from-green-50 to-emerald-50 border-l-4 border-green-500 p-4 mb-6 rounded-xl">
+              <p class="font-['DM_Sans',sans-serif] text-green-700 text-sm font-medium">{{ quietHoursSuccess() }}</p>
+            </div>
+          }
+
+          <form [formGroup]="quietHoursForm" (ngSubmit)="onQuietHoursSubmit()" class="space-y-4">
+            <div class="flex items-center gap-3">
+              <input
+                type="checkbox"
+                id="quiet_hours_enabled"
+                formControlName="enabled"
+                class="w-5 h-5 rounded border-2 border-slate-200 text-rose-500 focus:ring-rose-400"
+              />
+              <label for="quiet_hours_enabled" class="font-['DM_Sans',sans-serif] text-sm font-bold text-slate-900">
+                Enable quiet hours
+              </label>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label for="quiet_hours_start" class="font-['DM_Sans',sans-serif] block text-sm font-bold text-slate-900 mb-2">
+                  Start
+                </label>
+                <input
+                  type="time"
+                  id="quiet_hours_start"
+                  formControlName="start_time"
+                  class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-rose-400 focus:ring-4 focus:ring-rose-200 transition-all outline-none text-slate-900 font-['DM_Sans',sans-serif] bg-white"
+                />
+              </div>
+              <div>
+                <label for="quiet_hours_end" class="font-['DM_Sans',sans-serif] block text-sm font-bold text-slate-900 mb-2">
+                  End
+                </label>
+                <input
+                  type="time"
+                  id="quiet_hours_end"
+                  formControlName="end_time"
+                  class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-rose-400 focus:ring-4 focus:ring-rose-200 transition-all outline-none text-slate-900 font-['DM_Sans',sans-serif] bg-white"
+                />
+              </div>
+            </div>
+
+            <div class="flex justify-end pt-2">
+              <button
+                type="submit"
+                [disabled]="quietHoursForm.invalid || quietHoursSubmitting()"
+                class="group relative px-6 py-3 rounded-xl font-['DM_Sans',sans-serif] font-bold text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 overflow-hidden border-2 border-rose-400"
+              >
+                <span class="absolute inset-0 bg-gradient-to-br from-rose-400 via-orange-400 to-amber-400 transition-transform duration-300 group-hover:scale-110 group-disabled:scale-100"></span>
+                @if (quietHoursSubmitting()) {
+                  <span class="relative z-10 flex items-center gap-2">
+                    <svg class="w-5 h-5 animate-spin" aria-hidden="true" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Saving...
+                  </span>
+                } @else {
+                  <span class="relative z-10">Save Quiet Hours</span>
+                }
+              </button>
+            </div>
+          </form>
+        </div>
+
         <!-- Password Card -->
         <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-8 border-2 border-rose-200">
           <h2 class="font-['Fredoka',sans-serif] text-2xl font-bold text-slate-900 mb-1">Change Password</h2>

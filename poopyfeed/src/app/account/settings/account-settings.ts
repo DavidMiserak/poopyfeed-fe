@@ -15,6 +15,7 @@ import {
 import { Router, RouterLink } from '@angular/router';
 import { AccountService } from '../../services/account.service';
 import { AuthService } from '../../services/auth.service';
+import { NotificationService } from '../../services/notification.service';
 import { TimezoneCheckService } from '../../services/timezone-check.service';
 import { ToastService } from '../../services/toast.service';
 import { TIMEZONES } from '../timezones';
@@ -31,6 +32,7 @@ export class AccountSettings implements OnInit {
   private router = inject(Router);
   private toast = inject(ToastService);
   private tzCheck = inject(TimezoneCheckService);
+  private notificationService = inject(NotificationService);
 
   timezones = TIMEZONES;
   isLoading = signal(true);
@@ -45,6 +47,11 @@ export class AccountSettings implements OnInit {
   timezoneSubmitting = signal(false);
   timezoneError = signal<string | null>(null);
   timezoneSuccess = signal<string | null>(null);
+
+  // Quiet hours form state
+  quietHoursSubmitting = signal(false);
+  quietHoursError = signal<string | null>(null);
+  quietHoursSuccess = signal<string | null>(null);
 
   // Password form state
   passwordSubmitting = signal(false);
@@ -63,6 +70,12 @@ export class AccountSettings implements OnInit {
 
   timezoneForm = new FormGroup({
     timezone: new FormControl('UTC', [Validators.required]),
+  });
+
+  quietHoursForm = new FormGroup({
+    enabled: new FormControl(false),
+    start_time: new FormControl('22:00', [Validators.required]),
+    end_time: new FormControl('07:00', [Validators.required]),
   });
 
   passwordForm = new FormGroup({
@@ -90,12 +103,66 @@ export class AccountSettings implements OnInit {
           timezone: profile.timezone,
         });
         this.isLoading.set(false);
+        this.loadQuietHours();
       },
       error: (err: Error) => {
         this.loadError.set(err.message);
         this.isLoading.set(false);
       },
     });
+  }
+
+  private loadQuietHours(): void {
+    this.notificationService.getQuietHours().subscribe({
+      next: (qh) => {
+        this.quietHoursForm.patchValue({
+          enabled: qh.enabled,
+          start_time: this.timeToInputValue(qh.start_time),
+          end_time: this.timeToInputValue(qh.end_time),
+        });
+      },
+      error: () => {
+        // Non-blocking: quiet hours card can show error or empty
+      },
+    });
+  }
+
+  /** Convert API "HH:MM:SS" to input value "HH:MM". */
+  private timeToInputValue(apiTime: string): string {
+    return apiTime.slice(0, 5);
+  }
+
+  /** Convert form "HH:MM" to API "HH:MM:00" if needed. */
+  private inputValueToTime(value: string): string {
+    return value.length === 5 ? `${value}:00` : value;
+  }
+
+  onQuietHoursSubmit() {
+    if (this.quietHoursForm.invalid) return;
+
+    this.quietHoursSubmitting.set(true);
+    this.quietHoursError.set(null);
+    this.quietHoursSuccess.set(null);
+
+    const value = this.quietHoursForm.value;
+    this.notificationService
+      .updateQuietHours({
+        enabled: value.enabled ?? false,
+        start_time: this.inputValueToTime(value.start_time ?? '22:00'),
+        end_time: this.inputValueToTime(value.end_time ?? '07:00'),
+      })
+      .subscribe({
+        next: () => {
+          this.quietHoursSubmitting.set(false);
+          this.quietHoursSuccess.set('Quiet hours saved.');
+          this.toast.success('Quiet hours saved');
+        },
+        error: (err: Error) => {
+          this.quietHoursSubmitting.set(false);
+          this.quietHoursError.set(err.message);
+          this.toast.error(err.message);
+        },
+      });
   }
 
   onProfileSubmit() {

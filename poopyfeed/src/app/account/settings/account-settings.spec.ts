@@ -42,12 +42,22 @@ describe('AccountSettings', () => {
     httpMock.verify();
   });
 
+  const mockQuietHours = {
+    enabled: false,
+    start_time: '22:00:00',
+    end_time: '07:00:00',
+  };
+
   function createComponent() {
     const fixture = TestBed.createComponent(AccountSettings);
     fixture.detectChanges();
     // Flush the profile request triggered by ngOnInit
-    const req = httpMock.expectOne('/api/v1/account/profile/');
-    req.flush(mockProfile);
+    const profileReq = httpMock.expectOne('/api/v1/account/profile/');
+    profileReq.flush(mockProfile);
+    fixture.detectChanges();
+    // Flush the quiet hours request triggered after profile load
+    const quietHoursReq = httpMock.expectOne('/api/v1/notifications/quiet-hours/');
+    quietHoursReq.flush(mockQuietHours);
     fixture.detectChanges();
     return fixture;
   }
@@ -269,6 +279,70 @@ describe('AccountSettings', () => {
     expect(fixture.componentInstance.timezones).toContain('America/New_York');
   });
 
+  it('should load quiet hours and patch form after profile load', () => {
+    const fixture = createComponent();
+    const component = fixture.componentInstance;
+
+    expect(component.quietHoursForm.value.enabled).toBe(false);
+    expect(component.quietHoursForm.value.start_time).toBe('22:00');
+    expect(component.quietHoursForm.value.end_time).toBe('07:00');
+  });
+
+  it('should submit quiet hours update', () => {
+    const fixture = createComponent();
+    const component = fixture.componentInstance;
+
+    component.quietHoursForm.patchValue({
+      enabled: true,
+      start_time: '23:00',
+      end_time: '06:00',
+    });
+    component.onQuietHoursSubmit();
+
+    const req = httpMock.expectOne('/api/v1/notifications/quiet-hours/');
+    expect(req.request.method).toBe('PATCH');
+    expect(req.request.body).toEqual({
+      enabled: true,
+      start_time: '23:00:00',
+      end_time: '06:00:00',
+    });
+    req.flush({
+      enabled: true,
+      start_time: '23:00:00',
+      end_time: '06:00:00',
+    });
+
+    expect(component.quietHoursSuccess()).toBe('Quiet hours saved.');
+    expect(component.quietHoursSubmitting()).toBe(false);
+  });
+
+  it('should handle quiet hours update error', () => {
+    const fixture = createComponent();
+    const component = fixture.componentInstance;
+
+    component.quietHoursForm.patchValue({ enabled: true });
+    component.onQuietHoursSubmit();
+
+    const req = httpMock.expectOne('/api/v1/notifications/quiet-hours/');
+    req.flush(
+      { start_time: ['Invalid time.'] },
+      { status: 400, statusText: 'Bad Request' }
+    );
+
+    expect(component.quietHoursError()).toBeTruthy();
+    expect(component.quietHoursSubmitting()).toBe(false);
+  });
+
+  it('should not submit invalid quiet hours form', () => {
+    const fixture = createComponent();
+    const component = fixture.componentInstance;
+
+    component.quietHoursForm.patchValue({ start_time: '', end_time: '' });
+    component.onQuietHoursSubmit();
+
+    httpMock.expectNone('/api/v1/notifications/quiet-hours/');
+  });
+
   it('should render page heading', () => {
     const fixture = createComponent();
     const compiled = fixture.nativeElement as HTMLElement;
@@ -424,8 +498,10 @@ describe('AccountSettings', () => {
     expect(component.isLoading()).toBe(true);
 
     fixture.detectChanges();
-    const req = httpMock.expectOne('/api/v1/account/profile/');
-    req.flush(mockProfile);
+    const profileReq = httpMock.expectOne('/api/v1/account/profile/');
+    profileReq.flush(mockProfile);
+    const quietHoursReq = httpMock.expectOne('/api/v1/notifications/quiet-hours/');
+    quietHoursReq.flush(mockQuietHours);
 
     expect(component.isLoading()).toBe(false);
   });
@@ -511,9 +587,11 @@ describe('AccountSettings', () => {
       expect(spinner).toBeTruthy();
       expect(spinner?.classList.contains('animate-spin')).toBe(true);
 
-      // Flush the request so afterEach passes
-      const req = httpMock.expectOne('/api/v1/account/profile/');
-      req.flush(mockProfile);
+      // Flush the requests so afterEach passes
+      const profileReq = httpMock.expectOne('/api/v1/account/profile/');
+      profileReq.flush(mockProfile);
+      const quietHoursReq = httpMock.expectOne('/api/v1/notifications/quiet-hours/');
+      quietHoursReq.flush(mockQuietHours);
     });
 
     it('should hide loading spinner when isLoading is false', () => {
