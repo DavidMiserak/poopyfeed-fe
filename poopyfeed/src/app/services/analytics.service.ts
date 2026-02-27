@@ -387,7 +387,7 @@ export class AnalyticsService {
     return this.http.get(downloadUrl, { responseType: 'blob' }).pipe(
       tap((blob) => {
         // Extract filename from URL
-        const filename = downloadUrl.split('/').pop() || 'export.pdf';
+        const filename = downloadUrl.split('/').filter(Boolean).pop() || 'export.pdf';
         // Download the blob
         this.downloadFile(blob, filename);
       }),

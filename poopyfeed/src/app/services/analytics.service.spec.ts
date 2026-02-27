@@ -728,6 +728,27 @@ describe('AnalyticsService', () => {
       removeChildSpy.mockRestore();
     });
 
+    it('should handle trailing slash in download URL', () => {
+      const mockPDFBlob = new Blob(['pdf data'], { type: 'application/pdf' });
+      const createElementSpy = vi.spyOn(document, 'createElement');
+      const appendChildSpy = vi.spyOn(document.body, 'appendChild');
+      const removeChildSpy = vi.spyOn(document.body, 'removeChild');
+
+      service.downloadPDF('/api/v1/analytics/download/analytics-Baby-1740667800.pdf/').subscribe();
+
+      const req = httpMock.expectOne('/api/v1/analytics/download/analytics-Baby-1740667800.pdf/');
+      req.flush(mockPDFBlob);
+
+      // Verify anchor element was created with correct filename (not 'export.pdf')
+      expect(createElementSpy).toHaveBeenCalledWith('a');
+      const anchor = appendChildSpy.mock.calls[0]?.[0] as HTMLAnchorElement;
+      expect(anchor.download).toBe('analytics-Baby-1740667800.pdf');
+
+      createElementSpy.mockRestore();
+      appendChildSpy.mockRestore();
+      removeChildSpy.mockRestore();
+    });
+
     it('should fallback to default filename if URL has no path component', () => {
       const mockPDFBlob = new Blob(['pdf data'], { type: 'application/pdf' });
       const createElementSpy = vi.spyOn(document, 'createElement');
