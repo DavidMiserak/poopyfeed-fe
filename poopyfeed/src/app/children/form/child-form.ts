@@ -410,6 +410,7 @@ export class ChildForm implements OnInit {
       custom_bottle_low_oz: formData.custom_bottle_low_oz ?? null,
       custom_bottle_mid_oz: formData.custom_bottle_mid_oz ?? null,
       custom_bottle_high_oz: formData.custom_bottle_high_oz ?? null,
+      // feeding_reminder_interval defaults to null on backend for new children
     };
     return this.childrenService.create(childData);
   }
@@ -427,9 +428,36 @@ export class ChildForm implements OnInit {
       custom_bottle_low_oz: formData.custom_bottle_low_oz ?? null,
       custom_bottle_mid_oz: formData.custom_bottle_mid_oz ?? null,
       custom_bottle_high_oz: formData.custom_bottle_high_oz ?? null,
-      feeding_reminder_interval: formData.feeding_reminder_interval ?? null,
+      // Convert feeding_reminder_interval: string numbers to actual numbers, empty string to null
+      // HTML select always returns strings, so "2", "3", "4", "6" need to be converted to numbers
+      feeding_reminder_interval: this.convertReminderIntervalValue(
+        formData.feeding_reminder_interval
+      ),
     };
     return this.childrenService.update(this.childId()!, childData);
+  }
+
+  /**
+   * Convert feeding_reminder_interval value from select (string) to API value (number | null).
+   * HTML selects return strings, so "2" needs to be converted to 2.
+   */
+  private convertReminderIntervalValue(
+    value: unknown
+  ): 2 | 3 | 4 | 6 | null {
+    if (typeof value === 'number') {
+      // Validate that number is one of the allowed values
+      if ([2, 3, 4, 6].includes(value)) {
+        return value as 2 | 3 | 4 | 6;
+      }
+      return null;
+    }
+    if (typeof value === 'string') {
+      const num = parseInt(value, 10);
+      if ([2, 3, 4, 6].includes(num)) {
+        return num as 2 | 3 | 4 | 6;
+      }
+    }
+    return null;
   }
 
   /**
