@@ -293,6 +293,27 @@ describe('AnalyticsService', () => {
       expect(req.request.url).not.toContain('?');
       req.flush(mockTodaySummary);
     });
+
+    it('should return and cache today summary when last_updated is at UTC midnight', () => {
+      // Backend defines "today" as UTC date; API may return last_updated at 00:00:00Z
+      const summaryAtMidnight = {
+        ...mockTodaySummary,
+        last_updated: '2026-02-26T00:00:00Z',
+        feedings: { ...mockTodaySummary.feedings, count: 1 },
+      };
+      service.getTodaySummary(1).subscribe({
+        next: (summary) => {
+          expect(summary.last_updated).toBe('2026-02-26T00:00:00Z');
+          expect(summary.feedings.count).toBe(1);
+          expect(service.todaySummary()).toEqual(summaryAtMidnight);
+        },
+      });
+
+      const req = httpMock.expectOne(
+        '/api/v1/analytics/children/1/today-summary/'
+      );
+      req.flush(summaryAtMidnight);
+    });
   });
 
   describe('getWeeklySummary', () => {

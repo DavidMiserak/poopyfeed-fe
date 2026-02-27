@@ -176,4 +176,94 @@ describe('TodaySummaryCards', () => {
       expect(compiled.textContent).not.toContain('No activity recorded today');
     });
   });
+
+  describe('UTC midnight boundary', () => {
+    /**
+     * Backend defines "today" by the authenticated user's timezone (see
+     * analytics.utils.get_today_summary and request.user.timezone). The component
+     * displays API data as-is and does not perform client-side "today" filtering.
+     * These tests ensure we don't introduce date logic that could break at
+     * midnight (e.g. hiding summary when last_updated crosses midnight).
+     */
+
+    it('should display summary when last_updated is at UTC midnight', () => {
+      const summary = makeSummary({
+        last_updated: '2026-02-26T00:00:00Z',
+        feedings: { count: 1, total_oz: 4, bottle: 1, breast: 0 },
+        diapers: { count: 0, wet: 0, dirty: 0, both: 0 },
+        sleep: { naps: 0, total_minutes: 0, avg_duration: 0 },
+      });
+      fixture.componentRef.setInput('summary', summary);
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      expect(compiled.textContent).toContain('Feedings Today');
+      expect(compiled.textContent).toContain('1');
+      expect(compiled.textContent).not.toContain('No activity recorded today');
+    });
+
+    it('should display summary when last_updated is just after UTC midnight', () => {
+      const summary = makeSummary({
+        last_updated: '2026-02-26T00:00:01Z',
+        feedings: { count: 2, total_oz: 8, bottle: 2, breast: 0 },
+        diapers: { count: 1, wet: 1, dirty: 0, both: 0 },
+        sleep: { naps: 1, total_minutes: 45, avg_duration: 45 },
+      });
+      fixture.componentRef.setInput('summary', summary);
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      expect(compiled.textContent).toContain('2');
+      expect(compiled.textContent).toContain('8 oz total');
+      expect(compiled.textContent).toContain('45m total');
+      expect(compiled.textContent).not.toContain('No activity recorded today');
+    });
+
+    it('should display empty state when counts are zero regardless of last_updated time', () => {
+      const summary = makeSummary({
+        last_updated: '2026-02-25T23:59:59Z',
+        feedings: { count: 0, total_oz: 0, bottle: 0, breast: 0 },
+        diapers: { count: 0, wet: 0, dirty: 0, both: 0 },
+        sleep: { naps: 0, total_minutes: 0, avg_duration: 0 },
+      });
+      fixture.componentRef.setInput('summary', summary);
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      expect(compiled.textContent).toContain('No activity recorded today');
+    });
+  });
+
+  describe("user's timezone (today boundary)", () => {
+    /**
+     * Backend uses request.user.timezone so "today" is the user's local day
+     * (e.g. EST midnight boundary). The component just displays the API payload;
+     * no client-side date logic. This test documents that we display summary
+     * data for "user's today" correctly (e.g. after backend returns counts
+     * for America/New_York "today").
+     */
+    it("should display summary for user's local 'today' (e.g. EST boundary)", () => {
+      // Simulate API response for a user in America/New_York: "today" in ET
+      // might have last_updated just after midnight ET (05:00 UTC)
+      const summary = makeSummary({
+        last_updated: '2026-02-26T05:00:00Z', // 00:00 ET
+        feedings: { count: 3, total_oz: 12, bottle: 2, breast: 1 },
+        diapers: { count: 4, wet: 3, dirty: 0, both: 1 },
+        sleep: { naps: 1, total_minutes: 90, avg_duration: 90 },
+      });
+      fixture.componentRef.setInput('summary', summary);
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      expect(compiled.textContent).toContain('Feedings Today');
+      expect(compiled.textContent).toContain('3');
+      expect(compiled.textContent).toContain('12 oz total');
+      expect(compiled.textContent).toContain('Diapers Today');
+      expect(compiled.textContent).toContain('4');
+      expect(compiled.textContent).toContain('Naps Today');
+      expect(compiled.textContent).toContain('1');
+      expect(compiled.textContent).toContain('1h 30m total');
+      expect(compiled.textContent).not.toContain('No activity recorded today');
+    });
+  });
 });
