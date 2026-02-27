@@ -4,17 +4,27 @@
 
 import { TestBed } from '@angular/core/testing';
 import { Router, UrlTree } from '@angular/router';
+import { firstValueFrom, Observable, of, throwError } from 'rxjs';
 import { authGuard } from './auth.guard';
 import { AuthService } from '../services/auth.service';
+import { AccountService } from '../services/account.service';
 import { signal } from '@angular/core';
+
+const mockProfile = { id: 1, email: 'u@example.com', first_name: 'U', last_name: 'Ser', timezone: 'UTC' };
 
 describe('authGuard', () => {
   let mockAuthService: { isAuthenticated: ReturnType<typeof signal<boolean>> };
+  let mockAccountService: { profile: ReturnType<typeof signal<typeof mockProfile | null>>; getProfile: ReturnType<typeof vi.fn> };
   let mockRouter: { createUrlTree: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
     mockAuthService = {
       isAuthenticated: signal(false),
+    };
+
+    mockAccountService = {
+      profile: signal<typeof mockProfile | null>(mockProfile),
+      getProfile: vi.fn(() => of(mockProfile)),
     };
 
     mockRouter = {
@@ -24,6 +34,7 @@ describe('authGuard', () => {
     TestBed.configureTestingModule({
       providers: [
         { provide: AuthService, useValue: mockAuthService },
+        { provide: AccountService, useValue: mockAccountService },
         { provide: Router, useValue: mockRouter },
       ],
     });
@@ -130,6 +141,27 @@ describe('authGuard', () => {
     const result = TestBed.runInInjectionContext(() => authGuard({} as any, {} as any));
 
     expect(result).toBe(true);
+  });
+
+  it('should load profile when authenticated and profile is null then allow navigation', async () => {
+    mockAuthService.isAuthenticated.set(true);
+    mockAccountService.profile.set(null);
+    mockAccountService.getProfile.mockReturnValue(of(mockProfile));
+
+    const result = TestBed.runInInjectionContext(() => authGuard({} as any, {} as any));
+    const value = await firstValueFrom(result as Observable<boolean>);
+    expect(value).toBe(true);
+    expect(mockAccountService.getProfile).toHaveBeenCalled();
+  });
+
+  it('should allow navigation when profile load fails (e.g. network error)', async () => {
+    mockAuthService.isAuthenticated.set(true);
+    mockAccountService.profile.set(null);
+    mockAccountService.getProfile.mockReturnValue(throwError(() => new Error('Network error')));
+
+    const result = TestBed.runInInjectionContext(() => authGuard({} as any, {} as any));
+    const value = await firstValueFrom(result as Observable<boolean>);
+    expect(value).toBe(true);
   });
 
   it('should redirect when both service and localStorage indicate no auth', () => {

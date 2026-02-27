@@ -4,16 +4,23 @@
 
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
+import { map, catchError, of } from 'rxjs';
 import { AuthService } from '../services/auth.service';
+import { AccountService } from '../services/account.service';
 
 /**
  * Function-based route guard that checks if the user is authenticated.
  * Redirects to /login if not authenticated.
  *
+ * When authenticated, ensures user profile (including timezone) is loaded
+ * before allowing access, so DateTimeService displays times in the user's
+ * timezone rather than defaulting to UTC.
+ *
  * Note: Checks localStorage directly to handle SSR hydration correctly.
  */
 export const authGuard: CanActivateFn = () => {
   const authService = inject(AuthService);
+  const accountService = inject(AccountService);
   const router = inject(Router);
 
   // On server-side (SSR): Always allow access, client will handle auth check
@@ -21,18 +28,20 @@ export const authGuard: CanActivateFn = () => {
     return true;
   }
 
-  // Client-side checks
-  // Check if authenticated via service (works after login)
-  if (authService.isAuthenticated()) {
-    return true;
+  // Client-side: not authenticated
+  const isAuthenticated =
+    authService.isAuthenticated() || !!localStorage.getItem('auth_token');
+  if (!isAuthenticated) {
+    return router.createUrlTree(['/login']);
   }
 
-  // Check localStorage directly (handles page refresh)
-  const token = localStorage.getItem('auth_token');
-  if (token) {
-    return true;
+  // Load profile once so timezone is available for all date/time display
+  if (!accountService.profile()) {
+    return accountService.getProfile().pipe(
+      map(() => true),
+      catchError(() => of(true))
+    );
   }
 
-  // No authentication found - redirect to login
-  return router.createUrlTree(['/login']);
+  return true;
 };

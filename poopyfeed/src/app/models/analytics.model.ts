@@ -328,3 +328,56 @@ export interface ExportOptions {
   /** Number of days to include in export (1-90) */
   days: number;
 }
+
+/**
+ * Timeline API: payload shapes returned per event type.
+ *
+ * Backend returns a subset of fields (no child, created_at, updated_at).
+ * Endpoint: GET /api/v1/analytics/children/{child_id}/timeline/
+ */
+export interface TimelineFeedingPayload {
+  id: number;
+  fed_at: string;
+  feeding_type: 'bottle' | 'breast';
+  amount_oz?: number;
+  duration_minutes?: number;
+  side?: 'left' | 'right' | 'both';
+}
+
+export interface TimelineDiaperPayload {
+  id: number;
+  changed_at: string;
+  change_type: 'wet' | 'dirty' | 'both';
+}
+
+export interface TimelineNapPayload {
+  id: number;
+  napped_at: string;
+  ended_at: string | null;
+  duration_minutes: number | null;
+}
+
+/**
+ * Single event in the timeline API response.
+ *
+ * Each event has type, at (ISO datetime), and one type-keyed payload.
+ */
+export interface TimelineEvent {
+  type: 'feeding' | 'diaper' | 'nap';
+  at: string;
+  feeding?: TimelineFeedingPayload;
+  diaper?: TimelineDiaperPayload;
+  nap?: TimelineNapPayload;
+}
+
+/**
+ * Paginated timeline API response.
+ *
+ * Returns merged chronological events (feedings, diapers, naps), newest first.
+ */
+export interface TimelineResponse {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: TimelineEvent[];
+}

@@ -312,6 +312,82 @@ describe('AnalyticsService', () => {
     });
   });
 
+  describe('getTimeline', () => {
+    const mockTimelineResponse = {
+      count: 5,
+      next: 'http://example.com/api/v1/analytics/children/1/timeline/?page=2&page_size=100',
+      previous: null as string | null,
+      results: [
+        {
+          type: 'feeding' as const,
+          at: '2026-02-27T12:00:00Z',
+          feeding: {
+            id: 1,
+            fed_at: '2026-02-27T12:00:00Z',
+            feeding_type: 'bottle' as const,
+            amount_oz: 4,
+          },
+        },
+      ],
+    };
+
+    it('should fetch timeline with default page and page_size', () => {
+      service.getTimeline(1).subscribe({
+        next: (data) => {
+          expect(data.count).toBe(5);
+          expect(data.results.length).toBe(1);
+          expect(data.results[0].type).toBe('feeding');
+        },
+      });
+
+      const req = httpMock.expectOne(
+        (r) =>
+          r.url === '/api/v1/analytics/children/1/timeline/' &&
+          r.params.get('page') === '1' &&
+          r.params.get('page_size') === '100'
+      );
+      expect(req.request.method).toBe('GET');
+      req.flush(mockTimelineResponse);
+    });
+
+    it('should fetch timeline with custom page and page_size', () => {
+      service.getTimeline(2, 2, 25).subscribe();
+
+      const req = httpMock.expectOne(
+        (r) =>
+          r.url === '/api/v1/analytics/children/2/timeline/' &&
+          r.params.get('page') === '2' &&
+          r.params.get('page_size') === '25'
+      );
+      req.flush({ count: 0, next: null, previous: null, results: [] });
+    });
+
+    it('should clamp page_size to max 100', () => {
+      service.getTimeline(1, 1, 200).subscribe();
+
+      const req = httpMock.expectOne(
+        (r) => r.url === '/api/v1/analytics/children/1/timeline/' && r.params.get('page_size') === '100'
+      );
+      req.flush({ count: 0, next: null, previous: null, results: [] });
+    });
+
+    it('should handle timeline API errors', () => {
+      service.getTimeline(1).subscribe({
+        error: (err) => {
+          expect(err.message).toBeTruthy();
+        },
+      });
+
+      const req = httpMock.expectOne(
+        (r) =>
+          r.url.startsWith('/api/v1/analytics/children/1/timeline/') &&
+          r.params.get('page') === '1' &&
+          r.params.get('page_size') === '100'
+      );
+      req.flush('Not found', { status: 404, statusText: 'Not Found' });
+    });
+  });
+
   describe('Signal updates', () => {
     it('should update all signals from parallel requests', () => {
       expect(service.feedingTrends()).toBeNull();

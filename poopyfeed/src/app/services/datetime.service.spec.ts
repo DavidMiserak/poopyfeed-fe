@@ -96,6 +96,14 @@ describe('DateTimeService', () => {
       const result = service.getDateInUserTimezone('2024-02-29T12:00:00Z');
       expect(result).toBe('2024-02-29');
     });
+
+    it('should parse timestamp without Z as UTC (API compatibility)', () => {
+      // Some APIs return ISO datetime without timezone; we treat as UTC so day filtering is correct
+      const withZ = service.getDateInUserTimezone('2024-01-15T10:00:00Z');
+      const withoutZ = service.getDateInUserTimezone('2024-01-15T10:00:00');
+      expect(withoutZ).toBe(withZ);
+      expect(withoutZ).toBe('2024-01-15');
+    });
   });
 
   describe('getTodayInUserTimezone', () => {

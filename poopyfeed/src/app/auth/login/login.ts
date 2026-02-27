@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { AccountService } from '../../services/account.service';
 import { ToastService } from '../../services/toast.service';
 
 @Component({
@@ -14,6 +15,7 @@ import { ToastService } from '../../services/toast.service';
 export class Login {
   private router = inject(Router);
   private authService = inject(AuthService);
+  private accountService = inject(AccountService);
   private toast = inject(ToastService);
 
   loginForm = new FormGroup({
@@ -43,7 +45,11 @@ export class Login {
       next: () => {
         this.isSubmitting.set(false);
         this.toast.success('Logged in successfully');
-        this.router.navigate(['/children']);
+        // Load profile (timezone) so timeline and other views show times in user's timezone
+        this.accountService.getProfile().subscribe({
+          next: () => this.router.navigate(['/children']),
+          error: () => this.router.navigate(['/children']),
+        });
       },
       error: (err: Error) => {
         this.isSubmitting.set(false);

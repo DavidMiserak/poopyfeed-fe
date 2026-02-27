@@ -21,6 +21,19 @@ export class DateTimeService {
   }
 
   /**
+   * Parse an ISO datetime string from the API as UTC.
+   * If the string has no timezone (Z or ±HH:MM), appends 'Z' so it is not
+   * interpreted as local time (which would break day filtering and display).
+   */
+  private parseAsUtc(iso: string): Date {
+    const s = iso.trim();
+    if (s.includes('T') && !s.endsWith('Z') && !/[+-]\d{2}:?\d{2}$/.test(s)) {
+      return new Date(s + 'Z');
+    }
+    return new Date(s);
+  }
+
+  /**
    * Get YYYY-MM-DD for a UTC timestamp in user's timezone.
    *
    * Uses Intl.DateTimeFormat with 'en-CA' locale which natively produces YYYY-MM-DD.
@@ -29,7 +42,7 @@ export class DateTimeService {
    * @returns YYYY-MM-DD string in user's timezone
    */
   getDateInUserTimezone(date: Date | string): string {
-    const d = typeof date === 'string' ? new Date(date) : date;
+    const d = typeof date === 'string' ? this.parseAsUtc(date) : date;
     return new Intl.DateTimeFormat('en-CA', {
       timeZone: this.userTimezone,
       year: 'numeric',
@@ -105,7 +118,7 @@ export class DateTimeService {
    * @returns Local Date object
    */
   toLocal(utcString: string): Date {
-    return new Date(utcString);
+    return this.parseAsUtc(utcString);
   }
 
   /**
@@ -116,7 +129,7 @@ export class DateTimeService {
    * @returns String formatted for datetime-local input in user's timezone
    */
   toInputFormat(date: Date | string): string {
-    const d = typeof date === 'string' ? new Date(date) : date;
+    const d = typeof date === 'string' ? this.parseAsUtc(date) : date;
     const tz = this.userTimezone;
     const parts = new Intl.DateTimeFormat('en-CA', {
       timeZone: tz,
@@ -196,7 +209,7 @@ export class DateTimeService {
    * @returns Localized date-time string in user's timezone
    */
   formatDateTime(utcString: string): string {
-    const date = new Date(utcString);
+    const date = this.parseAsUtc(utcString);
     return date.toLocaleString('en-US', {
       timeZone: this.userTimezone,
       month: 'short',
@@ -217,7 +230,7 @@ export class DateTimeService {
    * @returns Localized time string in user's timezone
    */
   formatTimeOnly(utcString: string): string {
-    const date = new Date(utcString);
+    const date = this.parseAsUtc(utcString);
     return date.toLocaleString('en-US', {
       timeZone: this.userTimezone,
       hour: 'numeric',
@@ -256,7 +269,7 @@ export class DateTimeService {
    * @returns 24-hour time string in user's timezone
    */
   formatTime24h(utcString: string): string {
-    const date = new Date(utcString);
+    const date = this.parseAsUtc(utcString);
     return date.toLocaleTimeString('en-US', {
       timeZone: this.userTimezone,
       hour: '2-digit',
@@ -274,7 +287,7 @@ export class DateTimeService {
    * @returns "HH:mm" string in user's timezone
    */
   formatTimeHHmm(utcString: string): string {
-    const date = new Date(utcString);
+    const date = this.parseAsUtc(utcString);
     const parts = new Intl.DateTimeFormat('en-US', {
       timeZone: this.userTimezone,
       hour: '2-digit',

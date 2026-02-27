@@ -195,6 +195,15 @@ describe('Login', () => {
 
       component.onSubmit();
 
+      const profileReq = httpMock.expectOne('/api/v1/account/profile/');
+      profileReq.flush({
+        id: 1,
+        email: 'test@example.com',
+        first_name: '',
+        last_name: '',
+        timezone: 'UTC',
+      });
+
       expect(loginSpy).toHaveBeenCalledWith({
         email: 'test@example.com',
         password: 'password123',

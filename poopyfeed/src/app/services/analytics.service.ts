@@ -10,6 +10,7 @@
  * - GET /api/v1/analytics/children/{child_id}/sleep-summary/?days=30
  * - GET /api/v1/analytics/children/{child_id}/today-summary/
  * - GET /api/v1/analytics/children/{child_id}/weekly-summary/
+ * - GET /api/v1/analytics/children/{child_id}/timeline/?page=1&page_size=100
  *
  * Backend caching strategy:
  * - Trend endpoints: 1 hour TTL (updated when tracking records change)
@@ -30,6 +31,7 @@ import {
   WeeklySummaryData,
   ExportJobResponse,
   JobStatusResponse,
+  TimelineResponse,
 } from '../models/analytics.model';
 
 /**
@@ -233,6 +235,37 @@ export class AnalyticsService {
         throwError(() => ErrorHandler.handle(error, 'Get weekly summary'))
       )
     );
+  }
+
+  /**
+   * Fetch unified timeline for a child (feedings, diapers, naps merged chronologically).
+   *
+   * Returns a single paginated list of events sorted newest first. Used by the
+   * child timeline view to load all activity in one request instead of three.
+   *
+   * @param childId Child's unique identifier
+   * @param page Page number (1-based, default 1)
+   * @param pageSize Results per page (default 100, max 100)
+   * @returns Observable<TimelineResponse> Paginated timeline events
+   *
+   * @throws ApiError if child not found or user lacks access
+   */
+  getTimeline(
+    childId: number,
+    page: number = 1,
+    pageSize: number = 100
+  ): Observable<TimelineResponse> {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('page_size', Math.min(Math.max(1, pageSize), 100).toString());
+
+    return this.http
+      .get<TimelineResponse>(`${this.API_BASE}/${childId}/timeline/`, { params })
+      .pipe(
+        catchError((error) =>
+          throwError(() => ErrorHandler.handle(error, 'Get timeline'))
+        )
+      );
   }
 
   /**

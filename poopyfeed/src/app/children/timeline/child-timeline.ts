@@ -12,7 +12,7 @@
  * - Time gap indicators showing inactive periods between events
  * - Empty state when no events logged on a day
  * - 7-day history limit enforced by button disabled states
- * - Efficient data loading via forkJoin (all 3 types loaded once at init)
+ * - Single timeline API request (merged feedings, diapers, naps; up to 100 events)
  * - Client-side day switching (no additional API requests)
  *
  * Role-based visibility:
@@ -20,7 +20,7 @@
  * - Backend enforces child ownership
  *
  * Performance:
- * - Single API call sequence loads all 7 days at once
+ * - One timeline API call loads merged events (page 1, 100 items)
  * - All day switching is client-side (no additional requests)
  * - Activity items filtered by selected date via computed()
  *
@@ -51,8 +51,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { forkJoin } from 'rxjs';
-import { FeedingsService } from '../../services/feedings.service';
-import { DiapersService } from '../../services/diapers.service';
+import { AnalyticsService } from '../../services/analytics.service';
 import { NapsService } from '../../services/naps.service';
 import { ChildrenService } from '../../services/children.service';
 import { ToastService } from '../../services/toast.service';
@@ -69,6 +68,7 @@ import {
   getGenderIconDetailed,
   formatMinutes as formatMinutesUtil,
 } from '../../utils/date.utils';
+import type { TimelineEvent } from '../../models/analytics.model';
 
 /**
  * Unified activity item for timeline display.
@@ -110,8 +110,7 @@ export class ChildTimeline implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private childrenService = inject(ChildrenService);
-  private feedingsService = inject(FeedingsService);
-  private diapersService = inject(DiapersService);
+  private analyticsService = inject(AnalyticsService);
   private napsService = inject(NapsService);
   private toastService = inject(ToastService);
   private datetimeService = inject(DateTimeService);
@@ -125,7 +124,7 @@ export class ChildTimeline implements OnInit {
   /** Days back from today (0 = today, max 6 for 7-day history) */
   dayOffset = signal(0);
 
-  /** All activities from the 7-day history window (merged, unsorted) */
+  /** All activities from timeline API (merged, newest first; typically last 100 events) */
   allActivities = signal<ActivityItem[]>([]);
 
   /** Loading state while fetching timeline data */
@@ -167,7 +166,8 @@ export class ChildTimeline implements OnInit {
       })
       .sort(
         (a, b) =>
-          new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+          this.datetimeService.toLocal(b.timestamp).getTime() -
+          this.datetimeService.toLocal(a.timestamp).getTime()
       );
 
     // Calculate gaps between consecutive activities (reverse chronological)
@@ -302,16 +302,12 @@ export class ChildTimeline implements OnInit {
   }
 
   /**
-   * Load all timeline data (7-day history of all activity types).
+   * Load timeline data from the backend timeline API.
    *
-   * Uses forkJoin to load child profile + 3 tracking types in parallel.
-   * The API calls support date-range filtering to load 7 days of history at once.
-   *
-   * Data flow:
-   * 1. Calculate 7-day date range (6 days ago to today)
-   * 2. Call list() on each service with date-range params
-   * 3. Merge results into single ActivityItem array
-   * 4. All day switching is client-side (no additional requests)
+   * Uses a single GET /api/v1/analytics/children/{id}/timeline/ request (paginated).
+   * Loads child profile and first page (up to 100 events) in parallel, then maps
+   * API events to ActivityItem[] for day filtering and display. Day navigation
+   * remains client-side with no extra requests.
    *
    * @param childId Child to load timeline for
    */
@@ -319,51 +315,15 @@ export class ChildTimeline implements OnInit {
     this.isLoading.set(true);
     this.error.set(null);
 
-    // Calculate 7-day date range in user's timezone
-    const startDateStr = this.datetimeService.getDateNDaysAgoInUserTimezone(6);
-    // Include all of today by setting end to tomorrow (in user's timezone)
-    const endDateStr = this.datetimeService.getTomorrowInUserTimezone();
-
     forkJoin({
       child: this.childrenService.get(childId),
-      feedings: this.feedingsService.list(childId, {
-        dateFrom: startDateStr,
-        dateTo: endDateStr,
-      }),
-      diapers: this.diapersService.list(childId, {
-        dateFrom: startDateStr,
-        dateTo: endDateStr,
-      }),
-      naps: this.napsService.list(childId, {
-        dateFrom: startDateStr,
-        dateTo: endDateStr,
-      }),
+      timeline: this.analyticsService.getTimeline(childId, 1, 100),
     }).subscribe({
-      next: ({ child, feedings, diapers, naps }) => {
+      next: ({ child, timeline }) => {
         this.child.set(child);
-
-        // Merge all activities into single array
-        const activities: ActivityItem[] = [
-          ...feedings.map((f) => ({
-            id: f.id,
-            type: 'feeding' as const,
-            timestamp: f.fed_at,
-            data: f,
-          })),
-          ...diapers.map((d) => ({
-            id: d.id,
-            type: 'diaper' as const,
-            timestamp: d.changed_at,
-            data: d,
-          })),
-          ...naps.map((n) => ({
-            id: n.id,
-            type: 'nap' as const,
-            timestamp: n.napped_at,
-            data: n,
-          })),
-        ];
-
+        const activities = timeline.results.map((event) =>
+          this.timelineEventToActivityItem(event, childId)
+        );
         this.allActivities.set(activities);
         this.isLoading.set(false);
       },
@@ -372,6 +332,59 @@ export class ChildTimeline implements OnInit {
         this.isLoading.set(false);
       },
     });
+  }
+
+  /**
+   * Map a timeline API event to ActivityItem (adds child and timestamps for display types).
+   */
+  private timelineEventToActivityItem(
+    event: TimelineEvent,
+    childId: number
+  ): ActivityItem {
+    const at = event.at;
+    if (event.type === 'feeding' && event.feeding) {
+      const f = event.feeding;
+      return {
+        id: f.id,
+        type: 'feeding',
+        timestamp: at,
+        data: {
+          ...f,
+          child: childId,
+          created_at: at,
+          updated_at: at,
+        },
+      };
+    }
+    if (event.type === 'diaper' && event.diaper) {
+      const d = event.diaper;
+      return {
+        id: d.id,
+        type: 'diaper',
+        timestamp: at,
+        data: {
+          ...d,
+          child: childId,
+          created_at: at,
+          updated_at: at,
+        },
+      };
+    }
+    if (event.type === 'nap' && event.nap) {
+      const n = event.nap;
+      return {
+        id: n.id,
+        type: 'nap',
+        timestamp: at,
+        data: {
+          ...n,
+          child: childId,
+          created_at: at,
+          updated_at: at,
+        },
+      };
+    }
+    throw new Error(`Invalid timeline event: ${JSON.stringify(event)}`);
   }
 
   /**
@@ -513,12 +526,14 @@ export class ChildTimeline implements OnInit {
         next: (newNap) => {
           this.toastService.success('Nap recorded');
 
-          // Add nap to timeline immediately
+          // Use the timestamp we sent so the day filter includes this nap. The API may
+          // return a slightly different string (e.g. without "Z"), which can make
+          // getDateInUserTimezone() resolve to a different calendar day and hide the nap.
           const activity = {
             id: newNap.id,
             type: 'nap' as const,
-            timestamp: newNap.napped_at,
-            data: newNap,
+            timestamp: adjustedStartTime,
+            data: { ...newNap, napped_at: adjustedStartTime, ended_at: adjustedEndTime },
           };
 
           this.allActivities.update((activities) => [...activities, activity]);

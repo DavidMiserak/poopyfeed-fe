@@ -4,8 +4,7 @@ import { of, throwError } from 'rxjs';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { ChildTimeline, ActivityItem } from './child-timeline';
 import { ChildrenService } from '../../services/children.service';
-import { FeedingsService } from '../../services/feedings.service';
-import { DiapersService } from '../../services/diapers.service';
+import { AnalyticsService } from '../../services/analytics.service';
 import { NapsService } from '../../services/naps.service';
 import { ToastService } from '../../services/toast.service';
 import { DateTimeService } from '../../services/datetime.service';
@@ -99,15 +98,56 @@ describe('ChildTimeline', () => {
     },
   ];
 
+  /** Timeline API response: same logical data as mockFeedings/mockDiapers/mockNaps, newest first */
+  const mockTimelineResponse = {
+    count: 4,
+    next: null as string | null,
+    previous: null as string | null,
+    results: [
+      {
+        type: 'diaper' as const,
+        at: `${todayStr}T10:30:00Z`,
+        diaper: { id: 1, changed_at: `${todayStr}T10:30:00Z`, change_type: 'wet' as const },
+      },
+      {
+        type: 'nap' as const,
+        at: `${todayStr}T13:00:00Z`,
+        nap: {
+          id: 1,
+          napped_at: `${todayStr}T13:00:00Z`,
+          ended_at: `${todayStr}T13:45:00Z`,
+          duration_minutes: 45,
+        },
+      },
+      {
+        type: 'feeding' as const,
+        at: `${todayStr}T08:00:00Z`,
+        feeding: {
+          id: 1,
+          fed_at: `${todayStr}T08:00:00Z`,
+          feeding_type: 'bottle' as const,
+          amount_oz: 5,
+        },
+      },
+      {
+        type: 'feeding' as const,
+        at: `${yesterdayStr}T10:00:00Z`,
+        feeding: {
+          id: 2,
+          fed_at: `${yesterdayStr}T10:00:00Z`,
+          feeding_type: 'bottle' as const,
+          amount_oz: 4,
+        },
+      },
+    ],
+  };
+
   beforeEach(async () => {
     const childrenServiceMock = {
       get: vi.fn(() => of(mockChild)),
     };
-    const feedingsServiceMock = {
-      list: vi.fn(() => of(mockFeedings)),
-    };
-    const diapersServiceMock = {
-      list: vi.fn(() => of(mockDiapers)),
+    const analyticsServiceMock = {
+      getTimeline: vi.fn(() => of(mockTimelineResponse)),
     };
     const napsServiceMock = {
       list: vi.fn(() => of(mockNaps)),
@@ -125,7 +165,14 @@ describe('ChildTimeline', () => {
 
     const dateTimeServiceMock = {
       toUTC: vi.fn((date: Date) => date.toISOString()),
-      toLocal: vi.fn(),
+      toLocal: vi.fn((utcString: string) => {
+        const s = utcString.trim();
+        const asUtc =
+          s.includes('T') && !s.endsWith('Z') && !/[+-]\d{2}:?\d{2}$/.test(s)
+            ? s + 'Z'
+            : s;
+        return new Date(asUtc);
+      }),
       toInputFormat: vi.fn(),
       formatTimeHHmm: vi.fn((utcString: string) => {
         const d = new Date(utcString);
@@ -180,8 +227,7 @@ describe('ChildTimeline', () => {
       providers: [
         provideRouter([]),
         { provide: ChildrenService, useValue: childrenServiceMock },
-        { provide: FeedingsService, useValue: feedingsServiceMock },
-        { provide: DiapersService, useValue: diapersServiceMock },
+        { provide: AnalyticsService, useValue: analyticsServiceMock },
         { provide: NapsService, useValue: napsServiceMock },
         { provide: ToastService, useValue: toastServiceMock },
         { provide: DateTimeService, useValue: dateTimeServiceMock },
@@ -207,7 +253,10 @@ describe('ChildTimeline', () => {
     it('should load child and timeline data on init', () => {
       component.ngOnInit();
 
+      const analyticsService = TestBed.inject(AnalyticsService) as any;
+      expect(analyticsService.getTimeline).toHaveBeenCalledWith(1, 1, 100);
       expect(component.child()).toEqual(mockChild);
+      expect(component.allActivities().length).toBe(4);
       expect(component.isLoading()).toBeFalsy();
     });
 
@@ -702,6 +751,108 @@ describe('ChildTimeline', () => {
       const addedNap = activities.find((a) => a.id === 99);
       expect(addedNap).toBeTruthy();
       expect(addedNap?.type).toBe('nap');
+    });
+  });
+
+  describe('quick-log / API timestamp without Z (regression)', () => {
+    /**
+     * Regression: Quick-logged items (and any API response with timestamp
+     * without "Z") must still appear on the timeline for the correct day.
+     * DateTimeService.parseAsUtc() normalizes these; the timeline filter
+     * and sort use that. This test verifies an activity with timestamp
+     * without Z is included when the selected day matches (UTC date).
+     */
+    it('should include activity when API returns timestamp without Z', () => {
+      const dateTimeServiceMock = TestBed.inject(DateTimeService) as any;
+      vi.mocked(dateTimeServiceMock.getDateInUserTimezone).mockImplementation(
+        (date: Date | string) => {
+          const s = typeof date === 'string' ? date : (date as Date).toISOString();
+          const asUtc =
+            s.includes('T') && !s.endsWith('Z') && !/[+-]\d{2}:?\d{2}$/.test(s)
+              ? s + 'Z'
+              : s;
+          const d = new Date(asUtc);
+          return new Intl.DateTimeFormat('en-CA', {
+            timeZone: 'UTC',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+          }).format(d);
+        }
+      );
+      vi.mocked(
+        dateTimeServiceMock.getDateNDaysAgoInUserTimezone
+      ).mockReturnValue('2026-02-27');
+
+      component.dayOffset.set(0);
+
+      const quickLoggedNap: ActivityItem = {
+        id: 99,
+        type: 'nap',
+        timestamp: '2026-02-27T15:00:00',
+        data: {
+          id: 99,
+          child: 1,
+          napped_at: '2026-02-27T15:00:00',
+          ended_at: '2026-02-27T15:30:00',
+          duration_minutes: 30,
+          created_at: '2026-02-27T15:35:00Z',
+          updated_at: '2026-02-27T15:35:00Z',
+        } as Nap,
+      };
+      component.allActivities.set([quickLoggedNap]);
+
+      const dayActivities = component.dayActivities();
+
+      expect(dayActivities.length).toBe(1);
+      expect(dayActivities[0].activity.id).toBe(99);
+      expect(dayActivities[0].activity.type).toBe('nap');
+      expect(dayActivities[0].activity.timestamp).toBe('2026-02-27T15:00:00');
+    });
+
+    it('should exclude activity when timestamp without Z falls on different day in UTC', () => {
+      const dateTimeServiceMock = TestBed.inject(DateTimeService) as any;
+      vi.mocked(dateTimeServiceMock.getDateInUserTimezone).mockImplementation(
+        (date: Date | string) => {
+          const s = typeof date === 'string' ? date : (date as Date).toISOString();
+          const asUtc =
+            s.includes('T') && !s.endsWith('Z') && !/[+-]\d{2}:?\d{2}$/.test(s)
+              ? s + 'Z'
+              : s;
+          const d = new Date(asUtc);
+          return new Intl.DateTimeFormat('en-CA', {
+            timeZone: 'UTC',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+          }).format(d);
+        }
+      );
+      vi.mocked(
+        dateTimeServiceMock.getDateNDaysAgoInUserTimezone
+      ).mockReturnValue('2026-02-27');
+
+      component.dayOffset.set(0);
+
+      const napOnPreviousDay: ActivityItem = {
+        id: 98,
+        type: 'nap',
+        timestamp: '2026-02-26T23:00:00',
+        data: {
+          id: 98,
+          child: 1,
+          napped_at: '2026-02-26T23:00:00',
+          ended_at: '2026-02-27T00:30:00',
+          duration_minutes: 90,
+          created_at: '2026-02-27T00:35:00Z',
+          updated_at: '2026-02-27T00:35:00Z',
+        } as Nap,
+      };
+      component.allActivities.set([napOnPreviousDay]);
+
+      const dayActivities = component.dayActivities();
+
+      expect(dayActivities.length).toBe(0);
     });
   });
 

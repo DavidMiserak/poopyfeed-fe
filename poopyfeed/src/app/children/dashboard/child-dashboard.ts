@@ -50,6 +50,7 @@ import { FeedingsService } from '../../services/feedings.service';
 import { DiapersService } from '../../services/diapers.service';
 import { NapsService } from '../../services/naps.service';
 import { AnalyticsService } from '../../services/analytics.service';
+import { DateTimeService } from '../../services/datetime.service';
 import { Child } from '../../models/child.model';
 import { Feeding } from '../../models/feeding.model';
 import { DiaperChange } from '../../models/diaper.model';
@@ -102,6 +103,7 @@ export class ChildDashboard implements OnInit {
   private diapersService = inject(DiapersService);
   private napsService = inject(NapsService);
   private analyticsService = inject(AnalyticsService);
+  private datetimeService = inject(DateTimeService);
 
   /** Child ID from URL (/children/123) */
   childId = signal<number | null>(null);
@@ -251,10 +253,11 @@ export class ChildDashboard implements OnInit {
           })),
         ];
 
-        // Sort by timestamp (newest first) and take top 10
+        // Sort by timestamp (newest first); parse as UTC so API timestamps without Z are correct
         activity.sort(
           (a, b) =>
-            new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+            this.datetimeService.toLocal(b.timestamp).getTime() -
+            this.datetimeService.toLocal(a.timestamp).getTime()
         );
         this.recentActivity.set(activity.slice(0, 10));
 
