@@ -455,6 +455,15 @@ describe('ChildDashboard', () => {
       const compiled = fixture.nativeElement as HTMLElement;
       expect(compiled.textContent).toContain('No activity recorded today');
     });
+
+    it('should render child-level More tools button', () => {
+      setupWithData();
+      const compiled = fixture.nativeElement as HTMLElement;
+      const moreButton = compiled.querySelector(
+        'button[aria-label="View advanced options for this child"]'
+      );
+      expect(moreButton).toBeTruthy();
+    });
   });
 
   describe('data loading', () => {

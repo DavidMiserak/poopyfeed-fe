@@ -69,7 +69,7 @@ describe('ExportPage', () => {
 
       component.onExportDialogCancel();
 
-      expect(router.navigate).toHaveBeenCalledWith(['/children/1/analytics']);
+      expect(router.navigate).toHaveBeenCalledWith(['/children', 1, 'advanced']);
     });
   });
 
@@ -85,7 +85,7 @@ describe('ExportPage', () => {
       await new Promise((resolve) => setTimeout(resolve, 10));
       expect(analyticsService.exportCSV).toHaveBeenCalledWith(1, 30);
       expect(toastService.success).toHaveBeenCalledWith('CSV downloaded successfully');
-      expect(router.navigate).toHaveBeenCalledWith(['/children/1/analytics']);
+      expect(router.navigate).toHaveBeenCalledWith(['/children', 1, 'advanced']);
     });
 
     it('should handle CSV export error', async () => {
@@ -137,7 +137,7 @@ describe('ExportPage', () => {
 
       component.onExportDialogCancel();
 
-      expect(router.navigate).toHaveBeenCalledWith(['/children/1/analytics']);
+      expect(router.navigate).toHaveBeenCalledWith(['/children', 1, 'advanced']);
     });
 
     it('should handle job status dismiss', () => {
@@ -145,7 +145,7 @@ describe('ExportPage', () => {
 
       component.onJobStatusDismiss();
 
-      expect(router.navigate).toHaveBeenCalledWith(['/children/1/analytics']);
+      expect(router.navigate).toHaveBeenCalledWith(['/children', 1, 'advanced']);
     });
 
     it('should navigate to children list if childId is missing on dismiss', () => {

@@ -3,6 +3,16 @@
   <div class="mb-6 sm:mb-8">
     <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4">
       <div>
+        <a
+          [routerLink]="['/children', childId(), 'advanced']"
+          class="mb-2 inline-flex items-center gap-2 text-sm font-['DM_Sans',sans-serif] text-slate-600 hover:text-rose-500 transition-colors"
+          aria-label="Back to advanced tools"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          Back to advanced tools
+        </a>
         <h1 class="font-['Fredoka',sans-serif] text-2xl sm:text-4xl font-bold text-gray-900 mb-1 sm:mb-2">
           Analytics Dashboard
         </h1>

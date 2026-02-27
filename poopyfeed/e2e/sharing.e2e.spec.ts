@@ -27,6 +27,12 @@ test.describe('Sharing', () => {
     await firstChildHeading.click();
 
     await expect(page).toHaveURL(/\/children\/\d+\/dashboard/);
+
+    // Navigate via advanced tools hub
+    await expect(page.getByText('More tools', { exact: true })).toBeVisible();
+    await page.getByText('More tools', { exact: true }).click();
+    await expect(page).toHaveURL(/\/children\/\d+\/advanced$/);
+
     await page.getByRole('link', { name: 'Manage Sharing' }).click();
 
     await expect(page).toHaveURL(/\/children\/\d+\/sharing$/);
@@ -37,6 +43,10 @@ test.describe('Sharing', () => {
       page.getByRole('heading', { name: /Invite Links/ })
     ).toBeVisible();
     await expect(page.getByRole('button', { name: 'Create Invite Link' })).toBeVisible();
+
+    // Verify back arrow text and navigation
+    await page.getByRole('button', { name: 'Back to advanced tools' }).click();
+    await expect(page).toHaveURL(/\/children\/\d+\/advanced$/);
   });
 
   test('owner can create a co-parent invite link and see it in the list', async ({
@@ -60,6 +70,11 @@ test.describe('Sharing', () => {
     await firstChildHeading.click();
 
     await expect(page).toHaveURL(/\/children\/\d+\/dashboard/);
+
+    await expect(page.getByText('More tools', { exact: true })).toBeVisible();
+    await page.getByText('More tools', { exact: true }).click();
+    await expect(page).toHaveURL(/\/children\/\d+\/advanced$/);
+
     await page.getByRole('link', { name: 'Manage Sharing' }).click();
 
     await expect(page).toHaveURL(/\/children\/\d+\/sharing$/);
@@ -98,6 +113,11 @@ test.describe('Sharing', () => {
     await firstChildHeading.click();
 
     await expect(page).toHaveURL(/\/children\/\d+\/dashboard/);
+
+    await expect(page.getByText('More tools', { exact: true })).toBeVisible();
+    await page.getByText('More tools', { exact: true }).click();
+    await expect(page).toHaveURL(/\/children\/\d+\/advanced$/);
+
     await page.getByRole('link', { name: 'Manage Sharing' }).click();
 
     await expect(page).toHaveURL(/\/children\/\d+\/sharing$/);

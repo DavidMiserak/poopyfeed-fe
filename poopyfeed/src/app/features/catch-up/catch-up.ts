@@ -476,10 +476,10 @@ export class CatchUp implements OnInit {
   }
 
   /**
-   * Navigate back to child dashboard from success screen.
+   * Navigate back to child advanced tools from success screen.
    */
   navigateToDashboard() {
-    this.router.navigate(['/children', this.childId(), 'dashboard']);
+    this.router.navigate(['/children', this.childId(), 'advanced']);
   }
 
   /**
@@ -495,6 +495,6 @@ export class CatchUp implements OnInit {
       }
     }
 
-    this.router.navigate(['/children', this.childId(), 'dashboard']);
+    this.router.navigate(['/children', this.childId(), 'advanced']);
   }
 }

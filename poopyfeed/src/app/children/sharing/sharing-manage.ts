@@ -210,7 +210,7 @@ export class SharingManage implements OnInit {
   navigateToDashboard() {
     const childId = this.childId();
     if (childId) {
-      this.router.navigate(['/children', childId, 'dashboard']);
+      this.router.navigate(['/children', childId, 'advanced']);
     }
   }
 

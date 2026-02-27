@@ -140,9 +140,9 @@ describe('TrackingListHeaderComponent', () => {
       expect(spy).toHaveBeenCalled();
     });
 
-    it('should render Back to Dashboard text', () => {
+    it('should render Back to advanced tools text', () => {
       const el = fixture.nativeElement as HTMLElement;
-      expect(el.textContent).toContain('Back to Dashboard');
+      expect(el.textContent).toContain('Back to advanced tools');
     });
   });
 });

@@ -167,6 +167,9 @@ export class ChildForm implements OnInit {
   /** Form submission state - shows spinner on submit button */
   isSubmitting = signal(false);
 
+  /** Advanced settings (reminders + notification prefs) visibility */
+  isAdvancedOpen = signal(false);
+
   /** Error message from API call or validation */
   error = signal<string | null>(null);
 
@@ -484,5 +487,16 @@ export class ChildForm implements OnInit {
    */
   onCancel() {
     this.router.navigate(['/children']);
+  }
+
+  /**
+   * Toggle visibility of advanced settings section.
+   *
+   * Advanced settings include feeding reminder interval and per-child
+   * notification preferences. Defaults to collapsed to keep the core
+   * form simple for everyday use.
+   */
+  toggleAdvancedSettings(): void {
+    this.isAdvancedOpen.update((open) => !open);
   }
 }

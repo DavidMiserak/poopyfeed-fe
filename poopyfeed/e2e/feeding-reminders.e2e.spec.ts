@@ -50,7 +50,10 @@ test.describe('Feeding Reminders', () => {
     await page.goto(`/children/${childId}/edit`);
     await expect(page.getByRole('heading', { name: 'Edit Baby' })).toBeVisible();
 
-    // Fieldset should be rendered
+    // Open advanced settings section
+    await page.getByRole('button', { name: /Show advanced/i }).click();
+
+    // Fieldset should be rendered inside advanced settings
     const remindersGroup = page.getByRole('group', { name: /Feeding Reminders/ });
     await expect(remindersGroup).toBeVisible();
 
@@ -67,6 +70,9 @@ test.describe('Feeding Reminders', () => {
 
     await page.goto(`/children/${childId}/edit`);
     await expect(page.getByRole('heading', { name: 'Edit Baby' })).toBeVisible();
+
+    // Open advanced settings section
+    await page.getByRole('button', { name: /Show advanced/i }).click();
 
     // Select an interval and submit the form
     const select = page.getByLabel('Reminder Interval');
@@ -88,6 +94,9 @@ test.describe('Feeding Reminders', () => {
 
     await page.goto(`/children/${childId}/edit`);
     await expect(page.getByRole('heading', { name: 'Edit Baby' })).toBeVisible();
+
+    // Open advanced settings section
+    await page.getByRole('button', { name: /Show advanced/i }).click();
 
     // Change the reminder interval to "Off"
     const select = page.getByLabel('Reminder Interval');

@@ -8,7 +8,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Analytics', () => {
   const TRACK_CHILD_NAME = 'E2E Track Baby';
 
-  test('user can open analytics dashboard from child dashboard', async ({ page }) => {
+  test('user can open analytics dashboard from advanced tools', async ({ page }) => {
     await page.goto('/children');
     await expect(
       page.getByRole('heading', { name: 'My Children' })
@@ -33,8 +33,12 @@ test.describe('Analytics', () => {
 
     await expect(page).toHaveURL(/\/children\/\d+\/dashboard/);
 
-    // Navigate to Analytics from the dashboard CTA.
-    await page.getByRole('button', { name: 'Analytics' }).click();
+    // Go to advanced tools, then open Analytics.
+    await expect(page.getByText('More tools', { exact: true })).toBeVisible();
+    await page.getByText('More tools', { exact: true }).click();
+    await expect(page).toHaveURL(/\/children\/\d+\/advanced$/);
+
+    await page.getByRole('link', { name: 'Trends & Analytics' }).click();
 
     await expect(page).toHaveURL(/\/children\/\d+\/analytics$/);
     await expect(
@@ -89,7 +93,7 @@ test.describe('Analytics', () => {
     const download = await downloadPromise;
     expect(download.suggestedFilename()).toMatch(/\.csv$/i);
 
-    await expect(page).toHaveURL(new RegExp(`/children/${childId}/analytics$`), {
+    await expect(page).toHaveURL(new RegExp(`/children/${childId}/advanced$`), {
       timeout: 10000,
     });
   });

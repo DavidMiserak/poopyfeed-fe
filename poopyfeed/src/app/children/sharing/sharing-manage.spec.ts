@@ -415,7 +415,7 @@ describe('SharingManage Component', () => {
 
       component.navigateToDashboard();
 
-      expect(mockRouter.navigate).toHaveBeenCalledWith(['/children', 1, 'dashboard']);
+      expect(mockRouter.navigate).toHaveBeenCalledWith(['/children', 1, 'advanced']);
     });
 
     it('should not navigate if childId is not set', () => {

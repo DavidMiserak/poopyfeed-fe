@@ -157,13 +157,10 @@ export class ExportPage implements OnInit, OnDestroy {
     this.goBack();
   }
 
-  /**
-   * Navigate back to the analytics dashboard.
-   */
   goBack(): void {
     const childIdValue = this.childId();
     if (childIdValue) {
-      this.router.navigate([`/children/${childIdValue}/analytics`]);
+      this.router.navigate(['/children', childIdValue, 'advanced']);
     } else {
       this.router.navigate(['/children']);
     }

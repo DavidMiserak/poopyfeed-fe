@@ -173,6 +173,19 @@ export class ChildDashboard implements OnInit {
   });
 
   /**
+   * Navigate to the per-child advanced options screen.
+   *
+   * Keeps the main dashboard focused on today's summary and quick logging,
+   * while advanced tools live on a separate screen.
+   */
+  navigateToAdvanced(): void {
+    const childId = this.child()?.id;
+    if (childId) {
+      this.router.navigate(['/children', childId, 'advanced']);
+    }
+  }
+
+  /**
    * Initialize component and load dashboard data.
    *
    * Called by Angular automatically when component is created.

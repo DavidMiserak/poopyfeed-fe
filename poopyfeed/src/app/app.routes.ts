@@ -66,6 +66,14 @@ export const routes: Routes = [
         title: 'Dashboard - PoopyFeed',
       },
       {
+        path: ':childId/advanced',
+        loadComponent: () =>
+          import('./children/advanced/child-advanced').then(
+            (m) => m.ChildAdvanced
+          ),
+        title: 'Advanced - PoopyFeed',
+      },
+      {
         path: ':childId/analytics',
         children: [
           {

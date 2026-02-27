@@ -73,6 +73,11 @@ test.describe('Notifications', () => {
     await firstChildHeading.click();
     await expect(page).toHaveURL(/\/children\/\d+\/dashboard/);
 
+    // Navigate via advanced tools hub to sharing
+    await expect(page.getByText('More tools', { exact: true })).toBeVisible();
+    await page.getByText('More tools', { exact: true }).click();
+    await expect(page).toHaveURL(/\/children\/\d+\/advanced$/);
+
     await page.getByRole('link', { name: 'Manage Sharing' }).click();
     await expect(page).toHaveURL(/\/children\/\d+\/sharing$/);
 
@@ -214,6 +219,9 @@ test.describe('Notifications', () => {
 
     // Wait for the form to load
     await expect(page.getByLabel("Baby's Name")).toBeVisible({ timeout: 10000 });
+
+    // Expand Advanced settings section to reveal notification preferences
+    await page.getByRole('button', { name: /Show advanced/ }).click();
 
     // Notification Preferences section should appear (edit mode)
     await expect(

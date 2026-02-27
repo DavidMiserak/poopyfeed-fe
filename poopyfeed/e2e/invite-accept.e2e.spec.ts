@@ -29,8 +29,13 @@ test.describe('Invite Accept', () => {
     await firstChildHeading.click();
 
     await expect(page).toHaveURL(/\/children\/\d+\/dashboard/);
-    await page.getByRole('link', { name: 'Manage Sharing' }).click();
 
+    // Navigate via advanced tools hub to sharing
+    await expect(page.getByText('More tools', { exact: true })).toBeVisible();
+    await page.getByText('More tools', { exact: true }).click();
+    await expect(page).toHaveURL(/\/children\/\d+\/advanced$/);
+
+    await page.getByRole('link', { name: 'Manage Sharing' }).click();
     await expect(page).toHaveURL(/\/children\/\d+\/sharing$/);
     await page.getByRole('button', { name: 'Create Invite Link' }).click();
 

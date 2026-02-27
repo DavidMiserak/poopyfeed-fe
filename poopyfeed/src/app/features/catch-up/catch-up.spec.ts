@@ -360,7 +360,7 @@ describe('CatchUpComponent - Step Wizard', () => {
       expect(router.navigate).toHaveBeenCalledWith([
         '/children',
         1,
-        'dashboard',
+        'advanced',
       ]);
     });
   });

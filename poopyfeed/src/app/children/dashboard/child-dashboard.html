@@ -149,7 +149,7 @@
           </a>
         </div>
 
-        <!-- Child Info Card -->
+        <!-- Child Info Card + More menu -->
         <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-6 sm:p-8 border-2 border-rose-400/20">
           <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
             <div class="flex items-center gap-4">
@@ -163,78 +163,34 @@
                 </p>
               </div>
             </div>
-            @if (canEdit()) {
-              <a
-                [routerLink]="['/children', child()!.id, 'edit']"
-                class="group relative inline-flex px-4 py-2 rounded-xl font-['DM_Sans',sans-serif] font-bold text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 overflow-hidden border-2 border-rose-400"
-              >
-                <span class="absolute inset-0 bg-gradient-to-br from-rose-400 to-orange-400 transition-transform duration-300 group-hover:scale-110"></span>
-                <span class="relative z-10 flex items-center gap-2">
+            <div class="flex items-center gap-3">
+              @if (canEdit()) {
+                <a
+                  [routerLink]="['/children', child()!.id, 'edit']"
+                  class="group relative inline-flex px-4 py-2 rounded-xl font-['DM_Sans',sans-serif] font-bold text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 overflow-hidden border-2 border-rose-400"
+                >
+                  <span class="absolute inset-0 bg-gradient-to-br from-rose-400 to-orange-400 transition-transform duration-300 group-hover:scale-110"></span>
+                  <span class="relative z-10 flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                    Edit
+                  </span>
+                </a>
+              }
+              <div class="relative">
+                <button
+                  type="button"
+                  class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl font-['DM_Sans',sans-serif] text-sm font-semibold text-slate-700 bg-white/80 border border-slate-200 shadow-sm hover:bg-rose-50 hover:text-rose-700 transition-colors cursor-pointer"
+                  (click)="navigateToAdvanced()"
+                  aria-label="View advanced options for this child"
+                >
+                  More tools
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                   </svg>
-                  Edit
-                </span>
-              </a>
-            }
-          </div>
-        </div>
-
-        <!-- Last Activity -->
-        <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-6 border-2 border-amber-400/20">
-          <div class="flex items-center gap-2 mb-4">
-            <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <h2 class="font-['Fredoka',sans-serif] text-2xl font-bold text-slate-900">
-              Last Activity
-            </h2>
-          </div>
-
-          <div class="space-y-3">
-            <!-- Feeding -->
-            <div class="p-4 rounded-xl bg-gradient-to-r from-rose-50 to-rose-100/50">
-              <div class="flex items-center gap-3 mb-2">
-                <span class="text-2xl">🍼</span>
-                <span class="font-['DM_Sans',sans-serif] font-semibold text-slate-900">Feeding</span>
+                </button>
               </div>
-              <span class="font-['DM_Sans',sans-serif] text-sm text-slate-600 block pl-11">
-                @if (child()?.last_feeding) {
-                  {{ formatTimestamp(child()!.last_feeding!) }}
-                } @else {
-                  <span class="italic text-slate-500">None yet</span>
-                }
-              </span>
-            </div>
-
-            <!-- Diaper -->
-            <div class="p-4 rounded-xl bg-gradient-to-r from-orange-50 to-orange-100/50">
-              <div class="flex items-center gap-3 mb-2">
-                <span class="text-2xl">🧷</span>
-                <span class="font-['DM_Sans',sans-serif] font-semibold text-slate-900">Diaper</span>
-              </div>
-              <span class="font-['DM_Sans',sans-serif] text-sm text-slate-600 block pl-11">
-                @if (child()?.last_diaper_change) {
-                  {{ formatTimestamp(child()!.last_diaper_change!) }}
-                } @else {
-                  <span class="italic text-slate-500">None yet</span>
-                }
-              </span>
-            </div>
-
-            <!-- Nap -->
-            <div class="p-4 rounded-xl bg-gradient-to-r from-amber-50 to-amber-100/50">
-              <div class="flex items-center gap-3 mb-2">
-                <span class="text-2xl">😴</span>
-                <span class="font-['DM_Sans',sans-serif] font-semibold text-slate-900">Nap</span>
-              </div>
-              <span class="font-['DM_Sans',sans-serif] text-sm text-slate-600 block pl-11">
-                @if (child()?.last_nap) {
-                  {{ formatTimestamp(child()!.last_nap!) }}
-                } @else {
-                  <span class="italic text-slate-500">None yet</span>
-                }
-              </span>
             </div>
           </div>
         </div>
@@ -260,10 +216,10 @@
           <app-today-summary-cards [summary]="todaySummaryData()" />
         </div>
 
-        <!-- Quick Actions -->
+        <!-- Quick Actions (primary logging path) -->
         <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-6 border-2 border-orange-400/20">
           <h2 class="font-['Fredoka',sans-serif] text-2xl font-bold text-slate-900 mb-4">
-            Actions
+            Log an activity
           </h2>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <!-- Add Feeding Button -->
@@ -320,172 +276,6 @@
               </span>
             </button>
           </div>
-        </div>
-
-        <!-- Recent Activity -->
-        <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-6 border-2 border-amber-400/20">
-          <h2 class="font-['Fredoka',sans-serif] text-2xl font-bold text-slate-900 mb-4">
-            Recent Activity
-          </h2>
-
-          @if (recentActivity().length === 0) {
-            <div class="text-center py-12">
-              <div class="text-6xl mb-4">📝</div>
-              <p class="font-['DM_Sans',sans-serif] text-slate-600 mb-4">
-                No activity recorded yet
-              </p>
-              <p class="font-['DM_Sans',sans-serif] text-sm text-slate-500">
-                Use the quick actions above to start tracking!
-              </p>
-            </div>
-          } @else {
-            <div class="space-y-3">
-              @for (item of recentActivity(); track item.type + '-' + item.id) {
-                <div class="flex items-center gap-4 p-4 rounded-xl bg-gradient-to-r from-slate-50 to-slate-100/50 hover:shadow-md transition-shadow">
-                  <div class="text-3xl flex-shrink-0">{{ getActivityIcon(item.type) }}</div>
-                  <div class="flex-1">
-                    <p class="font-['DM_Sans',sans-serif] font-semibold text-slate-900">
-                      {{ getActivityTitle(item) }}
-                    </p>
-                    <p class="font-['DM_Sans',sans-serif] text-sm text-slate-500">
-                      {{ formatTimestamp(item.timestamp) }}
-                    </p>
-                  </div>
-                </div>
-              }
-            </div>
-          }
-        </div>
-
-        <!-- Power Actions -->
-        <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-6 border-2 border-purple-400/20">
-          <h2 class="font-['Fredoka',sans-serif] text-2xl font-bold text-slate-900 mb-4">
-            Power Actions
-          </h2>
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <!-- Analytics Button -->
-            <button
-              (click)="navigateToAnalytics()"
-              [disabled]="isNavigatingToAnalytics()"
-              class="group relative p-6 rounded-2xl font-['DM_Sans',sans-serif] font-bold text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 overflow-hidden border-2 border-purple-400 cursor-pointer disabled:opacity-75 disabled:cursor-wait"
-              [attr.aria-busy]="isNavigatingToAnalytics()"
-            >
-              <span class="absolute inset-0 bg-gradient-to-br from-purple-400 to-purple-500 transition-transform duration-300 group-hover:scale-110"></span>
-              <span class="relative z-10 flex flex-col items-center gap-2">
-                @if (isNavigatingToAnalytics()) {
-                  <span class="inline-block w-10 h-10 border-4 border-white border-t-transparent rounded-full animate-spin"></span>
-                } @else {
-                  <span class="text-4xl">📊</span>
-                  <span class="text-lg">Analytics</span>
-                }
-              </span>
-            </button>
-
-            <!-- Catch Up Button -->
-            <button
-              (click)="navigateToCatchUp()"
-              [disabled]="isNavigatingToCatchUp()"
-              class="group relative p-6 rounded-2xl font-['DM_Sans',sans-serif] font-bold text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 overflow-hidden border-2 border-cyan-400 cursor-pointer disabled:opacity-75 disabled:cursor-wait"
-              [attr.aria-busy]="isNavigatingToCatchUp()"
-            >
-              <span class="absolute inset-0 bg-gradient-to-br from-cyan-400 to-cyan-500 transition-transform duration-300 group-hover:scale-110"></span>
-              <span class="relative z-10 flex flex-col items-center gap-2">
-                @if (isNavigatingToCatchUp()) {
-                  <span class="inline-block w-10 h-10 border-4 border-white border-t-transparent rounded-full animate-spin"></span>
-                } @else {
-                  <span class="text-4xl">⏱️</span>
-                  <span class="text-lg">Catch Up</span>
-                }
-              </span>
-            </button>
-
-            <!-- Timeline Button -->
-            <button
-              (click)="navigateToTimeline()"
-              [disabled]="isNavigatingToTimeline()"
-              class="group relative p-6 rounded-2xl font-['DM_Sans',sans-serif] font-bold text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 overflow-hidden border-2 border-indigo-400 cursor-pointer disabled:opacity-75 disabled:cursor-wait"
-              [attr.aria-busy]="isNavigatingToTimeline()"
-            >
-              <span class="absolute inset-0 bg-gradient-to-br from-indigo-400 to-indigo-500 transition-transform duration-300 group-hover:scale-110"></span>
-              <span class="relative z-10 flex flex-col items-center gap-2">
-                @if (isNavigatingToTimeline()) {
-                  <span class="inline-block w-10 h-10 border-4 border-white border-t-transparent rounded-full animate-spin"></span>
-                } @else {
-                  <span class="text-4xl">📅</span>
-                  <span class="text-lg">Timeline</span>
-                }
-              </span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Navigation Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <!-- View All Feedings -->
-          <a
-            [routerLink]="['/children', child()!.id, 'feedings']"
-            class="group p-6 rounded-2xl bg-white/80 backdrop-blur-lg shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 border-2 border-rose-400/20 text-left no-underline cursor-pointer block"
-          >
-            <div class="flex items-center gap-4 mb-2">
-              <span class="text-4xl">🍼</span>
-              <h3 class="font-['Fredoka',sans-serif] text-xl font-bold text-slate-900">
-                All Feedings
-              </h3>
-            </div>
-            <p class="font-['DM_Sans',sans-serif] text-slate-600 text-sm">
-              View and manage feeding history
-            </p>
-          </a>
-
-          <!-- View All Diapers -->
-          <a
-            [routerLink]="['/children', child()!.id, 'diapers']"
-            class="group p-6 rounded-2xl bg-white/80 backdrop-blur-lg shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 border-2 border-orange-400/20 text-left no-underline cursor-pointer block"
-          >
-            <div class="flex items-center gap-4 mb-2">
-              <span class="text-4xl">🧷</span>
-              <h3 class="font-['Fredoka',sans-serif] text-xl font-bold text-slate-900">
-                All Diapers
-              </h3>
-            </div>
-            <p class="font-['DM_Sans',sans-serif] text-slate-600 text-sm">
-              View and manage diaper changes
-            </p>
-          </a>
-
-          <!-- View All Naps -->
-          <a
-            [routerLink]="['/children', child()!.id, 'naps']"
-            class="group p-6 rounded-2xl bg-white/80 backdrop-blur-lg shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 border-2 border-amber-400/20 text-left no-underline cursor-pointer block"
-          >
-            <div class="flex items-center gap-4 mb-2">
-              <span class="text-4xl">😴</span>
-              <h3 class="font-['Fredoka',sans-serif] text-xl font-bold text-slate-900">
-                All Naps
-              </h3>
-            </div>
-            <p class="font-['DM_Sans',sans-serif] text-slate-600 text-sm">
-              View and manage nap history
-            </p>
-          </a>
-
-          <!-- Manage Sharing (owner only) -->
-          @if (canManageSharing()) {
-            <a
-              [routerLink]="['/children', child()!.id, 'sharing']"
-              class="group p-6 rounded-2xl bg-white/80 backdrop-blur-lg shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 border-2 border-purple-500/20 text-left no-underline cursor-pointer block"
-            >
-              <div class="flex items-center gap-4 mb-2">
-                <span class="text-4xl">👥</span>
-                <h3 class="font-['Fredoka',sans-serif] text-xl font-bold text-slate-900">
-                  Manage Sharing
-                </h3>
-              </div>
-              <p class="font-['DM_Sans',sans-serif] text-slate-600 text-sm">
-                Share access with family members
-              </p>
-            </a>
-          }
         </div>
       </div>
     }

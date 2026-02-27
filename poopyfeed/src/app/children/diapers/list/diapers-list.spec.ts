@@ -435,7 +435,7 @@ describe('DiapersList - Comprehensive Tests', () => {
     it('should navigate to dashboard', () => {
       component.navigateToDashboard();
 
-      expect(router.navigate).toHaveBeenCalledWith(['/children', 1, 'dashboard']);
+      expect(router.navigate).toHaveBeenCalledWith(['/children', 1, 'advanced']);
     });
   });
 
