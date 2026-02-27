@@ -400,6 +400,8 @@ describe('QuickLog', () => {
           custom_bottle_low_oz: null,
           custom_bottle_mid_oz: null,
           custom_bottle_high_oz: null,
+          feeding_reminder_interval: null,
+
       };
       const mockFeeding = { id: 123, child: 1, feeding_type: 'bottle' as const, fed_at: mockDate.toISOString(), amount_oz: 4, created_at: mockDate.toISOString(), updated_at: mockDate.toISOString() };
 
@@ -435,6 +437,8 @@ describe('QuickLog', () => {
           custom_bottle_low_oz: null,
           custom_bottle_mid_oz: null,
           custom_bottle_high_oz: null,
+          feeding_reminder_interval: null,
+
       };
 
       fixture.componentRef.setInput('child', mockChild);
@@ -464,6 +468,8 @@ describe('QuickLog', () => {
           custom_bottle_low_oz: null,
           custom_bottle_mid_oz: null,
           custom_bottle_high_oz: null,
+          feeding_reminder_interval: null,
+
       };
 
       fixture.componentRef.setInput('child', mockChild);
@@ -492,6 +498,8 @@ describe('QuickLog', () => {
         custom_bottle_low_oz: null,
         custom_bottle_mid_oz: null,
         custom_bottle_high_oz: null,
+          feeding_reminder_interval: null,
+
       };
 
       fixture.componentRef.setInput('child', mockChild);
@@ -521,6 +529,8 @@ describe('QuickLog', () => {
           custom_bottle_low_oz: null,
           custom_bottle_mid_oz: null,
           custom_bottle_high_oz: null,
+          feeding_reminder_interval: null,
+
       };
       const mockFeeding = { id: 123, child: 1, feeding_type: 'bottle' as const, fed_at: mockDate.toISOString(), amount_oz: 5, created_at: mockDate.toISOString(), updated_at: mockDate.toISOString() };
 
@@ -556,6 +566,8 @@ describe('QuickLog', () => {
           custom_bottle_low_oz: null,
           custom_bottle_mid_oz: null,
           custom_bottle_high_oz: null,
+          feeding_reminder_interval: null,
+
       };
 
       fixture.componentRef.setInput('child', mockChild);
@@ -585,6 +597,8 @@ describe('QuickLog', () => {
           custom_bottle_low_oz: null,
           custom_bottle_mid_oz: null,
           custom_bottle_high_oz: null,
+          feeding_reminder_interval: null,
+
       };
 
       fixture.componentRef.setInput('child', mockChild);
@@ -618,6 +632,8 @@ describe('QuickLog', () => {
           custom_bottle_low_oz: null,
           custom_bottle_mid_oz: null,
           custom_bottle_high_oz: null,
+          feeding_reminder_interval: null,
+
       };
       const mockFeeding = { id: 123, child: 1, feeding_type: 'bottle' as const, fed_at: mockDate.toISOString(), amount_oz: 6, created_at: mockDate.toISOString(), updated_at: mockDate.toISOString() };
 
@@ -654,6 +670,8 @@ describe('QuickLog', () => {
           custom_bottle_low_oz: null,
           custom_bottle_mid_oz: null,
           custom_bottle_high_oz: null,
+          feeding_reminder_interval: null,
+
       };
 
       fixture.componentRef.setInput('child', mockChild);
@@ -676,6 +694,8 @@ describe('QuickLog', () => {
           custom_bottle_low_oz: null,
           custom_bottle_mid_oz: null,
           custom_bottle_high_oz: null,
+          feeding_reminder_interval: null,
+
       };
 
       fixture.componentRef.setInput('child', mockChild);
@@ -705,6 +725,8 @@ describe('QuickLog', () => {
           custom_bottle_low_oz: null,
           custom_bottle_mid_oz: null,
           custom_bottle_high_oz: null,
+          feeding_reminder_interval: null,
+
       };
 
       fixture.componentRef.setInput('child', mockChild);
@@ -799,6 +821,8 @@ describe('QuickLog', () => {
           custom_bottle_low_oz: null,
           custom_bottle_mid_oz: null,
           custom_bottle_high_oz: null,
+          feeding_reminder_interval: null,
+
         };
         fixture.componentRef.setInput('childId', 1);
         fixture.componentRef.setInput('canEdit', true);
@@ -851,6 +875,8 @@ describe('QuickLog', () => {
           custom_bottle_low_oz: null,
           custom_bottle_mid_oz: null,
           custom_bottle_high_oz: null,
+          feeding_reminder_interval: null,
+
         };
         fixture.componentRef.setInput('childId', 1);
         fixture.componentRef.setInput('child', mockChild);
@@ -923,6 +949,8 @@ describe('QuickLog', () => {
           custom_bottle_low_oz: null,
           custom_bottle_mid_oz: null,
           custom_bottle_high_oz: null,
+          feeding_reminder_interval: null,
+
         };
 
         fixture.componentRef.setInput('childId', 1);
@@ -1085,6 +1113,8 @@ describe('QuickLog', () => {
           custom_bottle_low_oz: null,
           custom_bottle_mid_oz: null,
           custom_bottle_high_oz: null,
+          feeding_reminder_interval: null,
+
       };
 
       fixture.componentRef.setInput('child', mockChild);
@@ -1309,6 +1339,8 @@ describe('QuickLog', () => {
           custom_bottle_low_oz: null,
           custom_bottle_mid_oz: null,
           custom_bottle_high_oz: null,
+          feeding_reminder_interval: null,
+
       };
 
       fixture.componentRef.setInput('child', mockChild);
@@ -1336,6 +1368,8 @@ describe('QuickLog', () => {
           custom_bottle_low_oz: null,
           custom_bottle_mid_oz: null,
           custom_bottle_high_oz: null,
+          feeding_reminder_interval: null,
+
       };
 
       fixture.componentRef.setInput('child', mockChild);
@@ -1412,6 +1446,8 @@ describe('QuickLog', () => {
           custom_bottle_low_oz: null,
           custom_bottle_mid_oz: null,
           custom_bottle_high_oz: null,
+          feeding_reminder_interval: null,
+
       };
 
       const mockChild2: Child = {
@@ -1428,6 +1464,8 @@ describe('QuickLog', () => {
           custom_bottle_low_oz: null,
           custom_bottle_mid_oz: null,
           custom_bottle_high_oz: null,
+          feeding_reminder_interval: null,
+
       };
 
       fixture.componentRef.setInput('child', mockChild1);
@@ -1458,6 +1496,8 @@ describe('QuickLog', () => {
           custom_bottle_low_oz: null,
           custom_bottle_mid_oz: null,
           custom_bottle_high_oz: null,
+          feeding_reminder_interval: null,
+
       };
 
       fixture.componentRef.setInput('child', mockChild);
@@ -1516,6 +1556,8 @@ describe('QuickLog', () => {
         custom_bottle_low_oz: null,
         custom_bottle_mid_oz: null,
         custom_bottle_high_oz: null,
+          feeding_reminder_interval: null,
+
       };
 
       fixture.componentRef.setInput('child', mockChild);
@@ -1567,6 +1609,8 @@ describe('QuickLog', () => {
         custom_bottle_low_oz: null,
         custom_bottle_mid_oz: null,
         custom_bottle_high_oz: null,
+          feeding_reminder_interval: null,
+
       };
 
       const mockChild2: Child = {
@@ -1615,6 +1659,7 @@ describe('QuickLog', () => {
         custom_bottle_low_oz: 3.5,
         custom_bottle_mid_oz: 5.5,
         custom_bottle_high_oz: 6.5,
+          feeding_reminder_interval: null,
       };
 
       fixture.componentRef.setInput('child', mockChild);
@@ -1669,6 +1714,8 @@ describe('QuickLog', () => {
         custom_bottle_low_oz: null,
         custom_bottle_mid_oz: null,
         custom_bottle_high_oz: null,
+          feeding_reminder_interval: null,
+
       };
       fixture.componentRef.setInput('child', childNoDob);
       fixture.detectChanges();
@@ -1715,6 +1762,8 @@ describe('QuickLog', () => {
         custom_bottle_low_oz: null,
         custom_bottle_mid_oz: null,
         custom_bottle_high_oz: null,
+          feeding_reminder_interval: null,
+
       };
       fixture.componentRef.setInput('child', newbornChild);
       fixture.detectChanges();

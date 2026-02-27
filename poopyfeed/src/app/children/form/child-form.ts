@@ -148,6 +148,22 @@ export class ChildForm implements OnInit {
    */
   isEdit = computed(() => this.childId() !== null);
 
+  /**
+   * Loaded child data (edit mode only).
+   * Null until child data is fetched from API.
+   * Used to determine user permissions (owner/co-parent can manage reminders).
+   */
+  loadedChild = signal<Child | null>(null);
+
+  /**
+   * Computed boolean: Can the current user manage feeding reminders?
+   * True if in edit mode and user role is owner or co-parent (not caregiver).
+   */
+  canManageReminders = computed(() => {
+    const child = this.loadedChild();
+    return this.isEdit() && child && (child.user_role === 'owner' || child.user_role === 'co-parent');
+  });
+
   /** Form submission state - shows spinner on submit button */
   isSubmitting = signal(false);
 
@@ -216,6 +232,7 @@ export class ChildForm implements OnInit {
         Validators.min(0.1),
         Validators.max(50),
       ]),
+      feeding_reminder_interval: new FormControl<2 | 3 | 4 | 6 | null>(null),
     },
     { validators: bottleAmountsValidator }
   );
@@ -262,6 +279,7 @@ export class ChildForm implements OnInit {
   loadChild(id: number) {
     this.childrenService.get(id).subscribe({
       next: (child) => {
+        this.loadedChild.set(child);
         this.childForm.patchValue({
           name: child.name,
           date_of_birth: child.date_of_birth,
@@ -269,6 +287,7 @@ export class ChildForm implements OnInit {
           custom_bottle_low_oz: child.custom_bottle_low_oz ?? null,
           custom_bottle_mid_oz: child.custom_bottle_mid_oz ?? null,
           custom_bottle_high_oz: child.custom_bottle_high_oz ?? null,
+          feeding_reminder_interval: child.feeding_reminder_interval ?? null,
         });
         this.loadNotificationPreference(id);
       },
@@ -360,18 +379,9 @@ export class ChildForm implements OnInit {
     this.isSubmitting.set(true);
     this.error.set(null);
 
-    const childData: ChildCreate = {
-      name: formData.name,
-      date_of_birth: formData.date_of_birth,
-      gender: formData.gender,
-      custom_bottle_low_oz: formData.custom_bottle_low_oz ?? null,
-      custom_bottle_mid_oz: formData.custom_bottle_mid_oz ?? null,
-      custom_bottle_high_oz: formData.custom_bottle_high_oz ?? null,
-    };
-
     const operation = this.isEdit()
-      ? this.childrenService.update(this.childId()!, childData)
-      : this.childrenService.create(childData);
+      ? this.submitUpdate(formData)
+      : this.submitCreate(formData);
 
     operation.subscribe({
       next: () => {
@@ -386,6 +396,40 @@ export class ChildForm implements OnInit {
         this.toast.error(err.message);
       },
     });
+  }
+
+  /**
+   * Submit for creating a new child.
+   * Builds ChildCreate DTO (no feeding_reminder_interval, which defaults to null on backend).
+   */
+  private submitCreate(formData: typeof this.childForm.value) {
+    const childData: ChildCreate = {
+      name: formData.name!,
+      date_of_birth: formData.date_of_birth!,
+      gender: formData.gender!,
+      custom_bottle_low_oz: formData.custom_bottle_low_oz ?? null,
+      custom_bottle_mid_oz: formData.custom_bottle_mid_oz ?? null,
+      custom_bottle_high_oz: formData.custom_bottle_high_oz ?? null,
+    };
+    return this.childrenService.create(childData);
+  }
+
+  /**
+   * Submit for updating an existing child.
+   * Builds ChildUpdate DTO (includes optional feeding_reminder_interval).
+   */
+  private submitUpdate(formData: typeof this.childForm.value) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const childData: any = {
+      name: formData.name,
+      date_of_birth: formData.date_of_birth,
+      gender: formData.gender,
+      custom_bottle_low_oz: formData.custom_bottle_low_oz ?? null,
+      custom_bottle_mid_oz: formData.custom_bottle_mid_oz ?? null,
+      custom_bottle_high_oz: formData.custom_bottle_high_oz ?? null,
+      feeding_reminder_interval: formData.feeding_reminder_interval ?? null,
+    };
+    return this.childrenService.update(this.childId()!, childData);
   }
 
   /**

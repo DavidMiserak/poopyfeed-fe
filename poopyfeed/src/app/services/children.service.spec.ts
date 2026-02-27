@@ -29,6 +29,8 @@ describe('ChildrenService', () => {
         custom_bottle_low_oz: null,
         custom_bottle_mid_oz: null,
         custom_bottle_high_oz: null,
+        feeding_reminder_interval: null,
+
   };
 
   const mockChildren: Child[] = [
@@ -47,6 +49,8 @@ describe('ChildrenService', () => {
           custom_bottle_low_oz: null,
           custom_bottle_mid_oz: null,
           custom_bottle_high_oz: null,
+        feeding_reminder_interval: null,
+
     },
   ];
 
@@ -212,6 +216,8 @@ describe('ChildrenService', () => {
           custom_bottle_low_oz: null,
           custom_bottle_mid_oz: null,
           custom_bottle_high_oz: null,
+        feeding_reminder_interval: null,
+
     };
 
     it('should create a new child', () => {

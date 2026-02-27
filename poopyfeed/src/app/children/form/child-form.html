@@ -254,6 +254,43 @@
           }
         </fieldset>
 
+        <!-- Feeding Reminders Section (edit mode, owner/co-parent only) -->
+        @if (canManageReminders()) {
+          <fieldset class="border-2 border-slate-200 rounded-xl p-6">
+            <legend class="font-['Fredoka',sans-serif] text-lg font-bold text-slate-900 px-2">
+              <span class="text-2xl">🍼⏰</span> Feeding Reminders
+            </legend>
+            <p class="font-['DM_Sans',sans-serif] text-sm text-slate-600 mb-4 mt-4">
+              Set automatic reminders if no feeding has been logged. Reminders will notify all caregivers after the selected time period.
+            </p>
+
+            <div>
+              <label for="feeding_reminder_interval" class="font-['DM_Sans',sans-serif] block text-sm font-bold text-slate-900 mb-2">
+                Reminder Interval
+              </label>
+              <select
+                id="feeding_reminder_interval"
+                formControlName="feeding_reminder_interval"
+                class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-rose-400 focus:ring-4 focus:ring-rose-200 transition-all outline-none text-slate-900 font-['DM_Sans',sans-serif]"
+              >
+                <option [value]="null">Off</option>
+                <option [value]="2">2 hours</option>
+                <option [value]="3">3 hours</option>
+                <option [value]="4">4 hours</option>
+                <option [value]="6">6 hours</option>
+              </select>
+              @if (childForm.controls.feeding_reminder_interval.invalid && childForm.controls.feeding_reminder_interval.touched) {
+                <p class="font-['DM_Sans',sans-serif] text-red-600 text-sm mt-2 font-medium flex items-center gap-1">
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
+                  </svg>
+                  Invalid interval
+                </p>
+              }
+            </div>
+          </fieldset>
+        }
+
         <!-- Notification preferences (edit mode only) -->
         @if (isEdit()) {
           <fieldset class="border-2 border-slate-200 rounded-xl p-6" [attr.aria-busy]="preferenceLoading() || preferenceSaving()">

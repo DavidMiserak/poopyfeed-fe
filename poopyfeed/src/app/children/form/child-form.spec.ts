@@ -31,6 +31,8 @@ describe('ChildForm', () => {
         custom_bottle_low_oz: null,
         custom_bottle_mid_oz: null,
         custom_bottle_high_oz: null,
+        feeding_reminder_interval: null,
+
   };
 
   const mockChildMale: Child = {
@@ -47,6 +49,8 @@ describe('ChildForm', () => {
         custom_bottle_low_oz: null,
         custom_bottle_mid_oz: null,
         custom_bottle_high_oz: null,
+        feeding_reminder_interval: null,
+
   };
 
   const mockChildOther: Child = {
@@ -63,6 +67,8 @@ describe('ChildForm', () => {
         custom_bottle_low_oz: null,
         custom_bottle_mid_oz: null,
         custom_bottle_high_oz: null,
+        feeding_reminder_interval: null,
+
   };
 
   describe('Create Mode', () => {
@@ -687,6 +693,8 @@ describe('ChildForm', () => {
           custom_bottle_low_oz: null,
           custom_bottle_mid_oz: null,
           custom_bottle_high_oz: null,
+        feeding_reminder_interval: null,
+
         });
       });
 
@@ -760,6 +768,8 @@ describe('ChildForm', () => {
           custom_bottle_low_oz: null,
           custom_bottle_mid_oz: null,
           custom_bottle_high_oz: null,
+        feeding_reminder_interval: null,
+
         });
       });
 
@@ -782,6 +792,8 @@ describe('ChildForm', () => {
           custom_bottle_low_oz: null,
           custom_bottle_mid_oz: null,
           custom_bottle_high_oz: null,
+        feeding_reminder_interval: null,
+
         });
       });
     });
@@ -1201,6 +1213,166 @@ describe('ChildForm', () => {
         expect(el.textContent).toContain('Naps');
       });
     });
+
+    describe('Feeding Reminders', () => {
+      it('should show feeding reminders section in edit mode for owner', () => {
+        vi.mocked(childrenService.get).mockReturnValue(of(mockChild));
+        component.ngOnInit();
+        fixture.detectChanges();
+
+        const el = fixture.nativeElement as HTMLElement;
+        expect(el.textContent).toContain('Feeding Reminders');
+        expect(el.textContent).toContain('Set automatic reminders if no feeding has been logged');
+      });
+
+      it('should populate feeding_reminder_interval form control from loaded child', () => {
+        const childWithReminder: Child = {
+          ...mockChild,
+          feeding_reminder_interval: 3,
+        };
+        vi.mocked(childrenService.get).mockReturnValue(of(childWithReminder));
+        component.ngOnInit();
+        fixture.detectChanges();
+
+        expect(component.childForm.get('feeding_reminder_interval')?.value).toBe(3);
+      });
+
+      it('should set feeding_reminder_interval to null if not set on child', () => {
+        const childWithoutReminder: Child = {
+          ...mockChild,
+          feeding_reminder_interval: null,
+        };
+        vi.mocked(childrenService.get).mockReturnValue(of(childWithoutReminder));
+        component.ngOnInit();
+        fixture.detectChanges();
+
+        expect(component.childForm.get('feeding_reminder_interval')?.value).toBeNull();
+      });
+
+      it('should not show feeding reminders section in create mode', async () => {
+        await TestBed.resetTestingModule();
+        const mockChildrenService = {
+          get: vi.fn(),
+          create: vi.fn().mockReturnValue(of({ id: 100, name: 'New Baby' })),
+          update: vi.fn(),
+        };
+        const mockActivatedRoute = {
+          paramMap: of(new Map()),
+          queryParamMap: of(new Map()),
+          snapshot: {
+            paramMap: {
+              get: vi.fn(() => null), // No :id = create mode
+            },
+          },
+        } as any;
+
+        await TestBed.configureTestingModule({
+          imports: [ChildForm],
+          providers: [
+            { provide: ChildrenService, useValue: mockChildrenService },
+            { provide: NotificationService, useValue: { getPreferences: vi.fn(), updatePreference: vi.fn() } },
+            { provide: ToastService, useValue: { success: vi.fn(), error: vi.fn() } },
+            { provide: Router, useValue: { navigate: vi.fn(), parseUrl: vi.fn(), createUrlTree: vi.fn(), serializeUrl: vi.fn(() => ''), events: of() } as any },
+            { provide: ActivatedRoute, useValue: mockActivatedRoute },
+          ],
+        }).compileComponents();
+
+        const createFixture = TestBed.createComponent(ChildForm);
+        const createComponent = createFixture.componentInstance;
+        createFixture.detectChanges();
+
+        const el = createFixture.nativeElement as HTMLElement;
+        expect(el.textContent).not.toContain('Feeding Reminders');
+      });
+
+      it('should verify canManageReminders returns false for caregiver role', () => {
+        // This test verifies the core logic: canManageReminders() should return false for caregivers
+        // even though the full DOM rendering test has signal tracking complexity
+        const caregiverChild: Child = {
+          ...mockChild,
+          user_role: 'caregiver',
+          feeding_reminder_interval: 3,
+        };
+
+        // Simulate edit mode with caregiver child loaded
+        component.childId.set(1);
+        component.loadedChild.set(caregiverChild);
+
+        // Core assertion: computed property correctly blocks access for caregivers
+        expect(component.canManageReminders()).toBe(false);
+
+        // Also verify it returns true for owner and co-parent
+        const ownerChild = { ...caregiverChild, user_role: 'owner' as const };
+        component.loadedChild.set(ownerChild);
+        expect(component.canManageReminders()).toBe(true);
+
+        const coParentChild = { ...caregiverChild, user_role: 'co-parent' as const };
+        component.loadedChild.set(coParentChild);
+        expect(component.canManageReminders()).toBe(true);
+      });
+
+      it('should show feeding reminders section for co-parent role', () => {
+        const coParentChild: Child = {
+          ...mockChild,
+          user_role: 'co-parent',
+          feeding_reminder_interval: 4,
+        };
+        vi.mocked(childrenService.get).mockReturnValue(of(coParentChild));
+        component.ngOnInit();
+        fixture.detectChanges();
+
+        const el = fixture.nativeElement as HTMLElement;
+        expect(el.textContent).toContain('Feeding Reminders');
+      });
+
+      it('should include feeding_reminder_interval in update submission', () => {
+        vi.mocked(childrenService.get).mockReturnValue(of(mockChild));
+        vi.mocked(childrenService.update).mockReturnValue(of(mockChild));
+        component.ngOnInit();
+        fixture.detectChanges();
+
+        component.childForm.patchValue({
+          name: 'Updated Baby',
+          feeding_reminder_interval: 4,
+        });
+
+        component.onSubmit();
+
+        expect(vi.mocked(childrenService.update)).toHaveBeenCalledWith(
+          1,
+          expect.objectContaining({
+            name: 'Updated Baby',
+            feeding_reminder_interval: 4,
+          })
+        );
+      });
+
+      it('should allow changing feeding_reminder_interval from set to null', () => {
+        const childWithReminder: Child = {
+          ...mockChild,
+          feeding_reminder_interval: 3,
+        };
+        vi.mocked(childrenService.get).mockReturnValue(of(childWithReminder));
+        vi.mocked(childrenService.update).mockReturnValue(of(childWithReminder));
+        component.ngOnInit();
+        fixture.detectChanges();
+
+        expect(component.childForm.get('feeding_reminder_interval')?.value).toBe(3);
+
+        component.childForm.patchValue({
+          feeding_reminder_interval: null,
+        });
+
+        component.onSubmit();
+
+        expect(vi.mocked(childrenService.update)).toHaveBeenCalledWith(
+          1,
+          expect.objectContaining({
+            feeding_reminder_interval: null,
+          })
+        );
+      });
+    });
   });
 
   describe('Branch coverage - restoreDefaultBottleAmounts', () => {
@@ -1209,6 +1381,7 @@ describe('ChildForm', () => {
         custom_bottle_low_oz: 2,
         custom_bottle_mid_oz: 4,
         custom_bottle_high_oz: 6,
+        feeding_reminder_interval: null,
       });
 
       component.restoreDefaultBottleAmounts();

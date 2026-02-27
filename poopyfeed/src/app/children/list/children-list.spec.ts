@@ -26,6 +26,8 @@ describe('ChildrenList', () => {
         custom_bottle_low_oz: null,
         custom_bottle_mid_oz: null,
         custom_bottle_high_oz: null,
+        feeding_reminder_interval: null,
+
   };
 
   const mockChildCoParent: Child = {
@@ -42,6 +44,8 @@ describe('ChildrenList', () => {
         custom_bottle_low_oz: null,
         custom_bottle_mid_oz: null,
         custom_bottle_high_oz: null,
+        feeding_reminder_interval: null,
+
   };
 
   const mockChildCaregiver: Child = {
@@ -58,6 +62,8 @@ describe('ChildrenList', () => {
         custom_bottle_low_oz: null,
         custom_bottle_mid_oz: null,
         custom_bottle_high_oz: null,
+        feeding_reminder_interval: null,
+
   };
 
   const mockChildren: Child[] = [
@@ -795,6 +801,8 @@ describe('ChildrenList', () => {
             custom_bottle_low_oz: null,
             custom_bottle_mid_oz: null,
             custom_bottle_high_oz: null,
+        feeding_reminder_interval: null,
+
       };
       vi.mocked(childrenService.list).mockReturnValue(of([childNoActivity]));
       fixture.detectChanges();
@@ -827,6 +835,8 @@ describe('ChildrenList', () => {
             custom_bottle_low_oz: null,
             custom_bottle_mid_oz: null,
             custom_bottle_high_oz: null,
+        feeding_reminder_interval: null,
+
       };
       vi.mocked(childrenService.list).mockReturnValue(of([childNoNap]));
       fixture.detectChanges();
@@ -849,6 +859,8 @@ describe('ChildrenList', () => {
             custom_bottle_low_oz: null,
             custom_bottle_mid_oz: null,
             custom_bottle_high_oz: null,
+        feeding_reminder_interval: null,
+
       };
       vi.mocked(childrenService.list).mockReturnValue(of([childNoFeeding]));
       fixture.detectChanges();

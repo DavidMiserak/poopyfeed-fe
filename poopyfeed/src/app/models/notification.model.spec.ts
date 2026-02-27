@@ -12,7 +12,7 @@ import {
 } from './notification.model';
 
 describe('notification.model', () => {
-  const EVENT_TYPES: NotificationEventType[] = ['feeding', 'diaper', 'nap'];
+  const EVENT_TYPES: NotificationEventType[] = ['feeding', 'diaper', 'nap', 'feeding_reminder'];
 
   describe('NOTIFICATION_EVENT_LABELS', () => {
     it('should have a label for every NotificationEventType', () => {
@@ -23,12 +23,13 @@ describe('notification.model', () => {
       }
     });
 
-    it('should have exactly three keys (feeding, diaper, nap)', () => {
-      expect(Object.keys(NOTIFICATION_EVENT_LABELS)).toHaveLength(3);
+    it('should have exactly four keys (feeding, diaper, nap, feeding_reminder)', () => {
+      expect(Object.keys(NOTIFICATION_EVENT_LABELS)).toHaveLength(4);
       expect(NOTIFICATION_EVENT_LABELS).toMatchObject({
         feeding: 'Feeding',
         diaper: 'Diaper Change',
         nap: 'Nap',
+        feeding_reminder: 'Feeding Reminder',
       });
     });
 

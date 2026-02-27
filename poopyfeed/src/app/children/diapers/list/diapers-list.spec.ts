@@ -32,6 +32,8 @@ describe('DiapersList - Batch Operations', () => {
         custom_bottle_low_oz: null,
         custom_bottle_mid_oz: null,
         custom_bottle_high_oz: null,
+        feeding_reminder_interval: null,
+
   };
 
   const mockDiapers: DiaperChange[] = [
@@ -196,6 +198,8 @@ describe('DiapersList - Comprehensive Tests', () => {
         custom_bottle_low_oz: null,
         custom_bottle_mid_oz: null,
         custom_bottle_high_oz: null,
+        feeding_reminder_interval: null,
+
   };
 
   const mockCoParentChild: Child = {
@@ -678,6 +682,8 @@ describe('DiapersList - Route and Concurrent Operations', () => {
         custom_bottle_low_oz: null,
         custom_bottle_mid_oz: null,
         custom_bottle_high_oz: null,
+        feeding_reminder_interval: null,
+
   };
 
   const mockDiapers: DiaperChange[] = [
