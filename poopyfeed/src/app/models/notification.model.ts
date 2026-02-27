@@ -9,7 +9,7 @@
 /**
  * Event types that trigger notifications (matches backend EventType).
  */
-export type NotificationEventType = 'feeding' | 'diaper' | 'nap';
+export type NotificationEventType = 'feeding' | 'diaper' | 'nap' | 'feeding_reminder';
 
 /**
  * Notification as returned from GET /api/v1/notifications/.
@@ -129,4 +129,5 @@ export const NOTIFICATION_EVENT_LABELS: Record<NotificationEventType, string> = 
   feeding: 'Feeding',
   diaper: 'Diaper Change',
   nap: 'Nap',
+  feeding_reminder: 'Feeding Reminder',
 };

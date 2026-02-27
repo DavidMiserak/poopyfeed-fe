@@ -283,14 +283,16 @@ export function getGenderIconDetailed(gender: 'M' | 'F' | 'O' | string): string 
  * getActivityIcon('feeding') // Returns '🍼'
  * getActivityIcon('diaper') // Returns '🧷'
  * getActivityIcon('nap') // Returns '😴'
+ * getActivityIcon('feeding_reminder') // Returns '🍼⏰'
  *
  * Use case: Activity feed icons, tracking list indicators, activity headers
  */
-export function getActivityIcon(type: 'feeding' | 'diaper' | 'nap'): string {
+export function getActivityIcon(type: 'feeding' | 'diaper' | 'nap' | 'feeding_reminder'): string {
   const icons: Record<string, string> = {
     feeding: '🍼',
     diaper: '🧷',
     nap: '😴',
+    feeding_reminder: '🍼⏰',
   };
   return icons[type] || '📝';
 }

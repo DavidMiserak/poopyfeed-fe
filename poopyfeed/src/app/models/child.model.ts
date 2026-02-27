@@ -58,6 +58,9 @@ export interface Child {
 
   /** Custom quick bottle amount - high (oz), or null to use age-based default */
   custom_bottle_high_oz: number | null;
+
+  /** Feeding reminder interval in hours (2, 3, 4, 6) or null to disable */
+  feeding_reminder_interval: 2 | 3 | 4 | 6 | null;
 }
 
 /**
@@ -110,6 +113,9 @@ export interface ChildUpdate {
 
   /** Custom quick bottle amount - high (oz), or null to use age-based default (optional) */
   custom_bottle_high_oz?: number | null;
+
+  /** Feeding reminder interval in hours (2, 3, 4, 6) or null to disable (optional) */
+  feeding_reminder_interval?: 2 | 3 | 4 | 6 | null;
 }
 
 /**
