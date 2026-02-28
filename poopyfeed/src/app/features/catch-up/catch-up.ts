@@ -37,6 +37,10 @@ import {
   Feeding,
   DiaperChange,
   Nap,
+  TimeEstimationResult,
+  BatchResponse,
+  BatchErrorResponse,
+  BatchEventError,
 } from '../../models';
 import { TimeEstimationService } from '../../services/time-estimation.service';
 import { BatchesService } from '../../services/batches.service';
@@ -171,11 +175,11 @@ export class CatchUp implements OnInit {
     this.childrenService
       .get(+childId)
       .pipe(
-        tap((child: any) => {
+        tap((child: Child) => {
           this.child.set(child);
           this.isLoading.set(false);
         }),
-        catchError((err: any) => {
+        catchError((err: unknown) => {
           const apiError = ErrorHandler.handle(err);
           this.error.set(apiError.message);
           this.isLoading.set(false);
@@ -400,7 +404,7 @@ export class CatchUp implements OnInit {
       naps: this.napsService.list(childId, filters),
     })
       .pipe(
-        tap(({ feedings, diapers, naps }: any) => {
+        tap(({ feedings, diapers, naps }: { feedings: Feeding[]; diapers: DiaperChange[]; naps: Nap[] }) => {
           const existingEvents = this.buildExistingEvents(
             feedings,
             diapers,
@@ -409,7 +413,7 @@ export class CatchUp implements OnInit {
           const newEvents = this.eventList().filter((e) => !e.isExisting);
           this.eventList.set([...existingEvents, ...newEvents]);
         }),
-        catchError((err: any) => {
+        catchError((err: unknown) => {
           const apiError = ErrorHandler.handle(err);
           this.toast.error(`Failed to reload events: ${apiError.message}`);
           return throwError(() => apiError);
@@ -422,7 +426,7 @@ export class CatchUp implements OnInit {
    * Recalculate event times using proportional distribution algorithm.
    */
   private recalculateTimes() {
-    const result: any = this.timeEstimationService.estimateEventTimes(
+    const result: TimeEstimationResult = this.timeEstimationService.estimateEventTimes(
       this.eventList(),
       this.timeWindow(),
     );
@@ -450,19 +454,22 @@ export class CatchUp implements OnInit {
     this.batchesService
       .create(this.childId()!, this.newEvents())
       .pipe(
-        tap((response: any) => {
+        tap((_response: BatchResponse) => {
           // Show success screen instead of navigating immediately
           this.currentStep.set('success');
           this.isSubmitting.set(false);
         }),
-        catchError((err: any) => {
+        catchError((err: unknown) => {
           this.isSubmitting.set(false);
 
-          // Handle batch validation errors
-          if (err.batchErrors?.errors) {
-            err.batchErrors.errors.forEach((eventError: any) => {
+          const batchErrors = err && typeof err === 'object' && 'batchErrors' in err
+            ? (err as { batchErrors?: BatchErrorResponse }).batchErrors
+            : undefined;
+
+          if (batchErrors?.errors) {
+            batchErrors.errors.forEach((eventError: BatchEventError) => {
               const errorMsg = Object.entries(eventError.errors)
-                .map(([field, msgs]) =>
+                .map(([_, msgs]) =>
                   Array.isArray(msgs) ? msgs[0] : msgs,
                 )
                 .join('; ');
