@@ -147,8 +147,8 @@ describe('ExportJobStatusComponent', () => {
         result: {
           download_url: '/api/download/abc.pdf',
           filename: 'export.pdf',
-          created_at: '2026-02-12T10:00:00Z',
-          expires_at: '2026-02-13T10:00:00Z',
+          created_at: '2024-02-12T10:00:00Z',
+          expires_at: '2024-02-13T10:00:00Z',
         },
       };
 
@@ -167,7 +167,7 @@ describe('ExportJobStatusComponent', () => {
       expect(component.progress()).toBe(100);
       expect(component.downloadUrl()).toBe('/api/download/abc.pdf');
       expect(component.expiresAt()).toEqual(
-        new Date('2026-02-13T10:00:00Z')
+        new Date('2024-02-13T10:00:00Z')
       );
       expect(component.isPolling()).toBe(false);
     });
@@ -235,8 +235,8 @@ describe('ExportJobStatusComponent', () => {
         result: {
           download_url: '/api/download/abc.pdf',
           filename: 'export.pdf',
-          created_at: '2026-02-12T10:00:00Z',
-          expires_at: '2026-02-13T10:00:00Z',
+          created_at: '2024-02-12T10:00:00Z',
+          expires_at: '2024-02-13T10:00:00Z',
         },
       };
 
@@ -544,7 +544,7 @@ describe('ExportJobStatusComponent', () => {
 
     it('should render expiry warning when completed with expiresAt', () => {
       component['status'].set('completed');
-      component['expiresAt'].set(new Date('2026-02-13T10:00:00Z'));
+      component['expiresAt'].set(new Date('2024-02-13T10:00:00Z'));
       fixture.detectChanges();
 
       const text = fixture.nativeElement.textContent;

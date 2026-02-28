@@ -15,7 +15,7 @@ import {
 
 describe('Date Utilities', () => {
   describe('getAgeInWeeks', () => {
-    const REFERENCE_DATE = '2026-02-27T12:00:00.000Z'; // Fixed "today" for deterministic tests
+    const REFERENCE_DATE = '2024-02-27T12:00:00.000Z'; // Fixed past "today" for deterministic tests
 
     beforeEach(() => {
       vi.useFakeTimers();
@@ -27,35 +27,35 @@ describe('Date Utilities', () => {
     });
 
     it('should return 0 for newborn (less than 7 days old)', () => {
-      expect(getAgeInWeeks('2026-02-25')).toBe(0); // 2 days before reference
+      expect(getAgeInWeeks('2024-02-25')).toBe(0); // 2 days before reference
     });
 
     it('should return 1 for baby 1 week old', () => {
-      expect(getAgeInWeeks('2026-02-20')).toBe(1);
+      expect(getAgeInWeeks('2024-02-20')).toBe(1);
     });
 
     it('should return 2 for baby 2 weeks old', () => {
-      expect(getAgeInWeeks('2026-02-13')).toBe(2);
+      expect(getAgeInWeeks('2024-02-13')).toBe(2);
     });
 
     it('should return 4 for baby 4 weeks old (1 month)', () => {
-      expect(getAgeInWeeks('2026-01-30')).toBe(4);
+      expect(getAgeInWeeks('2024-01-30')).toBe(4);
     });
 
     it('should return 8 for baby 8 weeks old (2 months)', () => {
-      expect(getAgeInWeeks('2026-01-02')).toBe(8);
+      expect(getAgeInWeeks('2024-01-02')).toBe(8);
     });
 
     it('should return 12 for baby 12 weeks old (3 months)', () => {
-      expect(getAgeInWeeks('2025-12-05')).toBe(12);
+      expect(getAgeInWeeks('2023-12-05')).toBe(12); // 12 weeks before 2024-02-27
     });
 
     it('should return 26 for baby 26 weeks old (6 months)', () => {
-      expect(getAgeInWeeks('2025-08-29')).toBe(26);
+      expect(getAgeInWeeks('2023-08-29')).toBe(26); // 26 weeks before 2024-02-27
     });
 
     it('should return 52 for baby 52 weeks old (1 year)', () => {
-      const ageInWeeks = getAgeInWeeks('2025-02-28');
+      const ageInWeeks = getAgeInWeeks('2023-02-28'); // 52 weeks before 2024-02-27
       expect(ageInWeeks).toBeGreaterThanOrEqual(52);
       expect(ageInWeeks).toBeLessThanOrEqual(53);
     });
@@ -145,7 +145,7 @@ describe('Date Utilities', () => {
   describe('getChildAgeLong', () => {
     beforeEach(() => {
       vi.useFakeTimers();
-      vi.setSystemTime(new Date('2026-02-27T12:00:00.000Z'));
+      vi.setSystemTime(new Date('2024-02-27T12:00:00.000Z'));
     });
 
     afterEach(() => {
@@ -153,16 +153,16 @@ describe('Date Utilities', () => {
     });
 
     it('should return age in days for newborns', () => {
-      expect(getChildAgeLong('2026-02-17')).toContain('days old'); // 10 days before reference
+      expect(getChildAgeLong('2024-02-17')).toContain('days old'); // 10 days before reference
     });
 
     it('should return age in months for infants', () => {
-      expect(getChildAgeLong('2025-11-29')).toContain('months old'); // ~90 days before
+      expect(getChildAgeLong('2023-11-29')).toContain('months old'); // ~3 months before 2024-02-27
     });
 
     it('should return age in years for toddlers', () => {
-      // 730+ days before 2026-02-27 so diffDays >= 730 → "years old"
-      expect(getChildAgeLong('2024-02-20')).toContain('years old');
+      // 730+ days before 2024-02-27 so diffDays >= 730 → "years old"
+      expect(getChildAgeLong('2022-02-20')).toContain('years old');
     });
   });
 

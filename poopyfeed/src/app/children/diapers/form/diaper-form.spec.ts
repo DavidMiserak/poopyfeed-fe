@@ -189,7 +189,7 @@ describe('DiaperForm', () => {
         true
       );
 
-      component.diaperForm.get('changed_at')?.setValue('2026-02-10T10:30');
+      component.diaperForm.get('changed_at')?.setValue('2024-02-10T10:30');
       expect(component.diaperForm.get('changed_at')?.hasError('required')).toBe(
         false
       );
@@ -210,7 +210,7 @@ describe('DiaperForm', () => {
 
   describe('DateTime Handling', () => {
     it('should call setDefaultDateTime with current time on create', () => {
-      const now = new Date('2026-02-10T10:30:00');
+      const now = new Date('2024-02-10T10:30:00');
       vi.useFakeTimers();
       vi.setSystemTime(now);
 
@@ -223,7 +223,7 @@ describe('DiaperForm', () => {
     });
 
     it('should format datetime for input using dateTimeService', () => {
-      const mockDateTime = '2026-02-10T10:30';
+      const mockDateTime = '2024-02-10T10:30';
       vi.mocked(dateTimeService.toInputFormat).mockReturnValue(mockDateTime);
 
       const now = new Date();
@@ -237,23 +237,23 @@ describe('DiaperForm', () => {
     beforeEach(() => {
       vi.mocked(childrenService.get).mockReturnValue(of(mockChild));
       vi.mocked(dateTimeService.toInputFormat).mockReturnValue(
-        '2026-02-10T10:30'
+        '2024-02-10T10:30'
       );
       vi.mocked(dateTimeService.toUTC).mockReturnValue(
-        '2026-02-10T10:30:00Z'
+        '2024-02-10T10:30:00Z'
       );
       vi.mocked(dateTimeService.toLocal).mockReturnValue(
-        new Date('2026-02-10T14:30:00')
+        new Date('2024-02-10T14:30:00')
       );
       vi.mocked(dateTimeService.fromInputFormat).mockReturnValue(
-        new Date('2026-02-10T10:30:00')
+        new Date('2024-02-10T10:30:00')
       );
     });
 
     it('should build correct DTO for wet diaper creation', () => {
       component.diaperForm.patchValue({
         change_type: 'wet',
-        changed_at: '2026-02-10T10:30',
+        changed_at: '2024-02-10T10:30',
         notes: 'Normal amount',
       });
 
@@ -261,7 +261,7 @@ describe('DiaperForm', () => {
 
       expect(dto).toEqual({
         change_type: 'wet',
-        changed_at: '2026-02-10T10:30:00Z',
+        changed_at: '2024-02-10T10:30:00Z',
         notes: 'Normal amount',
       });
     });
@@ -269,7 +269,7 @@ describe('DiaperForm', () => {
     it('should build correct DTO for dirty diaper creation', () => {
       component.diaperForm.patchValue({
         change_type: 'dirty',
-        changed_at: '2026-02-10T10:30',
+        changed_at: '2024-02-10T10:30',
         notes: 'Green stool',
       });
 
@@ -277,7 +277,7 @@ describe('DiaperForm', () => {
 
       expect(dto).toEqual({
         change_type: 'dirty',
-        changed_at: '2026-02-10T10:30:00Z',
+        changed_at: '2024-02-10T10:30:00Z',
         notes: 'Green stool',
       });
     });
@@ -285,7 +285,7 @@ describe('DiaperForm', () => {
     it('should build correct DTO for both diaper creation', () => {
       component.diaperForm.patchValue({
         change_type: 'both',
-        changed_at: '2026-02-10T10:30',
+        changed_at: '2024-02-10T10:30',
         notes: 'Full diaper',
       });
 
@@ -293,7 +293,7 @@ describe('DiaperForm', () => {
 
       expect(dto).toEqual({
         change_type: 'both',
-        changed_at: '2026-02-10T10:30:00Z',
+        changed_at: '2024-02-10T10:30:00Z',
         notes: 'Full diaper',
       });
     });
@@ -301,7 +301,7 @@ describe('DiaperForm', () => {
     it('should omit empty notes from DTO', () => {
       component.diaperForm.patchValue({
         change_type: 'wet',
-        changed_at: '2026-02-10T10:30',
+        changed_at: '2024-02-10T10:30',
         notes: '',
       });
 
@@ -313,7 +313,7 @@ describe('DiaperForm', () => {
     it('should include notes in DTO when provided', () => {
       component.diaperForm.patchValue({
         change_type: 'wet',
-        changed_at: '2026-02-10T10:30',
+        changed_at: '2024-02-10T10:30',
         notes: 'Good sign',
       });
 
@@ -325,13 +325,13 @@ describe('DiaperForm', () => {
     it('should convert local datetime to UTC in DTO', () => {
       component.diaperForm.patchValue({
         change_type: 'wet',
-        changed_at: '2026-02-10T10:30',
+        changed_at: '2024-02-10T10:30',
       });
 
       const dto = component['buildCreateDto']();
 
       expect(dateTimeService.toUTC).toHaveBeenCalled();
-      expect(dto.changed_at).toBe('2026-02-10T10:30:00Z');
+      expect(dto.changed_at).toBe('2024-02-10T10:30:00Z');
     });
   });
 
@@ -357,15 +357,15 @@ describe('DiaperForm', () => {
     });
 
     it('should convert UTC datetime to local format', () => {
-      const mockLocalDate = new Date('2026-02-10T14:30:00');
+      const mockLocalDate = new Date('2024-02-10T14:30:00');
       vi.mocked(dateTimeService.toInputFormat).mockReturnValue(
-        '2026-02-10T14:30'
+        '2024-02-10T14:30'
       );
 
       component['patchFormWithResource'](mockDiaperWet);
 
       expect(component.diaperForm.get('changed_at')?.value).toBe(
-        '2026-02-10T14:30'
+        '2024-02-10T14:30'
       );
     });
 
@@ -413,7 +413,7 @@ describe('DiaperForm', () => {
   describe('Form Validity', () => {
     it('should be invalid when change_type is missing', () => {
       component.diaperForm.patchValue({
-        changed_at: '2026-02-10T10:30',
+        changed_at: '2024-02-10T10:30',
       });
       component.diaperForm.get('change_type')?.setValue(null);
       expect(component.diaperForm.invalid).toBe(true);
@@ -427,7 +427,7 @@ describe('DiaperForm', () => {
     it('should be valid wet diaper form when all required fields present', () => {
       component.diaperForm.patchValue({
         change_type: 'wet',
-        changed_at: '2026-02-10T10:30',
+        changed_at: '2024-02-10T10:30',
       });
       expect(component.diaperForm.valid).toBe(true);
     });
@@ -435,7 +435,7 @@ describe('DiaperForm', () => {
     it('should be valid dirty diaper form when all required fields present', () => {
       component.diaperForm.patchValue({
         change_type: 'dirty',
-        changed_at: '2026-02-10T10:30',
+        changed_at: '2024-02-10T10:30',
       });
       expect(component.diaperForm.valid).toBe(true);
     });
@@ -443,7 +443,7 @@ describe('DiaperForm', () => {
     it('should be valid both diaper form when all required fields present', () => {
       component.diaperForm.patchValue({
         change_type: 'both',
-        changed_at: '2026-02-10T10:30',
+        changed_at: '2024-02-10T10:30',
       });
       expect(component.diaperForm.valid).toBe(true);
     });
@@ -451,7 +451,7 @@ describe('DiaperForm', () => {
     it('should be valid with optional notes included', () => {
       component.diaperForm.patchValue({
         change_type: 'wet',
-        changed_at: '2026-02-10T10:30',
+        changed_at: '2024-02-10T10:30',
         notes: 'Lots of pee!',
       });
       expect(component.diaperForm.valid).toBe(true);
@@ -484,11 +484,11 @@ describe('DiaperForm', () => {
         notes: 'Some notes',
       });
 
-      component.diaperForm.get('changed_at')?.setValue('2026-02-11T10:00');
+      component.diaperForm.get('changed_at')?.setValue('2024-02-11T10:00');
 
       expect(component.diaperForm.get('change_type')?.value).toBe('dirty');
       expect(component.diaperForm.get('notes')?.value).toBe('Some notes');
-      expect(component.diaperForm.get('changed_at')?.value).toBe('2026-02-11T10:00');
+      expect(component.diaperForm.get('changed_at')?.value).toBe('2024-02-11T10:00');
     });
   });
 
@@ -496,7 +496,7 @@ describe('DiaperForm', () => {
     it('should handle datetime at midnight', () => {
       component.diaperForm.patchValue({
         change_type: 'wet',
-        changed_at: '2026-02-10T00:00',
+        changed_at: '2024-02-10T00:00',
       });
       expect(component.diaperForm.valid).toBe(true);
     });
@@ -504,7 +504,7 @@ describe('DiaperForm', () => {
     it('should handle datetime at end of day', () => {
       component.diaperForm.patchValue({
         change_type: 'wet',
-        changed_at: '2026-02-10T23:59',
+        changed_at: '2024-02-10T23:59',
       });
       expect(component.diaperForm.valid).toBe(true);
     });
@@ -513,7 +513,7 @@ describe('DiaperForm', () => {
       const maxNotes = 'a'.repeat(500);
       component.diaperForm.patchValue({
         change_type: 'wet',
-        changed_at: '2026-02-10T10:30',
+        changed_at: '2024-02-10T10:30',
         notes: maxNotes,
       });
       expect(component.diaperForm.valid).toBe(true);
@@ -523,7 +523,7 @@ describe('DiaperForm', () => {
       const notesWithNewlines = 'Line 1\nLine 2\nLine 3';
       component.diaperForm.patchValue({
         change_type: 'wet',
-        changed_at: '2026-02-10T10:30',
+        changed_at: '2024-02-10T10:30',
         notes: notesWithNewlines,
       });
       expect(component.diaperForm.valid).toBe(true);
@@ -533,7 +533,7 @@ describe('DiaperForm', () => {
       const whitespaceNotes = '   \t\n   ';
       component.diaperForm.patchValue({
         change_type: 'wet',
-        changed_at: '2026-02-10T10:30',
+        changed_at: '2024-02-10T10:30',
         notes: whitespaceNotes,
       });
       expect(component.diaperForm.valid).toBe(true);
@@ -589,7 +589,7 @@ describe('DiaperForm', () => {
       it('should allow error updates without affecting form controls', () => {
         component.diaperForm.patchValue({
           change_type: 'wet' as const,
-          changed_at: '2026-02-10T10:30',
+          changed_at: '2024-02-10T10:30',
         });
         const initialValue = component.diaperForm.get('change_type')?.value;
 
@@ -602,14 +602,14 @@ describe('DiaperForm', () => {
       it('should preserve form data when error signal is set', () => {
         component.diaperForm.patchValue({
           change_type: 'wet' as const,
-          changed_at: '2026-02-10T10:30',
+          changed_at: '2024-02-10T10:30',
           notes: 'Normal amount',
         });
         component.error.set('Server error occurred');
 
         expect(component.diaperForm.get('change_type')?.value).toBe('wet');
         expect(component.diaperForm.get('changed_at')?.value).toBe(
-          '2026-02-10T10:30'
+          '2024-02-10T10:30'
         );
         expect(component.diaperForm.get('notes')?.value).toBe('Normal amount');
       });
@@ -617,7 +617,7 @@ describe('DiaperForm', () => {
       it('should preserve multiple form fields when error occurs', () => {
         component.diaperForm.patchValue({
           change_type: 'dirty',
-          changed_at: '2026-02-10T14:00',
+          changed_at: '2024-02-10T14:00',
           notes: 'Green stool',
         });
 
@@ -697,7 +697,7 @@ describe('DiaperForm', () => {
       it('should preserve error until explicitly cleared', () => {
         component.diaperForm.patchValue({
           change_type: 'both',
-          changed_at: '2026-02-10T16:00',
+          changed_at: '2024-02-10T16:00',
         });
         component.error.set('Submission failed');
 
@@ -736,7 +736,7 @@ describe('DiaperForm', () => {
       it('should maintain form validity state independent of error', () => {
         component.diaperForm.patchValue({
           change_type: 'wet',
-          changed_at: '2026-02-10T10:30',
+          changed_at: '2024-02-10T10:30',
         });
 
         expect(component.diaperForm.valid).toBe(true);

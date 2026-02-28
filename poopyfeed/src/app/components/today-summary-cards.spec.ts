@@ -188,7 +188,7 @@ describe('TodaySummaryCards', () => {
 
     it('should display summary when last_updated is at UTC midnight', () => {
       const summary = makeSummary({
-        last_updated: '2026-02-26T00:00:00Z',
+        last_updated: '2024-02-26T00:00:00Z',
         feedings: { count: 1, total_oz: 4, bottle: 1, breast: 0 },
         diapers: { count: 0, wet: 0, dirty: 0, both: 0 },
         sleep: { naps: 0, total_minutes: 0, avg_duration: 0 },
@@ -204,7 +204,7 @@ describe('TodaySummaryCards', () => {
 
     it('should display summary when last_updated is just after UTC midnight', () => {
       const summary = makeSummary({
-        last_updated: '2026-02-26T00:00:01Z',
+        last_updated: '2024-02-26T00:00:01Z',
         feedings: { count: 2, total_oz: 8, bottle: 2, breast: 0 },
         diapers: { count: 1, wet: 1, dirty: 0, both: 0 },
         sleep: { naps: 1, total_minutes: 45, avg_duration: 45 },
@@ -221,7 +221,7 @@ describe('TodaySummaryCards', () => {
 
     it('should display empty state when counts are zero regardless of last_updated time', () => {
       const summary = makeSummary({
-        last_updated: '2026-02-25T23:59:59Z',
+        last_updated: '2024-02-25T23:59:59Z',
         feedings: { count: 0, total_oz: 0, bottle: 0, breast: 0 },
         diapers: { count: 0, wet: 0, dirty: 0, both: 0 },
         sleep: { naps: 0, total_minutes: 0, avg_duration: 0 },
@@ -246,7 +246,7 @@ describe('TodaySummaryCards', () => {
       // Simulate API response for a user in America/New_York: "today" in ET
       // might have last_updated just after midnight ET (05:00 UTC)
       const summary = makeSummary({
-        last_updated: '2026-02-26T05:00:00Z', // 00:00 ET
+        last_updated: '2024-02-26T05:00:00Z', // 00:00 ET
         feedings: { count: 3, total_oz: 12, bottle: 2, breast: 1 },
         diapers: { count: 4, wet: 3, dirty: 0, both: 1 },
         sleep: { naps: 1, total_minutes: 90, avg_duration: 90 },

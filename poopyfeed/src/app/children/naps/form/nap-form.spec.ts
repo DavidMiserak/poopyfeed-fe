@@ -154,7 +154,7 @@ describe('NapForm', () => {
       component.napForm.get('napped_at')?.setValue('');
       expect(component.napForm.get('napped_at')?.hasError('required')).toBe(true);
 
-      component.napForm.get('napped_at')?.setValue('2026-02-10T10:30');
+      component.napForm.get('napped_at')?.setValue('2024-02-10T10:30');
       expect(component.napForm.get('napped_at')?.hasError('required')).toBe(
         false
       );
@@ -173,7 +173,7 @@ describe('NapForm', () => {
 
   describe('DateTime Handling', () => {
     it('should set default napped_at to current time in create mode', () => {
-      const now = new Date('2026-02-10T10:30:00');
+      const now = new Date('2024-02-10T10:30:00');
       vi.useFakeTimers();
       vi.setSystemTime(now);
 
@@ -186,7 +186,7 @@ describe('NapForm', () => {
     });
 
     it('should format datetime for HTML5 input using DateTimeService', () => {
-      const mockDateTime = '2026-02-10T10:30';
+      const mockDateTime = '2024-02-10T10:30';
       vi.mocked(dateTimeService.toInputFormat).mockReturnValue(mockDateTime);
 
       const now = new Date();
@@ -196,36 +196,36 @@ describe('NapForm', () => {
     });
 
     it('should convert local time to UTC when building DTO', () => {
-      vi.mocked(dateTimeService.toUTC).mockReturnValue('2026-02-10T10:30:00Z');
+      vi.mocked(dateTimeService.toUTC).mockReturnValue('2024-02-10T10:30:00Z');
 
       component.napForm.patchValue({
-        napped_at: '2026-02-10T10:30',
+        napped_at: '2024-02-10T10:30',
       });
 
       const dto = component['buildCreateDto']();
 
       expect(dateTimeService.toUTC).toHaveBeenCalled();
-      expect(dto.napped_at).toBe('2026-02-10T10:30:00Z');
+      expect(dto.napped_at).toBe('2024-02-10T10:30:00Z');
     });
 
     it('should convert UTC to local when patching form in edit mode', () => {
       vi.mocked(dateTimeService.toInputFormat).mockReturnValue(
-        '2026-02-10T13:00'
+        '2024-02-10T13:00'
       );
 
       component['patchFormWithResource'](mockNap);
 
-      expect(component.napForm.get('napped_at')?.value).toBe('2026-02-10T13:00');
+      expect(component.napForm.get('napped_at')?.value).toBe('2024-02-10T13:00');
     });
 
     it('should handle ended_at conversion when present', () => {
       vi.mocked(dateTimeService.toInputFormat).mockReturnValue(
-        '2026-02-10T14:30'
+        '2024-02-10T14:30'
       );
 
       component['patchFormWithResource'](mockNap);
 
-      expect(component.napForm.get('ended_at')?.value).toBe('2026-02-10T14:30');
+      expect(component.napForm.get('ended_at')?.value).toBe('2024-02-10T14:30');
     });
   });
 
@@ -233,30 +233,30 @@ describe('NapForm', () => {
     beforeEach(() => {
       vi.mocked(childrenService.get).mockReturnValue(of(mockChild));
       vi.mocked(dateTimeService.toInputFormat).mockReturnValue(
-        '2026-02-10T10:30'
+        '2024-02-10T10:30'
       );
-      vi.mocked(dateTimeService.toUTC).mockReturnValue('2026-02-10T10:30:00Z');
+      vi.mocked(dateTimeService.toUTC).mockReturnValue('2024-02-10T10:30:00Z');
       vi.mocked(dateTimeService.toLocal).mockReturnValue(
-        new Date('2026-02-10T13:00:00')
+        new Date('2024-02-10T13:00:00')
       );
     });
 
     it('should build correct NapCreate DTO with required fields', () => {
       component.napForm.patchValue({
-        napped_at: '2026-02-10T10:30',
+        napped_at: '2024-02-10T10:30',
       });
 
       const dto = component['buildCreateDto']();
 
       expect(dto).toEqual({
-        napped_at: '2026-02-10T10:30:00Z',
+        napped_at: '2024-02-10T10:30:00Z',
         notes: undefined,
       });
     });
 
     it('should include notes in DTO when provided', () => {
       component.napForm.patchValue({
-        napped_at: '2026-02-10T10:30',
+        napped_at: '2024-02-10T10:30',
         notes: 'Took a good nap',
       });
 
@@ -267,7 +267,7 @@ describe('NapForm', () => {
 
     it('should exclude notes from DTO when empty string', () => {
       component.napForm.patchValue({
-        napped_at: '2026-02-10T10:30',
+        napped_at: '2024-02-10T10:30',
         notes: '',
       });
 
@@ -278,22 +278,22 @@ describe('NapForm', () => {
 
     it('should include ended_at in DTO when provided', () => {
       vi.mocked(dateTimeService.toUTC)
-        .mockReturnValueOnce('2026-02-10T10:30:00Z')
-        .mockReturnValueOnce('2026-02-10T11:30:00Z');
+        .mockReturnValueOnce('2024-02-10T10:30:00Z')
+        .mockReturnValueOnce('2024-02-10T11:30:00Z');
 
       component.napForm.patchValue({
-        napped_at: '2026-02-10T10:30',
-        ended_at: '2026-02-10T11:30',
+        napped_at: '2024-02-10T10:30',
+        ended_at: '2024-02-10T11:30',
       });
 
       const dto = component['buildCreateDto']();
 
-      expect(dto.ended_at).toBe('2026-02-10T11:30:00Z');
+      expect(dto.ended_at).toBe('2024-02-10T11:30:00Z');
     });
 
     it('should exclude ended_at from DTO when empty', () => {
       component.napForm.patchValue({
-        napped_at: '2026-02-10T10:30',
+        napped_at: '2024-02-10T10:30',
         ended_at: '',
       });
 
@@ -304,28 +304,28 @@ describe('NapForm', () => {
 
     it('should convert napped_at to UTC before API call', () => {
       vi.mocked(dateTimeService.fromInputFormat).mockReturnValue(
-        new Date('2026-02-10T10:30:00')
+        new Date('2024-02-10T10:30:00')
       );
-      vi.mocked(dateTimeService.toUTC).mockReturnValue('2026-02-10T10:30:00Z');
+      vi.mocked(dateTimeService.toUTC).mockReturnValue('2024-02-10T10:30:00Z');
 
       component.napForm.patchValue({
-        napped_at: '2026-02-10T10:30',
+        napped_at: '2024-02-10T10:30',
       });
 
       const dto = component['buildCreateDto']();
 
       expect(dateTimeService.fromInputFormat).toHaveBeenCalledWith(
-        '2026-02-10T10:30'
+        '2024-02-10T10:30'
       );
       expect(dateTimeService.toUTC).toHaveBeenCalled();
-      expect(dto.napped_at).toBe('2026-02-10T10:30:00Z');
+      expect(dto.napped_at).toBe('2024-02-10T10:30:00Z');
     });
   });
 
   describe('Form Patch - Edit Mode', () => {
     beforeEach(() => {
       vi.mocked(dateTimeService.toInputFormat).mockReturnValue(
-        '2026-02-10T13:00'
+        '2024-02-10T13:00'
       );
     });
 
@@ -338,7 +338,7 @@ describe('NapForm', () => {
     it('should convert UTC napped_at to local time for display', () => {
       component['patchFormWithResource'](mockNap);
 
-      expect(component.napForm.get('napped_at')?.value).toBe('2026-02-10T13:00');
+      expect(component.napForm.get('napped_at')?.value).toBe('2024-02-10T13:00');
     });
 
     it('should handle null notes by setting empty string', () => {
@@ -349,17 +349,17 @@ describe('NapForm', () => {
 
     it('should handle ended_at when present', () => {
       vi.mocked(dateTimeService.toInputFormat)
-        .mockReturnValueOnce('2026-02-10T13:00')
-        .mockReturnValueOnce('2026-02-10T14:30');
+        .mockReturnValueOnce('2024-02-10T13:00')
+        .mockReturnValueOnce('2024-02-10T14:30');
 
       component['patchFormWithResource'](mockNap);
 
-      expect(component.napForm.get('ended_at')?.value).toBe('2026-02-10T14:30');
+      expect(component.napForm.get('ended_at')?.value).toBe('2024-02-10T14:30');
     });
 
     it('should leave ended_at empty when null', () => {
       vi.mocked(dateTimeService.toInputFormat).mockReturnValue(
-        '2026-02-10T13:00'
+        '2024-02-10T13:00'
       );
 
       component['patchFormWithResource'](mockNapNoNotes);
@@ -396,7 +396,7 @@ describe('NapForm', () => {
     it('should handle very long notes at boundary', () => {
       const maxNotes = 'a'.repeat(500);
       component.napForm.patchValue({
-        napped_at: '2026-02-10T10:30',
+        napped_at: '2024-02-10T10:30',
         notes: maxNotes,
       });
       expect(component.napForm.valid).toBe(true);
@@ -413,7 +413,7 @@ describe('NapForm', () => {
 
     it('should be valid with only napped_at filled', () => {
       component.napForm.patchValue({
-        napped_at: '2026-02-10T10:30',
+        napped_at: '2024-02-10T10:30',
       });
       expect(component.napForm.valid).toBe(true);
     });
@@ -422,25 +422,25 @@ describe('NapForm', () => {
   describe('Form State Transitions', () => {
     it('should update notes without affecting napped_at', () => {
       component.napForm.patchValue({
-        napped_at: '2026-02-10T10:30',
+        napped_at: '2024-02-10T10:30',
         notes: 'Initial notes',
       });
 
       component.napForm.get('notes')?.setValue('Updated notes');
 
-      expect(component.napForm.get('napped_at')?.value).toBe('2026-02-10T10:30');
+      expect(component.napForm.get('napped_at')?.value).toBe('2024-02-10T10:30');
       expect(component.napForm.get('notes')?.value).toBe('Updated notes');
     });
 
     it('should update datetime without affecting other fields', () => {
       component.napForm.patchValue({
-        napped_at: '2026-02-10T10:30',
+        napped_at: '2024-02-10T10:30',
         notes: 'Some notes',
       });
 
-      component.napForm.get('napped_at')?.setValue('2026-02-10T14:00');
+      component.napForm.get('napped_at')?.setValue('2024-02-10T14:00');
 
-      expect(component.napForm.get('napped_at')?.value).toBe('2026-02-10T14:00');
+      expect(component.napForm.get('napped_at')?.value).toBe('2024-02-10T14:00');
       expect(component.napForm.get('notes')?.value).toBe('Some notes');
     });
   });
@@ -448,14 +448,14 @@ describe('NapForm', () => {
   describe('Edge Cases', () => {
     it('should handle datetime at midnight', () => {
       component.napForm.patchValue({
-        napped_at: '2026-02-10T00:00',
+        napped_at: '2024-02-10T00:00',
       });
       expect(component.napForm.valid).toBe(true);
     });
 
     it('should handle datetime at end of day', () => {
       component.napForm.patchValue({
-        napped_at: '2026-02-10T23:59',
+        napped_at: '2024-02-10T23:59',
       });
       expect(component.napForm.valid).toBe(true);
     });
@@ -463,7 +463,7 @@ describe('NapForm', () => {
     it('should handle notes with newlines', () => {
       const notesWithNewlines = 'Line 1\nLine 2\nLine 3';
       component.napForm.patchValue({
-        napped_at: '2026-02-10T10:30',
+        napped_at: '2024-02-10T10:30',
         notes: notesWithNewlines,
       });
       expect(component.napForm.valid).toBe(true);
@@ -472,7 +472,7 @@ describe('NapForm', () => {
     it('should handle whitespace-only notes', () => {
       const whitespaceNotes = '   \t\n   ';
       component.napForm.patchValue({
-        napped_at: '2026-02-10T10:30',
+        napped_at: '2024-02-10T10:30',
         notes: whitespaceNotes,
       });
       expect(component.napForm.valid).toBe(true);
@@ -523,7 +523,7 @@ describe('NapForm', () => {
 
       it('should allow error updates without affecting form controls', () => {
         component.napForm.patchValue({
-          napped_at: '2026-02-10T10:30',
+          napped_at: '2024-02-10T10:30',
         });
         const initialValue = component.napForm.get('napped_at')?.value;
 
@@ -535,35 +535,35 @@ describe('NapForm', () => {
     describe('form data preservation during errors', () => {
       it('should preserve form data when error signal is set', () => {
         const formData = {
-          napped_at: '2026-02-10T10:30',
-          ended_at: '2026-02-10T11:30',
+          napped_at: '2024-02-10T10:30',
+          ended_at: '2024-02-10T11:30',
           notes: 'Good nap',
         };
 
         component.napForm.patchValue(formData);
         component.error.set('Server error occurred');
 
-        expect(component.napForm.get('napped_at')?.value).toBe('2026-02-10T10:30');
-        expect(component.napForm.get('ended_at')?.value).toBe('2026-02-10T11:30');
+        expect(component.napForm.get('napped_at')?.value).toBe('2024-02-10T10:30');
+        expect(component.napForm.get('ended_at')?.value).toBe('2024-02-10T11:30');
         expect(component.napForm.get('notes')?.value).toBe('Good nap');
       });
 
       it('should preserve multiple form fields when error occurs', () => {
         component.napForm.patchValue({
-          napped_at: '2026-02-10T14:00',
-          ended_at: '2026-02-10T15:00',
+          napped_at: '2024-02-10T14:00',
+          ended_at: '2024-02-10T15:00',
           notes: 'Long nap',
         });
 
         component.error.set('API 503 Service Unavailable');
 
-        expect(component.napForm.get('napped_at')?.value).toBe('2026-02-10T14:00');
-        expect(component.napForm.get('ended_at')?.value).toBe('2026-02-10T15:00');
+        expect(component.napForm.get('napped_at')?.value).toBe('2024-02-10T14:00');
+        expect(component.napForm.get('ended_at')?.value).toBe('2024-02-10T15:00');
         expect(component.napForm.get('notes')?.value).toBe('Long nap');
       });
 
       it('should allow user to continue editing despite error', () => {
-        component.napForm.get('napped_at')?.setValue('2026-02-10T10:30');
+        component.napForm.get('napped_at')?.setValue('2024-02-10T10:30');
         component.error.set('Upload failed');
 
         component.napForm.get('notes')?.setValue('Updated notes');
@@ -614,7 +614,7 @@ describe('NapForm', () => {
       it('should persist error through multiple form updates', () => {
         component.error.set('Error occurred');
 
-        component.napForm.get('napped_at')?.setValue('2026-02-10T12:00');
+        component.napForm.get('napped_at')?.setValue('2024-02-10T12:00');
         expect(component.error()).toBe('Error occurred');
 
         component.napForm.get('notes')?.setValue('Some notes');
@@ -631,13 +631,13 @@ describe('NapForm', () => {
 
       it('should preserve error until explicitly cleared', () => {
         component.napForm.patchValue({
-          napped_at: '2026-02-10T13:00',
-          ended_at: '2026-02-10T14:00',
+          napped_at: '2024-02-10T13:00',
+          ended_at: '2024-02-10T14:00',
         });
         component.error.set('Submission failed');
 
         // User interacts with form
-        component.napForm.get('napped_at')?.setValue('2026-02-10T14:00');
+        component.napForm.get('napped_at')?.setValue('2024-02-10T14:00');
         component.napForm.get('notes')?.setValue('New notes');
 
         // Error should still be present
@@ -668,7 +668,7 @@ describe('NapForm', () => {
 
       it('should maintain form validity state independent of error', () => {
         component.napForm.patchValue({
-          napped_at: '2026-02-10T10:30',
+          napped_at: '2024-02-10T10:30',
         });
 
         expect(component.napForm.valid).toBe(true);

@@ -24,18 +24,18 @@ describe('TimeEstimationService', () => {
   describe('estimateEventTimes', () => {
     it('should handle empty new events array', () => {
       const window: TimeWindow = {
-        startTime: '2026-02-17T09:00:00Z',
-        endTime: '2026-02-17T13:00:00Z',
+        startTime: '2024-02-17T09:00:00Z',
+        endTime: '2024-02-17T13:00:00Z',
       };
 
       const existingEvent: CatchUpEvent = {
         id: '1',
         type: 'feeding',
-        estimatedTime: '2026-02-17T10:00:00Z',
+        estimatedTime: '2024-02-17T10:00:00Z',
         isPinned: false,
         isExisting: true,
         existingId: 1,
-        data: { feeding_type: 'bottle', fed_at: '2026-02-17T10:00:00Z' },
+        data: { feeding_type: 'bottle', fed_at: '2024-02-17T10:00:00Z' },
       };
 
       const result = service.estimateEventTimes([existingEvent], window);
@@ -48,8 +48,8 @@ describe('TimeEstimationService', () => {
 
     it('should distribute single feeding event proportionally', () => {
       const window: TimeWindow = {
-        startTime: '2026-02-17T09:00:00Z',
-        endTime: '2026-02-17T13:00:00Z', // 4 hours
+        startTime: '2024-02-17T09:00:00Z',
+        endTime: '2024-02-17T13:00:00Z', // 4 hours
       };
 
       const event: CatchUpEvent = {
@@ -79,8 +79,8 @@ describe('TimeEstimationService', () => {
 
     it('should distribute mixed event types proportionally', () => {
       const window: TimeWindow = {
-        startTime: '2026-02-17T09:00:00Z',
-        endTime: '2026-02-17T13:00:00Z', // 4 hours = 240 minutes
+        startTime: '2024-02-17T09:00:00Z',
+        endTime: '2024-02-17T13:00:00Z', // 4 hours = 240 minutes
       };
 
       // Total typical duration: 20 + 5 + 60 = 85 minutes
@@ -149,8 +149,8 @@ describe('TimeEstimationService', () => {
 
     it('should enforce minimum 2-minute gap between events', () => {
       const window: TimeWindow = {
-        startTime: '2026-02-17T09:00:00Z',
-        endTime: '2026-02-17T09:30:00Z', // 30 minutes (very tight)
+        startTime: '2024-02-17T09:00:00Z',
+        endTime: '2024-02-17T09:30:00Z', // 30 minutes (very tight)
       };
 
       const events: CatchUpEvent[] = [
@@ -185,8 +185,8 @@ describe('TimeEstimationService', () => {
 
     it('should detect overflow when durations exceed window', () => {
       const window: TimeWindow = {
-        startTime: '2026-02-17T09:00:00Z',
-        endTime: '2026-02-17T10:00:00Z', // 1 hour = 60 minutes
+        startTime: '2024-02-17T09:00:00Z',
+        endTime: '2024-02-17T10:00:00Z', // 1 hour = 60 minutes
       };
 
       // Typical durations: 20 + 20 + 20 + 60 = 120 minutes (exceeds window)
@@ -210,18 +210,18 @@ describe('TimeEstimationService', () => {
 
     it('should skip existing events in time estimation', () => {
       const window: TimeWindow = {
-        startTime: '2026-02-17T09:00:00Z',
-        endTime: '2026-02-17T13:00:00Z',
+        startTime: '2024-02-17T09:00:00Z',
+        endTime: '2024-02-17T13:00:00Z',
       };
 
       const existingEvent: CatchUpEvent = {
         id: '1',
         type: 'feeding',
-        estimatedTime: '2026-02-17T10:00:00Z',
+        estimatedTime: '2024-02-17T10:00:00Z',
         isPinned: false,
         isExisting: true,
         existingId: 1,
-        data: { feeding_type: 'bottle', fed_at: '2026-02-17T10:00:00Z' },
+        data: { feeding_type: 'bottle', fed_at: '2024-02-17T10:00:00Z' },
       };
 
       const newEvent: CatchUpEvent = {
@@ -239,22 +239,22 @@ describe('TimeEstimationService', () => {
       );
 
       // Existing event keeps original time
-      expect(result.events[0].estimatedTime).toBe('2026-02-17T10:00:00Z');
+      expect(result.events[0].estimatedTime).toBe('2024-02-17T10:00:00Z');
       // New event gets calculated time
       expect(result.events[1].estimatedTime).not.toBe('');
     });
 
     it('should keep pinned events fixed during recalculation', () => {
       const window: TimeWindow = {
-        startTime: '2026-02-17T09:00:00Z',
-        endTime: '2026-02-17T13:00:00Z',
+        startTime: '2024-02-17T09:00:00Z',
+        endTime: '2024-02-17T13:00:00Z',
       };
 
       const events: CatchUpEvent[] = [
         {
           id: '1',
           type: 'feeding',
-          estimatedTime: '2026-02-17T10:30:00Z',
+          estimatedTime: '2024-02-17T10:30:00Z',
           isPinned: true, // User manually set this time
           isExisting: false,
           data: { feeding_type: 'bottle', fed_at: '', amount_oz: 4 },
@@ -272,13 +272,13 @@ describe('TimeEstimationService', () => {
       const result = service.estimateEventTimes(events, window);
 
       // Pinned event should keep its time
-      expect(result.events[0].estimatedTime).toBe('2026-02-17T10:30:00Z');
+      expect(result.events[0].estimatedTime).toBe('2024-02-17T10:30:00Z');
     });
 
     it('should handle custom configuration', () => {
       const window: TimeWindow = {
-        startTime: '2026-02-17T09:00:00Z',
-        endTime: '2026-02-17T10:00:00Z', // 1 hour
+        startTime: '2024-02-17T09:00:00Z',
+        endTime: '2024-02-17T10:00:00Z', // 1 hour
       };
 
       const customConfig = {
@@ -309,15 +309,15 @@ describe('TimeEstimationService', () => {
   describe('recalculateTimes', () => {
     it('should recalculate times after reordering', () => {
       const window: TimeWindow = {
-        startTime: '2026-02-17T09:00:00Z',
-        endTime: '2026-02-17T13:00:00Z',
+        startTime: '2024-02-17T09:00:00Z',
+        endTime: '2024-02-17T13:00:00Z',
       };
 
       const events: CatchUpEvent[] = [
         {
           id: '1',
           type: 'feeding',
-          estimatedTime: '2026-02-17T09:30:00Z',
+          estimatedTime: '2024-02-17T09:30:00Z',
           isPinned: false,
           isExisting: false,
           data: { feeding_type: 'bottle', fed_at: '', amount_oz: 4 },
@@ -325,7 +325,7 @@ describe('TimeEstimationService', () => {
         {
           id: '2',
           type: 'nap',
-          estimatedTime: '2026-02-17T12:00:00Z',
+          estimatedTime: '2024-02-17T12:00:00Z',
           isPinned: false,
           isExisting: false,
           data: { napped_at: '', ended_at: '' },
@@ -347,15 +347,15 @@ describe('TimeEstimationService', () => {
 
     it('should respect pinned indices during recalculation', () => {
       const window: TimeWindow = {
-        startTime: '2026-02-17T09:00:00Z',
-        endTime: '2026-02-17T13:00:00Z',
+        startTime: '2024-02-17T09:00:00Z',
+        endTime: '2024-02-17T13:00:00Z',
       };
 
       const events: CatchUpEvent[] = [
         {
           id: '1',
           type: 'feeding',
-          estimatedTime: '2026-02-17T09:30:00Z',
+          estimatedTime: '2024-02-17T09:30:00Z',
           isPinned: false,
           isExisting: false,
           data: { feeding_type: 'bottle', fed_at: '', amount_oz: 4 },
@@ -363,7 +363,7 @@ describe('TimeEstimationService', () => {
         {
           id: '2',
           type: 'diaper',
-          estimatedTime: '2026-02-17T10:00:00Z',
+          estimatedTime: '2024-02-17T10:00:00Z',
           isPinned: false,
           isExisting: false,
           data: { change_type: 'wet', changed_at: '' },
@@ -374,15 +374,15 @@ describe('TimeEstimationService', () => {
       const result = service.recalculateTimes(events, window, [0]);
 
       // First event should keep its time (pinned)
-      expect(result.events[0].estimatedTime).toBe('2026-02-17T09:30:00Z');
+      expect(result.events[0].estimatedTime).toBe('2024-02-17T09:30:00Z');
     });
   });
 
   describe('validateTimeWindow', () => {
     it('should validate valid time window', () => {
       const window: TimeWindow = {
-        startTime: '2026-02-17T09:00:00Z',
-        endTime: '2026-02-17T13:00:00Z',
+        startTime: '2024-02-17T09:00:00Z',
+        endTime: '2024-02-17T13:00:00Z',
       };
 
       const errors = service.validateTimeWindow(window);
@@ -392,8 +392,8 @@ describe('TimeEstimationService', () => {
 
     it('should reject window with start >= end', () => {
       const window: TimeWindow = {
-        startTime: '2026-02-17T13:00:00Z',
-        endTime: '2026-02-17T09:00:00Z',
+        startTime: '2024-02-17T13:00:00Z',
+        endTime: '2024-02-17T09:00:00Z',
       };
 
       const errors = service.validateTimeWindow(window);
@@ -403,8 +403,8 @@ describe('TimeEstimationService', () => {
 
     it('should reject window with equal start and end', () => {
       const window: TimeWindow = {
-        startTime: '2026-02-17T12:00:00Z',
-        endTime: '2026-02-17T12:00:00Z',
+        startTime: '2024-02-17T12:00:00Z',
+        endTime: '2024-02-17T12:00:00Z',
       };
 
       const errors = service.validateTimeWindow(window);
@@ -442,8 +442,8 @@ describe('TimeEstimationService', () => {
 
     it('should reject window exceeding 24 hours', () => {
       const window: TimeWindow = {
-        startTime: '2026-02-17T09:00:00Z',
-        endTime: '2026-02-18T10:00:00Z', // 25 hours
+        startTime: '2024-02-17T09:00:00Z',
+        endTime: '2024-02-18T10:00:00Z', // 25 hours
       };
 
       const errors = service.validateTimeWindow(window);
@@ -453,8 +453,8 @@ describe('TimeEstimationService', () => {
 
     it('should allow window exactly 24 hours', () => {
       const window: TimeWindow = {
-        startTime: '2026-02-17T09:00:00Z',
-        endTime: '2026-02-18T09:00:00Z', // Exactly 24 hours
+        startTime: '2024-02-17T09:00:00Z',
+        endTime: '2024-02-18T09:00:00Z', // Exactly 24 hours
       };
 
       const errors = service.validateTimeWindow(window);
@@ -487,8 +487,8 @@ describe('TimeEstimationService', () => {
   describe('edge cases', () => {
     it('should handle very small time window', () => {
       const window: TimeWindow = {
-        startTime: '2026-02-17T12:00:00Z',
-        endTime: '2026-02-17T12:01:00Z', // 1 minute
+        startTime: '2024-02-17T12:00:00Z',
+        endTime: '2024-02-17T12:01:00Z', // 1 minute
       };
 
       const event: CatchUpEvent = {
@@ -509,8 +509,8 @@ describe('TimeEstimationService', () => {
 
     it('should handle 20 events (max batch size)', () => {
       const window: TimeWindow = {
-        startTime: '2026-02-17T09:00:00Z',
-        endTime: '2026-02-17T13:00:00Z', // 4 hours = 240 minutes
+        startTime: '2024-02-17T09:00:00Z',
+        endTime: '2024-02-17T13:00:00Z', // 4 hours = 240 minutes
       };
 
       const events: CatchUpEvent[] = Array.from(
@@ -534,8 +534,8 @@ describe('TimeEstimationService', () => {
 
     it('should preserve order after estimation', () => {
       const window: TimeWindow = {
-        startTime: '2026-02-17T09:00:00Z',
-        endTime: '2026-02-17T13:00:00Z',
+        startTime: '2024-02-17T09:00:00Z',
+        endTime: '2024-02-17T13:00:00Z',
       };
 
       const events: CatchUpEvent[] = [

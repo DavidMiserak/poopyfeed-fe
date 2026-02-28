@@ -39,7 +39,7 @@ describe('BatchesService', () => {
         {
           id: '1',
           type: 'feeding',
-          estimatedTime: '2026-02-17T10:00:00Z',
+          estimatedTime: '2024-02-17T10:00:00Z',
           isPinned: false,
           isExisting: false,
           data: {
@@ -56,10 +56,10 @@ describe('BatchesService', () => {
             type: 'feeding',
             id: 1,
             feeding_type: 'bottle',
-            fed_at: '2026-02-17T10:00:00Z',
+            fed_at: '2024-02-17T10:00:00Z',
             amount_oz: 4,
-            created_at: '2026-02-17T12:00:00Z',
-            updated_at: '2026-02-17T12:00:00Z',
+            created_at: '2024-02-17T12:00:00Z',
+            updated_at: '2024-02-17T12:00:00Z',
           },
         ],
         count: 1,
@@ -87,7 +87,7 @@ describe('BatchesService', () => {
         {
           id: '1',
           type: 'feeding',
-          estimatedTime: '2026-02-17T10:00:00Z',
+          estimatedTime: '2024-02-17T10:00:00Z',
           isPinned: false,
           isExisting: false,
           data: {
@@ -99,7 +99,7 @@ describe('BatchesService', () => {
         {
           id: '2',
           type: 'diaper',
-          estimatedTime: '2026-02-17T10:25:00Z',
+          estimatedTime: '2024-02-17T10:25:00Z',
           isPinned: false,
           isExisting: false,
           data: {
@@ -131,7 +131,7 @@ describe('BatchesService', () => {
 
     it('should use estimated time in request', () => {
       const childId = 1;
-      const estimatedTime = '2026-02-17T10:00:00Z';
+      const estimatedTime = '2024-02-17T10:00:00Z';
       const events: CatchUpEvent[] = [
         {
           id: '1',
@@ -166,20 +166,20 @@ describe('BatchesService', () => {
         {
           id: '1',
           type: 'feeding',
-          estimatedTime: '2026-02-17T10:00:00Z',
+          estimatedTime: '2024-02-17T10:00:00Z',
           isPinned: false,
           isExisting: true,
           existingId: 1,
           data: {
             feeding_type: 'bottle',
-            fed_at: '2026-02-17T10:00:00Z',
+            fed_at: '2024-02-17T10:00:00Z',
             amount_oz: 4,
           },
         },
         {
           id: '2',
           type: 'diaper',
-          estimatedTime: '2026-02-17T10:25:00Z',
+          estimatedTime: '2024-02-17T10:25:00Z',
           isPinned: false,
           isExisting: false,
           data: {
@@ -211,7 +211,7 @@ describe('BatchesService', () => {
         {
           id: '1',
           type: 'feeding',
-          estimatedTime: '2026-02-17T10:00:00Z',
+          estimatedTime: '2024-02-17T10:00:00Z',
           isPinned: false,
           isExisting: false,
           data: {
@@ -223,7 +223,7 @@ describe('BatchesService', () => {
         {
           id: '2',
           type: 'diaper',
-          estimatedTime: '2026-02-17T10:25:00Z',
+          estimatedTime: '2024-02-17T10:25:00Z',
           isPinned: false,
           isExisting: false,
           data: {
@@ -234,7 +234,7 @@ describe('BatchesService', () => {
         {
           id: '3',
           type: 'nap',
-          estimatedTime: '2026-02-17T10:30:00Z',
+          estimatedTime: '2024-02-17T10:30:00Z',
           isPinned: false,
           isExisting: false,
           data: {
@@ -250,27 +250,27 @@ describe('BatchesService', () => {
             type: 'feeding',
             id: 42,
             feeding_type: 'bottle',
-            fed_at: '2026-02-17T10:00:00Z',
+            fed_at: '2024-02-17T10:00:00Z',
             amount_oz: 4,
-            created_at: '2026-02-17T12:00:00Z',
-            updated_at: '2026-02-17T12:00:00Z',
+            created_at: '2024-02-17T12:00:00Z',
+            updated_at: '2024-02-17T12:00:00Z',
           },
           {
             type: 'diaper',
             id: 15,
             change_type: 'wet',
-            changed_at: '2026-02-17T10:25:00Z',
-            created_at: '2026-02-17T12:00:00Z',
-            updated_at: '2026-02-17T12:00:00Z',
+            changed_at: '2024-02-17T10:25:00Z',
+            created_at: '2024-02-17T12:00:00Z',
+            updated_at: '2024-02-17T12:00:00Z',
           },
           {
             type: 'nap',
             id: 8,
-            napped_at: '2026-02-17T10:30:00Z',
-            ended_at: '2026-02-17T11:30:00Z',
+            napped_at: '2024-02-17T10:30:00Z',
+            ended_at: '2024-02-17T11:30:00Z',
             duration_minutes: 60,
-            created_at: '2026-02-17T12:00:00Z',
-            updated_at: '2026-02-17T12:00:00Z',
+            created_at: '2024-02-17T12:00:00Z',
+            updated_at: '2024-02-17T12:00:00Z',
           },
         ],
         count: 3,
@@ -303,7 +303,7 @@ describe('BatchesService', () => {
         {
           id: '1',
           type: 'feeding',
-          estimatedTime: '2026-02-17T10:00:00Z',
+          estimatedTime: '2024-02-17T10:00:00Z',
           isPinned: false,
           isExisting: false,
           data: {
@@ -353,7 +353,7 @@ describe('BatchesService', () => {
         {
           id: '1',
           type: 'feeding',
-          estimatedTime: '2026-02-17T10:00:00Z',
+          estimatedTime: '2024-02-17T10:00:00Z',
           isPinned: false,
           isExisting: false,
           data: {
@@ -365,12 +365,12 @@ describe('BatchesService', () => {
         {
           id: '2',
           type: 'nap',
-          estimatedTime: '2026-02-17T11:00:00Z',
+          estimatedTime: '2024-02-17T11:00:00Z',
           isPinned: false,
           isExisting: false,
           data: {
-            napped_at: '2026-02-17T11:30:00Z',
-            ended_at: '2026-02-17T11:00:00Z', // Invalid: end before start
+            napped_at: '2024-02-17T11:30:00Z',
+            ended_at: '2024-02-17T11:00:00Z', // Invalid: end before start
           },
         },
       ];
@@ -419,7 +419,7 @@ describe('BatchesService', () => {
         {
           id: '1',
           type: 'feeding',
-          estimatedTime: '2026-02-17T10:00:00Z',
+          estimatedTime: '2024-02-17T10:00:00Z',
           isPinned: false,
           isExisting: false,
           data: {
@@ -453,7 +453,7 @@ describe('BatchesService', () => {
         {
           id: '1',
           type: 'feeding',
-          estimatedTime: '2026-02-17T10:00:00Z',
+          estimatedTime: '2024-02-17T10:00:00Z',
           isPinned: false,
           isExisting: false,
           data: {
@@ -487,7 +487,7 @@ describe('BatchesService', () => {
         {
           id: '1',
           type: 'feeding',
-          estimatedTime: '2026-02-17T10:00:00Z',
+          estimatedTime: '2024-02-17T10:00:00Z',
           isPinned: false,
           isExisting: false,
           data: {
@@ -546,13 +546,13 @@ describe('BatchesService', () => {
         {
           id: '1',
           type: 'feeding',
-          estimatedTime: '2026-02-17T10:00:00Z',
+          estimatedTime: '2024-02-17T10:00:00Z',
           isPinned: false,
           isExisting: true,
           existingId: 1,
           data: {
             feeding_type: 'bottle',
-            fed_at: '2026-02-17T10:00:00Z',
+            fed_at: '2024-02-17T10:00:00Z',
             amount_oz: 4,
           },
         },

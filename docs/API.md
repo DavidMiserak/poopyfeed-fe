@@ -140,8 +140,8 @@ Content-Type: application/json
     "name": "Baby John",
     "date_of_birth": "2025-08-20",
     "gender": "M",
-    "created_at": "2026-02-08T12:00:00Z",
-    "updated_at": "2026-02-08T12:00:00Z",
+    "created_at": "2024-02-08T12:00:00Z",
+    "updated_at": "2024-02-08T12:00:00Z",
     "user_role": "owner",
     "can_edit": true,
     "can_manage_sharing": true
@@ -204,25 +204,25 @@ Authorization: Token {token}
         "id": 1,
         "feeding_type": "bottle",
         "feeding_type_display": "Bottle",
-        "fed_at": "2026-02-08T08:30:00Z",
+        "fed_at": "2024-02-08T08:30:00Z",
         "amount_oz": "4.5",
         "duration_minutes": null,
         "side": "",
         "side_display": "",
-        "created_at": "2026-02-08T08:35:00Z",
-        "updated_at": "2026-02-08T08:35:00Z"
+        "created_at": "2024-02-08T08:35:00Z",
+        "updated_at": "2024-02-08T08:35:00Z"
     },
     {
         "id": 2,
         "feeding_type": "breast",
         "feeding_type_display": "Breast",
-        "fed_at": "2026-02-08T11:15:00Z",
+        "fed_at": "2024-02-08T11:15:00Z",
         "amount_oz": null,
         "duration_minutes": 15,
         "side": "left",
         "side_display": "Left",
-        "created_at": "2026-02-08T11:30:00Z",
-        "updated_at": "2026-02-08T11:30:00Z"
+        "created_at": "2024-02-08T11:30:00Z",
+        "updated_at": "2024-02-08T11:30:00Z"
     }
 ]
 ```
@@ -245,7 +245,7 @@ Content-Type: application/json
 
 {
   "feeding_type": "bottle",
-  "fed_at": "2026-02-08T14:00:00Z",
+  "fed_at": "2024-02-08T14:00:00Z",
   "amount_oz": "5.0"
 }
 ```
@@ -259,7 +259,7 @@ Content-Type: application/json
 
 {
   "feeding_type": "breast",
-  "fed_at": "2026-02-08T14:00:00Z",
+  "fed_at": "2024-02-08T14:00:00Z",
   "duration_minutes": 20,
   "side": "right"
 }
@@ -289,7 +289,7 @@ Content-Type: application/json
 
 {
   "feeding_type": "bottle",
-  "fed_at": "2026-02-08T14:00:00Z",
+  "fed_at": "2024-02-08T14:00:00Z",
   "amount_oz": "6.0"
 }
 ```
@@ -336,17 +336,17 @@ Authorization: Token {token}
         "id": 1,
         "change_type": "wet",
         "change_type_display": "Wet",
-        "changed_at": "2026-02-08T09:00:00Z",
-        "created_at": "2026-02-08T09:05:00Z",
-        "updated_at": "2026-02-08T09:05:00Z"
+        "changed_at": "2024-02-08T09:00:00Z",
+        "created_at": "2024-02-08T09:05:00Z",
+        "updated_at": "2024-02-08T09:05:00Z"
     },
     {
         "id": 2,
         "change_type": "both",
         "change_type_display": "Wet + Dirty",
-        "changed_at": "2026-02-08T12:30:00Z",
-        "created_at": "2026-02-08T12:35:00Z",
-        "updated_at": "2026-02-08T12:35:00Z"
+        "changed_at": "2024-02-08T12:30:00Z",
+        "created_at": "2024-02-08T12:35:00Z",
+        "updated_at": "2024-02-08T12:35:00Z"
     }
 ]
 ```
@@ -367,7 +367,7 @@ Content-Type: application/json
 
 {
   "change_type": "dirty",
-  "changed_at": "2026-02-08T15:00:00Z"
+  "changed_at": "2024-02-08T15:00:00Z"
 }
 ```
 
@@ -385,7 +385,7 @@ Content-Type: application/json
 
 {
   "change_type": "both",
-  "changed_at": "2026-02-08T15:00:00Z"
+  "changed_at": "2024-02-08T15:00:00Z"
 }
 ```
 
@@ -429,9 +429,9 @@ Authorization: Token {token}
 [
     {
         "id": 1,
-        "napped_at": "2026-02-08T10:00:00Z",
-        "created_at": "2026-02-08T10:05:00Z",
-        "updated_at": "2026-02-08T10:05:00Z"
+        "napped_at": "2024-02-08T10:00:00Z",
+        "created_at": "2024-02-08T10:05:00Z",
+        "updated_at": "2024-02-08T10:05:00Z"
     }
 ]
 ```
@@ -451,7 +451,7 @@ Authorization: Token {token}
 Content-Type: application/json
 
 {
-  "napped_at": "2026-02-08T13:00:00Z"
+  "napped_at": "2024-02-08T13:00:00Z"
 }
 ```
 
@@ -467,7 +467,7 @@ Authorization: Token {token}
 Content-Type: application/json
 
 {
-  "napped_at": "2026-02-08T13:30:00Z"
+  "napped_at": "2024-02-08T13:30:00Z"
 }
 ```
 
@@ -479,7 +479,7 @@ Authorization: Token {token}
 Content-Type: application/json
 
 {
-  "napped_at": "2026-02-08T13:30:00Z"
+  "napped_at": "2024-02-08T13:30:00Z"
 }
 ```
 
@@ -516,14 +516,14 @@ Authorization: Token {token}
         "user_email": "partner@example.com",
         "role": "CO",
         "role_display": "Co-parent",
-        "created_at": "2026-02-01T10:00:00Z"
+        "created_at": "2024-02-01T10:00:00Z"
     },
     {
         "id": 2,
         "user_email": "caregiver@example.com",
         "role": "CG",
         "role_display": "Caregiver",
-        "created_at": "2026-02-05T12:00:00Z"
+        "created_at": "2024-02-05T12:00:00Z"
     }
 ]
 ```
@@ -562,7 +562,7 @@ Authorization: Token {token}
         "role": "CO",
         "role_display": "Co-parent",
         "is_active": true,
-        "created_at": "2026-02-01T10:00:00Z",
+        "created_at": "2024-02-01T10:00:00Z",
         "invite_url": "http://localhost:8000/children/accept-invite/abc123xyz789.../"
     }
 ]
@@ -597,7 +597,7 @@ Content-Type: application/json
     "role": "CG",
     "role_display": "Caregiver",
     "is_active": true,
-    "created_at": "2026-02-08T15:00:00Z",
+    "created_at": "2024-02-08T15:00:00Z",
     "invite_url": "http://localhost:8000/children/accept-invite/def456uvw012.../"
 }
 ```
@@ -622,7 +622,7 @@ Authorization: Token {token}
     "role": "CG",
     "role_display": "Caregiver",
     "is_active": false,
-    "created_at": "2026-02-08T15:00:00Z",
+    "created_at": "2024-02-08T15:00:00Z",
     "invite_url": "http://localhost:8000/children/accept-invite/def456uvw012.../"
 }
 ```

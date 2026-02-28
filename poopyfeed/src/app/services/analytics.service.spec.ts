@@ -298,12 +298,12 @@ describe('AnalyticsService', () => {
       // Backend defines "today" as UTC date; API may return last_updated at 00:00:00Z
       const summaryAtMidnight = {
         ...mockTodaySummary,
-        last_updated: '2026-02-26T00:00:00Z',
+        last_updated: '2024-02-26T00:00:00Z',
         feedings: { ...mockTodaySummary.feedings, count: 1 },
       };
       service.getTodaySummary(1).subscribe({
         next: (summary) => {
-          expect(summary.last_updated).toBe('2026-02-26T00:00:00Z');
+          expect(summary.last_updated).toBe('2024-02-26T00:00:00Z');
           expect(summary.feedings.count).toBe(1);
           expect(service.todaySummary()).toEqual(summaryAtMidnight);
         },
@@ -341,10 +341,10 @@ describe('AnalyticsService', () => {
       results: [
         {
           type: 'feeding' as const,
-          at: '2026-02-27T12:00:00Z',
+          at: '2024-02-27T12:00:00Z',
           feeding: {
             id: 1,
-            fed_at: '2026-02-27T12:00:00Z',
+            fed_at: '2024-02-27T12:00:00Z',
             feeding_type: 'bottle' as const,
             amount_oz: 4,
           },
@@ -525,8 +525,8 @@ describe('AnalyticsService', () => {
     const mockExportJobResponse: ExportJobResponse = {
       task_id: 'abc123def456',
       status: 'pending',
-      created_at: '2026-02-12T10:00:00Z',
-      expires_at: '2026-02-13T10:00:00Z',
+      created_at: '2024-02-12T10:00:00Z',
+      expires_at: '2024-02-13T10:00:00Z',
     };
 
     it('should initiate async PDF export and return task ID', () => {
@@ -639,9 +639,9 @@ describe('AnalyticsService', () => {
         progress: 100,
         result: {
           download_url: '/api/v1/analytics/download/abc123def456.pdf',
-          filename: 'analytics-1-2026-02-12.pdf',
-          created_at: '2026-02-12T10:05:00Z',
-          expires_at: '2026-02-13T10:05:00Z',
+          filename: 'analytics-1-2024-02-12.pdf',
+          created_at: '2024-02-12T10:05:00Z',
+          expires_at: '2024-02-13T10:05:00Z',
         },
       };
 
@@ -711,9 +711,9 @@ describe('AnalyticsService', () => {
       const appendChildSpy = vi.spyOn(document.body, 'appendChild');
       const removeChildSpy = vi.spyOn(document.body, 'removeChild');
 
-      service.downloadPDF('/api/v1/analytics/download/analytics-1-2026-02-12.pdf').subscribe();
+      service.downloadPDF('/api/v1/analytics/download/analytics-1-2024-02-12.pdf').subscribe();
 
-      const req = httpMock.expectOne('/api/v1/analytics/download/analytics-1-2026-02-12.pdf');
+      const req = httpMock.expectOne('/api/v1/analytics/download/analytics-1-2024-02-12.pdf');
       req.flush(mockPDFBlob);
 
       // Verify anchor element was created

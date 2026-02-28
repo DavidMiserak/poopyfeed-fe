@@ -402,7 +402,7 @@ export class AnalyticsService {
    * Generate a standardized CSV filename.
    *
    * @param childId Child's unique identifier
-   * @returns Filename string (e.g., "analytics-1-2026-02-12.csv")
+   * @returns Filename string (e.g., "analytics-1-2024-01-15.csv")
    */
   private generateCSVFilename(childId: number): string {
     const date = this.datetimeService.getTodayInUserTimezone();

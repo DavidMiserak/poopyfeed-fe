@@ -195,7 +195,7 @@ describe('FeedingForm', () => {
 
   describe('DateTime Handling', () => {
     it('should call setDefaultDateTime with current time on create', () => {
-      const now = new Date('2026-02-10T10:30:00');
+      const now = new Date('2024-02-10T10:30:00');
       vi.useFakeTimers();
       vi.setSystemTime(now);
 
@@ -211,7 +211,7 @@ describe('FeedingForm', () => {
     });
 
     it('should format datetime for input using dateTimeService', () => {
-      const mockDateTime = '2026-02-10T10:30';
+      const mockDateTime = '2024-02-10T10:30';
       vi.mocked(dateTimeService.toInputFormat).mockReturnValue(mockDateTime);
 
       const now = new Date();
@@ -225,23 +225,23 @@ describe('FeedingForm', () => {
     beforeEach(() => {
       vi.mocked(childrenService.get).mockReturnValue(of(mockChild));
       vi.mocked(dateTimeService.toInputFormat).mockReturnValue(
-        '2026-02-10T10:30'
+        '2024-02-10T10:30'
       );
       vi.mocked(dateTimeService.toUTC).mockReturnValue(
-        '2026-02-10T10:30:00Z'
+        '2024-02-10T10:30:00Z'
       );
       vi.mocked(dateTimeService.toLocal).mockReturnValue(
-        new Date('2026-02-10T14:30:00')
+        new Date('2024-02-10T14:30:00')
       );
       vi.mocked(dateTimeService.fromInputFormat).mockReturnValue(
-        new Date('2026-02-10T10:30:00')
+        new Date('2024-02-10T10:30:00')
       );
     });
 
     it('should build correct DTO for bottle feeding creation', () => {
       component.feedingForm.patchValue({
         feeding_type: 'bottle',
-        fed_at: '2026-02-10T10:30',
+        fed_at: '2024-02-10T10:30',
         amount_oz: 5,
         notes: 'Happy baby',
       });
@@ -250,7 +250,7 @@ describe('FeedingForm', () => {
 
       expect(dto).toEqual({
         feeding_type: 'bottle',
-        fed_at: '2026-02-10T10:30:00Z',
+        fed_at: '2024-02-10T10:30:00Z',
         amount_oz: 5,
         notes: 'Happy baby',
       });
@@ -259,7 +259,7 @@ describe('FeedingForm', () => {
     it('should omit duration_minutes in bottle feeding DTO', () => {
       component.feedingForm.patchValue({
         feeding_type: 'bottle',
-        fed_at: '2026-02-10T10:30',
+        fed_at: '2024-02-10T10:30',
         amount_oz: 5,
       });
 
@@ -271,7 +271,7 @@ describe('FeedingForm', () => {
     it('should omit side in bottle feeding DTO', () => {
       component.feedingForm.patchValue({
         feeding_type: 'bottle',
-        fed_at: '2026-02-10T10:30',
+        fed_at: '2024-02-10T10:30',
         amount_oz: 5,
       });
 
@@ -283,7 +283,7 @@ describe('FeedingForm', () => {
     it('should build correct DTO for breast feeding creation', () => {
       component.feedingForm.patchValue({
         feeding_type: 'breast',
-        fed_at: '2026-02-10T10:30',
+        fed_at: '2024-02-10T10:30',
         duration_minutes: 20,
         side: 'left',
         notes: '',
@@ -293,7 +293,7 @@ describe('FeedingForm', () => {
 
       expect(dto).toEqual({
         feeding_type: 'breast',
-        fed_at: '2026-02-10T10:30:00Z',
+        fed_at: '2024-02-10T10:30:00Z',
         duration_minutes: 20,
         side: 'left',
       });
@@ -302,7 +302,7 @@ describe('FeedingForm', () => {
     it('should omit amount_oz in breast feeding DTO', () => {
       component.feedingForm.patchValue({
         feeding_type: 'breast',
-        fed_at: '2026-02-10T10:30',
+        fed_at: '2024-02-10T10:30',
         duration_minutes: 20,
         side: 'left',
       });
@@ -315,7 +315,7 @@ describe('FeedingForm', () => {
     it('should omit empty notes from DTO', () => {
       component.feedingForm.patchValue({
         feeding_type: 'bottle',
-        fed_at: '2026-02-10T10:30',
+        fed_at: '2024-02-10T10:30',
         amount_oz: 5,
         notes: '',
       });
@@ -328,7 +328,7 @@ describe('FeedingForm', () => {
     it('should include notes in DTO when provided', () => {
       component.feedingForm.patchValue({
         feeding_type: 'bottle',
-        fed_at: '2026-02-10T10:30',
+        fed_at: '2024-02-10T10:30',
         amount_oz: 5,
         notes: 'Good appetite',
       });
@@ -349,14 +349,14 @@ describe('FeedingForm', () => {
     });
 
     it('should convert UTC datetime to local format for bottle feeding', () => {
-      const mockLocalDate = new Date('2026-02-10T14:30:00');
+      const mockLocalDate = new Date('2024-02-10T14:30:00');
       vi.mocked(dateTimeService.toInputFormat).mockReturnValue(
-        '2026-02-10T14:30'
+        '2024-02-10T14:30'
       );
 
       component['patchFormWithResource'](mockFeeding);
 
-      expect(component.feedingForm.get('fed_at')?.value).toBe('2026-02-10T14:30');
+      expect(component.feedingForm.get('fed_at')?.value).toBe('2024-02-10T14:30');
     });
 
     it('should patch form with breast feeding data', () => {
@@ -427,7 +427,7 @@ describe('FeedingForm', () => {
     it('should be valid bottle feeding form when all required fields present', () => {
       component.feedingForm.patchValue({
         feeding_type: 'bottle',
-        fed_at: '2026-02-10T10:30',
+        fed_at: '2024-02-10T10:30',
         amount_oz: 5,
       });
       expect(component.feedingForm.valid).toBe(true);
@@ -436,7 +436,7 @@ describe('FeedingForm', () => {
     it('should be valid breast feeding form when all required fields present', () => {
       component.feedingForm.patchValue({
         feeding_type: 'breast',
-        fed_at: '2026-02-10T10:30',
+        fed_at: '2024-02-10T10:30',
         duration_minutes: 20,
         side: 'left',
       });
@@ -449,7 +449,7 @@ describe('FeedingForm', () => {
     it('should handle minimum bottle amount (0.1 oz)', () => {
       component.feedingForm.patchValue({
         feeding_type: 'bottle',
-        fed_at: '2026-02-10T10:30',
+        fed_at: '2024-02-10T10:30',
         amount_oz: 0.1,
       });
       expect(component.feedingForm.valid).toBe(true);
@@ -458,7 +458,7 @@ describe('FeedingForm', () => {
     it('should handle maximum bottle amount (50 oz)', () => {
       component.feedingForm.patchValue({
         feeding_type: 'bottle',
-        fed_at: '2026-02-10T10:30',
+        fed_at: '2024-02-10T10:30',
         amount_oz: 50,
       });
       expect(component.feedingForm.valid).toBe(true);
@@ -467,7 +467,7 @@ describe('FeedingForm', () => {
     it('should handle minimum breast duration (1 minute)', () => {
       component.feedingForm.patchValue({
         feeding_type: 'breast',
-        fed_at: '2026-02-10T10:30',
+        fed_at: '2024-02-10T10:30',
         duration_minutes: 1,
         side: 'left',
       });
@@ -477,7 +477,7 @@ describe('FeedingForm', () => {
     it('should handle maximum breast duration (180 minutes)', () => {
       component.feedingForm.patchValue({
         feeding_type: 'breast',
-        fed_at: '2026-02-10T10:30',
+        fed_at: '2024-02-10T10:30',
         duration_minutes: 180,
         side: 'both',
       });
@@ -508,7 +508,7 @@ describe('FeedingForm', () => {
       it('should set and clear error signal independently of form state', () => {
         component.feedingForm.patchValue({
           feeding_type: 'bottle',
-          fed_at: '2026-02-10T10:30',
+          fed_at: '2024-02-10T10:30',
           amount_oz: 5,
         });
 
@@ -532,7 +532,7 @@ describe('FeedingForm', () => {
       it('should preserve form data independently of error state', () => {
         const formData = {
           feeding_type: 'bottle' as const,
-          fed_at: '2026-02-10T10:30',
+          fed_at: '2024-02-10T10:30',
           amount_oz: 5,
         };
         component.feedingForm.patchValue(formData);
@@ -546,7 +546,7 @@ describe('FeedingForm', () => {
       it('should not lose form data when error is cleared', () => {
         const formData = {
           feeding_type: 'breast' as const,
-          fed_at: '2026-02-10T14:00',
+          fed_at: '2024-02-10T14:00',
           duration_minutes: 20,
           side: 'right' as const,
         };
@@ -675,7 +675,7 @@ describe('FeedingForm', () => {
         // Start with bottle
         component.feedingForm.patchValue({
           feeding_type: 'bottle' as const,
-          fed_at: '2026-02-10T10:30',
+          fed_at: '2024-02-10T10:30',
           amount_oz: 5,
         });
         expect(component.feedingForm.valid).toBe(true);
@@ -696,7 +696,7 @@ describe('FeedingForm', () => {
         // Start with breast
         component.feedingForm.patchValue({
           feeding_type: 'breast' as const,
-          fed_at: '2026-02-10T10:30',
+          fed_at: '2024-02-10T10:30',
           duration_minutes: 20,
           side: 'left' as const,
         });
@@ -716,7 +716,7 @@ describe('FeedingForm', () => {
       it('should handle multiple rapid type changes', () => {
         component.feedingForm.patchValue({
           feeding_type: 'bottle' as const,
-          fed_at: '2026-02-10T10:30',
+          fed_at: '2024-02-10T10:30',
         });
 
         // Rapid type changes
@@ -732,7 +732,7 @@ describe('FeedingForm', () => {
       it('should support switching from breast to bottle feeding', () => {
         component.feedingForm.patchValue({
           feeding_type: 'breast' as const,
-          fed_at: '2026-02-10T10:30',
+          fed_at: '2024-02-10T10:30',
           duration_minutes: 15,
           side: 'right' as const,
         });
@@ -747,7 +747,7 @@ describe('FeedingForm', () => {
       it('should support switching from bottle to breast feeding', () => {
         component.feedingForm.patchValue({
           feeding_type: 'bottle' as const,
-          fed_at: '2026-02-10T10:30',
+          fed_at: '2024-02-10T10:30',
           amount_oz: 8,
         });
 
@@ -763,7 +763,7 @@ describe('FeedingForm', () => {
       it('should accept bottle amounts within valid range (0.1-50 oz)', () => {
         component.feedingForm.patchValue({
           feeding_type: 'bottle' as const,
-          fed_at: '2026-02-10T10:30',
+          fed_at: '2024-02-10T10:30',
           amount_oz: 0.1,
         });
 
@@ -779,7 +779,7 @@ describe('FeedingForm', () => {
       it('should accept breast durations within valid range (1-180 minutes)', () => {
         component.feedingForm.patchValue({
           feeding_type: 'breast' as const,
-          fed_at: '2026-02-10T10:30',
+          fed_at: '2024-02-10T10:30',
           duration_minutes: 1,
           side: 'left' as const,
         });
@@ -797,7 +797,7 @@ describe('FeedingForm', () => {
         // Min value
         component.feedingForm.patchValue({
           feeding_type: 'bottle' as const,
-          fed_at: '2026-02-10T10:30',
+          fed_at: '2024-02-10T10:30',
           amount_oz: 0.1,
         });
         let valid = component.feedingForm.valid;
@@ -811,7 +811,7 @@ describe('FeedingForm', () => {
         // Min value
         component.feedingForm.patchValue({
           feeding_type: 'breast' as const,
-          fed_at: '2026-02-10T10:30',
+          fed_at: '2024-02-10T10:30',
           duration_minutes: 1,
           side: 'left' as const,
         });
@@ -826,7 +826,7 @@ describe('FeedingForm', () => {
         // Bottle mid-range
         component.feedingForm.patchValue({
           feeding_type: 'bottle' as const,
-          fed_at: '2026-02-10T10:30',
+          fed_at: '2024-02-10T10:30',
           amount_oz: 25,
         });
 
@@ -847,7 +847,7 @@ describe('FeedingForm', () => {
       it('should be valid when all bottle feeding fields are present', () => {
         component.feedingForm.patchValue({
           feeding_type: 'bottle' as const,
-          fed_at: '2026-02-10T10:30',
+          fed_at: '2024-02-10T10:30',
           amount_oz: 5,
         });
 
@@ -857,7 +857,7 @@ describe('FeedingForm', () => {
       it('should be valid when all breast feeding fields are present', () => {
         component.feedingForm.patchValue({
           feeding_type: 'breast' as const,
-          fed_at: '2026-02-10T10:30',
+          fed_at: '2024-02-10T10:30',
           duration_minutes: 20,
           side: 'left' as const,
         });
@@ -869,7 +869,7 @@ describe('FeedingForm', () => {
         // Bottle form with breast fields (shouldn't cause validation errors)
         component.feedingForm.patchValue({
           feeding_type: 'bottle' as const,
-          fed_at: '2026-02-10T10:30',
+          fed_at: '2024-02-10T10:30',
           amount_oz: 5,
           duration_minutes: 20, // Extra field (not used in bottle mode)
           side: 'left' as const, // Extra field (not used in bottle mode)
@@ -883,7 +883,7 @@ describe('FeedingForm', () => {
         // Breast form with bottle field (shouldn't cause validation errors)
         component.feedingForm.patchValue({
           feeding_type: 'breast' as const,
-          fed_at: '2026-02-10T10:30',
+          fed_at: '2024-02-10T10:30',
           amount_oz: 5, // Extra field (not used in breast mode)
           duration_minutes: 20,
           side: 'left' as const,
@@ -910,7 +910,7 @@ describe('FeedingForm', () => {
       it('should preserve form state when notes change', () => {
         component.feedingForm.patchValue({
           feeding_type: 'bottle' as const,
-          fed_at: '2026-02-10T10:30',
+          fed_at: '2024-02-10T10:30',
           amount_oz: 5,
           notes: 'Initial notes',
         });
@@ -926,7 +926,7 @@ describe('FeedingForm', () => {
       it('should handle clearing all optional fields', () => {
         component.feedingForm.patchValue({
           feeding_type: 'bottle' as const,
-          fed_at: '2026-02-10T10:30',
+          fed_at: '2024-02-10T10:30',
           amount_oz: 5,
           notes: 'Some notes',
         });
@@ -940,7 +940,7 @@ describe('FeedingForm', () => {
       it('should maintain breast side selection across duration changes', () => {
         component.feedingForm.patchValue({
           feeding_type: 'breast' as const,
-          fed_at: '2026-02-10T10:30',
+          fed_at: '2024-02-10T10:30',
           duration_minutes: 15,
           side: 'right' as const,
         });
@@ -956,7 +956,7 @@ describe('FeedingForm', () => {
       it('should be valid when all required bottle fields are present', () => {
         component.feedingForm.patchValue({
           feeding_type: 'bottle' as const,
-          fed_at: '2026-02-10T10:30',
+          fed_at: '2024-02-10T10:30',
           amount_oz: 5,
         });
 
@@ -966,7 +966,7 @@ describe('FeedingForm', () => {
       it('should be valid when all required breast fields are present', () => {
         component.feedingForm.patchValue({
           feeding_type: 'breast' as const,
-          fed_at: '2026-02-10T10:30',
+          fed_at: '2024-02-10T10:30',
           duration_minutes: 20,
           side: 'left' as const,
         });
@@ -977,7 +977,7 @@ describe('FeedingForm', () => {
       it('should remain valid when optional notes field changes', () => {
         component.feedingForm.patchValue({
           feeding_type: 'bottle' as const,
-          fed_at: '2026-02-10T10:30',
+          fed_at: '2024-02-10T10:30',
           amount_oz: 5,
         });
 
@@ -993,7 +993,7 @@ describe('FeedingForm', () => {
         // Start as bottle
         component.feedingForm.patchValue({
           feeding_type: 'bottle' as const,
-          fed_at: '2026-02-10T10:30',
+          fed_at: '2024-02-10T10:30',
           amount_oz: 5,
         });
 
@@ -1017,7 +1017,7 @@ describe('FeedingForm', () => {
         const maxNotes = 'a'.repeat(500);
         component.feedingForm.patchValue({
           feeding_type: 'bottle' as const,
-          fed_at: '2026-02-10T10:30',
+          fed_at: '2024-02-10T10:30',
           amount_oz: 5,
           notes: maxNotes,
         });
@@ -1030,7 +1030,7 @@ describe('FeedingForm', () => {
         const tooLongNotes = 'a'.repeat(501);
         component.feedingForm.patchValue({
           feeding_type: 'bottle' as const,
-          fed_at: '2026-02-10T10:30',
+          fed_at: '2024-02-10T10:30',
           amount_oz: 5,
           notes: tooLongNotes,
         });
@@ -1042,7 +1042,7 @@ describe('FeedingForm', () => {
       it('should accept empty notes', () => {
         component.feedingForm.patchValue({
           feeding_type: 'bottle' as const,
-          fed_at: '2026-02-10T10:30',
+          fed_at: '2024-02-10T10:30',
           amount_oz: 5,
           notes: '',
         });
@@ -1055,7 +1055,7 @@ describe('FeedingForm', () => {
         const specialNotes = 'Notes: @#$%!? with 🍼 emoji';
         component.feedingForm.patchValue({
           feeding_type: 'bottle' as const,
-          fed_at: '2026-02-10T10:30',
+          fed_at: '2024-02-10T10:30',
           amount_oz: 5,
           notes: specialNotes,
         });
@@ -1068,7 +1068,7 @@ describe('FeedingForm', () => {
       it('should accept left side', () => {
         component.feedingForm.patchValue({
           feeding_type: 'breast' as const,
-          fed_at: '2026-02-10T10:30',
+          fed_at: '2024-02-10T10:30',
           duration_minutes: 15,
           side: 'left' as const,
         });
@@ -1080,7 +1080,7 @@ describe('FeedingForm', () => {
       it('should accept right side', () => {
         component.feedingForm.patchValue({
           feeding_type: 'breast' as const,
-          fed_at: '2026-02-10T10:30',
+          fed_at: '2024-02-10T10:30',
           duration_minutes: 15,
           side: 'right' as const,
         });
@@ -1092,7 +1092,7 @@ describe('FeedingForm', () => {
       it('should accept both sides', () => {
         component.feedingForm.patchValue({
           feeding_type: 'breast' as const,
-          fed_at: '2026-02-10T10:30',
+          fed_at: '2024-02-10T10:30',
           duration_minutes: 15,
           side: 'both' as const,
         });
@@ -1104,7 +1104,7 @@ describe('FeedingForm', () => {
       it('should transition to valid breast feeding with all fields', () => {
         component.feedingForm.patchValue({
           feeding_type: 'breast' as const,
-          fed_at: '2026-02-10T10:30',
+          fed_at: '2024-02-10T10:30',
           duration_minutes: 15,
         });
 
@@ -1118,9 +1118,9 @@ describe('FeedingForm', () => {
   describe('DOM Rendering', () => {
     beforeEach(() => {
       vi.mocked(childrenService.get).mockReturnValue(of(mockChild));
-      vi.mocked(dateTimeService.toInputFormat).mockReturnValue('2026-02-10T10:30');
-      vi.mocked(dateTimeService.toUTC).mockReturnValue('2026-02-10T10:30:00Z');
-      vi.mocked(dateTimeService.fromInputFormat).mockReturnValue(new Date('2026-02-10T10:30:00'));
+      vi.mocked(dateTimeService.toInputFormat).mockReturnValue('2024-02-10T10:30');
+      vi.mocked(dateTimeService.toUTC).mockReturnValue('2024-02-10T10:30:00Z');
+      vi.mocked(dateTimeService.fromInputFormat).mockReturnValue(new Date('2024-02-10T10:30:00'));
     });
 
     afterEach(() => {

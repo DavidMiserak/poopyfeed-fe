@@ -66,7 +66,7 @@ describe('QuickLog', () => {
     });
 
     it('should log nap with current timestamp when canEdit is true', () => {
-      const mockDate = new Date('2026-02-10T10:30:00Z');
+      const mockDate = new Date('2024-02-10T10:30:00Z');
       const mockNap = { id: 123, child: 1, napped_at: mockDate.toISOString(), ended_at: null, duration_minutes: null, created_at: mockDate.toISOString(), updated_at: mockDate.toISOString() };
       vi.mocked(dateTimeService.toUTC).mockReturnValue(mockDate.toISOString());
       vi.mocked(napsService.create).mockReturnValue(of(mockNap));
@@ -86,7 +86,7 @@ describe('QuickLog', () => {
     });
 
     it('should show success toast on successful nap log', () => {
-      const mockDate = new Date('2026-02-10T10:30:00Z');
+      const mockDate = new Date('2024-02-10T10:30:00Z');
       const mockNap = { id: 123, child: 1, napped_at: mockDate.toISOString(), ended_at: null, duration_minutes: null, created_at: mockDate.toISOString(), updated_at: mockDate.toISOString() };
       vi.mocked(dateTimeService.toUTC).mockReturnValue(mockDate.toISOString());
       vi.mocked(napsService.create).mockReturnValue(of(mockNap));
@@ -129,7 +129,7 @@ describe('QuickLog', () => {
     });
 
     it('should set isLoggingNap to true while logging', () => {
-      const mockDate = new Date('2026-02-10T10:30:00Z');
+      const mockDate = new Date('2024-02-10T10:30:00Z');
       const mockNap = { id: 123, child: 1, napped_at: mockDate.toISOString(), ended_at: null, duration_minutes: null, created_at: mockDate.toISOString(), updated_at: mockDate.toISOString() };
       vi.mocked(dateTimeService.toUTC).mockReturnValue(mockDate.toISOString());
       let capturedIsLogging = false;
@@ -152,7 +152,7 @@ describe('QuickLog', () => {
     });
 
     it('should log wet diaper with current timestamp when canEdit is true', () => {
-      const mockDate = new Date('2026-02-10T10:30:00Z');
+      const mockDate = new Date('2024-02-10T10:30:00Z');
       const mockDiaper = { id: 123, child: 1, change_type: 'wet' as const, changed_at: mockDate.toISOString(), created_at: mockDate.toISOString(), updated_at: mockDate.toISOString() };
       vi.mocked(dateTimeService.toUTC).mockReturnValue(mockDate.toISOString());
       vi.mocked(diapersService.create).mockReturnValue(of(mockDiaper));
@@ -173,7 +173,7 @@ describe('QuickLog', () => {
     });
 
     it('should show success toast on successful wet diaper log', () => {
-      const mockDate = new Date('2026-02-10T10:30:00Z');
+      const mockDate = new Date('2024-02-10T10:30:00Z');
       const mockDiaper = { id: 123, child: 1, change_type: 'wet' as const, changed_at: mockDate.toISOString(), created_at: mockDate.toISOString(), updated_at: mockDate.toISOString() };
       vi.mocked(dateTimeService.toUTC).mockReturnValue(mockDate.toISOString());
       vi.mocked(diapersService.create).mockReturnValue(of(mockDiaper));
@@ -216,7 +216,7 @@ describe('QuickLog', () => {
     });
 
     it('should set isLoggingWetDiaper to true while logging', () => {
-      const mockDate = new Date('2026-02-10T10:30:00Z');
+      const mockDate = new Date('2024-02-10T10:30:00Z');
       const mockDiaper = { id: 123, child: 1, change_type: 'wet' as const, changed_at: mockDate.toISOString(), created_at: mockDate.toISOString(), updated_at: mockDate.toISOString() };
       vi.mocked(dateTimeService.toUTC).mockReturnValue(mockDate.toISOString());
       let capturedIsLogging = false;
@@ -239,7 +239,7 @@ describe('QuickLog', () => {
     });
 
     it('should log dirty diaper with current timestamp when canEdit is true', () => {
-      const mockDate = new Date('2026-02-10T10:30:00Z');
+      const mockDate = new Date('2024-02-10T10:30:00Z');
       const mockDiaper = { id: 123, child: 1, change_type: 'dirty' as const, changed_at: mockDate.toISOString(), created_at: mockDate.toISOString(), updated_at: mockDate.toISOString() };
       vi.mocked(dateTimeService.toUTC).mockReturnValue(mockDate.toISOString());
       vi.mocked(diapersService.create).mockReturnValue(of(mockDiaper));
@@ -259,7 +259,7 @@ describe('QuickLog', () => {
     });
 
     it('should show success toast on successful dirty diaper log', () => {
-      const mockDate = new Date('2026-02-10T10:30:00Z');
+      const mockDate = new Date('2024-02-10T10:30:00Z');
       const mockDiaper = { id: 123, child: 1, change_type: 'dirty' as const, changed_at: mockDate.toISOString(), created_at: mockDate.toISOString(), updated_at: mockDate.toISOString() };
       vi.mocked(dateTimeService.toUTC).mockReturnValue(mockDate.toISOString());
       vi.mocked(diapersService.create).mockReturnValue(of(mockDiaper));
@@ -289,7 +289,7 @@ describe('QuickLog', () => {
     });
 
     it('should set isLoggingDirtyDiaper to true while logging', () => {
-      const mockDate = new Date('2026-02-10T10:30:00Z');
+      const mockDate = new Date('2024-02-10T10:30:00Z');
       const mockDiaper = { id: 123, child: 1, change_type: 'dirty' as const, changed_at: mockDate.toISOString(), created_at: mockDate.toISOString(), updated_at: mockDate.toISOString() };
       vi.mocked(dateTimeService.toUTC).mockReturnValue(mockDate.toISOString());
       let capturedIsLogging = false;
@@ -312,7 +312,7 @@ describe('QuickLog', () => {
     });
 
     it('should log both diaper with current timestamp when canEdit is true', () => {
-      const mockDate = new Date('2026-02-10T10:30:00Z');
+      const mockDate = new Date('2024-02-10T10:30:00Z');
       const mockDiaper = { id: 123, child: 1, change_type: 'both' as const, changed_at: mockDate.toISOString(), created_at: mockDate.toISOString(), updated_at: mockDate.toISOString() };
       vi.mocked(dateTimeService.toUTC).mockReturnValue(mockDate.toISOString());
       vi.mocked(diapersService.create).mockReturnValue(of(mockDiaper));
@@ -332,7 +332,7 @@ describe('QuickLog', () => {
     });
 
     it('should show success toast on successful both diaper log', () => {
-      const mockDate = new Date('2026-02-10T10:30:00Z');
+      const mockDate = new Date('2024-02-10T10:30:00Z');
       const mockDiaper = { id: 123, child: 1, change_type: 'both' as const, changed_at: mockDate.toISOString(), created_at: mockDate.toISOString(), updated_at: mockDate.toISOString() };
       vi.mocked(dateTimeService.toUTC).mockReturnValue(mockDate.toISOString());
       vi.mocked(diapersService.create).mockReturnValue(of(mockDiaper));
@@ -362,7 +362,7 @@ describe('QuickLog', () => {
     });
 
     it('should set isLoggingBothDiaper to true while logging', () => {
-      const mockDate = new Date('2026-02-10T10:30:00Z');
+      const mockDate = new Date('2024-02-10T10:30:00Z');
       const mockDiaper = { id: 123, child: 1, change_type: 'both' as const, changed_at: mockDate.toISOString(), created_at: mockDate.toISOString(), updated_at: mockDate.toISOString() };
       vi.mocked(dateTimeService.toUTC).mockReturnValue(mockDate.toISOString());
       let capturedIsLogging = false;
@@ -385,7 +385,7 @@ describe('QuickLog', () => {
     });
 
     it('should log bottle with recommended - 1 oz', () => {
-      const mockDate = new Date('2026-02-10T10:30:00Z');
+      const mockDate = new Date('2024-02-10T10:30:00Z');
       const mockChild: Child = {
         id: 1,
         name: 'Baby',
@@ -426,7 +426,7 @@ describe('QuickLog', () => {
       const mockChild: Child = {
         id: 1,
         name: 'Baby',
-        date_of_birth: '2025-12-10',
+        date_of_birth: '2023-12-10',
         gender: 'M',
         user_role: 'owner',
         created_at: new Date().toISOString(),
@@ -457,7 +457,7 @@ describe('QuickLog', () => {
       const mockChild: Child = {
         id: 1,
         name: 'Baby',
-        date_of_birth: '2025-12-10',
+        date_of_birth: '2023-12-10',
         gender: 'M',
         user_role: 'caregiver',
         created_at: new Date().toISOString(),
@@ -514,7 +514,7 @@ describe('QuickLog', () => {
     });
 
     it('should log bottle with recommended amount', () => {
-      const mockDate = new Date('2026-02-10T10:30:00Z');
+      const mockDate = new Date('2024-02-10T10:30:00Z');
       const mockChild: Child = {
         id: 1,
         name: 'Baby',
@@ -555,7 +555,7 @@ describe('QuickLog', () => {
       const mockChild: Child = {
         id: 1,
         name: 'Baby',
-        date_of_birth: '2025-12-10',
+        date_of_birth: '2023-12-10',
         gender: 'M',
         user_role: 'owner',
         created_at: new Date().toISOString(),
@@ -586,7 +586,7 @@ describe('QuickLog', () => {
       const mockChild: Child = {
         id: 1,
         name: 'Baby',
-        date_of_birth: '2025-12-10',
+        date_of_birth: '2023-12-10',
         gender: 'M',
         user_role: 'caregiver',
         created_at: new Date().toISOString(),
@@ -617,7 +617,7 @@ describe('QuickLog', () => {
     });
 
     it('should log bottle with recommended + 1 oz', () => {
-      const mockDate = new Date('2026-02-10T10:30:00Z');
+      const mockDate = new Date('2024-02-10T10:30:00Z');
       const mockChild: Child = {
         id: 1,
         name: 'Baby',
@@ -683,7 +683,7 @@ describe('QuickLog', () => {
       const mockChild: Child = {
         id: 1,
         name: 'Baby',
-        date_of_birth: '2025-12-10',
+        date_of_birth: '2023-12-10',
         gender: 'M',
         user_role: 'owner',
         created_at: new Date().toISOString(),
@@ -714,7 +714,7 @@ describe('QuickLog', () => {
       const mockChild: Child = {
         id: 1,
         name: 'Baby',
-        date_of_birth: '2025-12-10',
+        date_of_birth: '2023-12-10',
         gender: 'M',
         user_role: 'caregiver',
         created_at: new Date().toISOString(),
@@ -983,9 +983,15 @@ describe('QuickLog', () => {
 
   describe('template', () => {
     beforeEach(() => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date('2024-02-27T12:00:00Z')); // So getAgeInWeeks is deterministic for bottle-amount tests
       fixture.componentRef.setInput('childId', 1);
       fixture.componentRef.setInput('canEdit', true);
       fixture.detectChanges();
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
     });
 
     it('should show nap emoji when not loading', () => {
@@ -1328,7 +1334,7 @@ describe('QuickLog', () => {
       const mockChild: Child = {
         id: 1,
         name: 'Baby',
-        date_of_birth: '2025-11-15', // ~12 weeks (3 months) old -> 5 oz
+        date_of_birth: '2023-12-05', // 12 weeks before 2024-02-27 -> 5 oz
         gender: 'M',
         user_role: 'owner',
         created_at: new Date().toISOString(),
@@ -1350,8 +1356,9 @@ describe('QuickLog', () => {
     });
 
     it('should display 3 bottle amounts on buttons', () => {
-      // Child born today = 0 weeks old = 2 oz recommended
-      const today = new Date('2026-02-20');
+      // Child born today = 0 weeks old = 2 oz recommended (freeze time so getAgeInWeeks is deterministic)
+      const today = new Date('2024-02-20T12:00:00Z');
+      vi.setSystemTime(today);
       const newbornDate = today.toISOString().split('T')[0];
 
       const mockChild: Child = {
@@ -1421,9 +1428,10 @@ describe('QuickLog', () => {
     });
 
     it('should update bottle amounts when child changes', () => {
-      // Create dates relative to "today" (2026-02-20)
-      // Child1: born 2026-02-19 (1 day old = 0 weeks) -> 2 oz
-      const today = new Date('2026-02-20');
+      // Create dates relative to "today" (2024-02-20); freeze time so getAgeInWeeks is deterministic
+      // Child1: born 2024-02-19 (1 day old = 0 weeks) -> 2 oz
+      const today = new Date('2024-02-20T12:00:00Z');
+      vi.setSystemTime(today);
       const oneDay = 24 * 60 * 60 * 1000;
       const newbornDate = new Date(today.getTime() - oneDay)
         .toISOString()
@@ -1485,7 +1493,7 @@ describe('QuickLog', () => {
       const mockChild: Child = {
         id: 1,
         name: 'Baby',
-        date_of_birth: '2025-12-10', // ~2 months old -> 5 oz
+        date_of_birth: '2023-12-10', // ~2 months old -> 5 oz
         gender: 'M',
         user_role: 'owner',
         created_at: new Date().toISOString(),
@@ -1519,7 +1527,7 @@ describe('QuickLog', () => {
       const mockChild: Child = {
         id: 1,
         name: 'Baby',
-        date_of_birth: '2025-12-10', // ~2 months old -> 5 oz recommended
+        date_of_birth: '2023-12-10', // ~2 months old -> 5 oz recommended
         gender: 'M',
         user_role: 'owner',
         created_at: new Date().toISOString(),
@@ -1545,7 +1553,7 @@ describe('QuickLog', () => {
       const mockChild: Child = {
         id: 1,
         name: 'Baby',
-        date_of_birth: '2025-12-10', // ~2 months old -> 5 oz recommended
+        date_of_birth: '2023-12-10', // ~2 months old -> 5 oz recommended
         gender: 'M',
         user_role: 'owner',
         created_at: new Date().toISOString(),
@@ -1573,7 +1581,7 @@ describe('QuickLog', () => {
       const mockChild: Child = {
         id: 1,
         name: 'Baby',
-        date_of_birth: '2025-12-10', // ~2 months old -> 5 oz recommended
+        date_of_birth: '2023-12-10', // ~2 months old -> 5 oz recommended
         gender: 'M',
         user_role: 'owner',
         created_at: new Date().toISOString(),
@@ -1598,7 +1606,7 @@ describe('QuickLog', () => {
       const mockChild1: Child = {
         id: 1,
         name: 'Baby1',
-        date_of_birth: '2025-12-10', // ~2 months -> 5 oz
+        date_of_birth: '2023-12-10', // ~2 months -> 5 oz
         gender: 'M',
         user_role: 'owner',
         created_at: new Date().toISOString(),
@@ -1616,7 +1624,7 @@ describe('QuickLog', () => {
       const mockChild2: Child = {
         id: 2,
         name: 'Baby2',
-        date_of_birth: '2025-08-10', // ~6 months -> 7 oz
+        date_of_birth: '2023-08-29', // 26 weeks before 2024-02-27 -> 7 oz
         gender: 'F',
         user_role: 'owner',
         created_at: new Date().toISOString(),
@@ -1648,7 +1656,7 @@ describe('QuickLog', () => {
       const mockChild: Child = {
         id: 1,
         name: 'Baby',
-        date_of_birth: '2025-12-10',
+        date_of_birth: '2023-12-10',
         gender: 'M',
         user_role: 'owner',
         created_at: new Date().toISOString(),
@@ -1667,7 +1675,7 @@ describe('QuickLog', () => {
       fixture.componentRef.setInput('canEdit', true);
       fixture.detectChanges();
 
-      const mockDate = new Date('2026-02-10T10:30:00Z');
+      const mockDate = new Date('2024-02-10T10:30:00Z');
       const mockFeeding = {
         id: 123,
         child: 1,

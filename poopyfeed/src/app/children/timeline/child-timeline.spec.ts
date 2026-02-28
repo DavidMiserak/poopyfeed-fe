@@ -782,24 +782,21 @@ describe('ChildTimeline', () => {
           }).format(d);
         }
       );
-      vi.mocked(
-        dateTimeServiceMock.getDateNDaysAgoInUserTimezone
-      ).mockReturnValue('2026-02-27');
-
+      // selectedDateString for dayOffset 0 uses default mock (today in UTC = todayStr)
       component.dayOffset.set(0);
 
       const quickLoggedNap: ActivityItem = {
         id: 99,
         type: 'nap',
-        timestamp: '2026-02-27T15:00:00',
+        timestamp: `${todayStr}T15:00:00`,
         data: {
           id: 99,
           child: 1,
-          napped_at: '2026-02-27T15:00:00',
-          ended_at: '2026-02-27T15:30:00',
+          napped_at: `${todayStr}T15:00:00`,
+          ended_at: `${todayStr}T15:30:00`,
           duration_minutes: 30,
-          created_at: '2026-02-27T15:35:00Z',
-          updated_at: '2026-02-27T15:35:00Z',
+          created_at: `${todayStr}T15:35:00Z`,
+          updated_at: `${todayStr}T15:35:00Z`,
         } as Nap,
       };
       component.allActivities.set([quickLoggedNap]);
@@ -809,7 +806,7 @@ describe('ChildTimeline', () => {
       expect(dayActivities.length).toBe(1);
       expect(dayActivities[0].activity.id).toBe(99);
       expect(dayActivities[0].activity.type).toBe('nap');
-      expect(dayActivities[0].activity.timestamp).toBe('2026-02-27T15:00:00');
+      expect(dayActivities[0].activity.timestamp).toBe(`${todayStr}T15:00:00`);
     });
 
     it('should exclude activity when timestamp without Z falls on different day in UTC', () => {
@@ -830,24 +827,21 @@ describe('ChildTimeline', () => {
           }).format(d);
         }
       );
-      vi.mocked(
-        dateTimeServiceMock.getDateNDaysAgoInUserTimezone
-      ).mockReturnValue('2026-02-27');
-
+      // selectedDateString for dayOffset 0 is today (todayStr); activity is yesterday
       component.dayOffset.set(0);
 
       const napOnPreviousDay: ActivityItem = {
         id: 98,
         type: 'nap',
-        timestamp: '2026-02-26T23:00:00',
+        timestamp: `${yesterdayStr}T23:00:00`,
         data: {
           id: 98,
           child: 1,
-          napped_at: '2026-02-26T23:00:00',
-          ended_at: '2026-02-27T00:30:00',
+          napped_at: `${yesterdayStr}T23:00:00`,
+          ended_at: `${todayStr}T00:30:00`,
           duration_minutes: 90,
-          created_at: '2026-02-27T00:35:00Z',
-          updated_at: '2026-02-27T00:35:00Z',
+          created_at: `${todayStr}T00:35:00Z`,
+          updated_at: `${todayStr}T00:35:00Z`,
         } as Nap,
       };
       component.allActivities.set([napOnPreviousDay]);
