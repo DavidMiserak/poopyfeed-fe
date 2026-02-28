@@ -19,10 +19,16 @@ import { ToastService } from '../../services/toast.service';
       >
         <div class="max-w-5xl mx-auto flex flex-wrap items-center justify-between gap-3">
           <p class="font-['DM_Sans',sans-serif] text-sm text-amber-900">
-            Your device timezone is
-            <span class="font-semibold">{{ tzService.browserTimezone() }}</span>
-            but your account is set to
-            <span class="font-semibold">{{ tzService.profileTimezone() }}</span>.
+            @if (tzService.profileTimezone() === 'UTC') {
+              Your device timezone is
+              <span class="font-semibold">{{ tzService.browserTimezone() }}</span>.
+              Set it as your preference so times display correctly.
+            } @else {
+              Your device timezone is
+              <span class="font-semibold">{{ tzService.browserTimezone() }}</span>
+              but your account is set to
+              <span class="font-semibold">{{ tzService.profileTimezone() }}</span>.
+            }
           </p>
           <div class="flex items-center gap-2">
             <button
@@ -31,10 +37,10 @@ import { ToastService } from '../../services/toast.service';
               class="px-3 py-1.5 text-sm font-semibold rounded-lg bg-amber-500 text-white hover:bg-amber-600 disabled:opacity-50 transition-colors"
               [attr.aria-busy]="isUpdating()"
             >
-              @if (isUpdating()) {
-                Updating...
+            @if (isUpdating()) {
+              Updating...
               } @else {
-                Update to {{ tzService.browserTimezone() }}
+                {{ tzService.profileTimezone() === 'UTC' ? 'Set to' : 'Update to' }} {{ tzService.browserTimezone() }}
               }
             </button>
             <button

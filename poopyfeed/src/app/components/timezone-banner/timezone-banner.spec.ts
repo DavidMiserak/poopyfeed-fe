@@ -58,6 +58,23 @@ describe('TimezoneBanner', () => {
     expect(compiled.textContent).toContain('America/New_York');
   });
 
+  it('should show mismatch copy when profile is not UTC', () => {
+    tzServiceMock.profileTimezone.set('America/New_York');
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.textContent).toContain('but your account is set to');
+    expect(compiled.textContent).toContain('Update to America/Chicago');
+  });
+
+  it('should show "set preference" copy when profile is UTC', () => {
+    tzServiceMock.profileTimezone.set('UTC');
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.textContent).toContain('Set it as your preference so times display correctly');
+    expect(compiled.textContent).toContain('Set to America/Chicago');
+    expect(compiled.textContent).not.toContain('but your account is set to');
+  });
+
   it('should hide banner when showBanner is false', () => {
     tzServiceMock.showBanner.set(false);
     fixture.detectChanges();
