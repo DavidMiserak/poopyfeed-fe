@@ -55,7 +55,7 @@ import { Child } from '../../models/child.model';
 import { Feeding } from '../../models/feeding.model';
 import { DiaperChange } from '../../models/diaper.model';
 import { Nap } from '../../models/nap.model';
-import { TodaySummaryData } from '../../models/analytics.model';
+import { TodaySummaryData, PatternAlertsResponse } from '../../models/analytics.model';
 import { QuickLog } from './quick-log/quick-log';
 import { TodaySummaryCards } from '../../components/today-summary-cards';
 import { ErrorCardComponent } from '../../components/error-card/error-card.component';
@@ -125,6 +125,23 @@ export class ChildDashboard implements OnInit {
 
   /** Today's summary data from analytics API */
   todaySummaryData = signal<TodaySummaryData | null>(null);
+
+  /** Pattern alerts from analytics API (feeding/nap overdue warnings) */
+  patternAlerts = signal<PatternAlertsResponse | null>(null);
+
+  /** Active alerts extracted from pattern alerts response */
+  activeAlerts = computed(() => {
+    const alerts = this.patternAlerts();
+    if (!alerts) return [];
+    const result: { key: string; message: string }[] = [];
+    if (alerts.feeding.alert && alerts.feeding.message) {
+      result.push({ key: 'feeding', message: alerts.feeding.message });
+    }
+    if (alerts.nap.alert && alerts.nap.message) {
+      result.push({ key: 'nap', message: alerts.nap.message });
+    }
+    return result;
+  });
 
   /** Loading state while fetching dashboard data */
   isLoading = signal(true);
@@ -275,11 +292,27 @@ export class ChildDashboard implements OnInit {
         this.recentActivity.set(activity.slice(0, 10));
 
         this.isLoading.set(false);
+        this.loadPatternAlerts(childId);
       },
       error: (err: Error) => {
         this.error.set(err.message);
         this.isLoading.set(false);
       },
+    });
+  }
+
+  /**
+   * Load pattern alerts for a child (non-blocking, silent on error).
+   *
+   * Called after main dashboard data loads. Fetches feeding and nap
+   * pattern alerts. Errors are silently suppressed — alerts are
+   * non-critical and the dashboard should render without them.
+   *
+   * @param childId Child to load alerts for
+   */
+  private loadPatternAlerts(childId: number): void {
+    this.analyticsService.getPatternAlerts(childId).subscribe({
+      next: (alerts) => this.patternAlerts.set(alerts),
     });
   }
 

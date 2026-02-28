@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { of, throwError } from 'rxjs';
+import { of, throwError, EMPTY } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 import { ChildDashboard } from './child-dashboard';
 import { ChildrenService } from '../../services/children.service';
@@ -14,7 +14,7 @@ import { Child } from '../../models/child.model';
 import { Feeding } from '../../models/feeding.model';
 import { DiaperChange } from '../../models/diaper.model';
 import { Nap } from '../../models/nap.model';
-import { TodaySummaryData } from '../../models/analytics.model';
+import { TodaySummaryData, PatternAlertsResponse } from '../../models/analytics.model';
 
 const mockChild: Child = {
   id: 1,
@@ -115,6 +115,29 @@ function makeTodaySummary(overrides: Partial<TodaySummaryData> = {}): TodaySumma
   };
 }
 
+function makePatternAlerts(overrides: Partial<PatternAlertsResponse> = {}): PatternAlertsResponse {
+  return {
+    child_id: 1,
+    feeding: {
+      alert: false,
+      message: null,
+      avg_interval_minutes: 180,
+      minutes_since_last: 120,
+      last_fed_at: makeTodayTimestamp(),
+      data_points: 10,
+    },
+    nap: {
+      alert: false,
+      message: null,
+      avg_wake_window_minutes: 120,
+      minutes_awake: 90,
+      last_nap_ended_at: makeTodayTimestamp(),
+      data_points: 8,
+    },
+    ...overrides,
+  };
+}
+
 describe('ChildDashboard', () => {
   let component: ChildDashboard;
   let fixture: ComponentFixture<ChildDashboard>;
@@ -149,6 +172,9 @@ describe('ChildDashboard', () => {
     diapersService = TestBed.inject(DiapersService);
     napsService = TestBed.inject(NapsService);
     analyticsService = TestBed.inject(AnalyticsService);
+
+    // Default: pattern alerts return EMPTY (non-critical, loaded after main data)
+    vi.spyOn(analyticsService, 'getPatternAlerts').mockReturnValue(EMPTY);
   });
 
   function setupWithData(
@@ -998,6 +1024,174 @@ describe('ChildDashboard', () => {
       component.childId.set(null);
       component.onQuickLogged();
       expect(getSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('pattern alerts', () => {
+    it('should not render alert cards when no alerts are active', () => {
+      setupWithData();
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const alertRegion = compiled.querySelector('[aria-label="Pattern alerts"]');
+      expect(alertRegion).toBeFalsy();
+    });
+
+    it('should render feeding alert card when feeding alert is active', () => {
+      (analyticsService.getPatternAlerts as ReturnType<typeof vi.fn>).mockReturnValue(
+        of(makePatternAlerts({
+          feeding: {
+            alert: true,
+            message: "Baby usually feeds every 3h — it's been 3h 25m",
+            avg_interval_minutes: 180,
+            minutes_since_last: 205,
+            last_fed_at: makeTodayTimestamp(),
+            data_points: 15,
+          },
+        }))
+      );
+      setupWithData();
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const alertRegion = compiled.querySelector('[aria-label="Pattern alerts"]');
+      expect(alertRegion).toBeTruthy();
+      const alerts = compiled.querySelectorAll('[role="alert"]');
+      expect(alerts.length).toBe(1);
+      expect(alerts[0].textContent).toContain("Baby usually feeds every 3h");
+    });
+
+    it('should render nap alert card when nap alert is active', () => {
+      (analyticsService.getPatternAlerts as ReturnType<typeof vi.fn>).mockReturnValue(
+        of(makePatternAlerts({
+          nap: {
+            alert: true,
+            message: "Baby usually naps after ~2h awake — awake for 2h 15m",
+            avg_wake_window_minutes: 120,
+            minutes_awake: 135,
+            last_nap_ended_at: makeTodayTimestamp(),
+            data_points: 8,
+          },
+        }))
+      );
+      setupWithData();
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const alerts = compiled.querySelectorAll('[role="alert"]');
+      expect(alerts.length).toBe(1);
+      expect(alerts[0].textContent).toContain("Baby usually naps after");
+    });
+
+    it('should render both alert cards when both are active', () => {
+      (analyticsService.getPatternAlerts as ReturnType<typeof vi.fn>).mockReturnValue(
+        of(makePatternAlerts({
+          feeding: {
+            alert: true,
+            message: "Feeding overdue",
+            avg_interval_minutes: 180,
+            minutes_since_last: 205,
+            last_fed_at: makeTodayTimestamp(),
+            data_points: 15,
+          },
+          nap: {
+            alert: true,
+            message: "Nap overdue",
+            avg_wake_window_minutes: 120,
+            minutes_awake: 135,
+            last_nap_ended_at: makeTodayTimestamp(),
+            data_points: 8,
+          },
+        }))
+      );
+      setupWithData();
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const alerts = compiled.querySelectorAll('[role="alert"]');
+      expect(alerts.length).toBe(2);
+    });
+
+    it('should not render alerts when alert=true but message is null', () => {
+      (analyticsService.getPatternAlerts as ReturnType<typeof vi.fn>).mockReturnValue(
+        of(makePatternAlerts({
+          feeding: {
+            alert: true,
+            message: null,
+            avg_interval_minutes: 180,
+            minutes_since_last: 205,
+            last_fed_at: makeTodayTimestamp(),
+            data_points: 15,
+          },
+        }))
+      );
+      setupWithData();
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const alertRegion = compiled.querySelector('[aria-label="Pattern alerts"]');
+      expect(alertRegion).toBeFalsy();
+    });
+
+    it('should silently handle pattern alerts API error', () => {
+      (analyticsService.getPatternAlerts as ReturnType<typeof vi.fn>).mockReturnValue(EMPTY);
+      setupWithData();
+      fixture.detectChanges();
+
+      expect(component.patternAlerts()).toBeNull();
+      expect(component.error()).toBeNull();
+    });
+
+    it('should re-fetch pattern alerts after quickLogged', () => {
+      const alertsSpy = analyticsService.getPatternAlerts as ReturnType<typeof vi.fn>;
+      alertsSpy.mockReturnValue(EMPTY);
+      setupWithData();
+
+      alertsSpy.mockClear();
+      alertsSpy.mockReturnValue(of(makePatternAlerts({
+        feeding: {
+          alert: true,
+          message: "Feeding overdue after quick log",
+          avg_interval_minutes: 180,
+          minutes_since_last: 205,
+          last_fed_at: makeTodayTimestamp(),
+          data_points: 15,
+        },
+      })));
+
+      component.onQuickLogged();
+      fixture.detectChanges();
+
+      expect(alertsSpy).toHaveBeenCalledWith(1);
+      expect(component.patternAlerts()?.feeding.alert).toBe(true);
+    });
+
+    it('should update activeAlerts computed when patternAlerts signal changes', () => {
+      setupWithData();
+      expect(component.activeAlerts()).toEqual([]);
+
+      component.patternAlerts.set(makePatternAlerts({
+        feeding: {
+          alert: true,
+          message: "Feeding alert message",
+          avg_interval_minutes: 180,
+          minutes_since_last: 205,
+          last_fed_at: makeTodayTimestamp(),
+          data_points: 15,
+        },
+      }));
+
+      expect(component.activeAlerts()).toEqual([
+        { key: 'feeding', message: 'Feeding alert message' },
+      ]);
+    });
+
+    it('should call getPatternAlerts after main dashboard data loads', () => {
+      const alertsSpy = analyticsService.getPatternAlerts as ReturnType<typeof vi.fn>;
+      alertsSpy.mockReturnValue(EMPTY);
+      setupWithData();
+
+      expect(alertsSpy).toHaveBeenCalledWith(1);
     });
   });
 });

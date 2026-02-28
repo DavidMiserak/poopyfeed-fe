@@ -23,6 +23,7 @@ import {
   WeeklySummaryData,
   ExportJobResponse,
   JobStatusResponse,
+  PatternAlertsResponse,
 } from '../models/analytics.model';
 
 describe('AnalyticsService', () => {
@@ -765,6 +766,104 @@ describe('AnalyticsService', () => {
       createElementSpy.mockRestore();
       appendChildSpy.mockRestore();
       removeChildSpy.mockRestore();
+    });
+  });
+
+  describe('getPatternAlerts', () => {
+    const mockPatternAlerts: PatternAlertsResponse = {
+      child_id: 1,
+      feeding: {
+        alert: true,
+        message: "Baby usually feeds every 3h — it's been 3h 25m",
+        avg_interval_minutes: 180,
+        minutes_since_last: 205,
+        last_fed_at: '2024-01-30T09:00:00Z',
+        data_points: 15,
+      },
+      nap: {
+        alert: false,
+        message: null,
+        avg_wake_window_minutes: 120,
+        minutes_awake: 90,
+        last_nap_ended_at: '2024-01-30T10:30:00Z',
+        data_points: 8,
+      },
+    };
+
+    it('should fetch pattern alerts and update signal', () => {
+      service.getPatternAlerts(1).subscribe({
+        next: (alerts) => {
+          expect(alerts).toEqual(mockPatternAlerts);
+          expect(service.patternAlerts()).toEqual(mockPatternAlerts);
+        },
+      });
+
+      const req = httpMock.expectOne(
+        '/api/v1/analytics/children/1/pattern-alerts/'
+      );
+      expect(req.request.method).toBe('GET');
+      req.flush(mockPatternAlerts);
+    });
+
+    it('should silently suppress 500 errors (no error callback)', () => {
+      let nextCalled = false;
+      let errorCalled = false;
+
+      service.getPatternAlerts(1).subscribe({
+        next: () => { nextCalled = true; },
+        error: () => { errorCalled = true; },
+      });
+
+      const req = httpMock.expectOne(
+        '/api/v1/analytics/children/1/pattern-alerts/'
+      );
+      req.flush(null, { status: 500, statusText: 'Internal Server Error' });
+
+      expect(nextCalled).toBe(false);
+      expect(errorCalled).toBe(false);
+    });
+
+    it('should silently suppress 404 errors', () => {
+      let errorCalled = false;
+
+      service.getPatternAlerts(999).subscribe({
+        error: () => { errorCalled = true; },
+      });
+
+      const req = httpMock.expectOne(
+        '/api/v1/analytics/children/999/pattern-alerts/'
+      );
+      req.flush(null, { status: 404, statusText: 'Not Found' });
+
+      expect(errorCalled).toBe(false);
+    });
+
+    it('should silently suppress 403 errors', () => {
+      let errorCalled = false;
+
+      service.getPatternAlerts(1).subscribe({
+        error: () => { errorCalled = true; },
+      });
+
+      const req = httpMock.expectOne(
+        '/api/v1/analytics/children/1/pattern-alerts/'
+      );
+      req.flush(null, { status: 403, statusText: 'Forbidden' });
+
+      expect(errorCalled).toBe(false);
+    });
+
+    it('should not update signal on error', () => {
+      expect(service.patternAlerts()).toBeNull();
+
+      service.getPatternAlerts(1).subscribe();
+
+      const req = httpMock.expectOne(
+        '/api/v1/analytics/children/1/pattern-alerts/'
+      );
+      req.flush(null, { status: 500, statusText: 'Internal Server Error' });
+
+      expect(service.patternAlerts()).toBeNull();
     });
   });
 

@@ -19,7 +19,7 @@
 
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpParams, HttpErrorResponse } from '@angular/common/http';
-import { Observable, throwError, map } from 'rxjs';
+import { Observable, throwError, map, EMPTY } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 import { ErrorHandler } from './error.utils';
 import { DateTimeService } from './datetime.service';
@@ -32,6 +32,7 @@ import {
   ExportJobResponse,
   JobStatusResponse,
   TimelineResponse,
+  PatternAlertsResponse,
 } from '../models/analytics.model';
 
 /**
@@ -82,6 +83,13 @@ export class AnalyticsService {
    * Updated by getWeeklySummary() method. Null if not yet loaded.
    */
   weeklySummary = signal<WeeklySummaryData | null>(null);
+
+  /**
+   * Cached pattern alerts from last getPatternAlerts() call.
+   *
+   * Updated by getPatternAlerts() method. Null if not yet loaded.
+   */
+  patternAlerts = signal<PatternAlertsResponse | null>(null);
 
   /**
    * Fetch feeding trends for a child.
@@ -396,6 +404,25 @@ export class AnalyticsService {
         throwError(() => ErrorHandler.handle(error, 'PDF download failed'))
       )
     );
+  }
+
+  /**
+   * Fetch pattern alerts for a child.
+   *
+   * Returns feeding and nap alerts based on the child's recent patterns.
+   * Errors are silently suppressed (returns EMPTY) since alerts are
+   * non-critical — the dashboard should still render without them.
+   *
+   * @param childId Child's unique identifier
+   * @returns Observable<PatternAlertsResponse> Pattern alert data
+   */
+  getPatternAlerts(childId: number): Observable<PatternAlertsResponse> {
+    return this.http
+      .get<PatternAlertsResponse>(`${this.API_BASE}/${childId}/pattern-alerts/`)
+      .pipe(
+        tap((alerts) => this.patternAlerts.set(alerts)),
+        catchError(() => EMPTY)
+      );
   }
 
   /**

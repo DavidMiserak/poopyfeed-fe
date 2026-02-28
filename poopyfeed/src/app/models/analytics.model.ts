@@ -381,3 +381,29 @@ export interface TimelineResponse {
   previous: string | null;
   results: TimelineEvent[];
 }
+
+// --- Pattern Alerts ---
+
+export interface FeedingPatternAlert {
+  alert: boolean;
+  message: string | null;
+  avg_interval_minutes: number;
+  minutes_since_last: number;
+  last_fed_at: string;
+  data_points: number;
+}
+
+export interface NapPatternAlert {
+  alert: boolean;
+  message: string | null;
+  avg_wake_window_minutes: number | null;
+  minutes_awake: number | null;
+  last_nap_ended_at: string | null;
+  data_points: number;
+}
+
+export interface PatternAlertsResponse {
+  child_id: number;
+  feeding: FeedingPatternAlert;
+  nap: NapPatternAlert;
+}
