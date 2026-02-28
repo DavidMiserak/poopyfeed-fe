@@ -21,7 +21,7 @@
         [useRouter]="false"
         [backButtonText]="'Back to advanced tools'"
         [gradientColor]="'orange'"
-        (backAction)="navigateToDashboard()"
+        (backAction)="goToAdvanced()"
       />
     }
 
@@ -33,7 +33,7 @@
           [title]="'Diaper Changes for ' + child()!.name"
           [addButtonLabel]="'Add Diaper Change'"
           [accentColor]="'orange'"
-          (back)="navigateToDashboard()"
+          (back)="goToAdvanced()"
           (add)="navigateToCreate()"
         />
 

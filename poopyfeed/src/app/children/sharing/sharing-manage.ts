@@ -12,11 +12,12 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { Router, ActivatedRoute } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { SharingService } from '../../services/sharing.service';
 import { ChildrenService } from '../../services/children.service';
 import { ToastService } from '../../services/toast.service';
+import { ChildNavigationService } from '../../services/child-navigation.service';
 import {
   ChildShare,
   ShareInvite,
@@ -33,8 +34,8 @@ import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SharingManage implements OnInit {
-  private router = inject(Router);
   private route = inject(ActivatedRoute);
+  private childNav = inject(ChildNavigationService);
   private sharingService = inject(SharingService);
   private childrenService = inject(ChildrenService);
   private toast = inject(ToastService);
@@ -226,11 +227,9 @@ export class SharingManage implements OnInit {
     );
   }
 
-  navigateToDashboard() {
+  goToAdvanced() {
     const childId = this.childId();
-    if (childId) {
-      this.router.navigate(['/children', childId, 'advanced']);
-    }
+    if (childId !== null) this.childNav.goToAdvanced(childId);
   }
 
   getRoleLabel(role: 'co-parent' | 'caregiver'): string {

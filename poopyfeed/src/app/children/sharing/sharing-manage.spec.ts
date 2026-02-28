@@ -433,11 +433,11 @@ describe('SharingManage Component', () => {
     });
   });
 
-  describe('navigateToDashboard', () => {
+  describe('goToAdvanced', () => {
     it('should navigate to child dashboard', () => {
       component.childId.set(1);
 
-      component.navigateToDashboard();
+      component.goToAdvanced();
 
       expect(mockRouter.navigate).toHaveBeenCalledWith(['/children', 1, 'advanced']);
     });
@@ -445,7 +445,7 @@ describe('SharingManage Component', () => {
     it('should not navigate if childId is not set', () => {
       component.childId.set(null);
 
-      component.navigateToDashboard();
+      component.goToAdvanced();
 
       expect(mockRouter.navigate).not.toHaveBeenCalled();
     });

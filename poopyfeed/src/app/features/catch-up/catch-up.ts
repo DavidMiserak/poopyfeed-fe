@@ -25,7 +25,7 @@ import {
   OnInit,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, ActivatedRoute } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { forkJoin, throwError, of } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 
@@ -44,6 +44,7 @@ import {
 } from '../../models';
 import { TimeEstimationService } from '../../services/time-estimation.service';
 import { BatchesService } from '../../services/batches.service';
+import { ChildNavigationService } from '../../services/child-navigation.service';
 import { ChildrenService } from '../../services/children.service';
 import { FeedingsService } from '../../services/feedings.service';
 import { DiapersService } from '../../services/diapers.service';
@@ -82,8 +83,8 @@ import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-
 })
 export class CatchUp implements OnInit {
   // Component implementation continues below...
-  private router: Router = inject(Router);
   private route: ActivatedRoute = inject(ActivatedRoute);
+  private childNav = inject(ChildNavigationService);
   private childrenService: ChildrenService = inject(ChildrenService);
   private feedingsService: FeedingsService = inject(FeedingsService);
   private diapersService: DiapersService = inject(DiapersService);
@@ -493,8 +494,9 @@ export class CatchUp implements OnInit {
   /**
    * Navigate back to child advanced tools from success screen.
    */
-  navigateToDashboard() {
-    this.router.navigate(['/children', this.childId(), 'advanced']);
+  goToAdvanced() {
+    const id = this.childId();
+    if (id !== null) this.childNav.goToAdvanced(id);
   }
 
   /**
@@ -505,12 +507,14 @@ export class CatchUp implements OnInit {
       this.showDiscardConfirm.set(true);
       return;
     }
-    this.router.navigate(['/children', this.childId(), 'advanced']);
+    const id = this.childId();
+    if (id !== null) this.childNav.goToAdvanced(id);
   }
 
   onDiscardConfirm() {
     this.showDiscardConfirm.set(false);
-    this.router.navigate(['/children', this.childId(), 'advanced']);
+    const id = this.childId();
+    if (id !== null) this.childNav.goToAdvanced(id);
   }
 
   onDiscardCancel() {

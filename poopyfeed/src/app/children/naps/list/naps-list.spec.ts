@@ -443,7 +443,7 @@ describe('NapsList - Core Functionality Tests', () => {
     });
 
     it('should navigate to dashboard', () => {
-      component.navigateToDashboard();
+      component.goToAdvanced();
 
       expect(router.navigate).toHaveBeenCalledWith(['/children', 1, 'advanced']);
     });
@@ -716,7 +716,7 @@ describe('NapsList - Core Functionality Tests', () => {
 
     it('should not navigate to dashboard when childId is null', () => {
       component.childId.set(null);
-      component.navigateToDashboard();
+      component.goToAdvanced();
       expect(router.navigate).not.toHaveBeenCalled();
     });
 

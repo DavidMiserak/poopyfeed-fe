@@ -357,7 +357,7 @@ describe('CatchUpComponent - Step Wizard', () => {
 
   describe('Navigation to Dashboard', () => {
     it('should navigate to child dashboard', () => {
-      component.navigateToDashboard();
+      component.goToAdvanced();
 
       expect(router.navigate).toHaveBeenCalledWith([
         '/children',

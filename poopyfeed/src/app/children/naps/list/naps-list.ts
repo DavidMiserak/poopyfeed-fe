@@ -12,6 +12,7 @@ import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs';
 import { NapsService } from '../../../services/naps.service';
 import { ChildrenService } from '../../../services/children.service';
+import { ChildNavigationService } from '../../../services/child-navigation.service';
 import { TrackingListService } from '../../../services/tracking-list.service';
 import { FilterCriteria } from '../../../services/filter.service';
 import {
@@ -48,6 +49,7 @@ import { DateTimeService } from '../../../services/datetime.service';
 export class NapsList implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  private childNav = inject(ChildNavigationService);
   private destroyRef = inject(DestroyRef);
   private napsService = inject(NapsService);
   private childrenService = inject(ChildrenService);
@@ -148,11 +150,9 @@ export class NapsList implements OnInit {
     }
   }
 
-  navigateToDashboard() {
+  goToAdvanced() {
     const childId = this.childId();
-    if (childId) {
-      this.router.navigate(['/children', childId, 'advanced']);
-    }
+    if (childId !== null) this.childNav.goToAdvanced(childId);
   }
 
   formatDateTime(dateTimeStr: string): string {
