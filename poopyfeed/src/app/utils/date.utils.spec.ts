@@ -62,6 +62,17 @@ describe('Date Utilities', () => {
   });
 
   describe('getAgeInMonths', () => {
+    const REFERENCE_DATE = '2024-02-27T12:00:00.000Z';
+
+    beforeEach(() => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date(REFERENCE_DATE));
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
     it('should return 0 for newborn (less than 1 month old)', () => {
       const birthDate = new Date();
       birthDate.setDate(birthDate.getDate() - 10);
@@ -109,13 +120,22 @@ describe('Date Utilities', () => {
       birthDate.setFullYear(birthDate.getFullYear() - 1);
       birthDate.setMonth(0); // January
       const result = getAgeInMonths(birthDate.toISOString());
-      // Should be around 11-13 months depending on current month
+      // Reference is Feb 2024; Jan 2023 = 13 months
       expect(result).toBeGreaterThanOrEqual(11);
       expect(result).toBeLessThanOrEqual(13);
     });
   });
 
   describe('getChildAge', () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date('2024-02-27T12:00:00.000Z'));
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
     it('should contain days, months, or years', () => {
       const tenDaysAgo = new Date(Date.now() - 10 * 24 * 60 * 60 * 1000);
       const result = getChildAge(tenDaysAgo.toISOString());
@@ -167,6 +187,15 @@ describe('Date Utilities', () => {
   });
 
   describe('formatTimestamp', () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date('2024-02-27T12:00:00.000Z'));
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
     it('should return "just now" for timestamps less than 1 minute old', () => {
       const now = new Date();
       expect(formatTimestamp(now.toISOString())).toBe('just now');
@@ -194,6 +223,15 @@ describe('Date Utilities', () => {
   });
 
   describe('formatActivityAge', () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date('2024-02-27T12:00:00.000Z'));
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
     it('should not return "just now"', () => {
       const now = new Date();
       const result = formatActivityAge(now.toISOString());
@@ -277,6 +315,15 @@ describe('Date Utilities', () => {
   });
 
   describe('formatActivityAge - edge case for days', () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date('2024-02-27T12:00:00.000Z'));
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
     it('should return days for activities older than 1440 minutes', () => {
       const twoDaysAgo = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000);
       const result = formatActivityAge(twoDaysAgo.toISOString());
@@ -323,6 +370,15 @@ describe('Date Utilities', () => {
   });
 
   describe('getChildAge - edge cases', () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date('2024-02-27T12:00:00.000Z'));
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
     it('should handle exactly 1 month old', () => {
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);

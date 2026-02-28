@@ -277,7 +277,7 @@ describe('ChildTimeline', () => {
       );
 
       component.ngOnInit();
-      await new Promise(resolve => setTimeout(resolve, 50));
+      await fixture.whenStable();
 
       expect(component.error()).toBeTruthy();
       expect(component.isLoading()).toBeFalsy();

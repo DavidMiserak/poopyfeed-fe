@@ -516,6 +516,56 @@ describe('SharingManage Component', () => {
     });
   });
 
+  describe('DOM rendering (owner open sharing page and see settings)', () => {
+    it('should show Sharing Settings heading, Invite Links section, and Create Invite Link button when loaded as owner', () => {
+      component.childId.set(1);
+      component.child.set(mockChild);
+      component.isLoading.set(false);
+      component.error.set(null);
+      component.invites.set([]);
+      component.shares.set([]);
+      fixture.detectChanges();
+
+      const el = fixture.nativeElement as HTMLElement;
+      expect(el.textContent).toContain('Sharing Settings for');
+      expect(el.textContent).toContain(mockChild.name);
+      expect(el.textContent).toContain('Invite Links');
+      expect(el.textContent).toContain('Create Invite Link');
+    });
+
+    it('should show co-parent invite with Active status in the list after create', () => {
+      component.childId.set(1);
+      component.child.set(mockChild);
+      component.isLoading.set(false);
+      component.invites.set([mockInvite]); // co-parent, is_active: true
+      component.shares.set([]);
+      fixture.detectChanges();
+
+      const el = fixture.nativeElement as HTMLElement;
+      expect(el.textContent).toContain('Co-parent');
+      expect(el.textContent).toContain('Active');
+    });
+
+    it('should show caregiver invite with Active status in the list after create', () => {
+      const caregiverInvite: ShareInvite = {
+        ...mockInvite,
+        id: 2,
+        role: 'caregiver',
+        is_active: true,
+      };
+      component.childId.set(1);
+      component.child.set(mockChild);
+      component.isLoading.set(false);
+      component.invites.set([caregiverInvite]);
+      component.shares.set([]);
+      fixture.detectChanges();
+
+      const el = fixture.nativeElement as HTMLElement;
+      expect(el.textContent).toContain('Caregiver');
+      expect(el.textContent).toContain('Active');
+    });
+  });
+
   describe('Signal initialization', () => {
     it('should initialize childId as null', () => {
       expect(component.childId()).toBeNull();
