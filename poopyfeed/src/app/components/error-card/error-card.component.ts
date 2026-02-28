@@ -1,10 +1,11 @@
-import { Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-error-card',
   imports: [RouterLink],
   templateUrl: './error-card.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ErrorCardComponent {
   errorMessage = input<string>('An unexpected error occurred');
