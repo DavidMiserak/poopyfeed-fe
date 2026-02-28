@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-tracking-bulk-actions',
-  standalone: true,
   imports: [CommonModule],
   templateUrl: './tracking-bulk-actions.component.html',
   styleUrl: './tracking-bulk-actions.component.css',

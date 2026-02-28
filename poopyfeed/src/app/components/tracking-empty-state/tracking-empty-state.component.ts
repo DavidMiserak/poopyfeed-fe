@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-tracking-empty-state',
-  standalone: true,
   imports: [CommonModule],
   templateUrl: './tracking-empty-state.component.html',
   styleUrl: './tracking-empty-state.component.css',

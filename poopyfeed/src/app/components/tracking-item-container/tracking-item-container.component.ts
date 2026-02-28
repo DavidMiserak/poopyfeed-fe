@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-tracking-item-container',
-  standalone: true,
   imports: [CommonModule],
   templateUrl: './tracking-item-container.component.html',
   styleUrl: './tracking-item-container.component.css',

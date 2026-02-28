@@ -3,7 +3,6 @@ import {
   Component,
   DestroyRef,
   ElementRef,
-  HostListener,
   inject,
   signal,
   OnInit,
@@ -16,11 +15,11 @@ import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-notification-bell',
-  standalone: true,
   imports: [],
   templateUrl: './notification-bell.html',
   styleUrl: './notification-bell.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { '(document:click)': 'onDocumentClick($event)' },
 })
 export class NotificationBellComponent implements OnInit {
   protected notificationService = inject(NotificationService);
@@ -80,7 +79,6 @@ export class NotificationBellComponent implements OnInit {
     });
   }
 
-  @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
     if (
       this.dropdownOpen() &&

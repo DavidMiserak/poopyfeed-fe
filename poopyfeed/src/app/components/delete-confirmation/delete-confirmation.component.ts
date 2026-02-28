@@ -9,7 +9,6 @@ import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-delete-confirmation',
-  standalone: true,
   imports: [CommonModule, RouterLink],
   templateUrl: './delete-confirmation.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

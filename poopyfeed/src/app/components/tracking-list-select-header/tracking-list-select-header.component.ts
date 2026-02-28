@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-tracking-list-select-header',
-  standalone: true,
   imports: [CommonModule],
   templateUrl: './tracking-list-select-header.component.html',
   styleUrl: './tracking-list-select-header.component.css',

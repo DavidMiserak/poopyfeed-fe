@@ -3,7 +3,6 @@ import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-error-card',
-  standalone: true,
   imports: [RouterLink],
   templateUrl: './error-card.html',
 })

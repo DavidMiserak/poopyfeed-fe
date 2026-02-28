@@ -5,7 +5,7 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DOCUMENT } from '@angular/common';
 import {
   FormControl,
   FormGroup,
@@ -37,6 +37,7 @@ export class SharingManage implements OnInit {
   private sharingService = inject(SharingService);
   private childrenService = inject(ChildrenService);
   private toast = inject(ToastService);
+  private document = inject(DOCUMENT);
 
   childId = signal<number | null>(null);
   child = signal<Child | null>(null);
@@ -196,7 +197,7 @@ export class SharingManage implements OnInit {
   }
 
   onCopyInviteLink(token: string) {
-    const inviteUrl = `${window.location.origin}/invites/accept/${token}`;
+    const inviteUrl = `${this.document.location.origin}/invites/accept/${token}`;
     navigator.clipboard.writeText(inviteUrl).then(
       () => {
         this.copiedToken.set(token);

@@ -8,7 +8,6 @@ import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-tracking-list-header',
-  standalone: true,
   imports: [CommonModule],
   templateUrl: './tracking-list-header.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
