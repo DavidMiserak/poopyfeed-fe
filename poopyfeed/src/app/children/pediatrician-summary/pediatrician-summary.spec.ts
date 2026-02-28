@@ -218,15 +218,48 @@ describe('PediatricianSummaryComponent', () => {
     expect(component.summary()).toEqual(mockWeeklySummary);
   });
 
-  it('should call window.print when Print button is clicked', () => {
-    const printSpy = vi.spyOn(window, 'print').mockImplementation(() => {});
+  it('should open print window with summary HTML and call print when Print button is clicked', () => {
+    let loadListener: () => void = () => {};
+    const mockPrint = vi.fn();
+    const mockWin = {
+      print: mockPrint,
+      close: vi.fn(),
+      focus: vi.fn(),
+      addEventListener: vi.fn((event: string, fn: () => void) => {
+        if (event === 'load') loadListener = fn;
+      }),
+    } as unknown as Window;
+    const openSpy = vi.spyOn(window, 'open').mockReturnValue(mockWin);
+    const revokeSpy = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
+
     fixture = TestBed.createComponent(PediatricianSummaryComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
 
     component.onPrint();
-    expect(printSpy).toHaveBeenCalled();
-    printSpy.mockRestore();
+
+    expect(openSpy).toHaveBeenCalledOnce();
+    expect(openSpy.mock.calls[0][0]).toMatch(/^blob:/);
+    expect(openSpy.mock.calls[0][1]).toBe('_blank');
+    expect(openSpy.mock.calls[0][2]).toBe('noopener,noreferrer');
+    expect(mockPrint).not.toHaveBeenCalled();
+    loadListener();
+    expect(mockPrint).toHaveBeenCalledOnce();
+    openSpy.mockRestore();
+    revokeSpy.mockRestore();
+  });
+
+  it('should not open print window when summary is empty', () => {
+    vi.spyOn(analyticsService, 'getWeeklySummary').mockReturnValue(of(makeEmptyWeeklySummary()));
+    const openSpy = vi.spyOn(window, 'open').mockReturnValue(null);
+    fixture = TestBed.createComponent(PediatricianSummaryComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    component.onPrint();
+
+    expect(openSpy).not.toHaveBeenCalled();
+    openSpy.mockRestore();
   });
 
   it('should format duration correctly', () => {

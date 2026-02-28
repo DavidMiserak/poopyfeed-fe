@@ -3,7 +3,7 @@
   min-height: 100vh;
 }
 
-/* Print: one-page friendly layout, hide non-essential UI */
+/* Print: multi-page layout, hide non-essential UI, prevent content from being cut off */
 @media print {
   .no-print {
     display: none !important;
@@ -13,10 +13,14 @@
     background: white;
     padding: 0.5in;
     min-height: auto;
+    overflow: visible;
+    height: auto;
   }
 
   .summary-content {
     max-width: 100%;
+    overflow: visible;
+    height: auto;
   }
 
   .summary-card {
@@ -25,6 +29,15 @@
     background: white;
     padding: 0.75rem 1rem;
     border-radius: 0.5rem;
+    overflow: visible;
+    height: auto;
+    page-break-inside: auto;
+  }
+
+  /* Avoid splitting a section across pages; allow content to flow to next page */
+  .pediatrician-summary section {
+    margin-bottom: 0.75rem;
+    page-break-inside: avoid;
   }
 
   .pediatrician-summary h1 {
@@ -36,10 +49,6 @@
     font-size: 1rem;
     margin-bottom: 0.25rem;
     margin-top: 0.75rem;
-  }
-
-  .pediatrician-summary section {
-    margin-bottom: 0.75rem;
   }
 
   .pediatrician-summary section:last-child {

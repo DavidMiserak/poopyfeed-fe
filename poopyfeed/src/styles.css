@@ -300,3 +300,19 @@ input[type="checkbox"] {
     border: 2px solid currentColor;
   }
 }
+
+/* Print: allow full content to flow (avoid cut-off on pediatrician summary and other long pages) */
+@media print {
+  html,
+  body {
+    height: auto !important;
+    min-height: auto !important;
+    overflow: visible !important;
+  }
+
+  .app-main {
+    min-height: auto !important;
+    overflow: visible !important;
+    height: auto !important;
+  }
+}
