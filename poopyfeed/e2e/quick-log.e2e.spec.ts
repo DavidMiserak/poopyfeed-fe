@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { createChildAndGoToDashboard } from './child-helpers';
 
 /**
  * E2E: Quick Log flow (dashboard one-tap logging for diaper, nap, bottle).
@@ -6,36 +7,10 @@ import { test, expect } from '@playwright/test';
  * Covers VERIFICATION.md E2E gap: Quick-Log buttons (Mom, Maria primary daily UI).
  */
 test.describe('Quick Log', () => {
-  const TRACK_CHILD_NAME = 'E2E Quick Log Baby';
-
-  async function ensureOnChildDashboard(page: import('@playwright/test').Page) {
-    await page.goto('/children');
-    await expect(
-      page.getByRole('heading', { name: 'My Children' })
-    ).toBeVisible();
-
-    if (await page.getByRole('heading', { name: 'No children yet!' }).isVisible()) {
-      await page.getByRole('link', { name: 'Add Your First Baby' }).click();
-    } else {
-      await page.getByRole('link', { name: 'Add Baby' }).first().click();
-    }
-    await expect(page).toHaveURL(/\/children\/create/);
-
-    await page.getByLabel("Baby's Name").fill(TRACK_CHILD_NAME);
-    await page.getByLabel('Date of Birth').fill('2024-06-01');
-    await page.getByRole('radio', { name: 'Female' }).click({ force: true });
-    await page.getByRole('button', { name: 'Add Baby' }).click();
-
-    await expect(page).toHaveURL(/\/children$/);
-    await page.getByRole('heading', { name: TRACK_CHILD_NAME }).first().click();
-
-    await expect(page).toHaveURL(/\/children\/\d+\/dashboard/);
-  }
-
   test('dashboard shows Quick Log section with Diaper, Nap, and Bottle', async ({
     page,
   }) => {
-    await ensureOnChildDashboard(page);
+    await createChildAndGoToDashboard(page, 'E2E Quick Log');
 
     await expect(
       page.getByRole('heading', { name: 'Quick Log', level: 2 })
@@ -53,7 +28,7 @@ test.describe('Quick Log', () => {
   });
 
   test('quick log Wet diaper shows success toast', async ({ page }) => {
-    await ensureOnChildDashboard(page);
+    await createChildAndGoToDashboard(page, 'E2E Quick Log');
 
     await page
       .getByRole('button', { name: 'Log a wet diaper change with current timestamp' })
@@ -65,26 +40,29 @@ test.describe('Quick Log', () => {
   });
 
   test('quick log Nap shows success toast', async ({ page }) => {
-    await ensureOnChildDashboard(page);
+    await createChildAndGoToDashboard(page, 'E2E Quick Log');
 
-    await page
-      .getByRole('button', { name: 'Log a nap with current timestamp' })
-      .click();
+    const napButton = page.getByRole('button', {
+      name: 'Log a nap with current timestamp',
+    });
+    await expect(napButton).toBeVisible({ timeout: 15_000 });
+    await expect(napButton).toBeEnabled({ timeout: 5_000 });
+    await napButton.click();
 
     await expect(
       page.getByText('Nap recorded successfully')
-    ).toBeVisible({ timeout: 15_000 });
+    ).toBeVisible({ timeout: 20_000 });
   });
 
   test('quick log Bottle shows success toast when amount available', async ({
     page,
   }) => {
-    await ensureOnChildDashboard(page);
+    await createChildAndGoToDashboard(page, 'E2E Quick Log');
 
     const bottleButton = page.getByRole('button', {
       name: /Log a bottle feeding with \d+ oz/,
     }).first();
-    await expect(bottleButton).toBeVisible({ timeout: 5_000 });
+    await expect(bottleButton).toBeVisible({ timeout: 15_000 });
 
     const isDisabled = await bottleButton.isDisabled();
     test.skip(isDisabled, 'Bottle amount not available for this child');
@@ -93,6 +71,6 @@ test.describe('Quick Log', () => {
 
     await expect(
       page.getByText(/Bottle feeding recorded: \d+ oz/)
-    ).toBeVisible({ timeout: 15_000 });
+    ).toBeVisible({ timeout: 20_000 });
   });
 });

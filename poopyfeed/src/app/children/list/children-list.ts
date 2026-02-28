@@ -34,11 +34,14 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   inject,
   OnInit,
   signal,
 } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Router, RouterLink, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs';
 import { ChildrenService } from '../../services/children.service';
 import { Child, GENDER_LABELS, ROLE_LABELS } from '../../models/child.model';
 import { CommonModule } from '@angular/common';
@@ -53,6 +56,7 @@ import { getChildAge, formatTimestamp, getGenderIcon, getRoleBadgeColor } from '
 })
 export class ChildrenList implements OnInit {
   private router = inject(Router);
+  private destroyRef = inject(DestroyRef);
   private childrenService = inject(ChildrenService);
 
   /**
@@ -93,6 +97,19 @@ export class ChildrenList implements OnInit {
    */
   ngOnInit() {
     this.loadChildren();
+    // Refetch when landing on /children (e.g. return from create/edit) so new child appears.
+    if (this.router.events) {
+      this.router.events
+        .pipe(
+          filter((e): e is NavigationEnd => e instanceof NavigationEnd),
+          takeUntilDestroyed(this.destroyRef)
+        )
+        .subscribe(() => {
+          if (this.router.url === '/children' || this.router.url === '/children/') {
+            this.loadChildren();
+          }
+        });
+    }
   }
 
   /**

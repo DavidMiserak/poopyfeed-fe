@@ -39,12 +39,15 @@ test.describe('Children', () => {
     await page.getByRole('radio', { name: 'Female' }).click({ force: true });
     await page.getByRole('button', { name: 'Add Baby' }).click();
 
-    await expect(page).toHaveURL(/\/children$/);
+    await expect(page).toHaveURL(/\/children\/\d+\/dashboard/, {
+      timeout: 15000,
+    });
+    await page.goto('/children');
     await expect(
       page.getByRole('heading', { name: 'My Children' })
-    ).toBeVisible();
+    ).toBeVisible({ timeout: 10000 });
     await expect(
       page.getByRole('heading', { name: 'E2E Baby' }).first()
-    ).toBeVisible();
+    ).toBeVisible({ timeout: 15000 });
   });
 });

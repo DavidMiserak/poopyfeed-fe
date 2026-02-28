@@ -387,11 +387,15 @@ export class ChildForm implements OnInit {
       : this.submitCreate(formData);
 
     operation.subscribe({
-      next: () => {
+      next: (child) => {
         this.isSubmitting.set(false);
         const actionName = this.isEdit() ? 'updated' : 'created';
         this.toast.success(`Child ${actionName} successfully`);
-        this.router.navigate(['/children']);
+        if (this.isEdit()) {
+          this.router.navigate(['/children']);
+        } else {
+          this.router.navigate(['/children', child.id, 'dashboard']);
+        }
       },
       error: (err: Error) => {
         this.isSubmitting.set(false);

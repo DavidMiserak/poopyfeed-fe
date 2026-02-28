@@ -1,12 +1,15 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   inject,
   OnInit,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs';
 import { FeedingsService } from '../../../services/feedings.service';
 import { ChildrenService } from '../../../services/children.service';
 import { TrackingListService } from '../../../services/tracking-list.service';
@@ -45,6 +48,7 @@ import { DateTimeService } from '../../../services/datetime.service';
 export class FeedingsList implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  private destroyRef = inject(DestroyRef);
   private feedingsService = inject(FeedingsService);
   private childrenService = inject(ChildrenService);
   private listService = inject(TrackingListService<Feeding>);
@@ -76,6 +80,18 @@ export class FeedingsList implements OnInit {
     if (id) {
       this.childId.set(Number(id));
       this.loadData(Number(id));
+    }
+    // Refetch whenever we land on the list route (e.g. return from create/edit/delete).
+    if (this.router.events) {
+      this.router.events
+        .pipe(
+          filter((e): e is NavigationEnd => e instanceof NavigationEnd),
+          takeUntilDestroyed(this.destroyRef)
+        )
+        .subscribe(() => {
+          const routeId = this.route.snapshot.paramMap.get('childId');
+          if (routeId) this.loadData(Number(routeId));
+        });
     }
   }
 

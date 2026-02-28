@@ -26,18 +26,7 @@ test.describe('Feeding Reminders', () => {
     await page.getByRole('radio', { name: '♂️ Male' }).click({ force: true });
     await page.getByRole('button', { name: 'Add Baby' }).click();
 
-    // Wait for redirect to children list
-    await expect(page).toHaveURL(/\/children$/);
-    await expect(page.getByRole('heading', { name: 'My Children' })).toBeVisible();
-
-    // Navigate to dashboard via child heading to extract child ID from URL
-    const childHeading = page.getByRole('heading', { name: childName }).first();
-    await expect(childHeading).toBeVisible();
-
-    // Click on the parent card (not the heading directly)
-    await childHeading.click();
-    await expect(page).toHaveURL(/\/children\/\d+\/dashboard/);
-
+    await expect(page).toHaveURL(/\/children\/\d+\/dashboard/, { timeout: 15000 });
     const url = page.url();
     const childId = url.match(/\/children\/(\d+)\//)?.[1];
     if (!childId) throw new Error('Could not extract child ID from URL: ' + url);

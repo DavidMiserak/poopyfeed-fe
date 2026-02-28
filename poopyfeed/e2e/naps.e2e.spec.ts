@@ -1,4 +1,6 @@
 import { test, expect } from '@playwright/test';
+import { createChildAndGoToDashboard } from './child-helpers';
+import { editTrackingItemAndSeeUpdateOnList } from './tracking-helpers';
 
 /**
  * E2E: Nap tracking flow (P0 core workflow).
@@ -6,30 +8,8 @@ import { test, expect } from '@playwright/test';
  * [Test] Happy path + error case (validation) per Test Master.
  */
 test.describe('Naps', () => {
-  const TRACK_CHILD_NAME = 'E2E Track Baby';
-
   test('user can add a nap and see it on the naps list', async ({ page }) => {
-    await page.goto('/children');
-    await expect(
-      page.getByRole('heading', { name: 'My Children' })
-    ).toBeVisible();
-
-    if (await page.getByRole('heading', { name: 'No children yet!' }).isVisible()) {
-      await page.getByRole('link', { name: 'Add Your First Baby' }).click();
-    } else {
-      await page.getByRole('link', { name: 'Add Baby' }).first().click();
-    }
-    await expect(page).toHaveURL(/\/children\/create/);
-
-    await page.getByLabel("Baby's Name").fill(TRACK_CHILD_NAME);
-    await page.getByLabel('Date of Birth').fill('2024-06-01');
-    await page.getByRole('radio', { name: 'Female' }).click({ force: true });
-    await page.getByRole('button', { name: 'Add Baby' }).click();
-
-    await expect(page).toHaveURL(/\/children$/);
-    await page.getByRole('heading', { name: TRACK_CHILD_NAME }).first().click();
-
-    await expect(page).toHaveURL(/\/children\/\d+\/dashboard/);
+    await createChildAndGoToDashboard(page, 'E2E Naps');
     await page.getByRole('button', { name: 'Add Nap' }).click();
 
     await expect(page).toHaveURL(/\/children\/\d+\/naps\/create/);
@@ -50,24 +30,7 @@ test.describe('Naps', () => {
   test('nap form shows validation when date and time is missing', async ({
     page,
   }) => {
-    await page.goto('/children');
-    await expect(
-      page.getByRole('heading', { name: 'My Children' })
-    ).toBeVisible();
-
-    if (await page.getByRole('heading', { name: 'No children yet!' }).isVisible()) {
-      await page.getByRole('link', { name: 'Add Your First Baby' }).click();
-      await page.getByLabel("Baby's Name").fill(TRACK_CHILD_NAME);
-      await page.getByLabel('Date of Birth').fill('2024-06-01');
-      await page.getByRole('radio', { name: 'Female' }).click({ force: true });
-      await page.getByRole('button', { name: 'Add Baby' }).click();
-      await expect(page).toHaveURL(/\/children$/);
-    }
-
-    const firstChildHeading = page.getByRole('heading', { level: 3 }).first();
-    await firstChildHeading.click();
-
-    await expect(page).toHaveURL(/\/children\/\d+\/dashboard/);
+    await createChildAndGoToDashboard(page, 'E2E Naps');
     await page.getByRole('button', { name: 'Add Nap' }).click();
 
     await expect(page).toHaveURL(/\/children\/\d+\/naps\/create/);
@@ -76,5 +39,57 @@ test.describe('Naps', () => {
 
     await expect(page.getByText('Date and time is required')).toBeVisible();
     await expect(page).toHaveURL(/\/children\/\d+\/naps\/create/);
+  });
+
+  test('user can edit a nap and see update on the naps list', async ({
+    page,
+  }) => {
+    await editTrackingItemAndSeeUpdateOnList(page, {
+      childNamePrefix: 'E2E Naps',
+      dashboardAddButton: 'Add Nap',
+      createUrlPattern: /\/children\/\d+\/naps\/create/,
+      listUrlPattern: /\/children\/\d+\/naps$/,
+      editUrlPattern: /\/children\/\d+\/naps\/\d+\/edit/,
+      createFormSubmitButton: 'Add Nap',
+      fillCreateForm: async (p) => {
+        await p.getByLabel('Date & Time').fill('2024-06-15T13:00');
+        await p.getByLabel('End Time (optional)').fill('2024-06-15T14:30');
+      },
+      initialRowText: 'Nap Time',
+      editButtonLabel: 'Edit nap',
+      editHeadingPattern: /Edit Nap/,
+      changeForm: async (p) => {
+        await p.getByLabel('End Time (optional)').fill('2024-06-15T15:00');
+      },
+      updateButtonLabel: 'Update Nap',
+      listHeaderButton: 'Add Nap',
+      updatedRowText: 'Nap Time',
+    });
+  });
+
+  test('user can delete a nap and return to the list', async ({
+    page,
+  }) => {
+    await createChildAndGoToDashboard(page, 'E2E Naps');
+    await page.getByRole('button', { name: 'Add Nap' }).click();
+
+    await expect(page).toHaveURL(/\/children\/\d+\/naps\/create/);
+    await page.getByLabel('Date & Time').fill('2024-06-22T12:00');
+    // Submit via the form's submit button so we don't hit the dashboard button
+    await page.locator('form').getByRole('button', { name: 'Add Nap' }).click();
+    await expect(page).toHaveURL(/\/children\/\d+\/naps$/, { timeout: 15000 });
+    await expect(
+      page.getByText('Nap Time').first()
+    ).toBeVisible({ timeout: 15000 });
+
+    await page.getByRole('button', { name: 'Delete nap' }).first().click();
+    await expect(page).toHaveURL(/\/children\/\d+\/naps\/\d+\/delete/);
+    await expect(
+      page.getByRole('heading', { name: 'Delete Nap?' })
+    ).toBeVisible();
+
+    await page.getByRole('button', { name: 'Yes, Delete Forever' }).click();
+
+    await expect(page).toHaveURL(/\/children\/\d+\/naps$/);
   });
 });

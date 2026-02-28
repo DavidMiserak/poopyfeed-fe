@@ -283,7 +283,7 @@ describe('ChildForm', () => {
         );
       });
 
-      it('should navigate to /children on success', () => {
+      it('should navigate to new child dashboard on create success', () => {
         vi.mocked(childrenService.create).mockReturnValue(of(mockChild));
 
         component.childForm.patchValue({
@@ -294,7 +294,11 @@ describe('ChildForm', () => {
 
         component.onSubmit();
 
-        expect(router.navigate).toHaveBeenCalledWith(['/children']);
+        expect(router.navigate).toHaveBeenCalledWith([
+          '/children',
+          mockChild.id,
+          'dashboard',
+        ]);
       });
 
       it('should handle API errors and display error message', () => {
@@ -1216,18 +1220,19 @@ describe('ChildForm', () => {
     });
 
     describe('Feeding Reminders', () => {
-      it('should show feeding reminders section in edit mode for owner', () => {
+      it('should show feeding reminders section in edit mode for owner', async () => {
         vi.mocked(childrenService.get).mockReturnValue(of(mockChild));
         component.ngOnInit();
         component.toggleAdvancedSettings();
         fixture.detectChanges();
+        await fixture.whenStable();
 
         const el = fixture.nativeElement as HTMLElement;
         expect(el.textContent).toContain('Feeding Reminders');
         expect(el.textContent).toContain('Set automatic reminders if no feeding has been logged');
       });
 
-      it('should populate feeding_reminder_interval form control from loaded child', () => {
+      it('should populate feeding_reminder_interval form control from loaded child', async () => {
         const childWithReminder: Child = {
           ...mockChild,
           feeding_reminder_interval: 3,
@@ -1236,11 +1241,12 @@ describe('ChildForm', () => {
         component.ngOnInit();
         component.toggleAdvancedSettings();
         fixture.detectChanges();
+        await fixture.whenStable();
 
         expect(component.childForm.get('feeding_reminder_interval')?.value).toBe(3);
       });
 
-      it('should set feeding_reminder_interval to null if not set on child', () => {
+      it('should set feeding_reminder_interval to null if not set on child', async () => {
         const childWithoutReminder: Child = {
           ...mockChild,
           feeding_reminder_interval: null,
@@ -1249,6 +1255,7 @@ describe('ChildForm', () => {
         component.ngOnInit();
         component.toggleAdvancedSettings();
         fixture.detectChanges();
+        await fixture.whenStable();
 
         expect(component.childForm.get('feeding_reminder_interval')?.value).toBeNull();
       });
@@ -1284,6 +1291,7 @@ describe('ChildForm', () => {
         const createFixture = TestBed.createComponent(ChildForm);
         const createComponent = createFixture.componentInstance;
         createFixture.detectChanges();
+        await createFixture.whenStable();
 
         const el = createFixture.nativeElement as HTMLElement;
         expect(el.textContent).not.toContain('Feeding Reminders');
@@ -1315,7 +1323,7 @@ describe('ChildForm', () => {
         expect(component.canManageReminders()).toBe(true);
       });
 
-      it('should show feeding reminders section for co-parent role', () => {
+      it('should show feeding reminders section for co-parent role', async () => {
         const coParentChild: Child = {
           ...mockChild,
           user_role: 'co-parent',
@@ -1325,16 +1333,18 @@ describe('ChildForm', () => {
         component.ngOnInit();
         component.toggleAdvancedSettings();
         fixture.detectChanges();
+        await fixture.whenStable();
 
         const el = fixture.nativeElement as HTMLElement;
         expect(el.textContent).toContain('Feeding Reminders');
       });
 
-      it('should include feeding_reminder_interval in update submission', () => {
+      it('should include feeding_reminder_interval in update submission', async () => {
         vi.mocked(childrenService.get).mockReturnValue(of(mockChild));
         vi.mocked(childrenService.update).mockReturnValue(of(mockChild));
         component.ngOnInit();
         fixture.detectChanges();
+        await fixture.whenStable();
 
         component.childForm.patchValue({
           name: 'Updated Baby',
@@ -1342,6 +1352,7 @@ describe('ChildForm', () => {
         });
 
         component.onSubmit();
+        await fixture.whenStable();
 
         expect(vi.mocked(childrenService.update)).toHaveBeenCalledWith(
           1,
@@ -1352,7 +1363,7 @@ describe('ChildForm', () => {
         );
       });
 
-      it('should allow changing feeding_reminder_interval from set to null', () => {
+      it('should allow changing feeding_reminder_interval from set to null', async () => {
         const childWithReminder: Child = {
           ...mockChild,
           feeding_reminder_interval: 3,
@@ -1361,6 +1372,7 @@ describe('ChildForm', () => {
         vi.mocked(childrenService.update).mockReturnValue(of(childWithReminder));
         component.ngOnInit();
         fixture.detectChanges();
+        await fixture.whenStable();
 
         expect(component.childForm.get('feeding_reminder_interval')?.value).toBe(3);
 
@@ -1369,6 +1381,7 @@ describe('ChildForm', () => {
         });
 
         component.onSubmit();
+        await fixture.whenStable();
 
         expect(vi.mocked(childrenService.update)).toHaveBeenCalledWith(
           1,

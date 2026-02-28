@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { createChildAndGoToDashboard } from './child-helpers';
 
 /**
  * E2E: Notification bell, dropdown, and two-user notification delivery.
@@ -14,8 +15,6 @@ import { test, expect } from '@playwright/test';
  *    "shared user logging an activity creates a notification" test (notification creation is async).
  */
 test.describe('Notifications', () => {
-  const CHILD_NAME = 'E2E Notify Baby';
-
   test('bell icon is visible and dropdown shows empty state', async ({
     page,
   }) => {
@@ -47,31 +46,10 @@ test.describe('Notifications', () => {
     const path = await import('path');
     const tokenPath = path.join(process.cwd(), 'e2e', '.auth', 'token.json');
 
-    // ── Step 1: User A ensures a child exists ──
-    await page.goto('/children');
-    await expect(
-      page.getByRole('heading', { name: 'My Children' })
-    ).toBeVisible();
-
-    if (
-      await page
-        .getByRole('heading', { name: 'No children yet!' })
-        .isVisible()
-    ) {
-      await page.getByRole('link', { name: 'Add Your First Baby' }).click();
-      await page.getByLabel("Baby's Name").fill(CHILD_NAME);
-      await page.getByLabel('Date of Birth').fill('2024-06-01');
-      await page.getByRole('radio', { name: 'Female' }).click({ force: true });
-      await page.getByRole('button', { name: 'Add Baby' }).click();
-      await expect(page).toHaveURL(/\/children$/);
-    }
+    // ── Step 1: User A creates a dedicated child ──
+    const childName = await createChildAndGoToDashboard(page, 'E2E Notify');
 
     // ── Step 2: User A creates an invite link ──
-    const firstChildHeading = page
-      .getByRole('heading', { level: 3 })
-      .first();
-    await firstChildHeading.click();
-    await expect(page).toHaveURL(/\/children\/\d+\/dashboard/);
 
     // Navigate via advanced tools hub to sharing
     await expect(page.getByText('More tools', { exact: true })).toBeVisible();
@@ -80,7 +58,12 @@ test.describe('Notifications', () => {
 
     await page.getByRole('link', { name: 'Manage Sharing' }).click();
     await expect(page).toHaveURL(/\/children\/\d+\/sharing$/);
-
+    await expect(
+      page.getByRole('heading', { name: /Sharing Settings for/ })
+    ).toBeVisible({ timeout: 25000 });
+    await expect(
+      page.getByRole('button', { name: 'Create Invite Link' })
+    ).toBeVisible({ timeout: 10000 });
     await page.getByRole('button', { name: 'Create Invite Link' }).click();
     await expect(page.getByTestId('invite-item').first()).toBeVisible({
       timeout: 10000,
@@ -125,7 +108,7 @@ test.describe('Notifications', () => {
       page.getByRole('heading', { name: 'My Children' })
     ).toBeVisible({ timeout: 10000 });
 
-    await page.getByRole('heading', { level: 3 }).first().click();
+    await page.getByRole('heading', { name: childName }).click();
     await expect(page).toHaveURL(/\/children\/\d+\/dashboard/, {
       timeout: 10000,
     });
@@ -163,7 +146,6 @@ test.describe('Notifications', () => {
       .poll(
         async () => {
           await bell.click();
-          await page.waitForTimeout(500);
           const dialog = page.getByRole('dialog', { name: 'Notification list' });
           const dialogVisible = await dialog.isVisible().catch(() => false);
           if (!dialogVisible) return false;
@@ -173,7 +155,6 @@ test.describe('Notifications', () => {
             .isVisible();
           if (!hasNotification) {
             await page.keyboard.press('Escape');
-            await page.waitForTimeout(2000);
           }
           return hasNotification;
         },
@@ -185,31 +166,7 @@ test.describe('Notifications', () => {
   test('child edit page shows notification preference toggles', async ({
     page,
   }) => {
-    await page.goto('/children');
-    await expect(
-      page.getByRole('heading', { name: 'My Children' })
-    ).toBeVisible();
-
-    // Ensure a child exists
-    if (
-      await page
-        .getByRole('heading', { name: 'No children yet!' })
-        .isVisible()
-    ) {
-      await page.getByRole('link', { name: 'Add Your First Baby' }).click();
-      await page.getByLabel("Baby's Name").fill(CHILD_NAME);
-      await page.getByLabel('Date of Birth').fill('2024-06-01');
-      await page.getByRole('radio', { name: 'Female' }).click({ force: true });
-      await page.getByRole('button', { name: 'Add Baby' }).click();
-      await expect(page).toHaveURL(/\/children$/);
-    }
-
-    // Navigate to child edit page
-    const firstChildHeading = page
-      .getByRole('heading', { level: 3 })
-      .first();
-    await firstChildHeading.click();
-    await expect(page).toHaveURL(/\/children\/\d+\/dashboard/);
+    await createChildAndGoToDashboard(page, 'E2E Notify');
 
     // Extract child ID from URL and navigate to edit
     const url = page.url();

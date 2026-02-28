@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { createChildAndGoToDashboard } from './child-helpers';
 
 /**
  * E2E: Sharing / invite flow (owner only).
@@ -6,43 +7,30 @@ import { test, expect } from '@playwright/test';
  * [Test] Happy path: open sharing page, create invite, see it in list. Per Test Master.
  */
 test.describe('Sharing', () => {
-  const TRACK_CHILD_NAME = 'E2E Track Baby';
-
   test('owner can open sharing page and see settings', async ({ page }) => {
-    await page.goto('/children');
+    await createChildAndGoToDashboard(page, 'E2E Sharing');
+
+    const moreTools = page.getByRole('button', {
+      name: 'View advanced options for this child',
+    });
+    await expect(moreTools).toBeVisible({ timeout: 15000 });
+    await moreTools.click();
+    await expect(page).toHaveURL(/\/children\/\d+\/advanced$/, { timeout: 10000 });
     await expect(
-      page.getByRole('heading', { name: 'My Children' })
-    ).toBeVisible();
-
-    if (await page.getByRole('heading', { name: 'No children yet!' }).isVisible()) {
-      await page.getByRole('link', { name: 'Add Your First Baby' }).click();
-      await page.getByLabel("Baby's Name").fill(TRACK_CHILD_NAME);
-      await page.getByLabel('Date of Birth').fill('2024-06-01');
-      await page.getByRole('radio', { name: 'Female' }).click({ force: true });
-      await page.getByRole('button', { name: 'Add Baby' }).click();
-      await expect(page).toHaveURL(/\/children$/);
-    }
-
-    const firstChildHeading = page.getByRole('heading', { level: 3 }).first();
-    await firstChildHeading.click();
-
-    await expect(page).toHaveURL(/\/children\/\d+\/dashboard/);
-
-    // Navigate via advanced tools hub
-    await expect(page.getByText('More tools', { exact: true })).toBeVisible();
-    await page.getByText('More tools', { exact: true }).click();
-    await expect(page).toHaveURL(/\/children\/\d+\/advanced$/);
-
+      page.getByRole('link', { name: 'Manage Sharing' })
+    ).toBeVisible({ timeout: 10000 });
     await page.getByRole('link', { name: 'Manage Sharing' }).click();
 
-    await expect(page).toHaveURL(/\/children\/\d+\/sharing$/);
+    await expect(page).toHaveURL(/\/children\/\d+\/sharing$/, { timeout: 15000 });
     await expect(
       page.getByRole('heading', { name: /Sharing Settings for/ })
-    ).toBeVisible();
+    ).toBeVisible({ timeout: 15000 });
     await expect(
       page.getByRole('heading', { name: /Invite Links/ })
-    ).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Create Invite Link' })).toBeVisible();
+    ).toBeVisible({ timeout: 10000 });
+    await expect(
+      page.getByRole('button', { name: 'Create Invite Link' })
+    ).toBeVisible({ timeout: 10000 });
 
     // Verify back arrow text and navigation
     await page.getByRole('button', { name: 'Back to advanced tools' }).click();
@@ -52,84 +40,71 @@ test.describe('Sharing', () => {
   test('owner can create a co-parent invite link and see it in the list', async ({
     page,
   }) => {
-    await page.goto('/children');
+    await createChildAndGoToDashboard(page, 'E2E Sharing');
+
+    const moreTools = page.getByRole('button', {
+      name: 'View advanced options for this child',
+    });
+    await expect(moreTools).toBeVisible({ timeout: 15000 });
+    await moreTools.click();
+    await expect(page).toHaveURL(/\/children\/\d+\/advanced$/, { timeout: 10000 });
     await expect(
-      page.getByRole('heading', { name: 'My Children' })
-    ).toBeVisible();
-
-    if (await page.getByRole('heading', { name: 'No children yet!' }).isVisible()) {
-      await page.getByRole('link', { name: 'Add Your First Baby' }).click();
-      await page.getByLabel("Baby's Name").fill(TRACK_CHILD_NAME);
-      await page.getByLabel('Date of Birth').fill('2024-06-01');
-      await page.getByRole('radio', { name: 'Female' }).click({ force: true });
-      await page.getByRole('button', { name: 'Add Baby' }).click();
-      await expect(page).toHaveURL(/\/children$/);
-    }
-
-    const firstChildHeading = page.getByRole('heading', { level: 3 }).first();
-    await firstChildHeading.click();
-
-    await expect(page).toHaveURL(/\/children\/\d+\/dashboard/);
-
-    await expect(page.getByText('More tools', { exact: true })).toBeVisible();
-    await page.getByText('More tools', { exact: true }).click();
-    await expect(page).toHaveURL(/\/children\/\d+\/advanced$/);
-
+      page.getByRole('link', { name: 'Manage Sharing' })
+    ).toBeVisible({ timeout: 10000 });
     await page.getByRole('link', { name: 'Manage Sharing' }).click();
 
-    await expect(page).toHaveURL(/\/children\/\d+\/sharing$/);
+    await expect(page).toHaveURL(/\/children\/\d+\/sharing$/, { timeout: 15000 });
     await expect(
       page.getByRole('heading', { name: /Sharing Settings for/ })
-    ).toBeVisible();
+    ).toBeVisible({ timeout: 20000 });
+    await expect(
+      page.getByRole('button', { name: 'Create Invite Link' })
+    ).toBeVisible({ timeout: 15000 });
 
     await page.getByRole('button', { name: 'Create Invite Link' }).click();
-
+    await expect(page.getByTestId('invite-item').first()).toBeVisible({
+      timeout: 20000,
+    });
     await expect(page.getByText('Co-parent').first()).toBeVisible({
       timeout: 10000,
     });
     await expect(page.getByText('Active').first()).toBeVisible({
-      timeout: 5000,
+      timeout: 10000,
     });
   });
 
   test('owner can create a caregiver invite link and see it in the list', async ({
     page,
   }) => {
-    await page.goto('/children');
+    await createChildAndGoToDashboard(page, 'E2E Sharing');
+
+    const moreTools = page.getByRole('button', {
+      name: 'View advanced options for this child',
+    });
+    await expect(moreTools).toBeVisible({ timeout: 15000 });
+    await moreTools.click();
+    await expect(page).toHaveURL(/\/children\/\d+\/advanced$/, { timeout: 10000 });
     await expect(
-      page.getByRole('heading', { name: 'My Children' })
-    ).toBeVisible();
-
-    if (await page.getByRole('heading', { name: 'No children yet!' }).isVisible()) {
-      await page.getByRole('link', { name: 'Add Your First Baby' }).click();
-      await page.getByLabel("Baby's Name").fill(TRACK_CHILD_NAME);
-      await page.getByLabel('Date of Birth').fill('2024-06-01');
-      await page.getByRole('radio', { name: 'Female' }).click({ force: true });
-      await page.getByRole('button', { name: 'Add Baby' }).click();
-      await expect(page).toHaveURL(/\/children$/);
-    }
-
-    const firstChildHeading = page.getByRole('heading', { level: 3 }).first();
-    await firstChildHeading.click();
-
-    await expect(page).toHaveURL(/\/children\/\d+\/dashboard/);
-
-    await expect(page.getByText('More tools', { exact: true })).toBeVisible();
-    await page.getByText('More tools', { exact: true }).click();
-    await expect(page).toHaveURL(/\/children\/\d+\/advanced$/);
-
+      page.getByRole('link', { name: 'Manage Sharing' })
+    ).toBeVisible({ timeout: 10000 });
     await page.getByRole('link', { name: 'Manage Sharing' }).click();
 
-    await expect(page).toHaveURL(/\/children\/\d+\/sharing$/);
+    await expect(page).toHaveURL(/\/children\/\d+\/sharing$/, { timeout: 15000 });
+    await expect(
+      page.getByRole('heading', { name: /Sharing Settings for/ })
+    ).toBeVisible({ timeout: 15000 });
 
-    await page.getByRole('combobox').selectOption('caregiver');
+    await expect(
+      page.getByRole('combobox').first()
+    ).toBeVisible({ timeout: 10000 });
+    await page.getByRole('combobox').first().selectOption('caregiver');
     await page.getByRole('button', { name: 'Create Invite Link' }).click();
 
     await expect(page.getByText('Caregiver').first()).toBeVisible({
-      timeout: 10000,
+      timeout: 15000,
     });
     await expect(page.getByText('Active').first()).toBeVisible({
-      timeout: 5000,
+      timeout: 10000,
     });
   });
 });

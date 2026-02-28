@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { createChildAndGoToDashboard } from './child-helpers';
 
 /**
  * E2E: Invite-accept flow (second user accepts owner's invite).
@@ -6,29 +7,13 @@ import { test, expect } from '@playwright/test';
  * [Test] Happy path + error case (invalid token) per Test Master.
  */
 test.describe('Invite Accept', () => {
-  const SHARED_CHILD_NAME = 'E2E Shared Baby';
-
   test('second user can accept invite link and see shared child', async ({
     page,
   }) => {
-    await page.goto('/children');
-    await expect(
-      page.getByRole('heading', { name: 'My Children' })
-    ).toBeVisible();
-
-    if (await page.getByRole('heading', { name: 'No children yet!' }).isVisible()) {
-      await page.getByRole('link', { name: 'Add Your First Baby' }).click();
-      await page.getByLabel("Baby's Name").fill(SHARED_CHILD_NAME);
-      await page.getByLabel('Date of Birth').fill('2024-06-01');
-      await page.getByRole('radio', { name: 'Female' }).click({ force: true });
-      await page.getByRole('button', { name: 'Add Baby' }).click();
-      await expect(page).toHaveURL(/\/children$/);
-    }
-
-    const firstChildHeading = page.getByRole('heading', { level: 3 }).first();
-    await firstChildHeading.click();
-
-    await expect(page).toHaveURL(/\/children\/\d+\/dashboard/);
+    const sharedChildName = await createChildAndGoToDashboard(
+      page,
+      'E2E Shared'
+    );
 
     // Navigate via advanced tools hub to sharing
     await expect(page.getByText('More tools', { exact: true })).toBeVisible();
@@ -78,7 +63,7 @@ test.describe('Invite Accept', () => {
     await page.getByRole('button', { name: 'View My Children' }).click();
     await expect(page).toHaveURL(/\/children$/);
     await expect(
-      page.getByRole('heading', { level: 3 }).first()
+      page.getByRole('heading', { name: sharedChildName })
     ).toBeVisible();
   });
 

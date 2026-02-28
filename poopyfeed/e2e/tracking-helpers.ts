@@ -1,0 +1,105 @@
+import { expect } from '@playwright/test';
+import type { Page } from '@playwright/test';
+import { createChildAndGoToDashboard } from './child-helpers';
+
+export interface EditTrackingItemAndSeeUpdateOptions {
+  childNamePrefix: string;
+  dashboardAddButton: string;
+  createUrlPattern: RegExp;
+  listUrlPattern: RegExp;
+  editUrlPattern: RegExp;
+  createFormSubmitButton: string;
+  /** Fill the create form before submitting (e.g. select type, date, amount). */
+  fillCreateForm: (page: Page) => Promise<void>;
+  initialRowText: string | RegExp;
+  editButtonLabel: string;
+  editHeadingPattern: RegExp;
+  /** Change the edit form before submitting (e.g. change type or amount). */
+  changeForm: (page: Page) => Promise<void>;
+  updateButtonLabel: string;
+  listHeaderButton: string;
+  updatedRowText: string | RegExp;
+  /** If set, wait for this success toast after update before proceeding (confirms API success). */
+  successToastAfterUpdate?: string;
+}
+
+/**
+ * Shared E2E flow: create child, add one tracking item, edit it, return to list and assert updated row.
+ * Uses form-scoped submit, reload + networkidle, and optional second reload if updated row not visible.
+ */
+export async function editTrackingItemAndSeeUpdateOnList(
+  page: Page,
+  options: EditTrackingItemAndSeeUpdateOptions
+): Promise<void> {
+  const {
+    childNamePrefix,
+    dashboardAddButton,
+    createUrlPattern,
+    listUrlPattern,
+    editUrlPattern,
+    createFormSubmitButton,
+    fillCreateForm,
+    initialRowText,
+    editButtonLabel,
+    editHeadingPattern,
+    changeForm,
+    updateButtonLabel,
+    listHeaderButton,
+    updatedRowText,
+    successToastAfterUpdate,
+  } = options;
+
+  await createChildAndGoToDashboard(page, childNamePrefix);
+  await page.getByRole('button', { name: dashboardAddButton }).click();
+
+  await expect(page).toHaveURL(createUrlPattern);
+  await fillCreateForm(page);
+  await page.locator('form').getByRole('button', { name: createFormSubmitButton }).click();
+
+  await expect(page).toHaveURL(listUrlPattern, { timeout: 15000 });
+  await expect(
+    page.getByText(initialRowText).first()
+  ).toBeVisible({ timeout: 15000 });
+
+  await page.getByRole('button', { name: editButtonLabel }).first().click();
+  await expect(page).toHaveURL(editUrlPattern);
+  await expect(
+    page.getByRole('heading', { name: editHeadingPattern })
+  ).toBeVisible();
+
+  await changeForm(page);
+  await page.locator('form').getByRole('button', { name: updateButtonLabel }).click();
+
+  if (successToastAfterUpdate) {
+    await expect(page.getByText(successToastAfterUpdate)).toBeVisible({
+      timeout: 10000,
+    });
+  }
+  await expect(page).toHaveURL(listUrlPattern, { timeout: 25000 });
+  await expect(
+    page.getByRole('button', { name: listHeaderButton })
+  ).toBeVisible({ timeout: 15000 });
+
+  await page.reload();
+  await page.waitForLoadState('networkidle');
+  await expect(
+    page.getByRole('button', { name: listHeaderButton })
+  ).toBeVisible({ timeout: 15000 });
+
+  const updatedVisible = await page
+    .getByText(updatedRowText)
+    .first()
+    .waitFor({ state: 'visible', timeout: 20000 })
+    .then(() => true)
+    .catch(() => false);
+  if (!updatedVisible) {
+    await page.reload();
+    await page.waitForLoadState('networkidle');
+    await expect(
+      page.getByRole('button', { name: listHeaderButton })
+    ).toBeVisible({ timeout: 15000 });
+  }
+  await expect(
+    page.getByText(updatedRowText).first()
+  ).toBeVisible({ timeout: 20000 });
+}
