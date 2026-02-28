@@ -62,7 +62,7 @@ import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { ChildrenService } from '../../services/children.service';
 import { NotificationService } from '../../services/notification.service';
 import { ToastService } from '../../services/toast.service';
-import { Child, ChildCreate } from '../../models/child.model';
+import { Child, ChildCreate, ChildUpdate } from '../../models/child.model';
 import type { NotificationPreference, NotificationPreferenceUpdate } from '../../models/notification.model';
 
 /**
@@ -426,12 +426,11 @@ export class ChildForm implements OnInit {
    * Submit for updating an existing child.
    * Builds ChildUpdate DTO (includes optional feeding_reminder_interval).
    */
-  private submitUpdate(formData: typeof this.childForm.value) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const childData: any = {
-      name: formData.name,
-      date_of_birth: formData.date_of_birth,
-      gender: formData.gender,
+  private submitUpdate(formData: typeof this.childForm.value): ReturnType<ChildrenService['update']> {
+    const childData: ChildUpdate = {
+      name: formData.name ?? undefined,
+      date_of_birth: formData.date_of_birth ?? undefined,
+      gender: formData.gender ?? undefined,
       custom_bottle_low_oz: formData.custom_bottle_low_oz ?? null,
       custom_bottle_mid_oz: formData.custom_bottle_mid_oz ?? null,
       custom_bottle_high_oz: formData.custom_bottle_high_oz ?? null,

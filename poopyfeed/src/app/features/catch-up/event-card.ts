@@ -20,7 +20,12 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { debounceTime } from 'rxjs/operators';
-import { CatchUpEvent } from '../../models';
+import type {
+  CatchUpEvent,
+  FeedingCreate,
+  DiaperChangeCreate,
+  NapCreate,
+} from '../../models';
 import { DateTimeService } from '../../services/datetime.service';
 import { ToastService } from '../../services/toast.service';
 import { getActivityIcon, formatTimestamp, formatActivityAge } from '../../utils/date.utils';
@@ -110,34 +115,33 @@ export class EventCard implements OnInit, AfterViewInit {
    */
   private initializeForm() {
     const evt = this.event();
-    if (evt && !evt.isExisting && evt.data) {
-      const data = evt.data as any;
-      if (data.feeding_type) {
-        this.eventForm.patchValue({ feeding_type: data.feeding_type }, { emitEvent: false });
-      }
-      if (data.amount_oz) {
-        this.eventForm.patchValue({ amount_oz: data.amount_oz }, { emitEvent: false });
-      }
-      if (data.duration_minutes) {
-        this.eventForm.patchValue({ duration_minutes: data.duration_minutes }, { emitEvent: false });
-      }
-      if (data.side) {
-        this.eventForm.patchValue({ side: data.side }, { emitEvent: false });
-      }
-      if (data.change_type) {
-        this.eventForm.patchValue({ change_type: data.change_type }, { emitEvent: false });
-      }
-      if (data.napped_at) {
-        const localTime = this.dateTimeService.toInputFormat(new Date(data.napped_at));
-        this.eventForm.patchValue({ napped_at: localTime }, { emitEvent: false });
-      }
-      if (data.ended_at) {
-        const localTime = this.dateTimeService.toInputFormat(new Date(data.ended_at));
-        this.eventForm.patchValue({ ended_at: localTime }, { emitEvent: false });
-      }
-      if (data.notes) {
-        this.eventForm.patchValue({ notes: data.notes }, { emitEvent: false });
-      }
+    if (!evt || evt.isExisting || !evt.data) return;
+    const data = evt.data;
+    if ('feeding_type' in data && data.feeding_type) {
+      this.eventForm.patchValue({ feeding_type: data.feeding_type }, { emitEvent: false });
+    }
+    if ('amount_oz' in data && data.amount_oz != null) {
+      this.eventForm.patchValue({ amount_oz: data.amount_oz }, { emitEvent: false });
+    }
+    if ('duration_minutes' in data && data.duration_minutes != null) {
+      this.eventForm.patchValue({ duration_minutes: data.duration_minutes }, { emitEvent: false });
+    }
+    if ('side' in data && data.side) {
+      this.eventForm.patchValue({ side: data.side }, { emitEvent: false });
+    }
+    if ('change_type' in data && data.change_type) {
+      this.eventForm.patchValue({ change_type: data.change_type }, { emitEvent: false });
+    }
+    if ('napped_at' in data && data.napped_at) {
+      const localTime = this.dateTimeService.toInputFormat(new Date(data.napped_at));
+      this.eventForm.patchValue({ napped_at: localTime }, { emitEvent: false });
+    }
+    if ('ended_at' in data && data.ended_at) {
+      const localTime = this.dateTimeService.toInputFormat(new Date(data.ended_at));
+      this.eventForm.patchValue({ ended_at: localTime }, { emitEvent: false });
+    }
+    if ('notes' in data && data.notes) {
+      this.eventForm.patchValue({ notes: data.notes }, { emitEvent: false });
     }
   }
 
@@ -205,23 +209,26 @@ export class EventCard implements OnInit, AfterViewInit {
   /**
    * Build event data from form values.
    */
-  private buildEventData(): any {
+  private buildEventData(): FeedingCreate | DiaperChangeCreate | NapCreate {
     const formValue = this.eventForm.value;
+    const changeType = (formValue.change_type ?? 'wet') as 'wet' | 'dirty' | 'both';
+    const feedingType = (formValue.feeding_type ?? 'bottle') as 'bottle' | 'breast';
 
     switch (this.evt.type) {
       case 'feeding':
         return {
-          feeding_type: formValue.feeding_type,
-          amount_oz: formValue.amount_oz,
-          duration_minutes: formValue.duration_minutes,
-          side: formValue.side,
-          notes: formValue.notes,
-        };
+          feeding_type: feedingType,
+          amount_oz: formValue.amount_oz ?? undefined,
+          duration_minutes: formValue.duration_minutes ?? undefined,
+          side: (formValue.side || undefined) as 'left' | 'right' | 'both' | undefined,
+          notes: formValue.notes || undefined,
+        } as FeedingCreate;
       case 'diaper':
+        // changed_at is set by the parent from event.estimatedTime when building the batch payload
         return {
-          change_type: formValue.change_type,
-          notes: formValue.notes,
-        };
+          change_type: changeType,
+          notes: formValue.notes || undefined,
+        } as DiaperChangeCreate;
       case 'nap':
         return {
           napped_at: formValue.napped_at
@@ -230,10 +237,10 @@ export class EventCard implements OnInit, AfterViewInit {
           ended_at: formValue.ended_at
             ? this.dateTimeService.toUTC(this.dateTimeService.fromInputFormat(formValue.ended_at))
             : undefined,
-          notes: formValue.notes,
-        };
+          notes: formValue.notes || undefined,
+        } as NapCreate;
       default:
-        return {};
+        return {} as DiaperChangeCreate;
     }
   }
 
