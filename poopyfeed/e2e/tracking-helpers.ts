@@ -67,6 +67,10 @@ export async function editTrackingItemAndSeeUpdateOnList(
     page.getByRole('heading', { name: editHeadingPattern })
   ).toBeVisible();
 
+  // Wait for the edit form to finish loading resource data from the API
+  // before making changes (prevents race where patchFormWithResource overwrites user edits)
+  await page.waitForLoadState('networkidle');
+
   await changeForm(page);
   await page.locator('form').getByRole('button', { name: updateButtonLabel }).click();
 

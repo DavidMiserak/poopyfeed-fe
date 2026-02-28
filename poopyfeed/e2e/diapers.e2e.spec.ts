@@ -19,7 +19,7 @@ test.describe('Diapers', () => {
       page.getByRole('heading', { name: /Add Diaper Change/ })
     ).toBeVisible();
 
-    await page.getByRole('radio', { name: 'Both' }).click({ force: true });
+    await page.locator('form label').filter({ hasText: 'Both' }).click();
     await page.getByLabel('Date & Time').fill('2024-06-15T16:30');
     await page.locator('form').getByRole('button', { name: 'Add Diaper Change' }).click();
 
@@ -44,7 +44,7 @@ test.describe('Diapers', () => {
     await page.getByRole('button', { name: 'Add Diaper' }).click();
 
     await expect(page).toHaveURL(/\/children\/\d+\/diapers\/create/);
-    await page.getByRole('radio', { name: 'Wet' }).click({ force: true });
+    await page.locator('form label').filter({ hasText: 'Wet' }).click();
     await page.getByLabel('Date & Time').fill('');
     await page.getByLabel('Date & Time').blur();
 
@@ -63,14 +63,16 @@ test.describe('Diapers', () => {
       editUrlPattern: /\/children\/\d+\/diapers\/\d+\/edit/,
       createFormSubmitButton: 'Add Diaper Change',
       fillCreateForm: async (p) => {
-        await p.getByRole('radio', { name: 'Wet' }).click({ force: true });
+        await p.locator('form label').filter({ hasText: 'Wet' }).click();
         await p.getByLabel('Date & Time').fill('2024-06-15T16:30');
       },
       initialRowText: 'Wet Diaper',
       editButtonLabel: 'Edit diaper change',
       editHeadingPattern: /Edit Diaper Change/,
       changeForm: async (p) => {
-        await p.getByRole('radio', { name: 'Dirty' }).click({ force: true });
+        // Wait for resource data to load before changing (prevents patchFormWithResource race)
+        await expect(p.getByRole('radio', { name: 'Wet' })).toBeChecked({ timeout: 10000 });
+        await p.locator('form label').filter({ hasText: 'Dirty' }).click();
         await p.getByLabel('Date & Time').fill('2024-06-15T16:30');
       },
       updateButtonLabel: 'Update Diaper Change',
@@ -86,7 +88,7 @@ test.describe('Diapers', () => {
     await createChildAndGoToDashboard(page, 'E2E Diapers');
     await page.getByRole('button', { name: 'Add Diaper' }).click();
     await expect(page).toHaveURL(/\/children\/\d+\/diapers\/create/);
-    await page.getByRole('radio', { name: 'Both' }).click({ force: true });
+    await page.locator('form label').filter({ hasText: 'Both' }).click();
     await page.getByLabel('Date & Time').fill('2024-06-21T11:00');
     await page.locator('form').getByRole('button', { name: 'Add Diaper Change' }).click();
     await expect(page).toHaveURL(/\/children\/\d+\/diapers$/, { timeout: 15000 });
