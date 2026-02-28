@@ -29,6 +29,7 @@ import { forkJoin } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 
 import { AnalyticsService } from '../../services/analytics.service';
+import type { DailyData } from '../../models/analytics.model';
 import { ToastService } from '../../services/toast.service';
 import { FeedingTrendsChart } from './feeding-trends-chart';
 import { FeedingOzChart } from './feeding-oz-chart';
@@ -79,15 +80,20 @@ export class AnalyticsDashboard implements OnInit {
   sleepSummary = computed(() => this.analyticsService.sleepSummary());
   todaySummary = computed(() => this.analyticsService.todaySummary());
 
+  /** True if at least one of feeding, diaper, or sleep trend datasets has any daily count > 0. */
   hasAnyData = computed(() => {
-    const feeding = this.feedingTrends();
-    const diaper = this.diaperPatterns();
-    const sleep = this.sleepSummary();
-    const feedingHasData = feeding?.daily_data?.some((d) => d.count > 0) ?? false;
-    const diaperHasData = diaper?.daily_data?.some((d) => d.count > 0) ?? false;
-    const sleepHasData = sleep?.daily_data?.some((d) => d.count > 0) ?? false;
-    return feedingHasData || diaperHasData || sleepHasData;
+    return (
+      this.hasDailyCounts(this.feedingTrends()) ||
+      this.hasDailyCounts(this.diaperPatterns()) ||
+      this.hasDailyCounts(this.sleepSummary())
+    );
   });
+
+  private hasDailyCounts(
+    data: { daily_data?: DailyData[] } | null | undefined,
+  ): boolean {
+    return data?.daily_data?.some((d) => d.count > 0) ?? false;
+  }
 
   async ngOnInit(): Promise<void> {
     const idParam = this.route.snapshot.paramMap.get('childId');
