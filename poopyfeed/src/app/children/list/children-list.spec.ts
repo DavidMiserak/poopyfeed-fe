@@ -873,6 +873,60 @@ describe('ChildrenList', () => {
       expect(noneYetTexts.length).toBe(1);
     });
 
+    it('should show Overdue pill when feeding is past reminder interval', () => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date('2024-02-27T14:00:00Z')); // 14:00 UTC
+      const childOverdue: Child = {
+        ...mockChildOwner,
+        id: 99,
+        last_feeding: '2024-02-27T10:00:00Z', // 4 hours ago
+        feeding_reminder_interval: 3,
+      };
+      vi.mocked(childrenService.list).mockReturnValue(of([childOverdue]));
+      fixture.detectChanges();
+
+      const el = fixture.nativeElement as HTMLElement;
+      expect(el.textContent).toContain('Overdue');
+
+      vi.useRealTimers();
+    });
+
+    it('should not show Overdue pill when reminder interval is null', () => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date('2024-02-27T14:00:00Z'));
+      const childNoReminder: Child = {
+        ...mockChildOwner,
+        id: 99,
+        last_feeding: '2024-02-27T10:00:00Z', // 4h ago but reminders off
+        feeding_reminder_interval: null,
+      };
+      vi.mocked(childrenService.list).mockReturnValue(of([childNoReminder]));
+      fixture.detectChanges();
+
+      const el = fixture.nativeElement as HTMLElement;
+      expect(el.textContent).not.toContain('Overdue');
+
+      vi.useRealTimers();
+    });
+
+    it('should not show Overdue pill when last feeding is within interval', () => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date('2024-02-27T14:00:00Z'));
+      const childNotOverdue: Child = {
+        ...mockChildOwner,
+        id: 99,
+        last_feeding: '2024-02-27T12:00:00Z', // 2 hours ago
+        feeding_reminder_interval: 3,
+      };
+      vi.mocked(childrenService.list).mockReturnValue(of([childNotOverdue]));
+      fixture.detectChanges();
+
+      const el = fixture.nativeElement as HTMLElement;
+      expect(el.textContent).not.toContain('Overdue');
+
+      vi.useRealTimers();
+    });
+
     it('should show navigation spinner overlay for navigating child', () => {
       fixture.detectChanges();
       component.navigatingToChildId.set(1);

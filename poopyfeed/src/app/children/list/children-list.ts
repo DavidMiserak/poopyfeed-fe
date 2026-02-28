@@ -177,4 +177,17 @@ export class ChildrenList implements OnInit {
    * Called from template to show "2 hours ago" style text for last activity.
    */
   formatTimestamp = (timestamp: string) => formatTimestamp(timestamp);
+
+  /**
+   * True when the child has feeding reminders enabled and time since last feeding
+   * is greater than or equal to the reminder interval (show "Overdue" pill).
+   */
+  isFeedingOverdue(child: Child): boolean {
+    const interval = child.feeding_reminder_interval;
+    const lastFeeding = child.last_feeding;
+    if (interval == null || lastFeeding == null) return false;
+    const hoursSince =
+      (Date.now() - new Date(lastFeeding).getTime()) / (1000 * 60 * 60);
+    return hoursSince >= interval;
+  }
 }
