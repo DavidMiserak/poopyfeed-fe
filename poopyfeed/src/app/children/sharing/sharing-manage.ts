@@ -23,10 +23,11 @@ import {
   InviteCreate,
 } from '../../models/sharing.model';
 import { Child } from '../../models/child.model';
+import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog';
 
 @Component({
   selector: 'app-sharing-manage',
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, ConfirmDialogComponent],
   templateUrl: './sharing-manage.html',
   styleUrl: './sharing-manage.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -47,6 +48,14 @@ export class SharingManage implements OnInit {
   error = signal<string | null>(null);
   isCreatingInvite = signal(false);
   copiedToken = signal<string | null>(null);
+
+  /** Revoke confirmation dialog */
+  showRevokeConfirm = signal(false);
+  revokeTarget = signal<{ shareId: number; email: string } | null>(null);
+
+  /** Delete invite confirmation dialog */
+  showDeleteInviteConfirm = signal(false);
+  deleteInviteTarget = signal<number | null>(null);
 
   inviteForm = new FormGroup({
     role: new FormControl<'co-parent' | 'caregiver'>('co-parent', [
@@ -120,23 +129,26 @@ export class SharingManage implements OnInit {
   }
 
   onRevokeShare(shareId: number, email: string) {
-    if (
-      !confirm(
-        `Are you sure you want to revoke access for ${email}? They will no longer be able to view or manage this child.`
-      )
-    ) {
-      return;
-    }
+    this.revokeTarget.set({ shareId, email });
+    this.showRevokeConfirm.set(true);
+  }
 
+  onRevokeCancel() {
+    this.showRevokeConfirm.set(false);
+    this.revokeTarget.set(null);
+  }
+
+  onRevokeConfirm() {
+    const target = this.revokeTarget();
+    this.showRevokeConfirm.set(false);
+    this.revokeTarget.set(null);
+    if (!target) return;
+    const { shareId } = target;
     const childId = this.childId();
-    if (!childId) {
-      return;
-    }
-
+    if (!childId) return;
     this.sharingService.revokeShare(childId, shareId).subscribe({
       next: () => {
         this.toast.success('Access revoked');
-        // Remove share from list
         this.shares.update((shares) =>
           shares.filter((s) => s.id !== shareId)
         );
@@ -169,23 +181,25 @@ export class SharingManage implements OnInit {
   }
 
   onDeleteInvite(inviteId: number) {
-    if (
-      !confirm(
-        'Are you sure you want to delete this invite link? It will no longer be usable.'
-      )
-    ) {
-      return;
-    }
+    this.deleteInviteTarget.set(inviteId);
+    this.showDeleteInviteConfirm.set(true);
+  }
 
+  onDeleteInviteCancel() {
+    this.showDeleteInviteConfirm.set(false);
+    this.deleteInviteTarget.set(null);
+  }
+
+  onDeleteInviteConfirm() {
+    const inviteId = this.deleteInviteTarget();
+    this.showDeleteInviteConfirm.set(false);
+    this.deleteInviteTarget.set(null);
+    if (inviteId == null) return;
     const childId = this.childId();
-    if (!childId) {
-      return;
-    }
-
+    if (!childId) return;
     this.sharingService.deleteInvite(childId, inviteId).subscribe({
       next: () => {
         this.toast.success('Invite deleted');
-        // Remove invite from list
         this.invites.update((invites) =>
           invites.filter((inv) => inv.id !== inviteId)
         );

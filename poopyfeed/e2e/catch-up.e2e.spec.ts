@@ -108,10 +108,12 @@ test.describe('Catch-Up Mode', () => {
       page.getByRole('heading', { name: 'Edit Activity' })
     ).toBeVisible();
 
-    // Accept the confirm dialog then click remove
-    // Button has aria-label="Delete diaper event"
-    page.on('dialog', (dialog) => dialog.accept());
+    // Click remove; styled confirm dialog appears — confirm with Delete
     await page.getByRole('button', { name: /Delete diaper event/ }).click();
+    await expect(
+      page.getByRole('dialog').getByRole('button', { name: 'Delete' })
+    ).toBeVisible({ timeout: 5_000 });
+    await page.getByRole('dialog').getByRole('button', { name: 'Delete' }).click();
 
     // Verify only 1 event remains
     await expect(

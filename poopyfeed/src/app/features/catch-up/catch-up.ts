@@ -51,10 +51,17 @@ import { getActivityIcon } from '../../utils/date.utils';
 import { TimeWindowSelector } from './time-window-selector';
 import { EventTimeline } from './event-timeline';
 import { EventCard } from './event-card';
+import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog';
 
 @Component({
   selector: 'app-catch-up',
-  imports: [CommonModule, TimeWindowSelector, EventTimeline, EventCard],
+  imports: [
+    CommonModule,
+    TimeWindowSelector,
+    EventTimeline,
+    EventCard,
+    ConfirmDialogComponent,
+  ],
   templateUrl: './catch-up.html',
   styles: [
     `
@@ -88,6 +95,7 @@ export class CatchUp implements OnInit {
   error = signal<string | null>(null);
   selectedEventId = signal<string | null>(null);
   currentStep = signal<'time-range' | 'events' | 'review' | 'success'>('time-range');
+  showDiscardConfirm = signal(false);
 
   // ✅ Data Model
   childId = signal<number | null>(null);
@@ -483,18 +491,22 @@ export class CatchUp implements OnInit {
   }
 
   /**
-   * Cancel the catch-up session (with confirmation on step 2).
+   * Cancel the catch-up session (with confirmation on step 2 if unsaved changes).
    */
   onCancel() {
     if (this.currentStep() === 'events' && this.hasChanges()) {
-      const confirmed = confirm(
-        `Discard ${this.newEvents().length} unsaved activit${this.newEvents().length === 1 ? 'y' : 'ies'}?`,
-      );
-      if (!confirmed) {
-        return;
-      }
+      this.showDiscardConfirm.set(true);
+      return;
     }
-
     this.router.navigate(['/children', this.childId(), 'advanced']);
+  }
+
+  onDiscardConfirm() {
+    this.showDiscardConfirm.set(false);
+    this.router.navigate(['/children', this.childId(), 'advanced']);
+  }
+
+  onDiscardCancel() {
+    this.showDiscardConfirm.set(false);
   }
 }

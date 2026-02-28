@@ -261,4 +261,16 @@
       Remove this activity
     </button>
   }
+
+  @if (showDeleteConfirm()) {
+    <app-confirm-dialog
+      [title]="'Delete this ' + evt.type + ' event?'"
+      message="This will remove the event from the list. You can add it again if needed."
+      confirmLabel="Delete"
+      cancelLabel="Cancel"
+      variant="danger"
+      (confirmed)="onDeleteConfirm()"
+      (cancelled)="onDeleteCancel()"
+    />
+  }
 </article>

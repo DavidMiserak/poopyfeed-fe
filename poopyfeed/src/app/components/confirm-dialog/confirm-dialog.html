@@ -1,0 +1,54 @@
+<div
+  class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+  role="dialog"
+  aria-modal="true"
+  [attr.aria-labelledby]="title() ? 'confirm-dialog-title' : null"
+  [attr.aria-describedby]="'confirm-dialog-message'"
+  data-backdrop="true"
+  (click)="onBackdropClick($event)"
+>
+  <div
+    class="w-full max-w-md bg-white rounded-3xl shadow-2xl border-2 p-6 relative"
+    [class.border-red-300]="variant() === 'danger'"
+    [class.border-rose-300]="variant() === 'primary'"
+    (click)="$event.stopPropagation()"
+  >
+    @if (title()) {
+      <h2
+        id="confirm-dialog-title"
+        class="font-['Fredoka',sans-serif] text-xl font-bold text-slate-900 mb-2"
+      >
+        {{ title() }}
+      </h2>
+    }
+    <p
+      id="confirm-dialog-message"
+      class="font-['DM_Sans',sans-serif] text-slate-600 mb-6"
+    >
+      {{ message() }}
+    </p>
+    <div class="flex flex-col-reverse sm:flex-row gap-3 sm:justify-end">
+      <button
+        type="button"
+        (click)="onCancel()"
+        class="px-4 py-2.5 rounded-xl font-['DM_Sans',sans-serif] font-bold text-slate-700 bg-slate-200 hover:bg-slate-300 transition-colors"
+      >
+        {{ cancelLabel() }}
+      </button>
+      <button
+        type="button"
+        (click)="onConfirm()"
+        class="px-4 py-2.5 rounded-xl font-['DM_Sans',sans-serif] font-bold text-white transition-all border-2"
+        [class.border-red-600]="variant() === 'danger'"
+        [class.bg-red-500]="variant() === 'danger'"
+        [class.hover:bg-red-600]="variant() === 'danger'"
+        [class.border-rose-400]="variant() === 'primary'"
+        [class.bg-gradient-to-br]="variant() === 'primary'"
+        [class.from-rose-400]="variant() === 'primary'"
+        [class.to-orange-400]="variant() === 'primary'"
+      >
+        {{ confirmLabel() }}
+      </button>
+    </div>
+  </div>
+</div>

@@ -328,4 +328,27 @@
       </div>
     }
   </div>
+
+  @if (showRevokeConfirm() && revokeTarget(); as target) {
+    <app-confirm-dialog
+      title="Revoke access?"
+      [message]="'Are you sure you want to revoke access for ' + target.email + '? They will no longer be able to view or manage this child.'"
+      confirmLabel="Revoke access"
+      cancelLabel="Cancel"
+      variant="danger"
+      (confirmed)="onRevokeConfirm()"
+      (cancelled)="onRevokeCancel()"
+    />
+  }
+  @if (showDeleteInviteConfirm() && deleteInviteTarget() !== null) {
+    <app-confirm-dialog
+      title="Delete invite link?"
+      message="Are you sure you want to delete this invite link? It will no longer be usable."
+      confirmLabel="Delete"
+      cancelLabel="Cancel"
+      variant="danger"
+      (confirmed)="onDeleteInviteConfirm()"
+      (cancelled)="onDeleteInviteCancel()"
+    />
+  }
 </div>

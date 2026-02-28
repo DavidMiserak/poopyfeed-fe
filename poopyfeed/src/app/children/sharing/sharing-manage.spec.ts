@@ -3,6 +3,7 @@ import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { Router, ActivatedRoute } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { SharingManage } from './sharing-manage';
+import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog';
 import { SharingService } from '../../services/sharing.service';
 import { ChildrenService } from '../../services/children.service';
 import { ToastService } from '../../services/toast.service';
@@ -73,7 +74,7 @@ describe('SharingManage Component', () => {
     mockToastService = { success: vi.fn(), error: vi.fn() };
 
     await TestBed.configureTestingModule({
-      imports: [SharingManage],
+      imports: [SharingManage, ConfirmDialogComponent],
       providers: [
         { provide: Router, useValue: mockRouter },
         { provide: ActivatedRoute, useValue: mockActivatedRoute },
@@ -238,14 +239,17 @@ describe('SharingManage Component', () => {
   describe('onRevokeShare', () => {
     beforeEach(() => {
       component.childId.set(1);
-      vi.spyOn(window, 'confirm').mockReturnValue(true);
     });
 
-    it('should revoke share after confirmation', () => {
+    it('should show revoke dialog and revoke share when confirmed', () => {
       mockSharingService.revokeShare.mockReturnValue(of(null));
       component.shares.set([mockShare]);
 
       component.onRevokeShare(1, 'dad@example.com');
+      expect(component.showRevokeConfirm()).toBe(true);
+      expect(component.revokeTarget()).toEqual({ shareId: 1, email: 'dad@example.com' });
+
+      component.onRevokeConfirm();
 
       expect(mockSharingService.revokeShare).toHaveBeenCalledWith(1, 1);
     });
@@ -256,6 +260,7 @@ describe('SharingManage Component', () => {
       component.shares.set([mockShare, share2]);
 
       component.onRevokeShare(1, 'dad@example.com');
+      component.onRevokeConfirm();
 
       expect(component.shares().length).toBe(1);
       expect(component.shares()[0].id).toBe(2);
@@ -266,22 +271,22 @@ describe('SharingManage Component', () => {
       component.shares.set([mockShare]);
 
       component.onRevokeShare(1, 'dad@example.com');
+      component.onRevokeConfirm();
 
       expect(mockToastService.success).toHaveBeenCalledWith('Access revoked');
     });
 
-    it('should not revoke if user cancels confirmation', () => {
-      vi.spyOn(window, 'confirm').mockReturnValue(false);
-
+    it('should not revoke if user cancels dialog', () => {
       component.onRevokeShare(1, 'dad@example.com');
+      component.onRevokeCancel();
 
       expect(mockSharingService.revokeShare).not.toHaveBeenCalled();
     });
 
     it('should not revoke if childId is not set', () => {
+      component.onRevokeShare(1, 'x');
       component.childId.set(null);
-
-      component.onRevokeShare(1, 'dad@example.com');
+      component.onRevokeConfirm();
 
       expect(mockSharingService.revokeShare).not.toHaveBeenCalled();
     });
@@ -292,17 +297,9 @@ describe('SharingManage Component', () => {
       component.shares.set([mockShare]);
 
       component.onRevokeShare(1, 'dad@example.com');
+      component.onRevokeConfirm();
 
       expect(component.error()).toBe('Failed to revoke');
-    });
-
-    it('should show confirmation with email', () => {
-      const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(false);
-      mockSharingService.revokeShare.mockReturnValue(of(null));
-
-      component.onRevokeShare(1, 'dad@example.com');
-
-      expect(confirmSpy).toHaveBeenCalledWith(expect.stringContaining('dad@example.com'));
     });
   });
 
@@ -365,14 +362,17 @@ describe('SharingManage Component', () => {
   describe('onDeleteInvite', () => {
     beforeEach(() => {
       component.childId.set(1);
-      vi.spyOn(window, 'confirm').mockReturnValue(true);
     });
 
-    it('should delete invite after confirmation', () => {
+    it('should show delete dialog and delete invite when confirmed', () => {
       mockSharingService.deleteInvite.mockReturnValue(of(null));
       component.invites.set([mockInvite]);
 
       component.onDeleteInvite(1);
+      expect(component.showDeleteInviteConfirm()).toBe(true);
+      expect(component.deleteInviteTarget()).toBe(1);
+
+      component.onDeleteInviteConfirm();
 
       expect(mockSharingService.deleteInvite).toHaveBeenCalledWith(1, 1);
     });
@@ -383,6 +383,7 @@ describe('SharingManage Component', () => {
       component.invites.set([mockInvite, invite2]);
 
       component.onDeleteInvite(1);
+      component.onDeleteInviteConfirm();
 
       expect(component.invites().length).toBe(1);
       expect(component.invites()[0].id).toBe(2);
@@ -393,22 +394,22 @@ describe('SharingManage Component', () => {
       component.invites.set([mockInvite]);
 
       component.onDeleteInvite(1);
+      component.onDeleteInviteConfirm();
 
       expect(mockToastService.success).toHaveBeenCalledWith('Invite deleted');
     });
 
-    it('should not delete if user cancels confirmation', () => {
-      vi.spyOn(window, 'confirm').mockReturnValue(false);
-
+    it('should not delete if user cancels dialog', () => {
       component.onDeleteInvite(1);
+      component.onDeleteInviteCancel();
 
       expect(mockSharingService.deleteInvite).not.toHaveBeenCalled();
     });
 
     it('should not delete if childId is not set', () => {
-      component.childId.set(null);
-
       component.onDeleteInvite(1);
+      component.childId.set(null);
+      component.onDeleteInviteConfirm();
 
       expect(mockSharingService.deleteInvite).not.toHaveBeenCalled();
     });
@@ -418,6 +419,7 @@ describe('SharingManage Component', () => {
       mockSharingService.deleteInvite.mockReturnValue(throwError(() => error));
 
       component.onDeleteInvite(1);
+      component.onDeleteInviteConfirm();
 
       expect(component.error()).toBe('Failed to delete');
     });

@@ -3,6 +3,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { CatchUp } from './catch-up';
+import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog';
 import { TimeEstimationService } from '../../services/time-estimation.service';
 import { BatchesService } from '../../services/batches.service';
 import { ChildrenService } from '../../services/children.service';
@@ -80,7 +81,7 @@ describe('CatchUpComponent - Step Wizard', () => {
     };
 
     await TestBed.configureTestingModule({
-      imports: [CatchUp],
+      imports: [CatchUp, ConfirmDialogComponent],
       providers: [
         { provide: ChildrenService, useValue: childrenService },
         { provide: FeedingsService, useValue: feedingsService },
@@ -339,17 +340,18 @@ describe('CatchUpComponent - Step Wizard', () => {
       expect(router.navigate).toHaveBeenCalled();
     });
 
-    it('should confirm before canceling from events step with unsaved changes', () => {
+    it('should show discard dialog and navigate when confirmed', () => {
       component.currentStep.set('events');
       component.onAddEvent('feeding');
 
-      // Mock confirm to return true
-      window.confirm = vi.fn().mockReturnValue(true) as any;
-
       component.onCancel();
 
-      expect(window.confirm).toHaveBeenCalled();
-      expect(router.navigate).toHaveBeenCalled();
+      expect(component.showDiscardConfirm()).toBe(true);
+      expect(router.navigate).not.toHaveBeenCalled();
+
+      component.onDiscardConfirm();
+
+      expect(router.navigate).toHaveBeenCalledWith(['/children', 1, 'advanced']);
     });
   });
 
@@ -474,13 +476,12 @@ describe('CatchUpComponent - Step Wizard', () => {
   });
 
   describe('Cancel - Rejection Path', () => {
-    it('should not navigate when cancel is rejected on events step', () => {
+    it('should not navigate when user cancels discard dialog', () => {
       component.currentStep.set('events');
       component.onAddEvent('feeding');
 
-      window.confirm = vi.fn().mockReturnValue(false) as any;
-
       component.onCancel();
+      component.onDiscardCancel();
 
       expect(router.navigate).not.toHaveBeenCalled();
     });

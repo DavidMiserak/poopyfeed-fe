@@ -1,6 +1,7 @@
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { EventCard } from './event-card';
+import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog';
 import { CatchUpEvent } from '../../models';
 import { DateTimeService } from '../../services/datetime.service';
 import { ToastService } from '../../services/toast.service';
@@ -54,7 +55,7 @@ describe('EventCard', () => {
     };
 
     await TestBed.configureTestingModule({
-      imports: [EventCard],
+      imports: [EventCard, ConfirmDialogComponent],
       providers: [
         { provide: DateTimeService, useValue: dateTimeService },
         { provide: ToastService, useValue: toastService },
@@ -159,36 +160,35 @@ describe('EventCard', () => {
 
   describe('Delete', () => {
     it('should emit onRemove when delete confirmed', () => {
-      window.confirm = vi.fn().mockReturnValue(true) as any;
       const removeSpy = vi.spyOn(component.onRemove, 'emit');
 
       fixture.componentRef.setInput('event', mockNewFeedingEvent);
       fixture.detectChanges();
 
       component.onDelete();
+      component.onDeleteConfirm();
 
       expect(removeSpy).toHaveBeenCalled();
     });
 
     it('should not emit onRemove when delete cancelled', () => {
-      window.confirm = vi.fn().mockReturnValue(false) as any;
       const removeSpy = vi.spyOn(component.onRemove, 'emit');
 
       fixture.componentRef.setInput('event', mockNewFeedingEvent);
       fixture.detectChanges();
 
       component.onDelete();
+      component.onDeleteCancel();
 
       expect(removeSpy).not.toHaveBeenCalled();
     });
 
     it('should not show toast on delete (parent handles it)', () => {
-      window.confirm = vi.fn().mockReturnValue(true) as any;
-
       fixture.componentRef.setInput('event', mockNewFeedingEvent);
       fixture.detectChanges();
 
       component.onDelete();
+      component.onDeleteConfirm();
 
       expect(toastService.success).not.toHaveBeenCalled();
     });

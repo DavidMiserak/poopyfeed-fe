@@ -24,10 +24,11 @@ import { CatchUpEvent } from '../../models';
 import { DateTimeService } from '../../services/datetime.service';
 import { ToastService } from '../../services/toast.service';
 import { getActivityIcon, formatTimestamp, formatActivityAge } from '../../utils/date.utils';
+import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog';
 
 @Component({
   selector: 'app-event-card',
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, ConfirmDialogComponent],
   templateUrl: './event-card.html',
   styles: [
     `
@@ -68,6 +69,7 @@ export class EventCard implements OnInit, AfterViewInit {
   // State
   isExpanded = signal(false);
   validationErrors = signal<string[]>([]);
+  showDeleteConfirm = signal(false);
 
   // Form for editing new events
   eventForm = new FormGroup({
@@ -235,13 +237,16 @@ export class EventCard implements OnInit, AfterViewInit {
     }
   }
 
-  /**
-   * Delete event (no toast here - parent handles feedback).
-   */
   onDelete() {
-    const confirmed = confirm(`Delete this ${this.evt.type} event?`);
-    if (confirmed) {
-      this.onRemove.emit();
-    }
+    this.showDeleteConfirm.set(true);
+  }
+
+  onDeleteConfirm() {
+    this.showDeleteConfirm.set(false);
+    this.onRemove.emit();
+  }
+
+  onDeleteCancel() {
+    this.showDeleteConfirm.set(false);
   }
 }

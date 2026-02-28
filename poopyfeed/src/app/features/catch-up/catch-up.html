@@ -208,4 +208,16 @@
       </div>
     }
   }
+
+  @if (showDiscardConfirm()) {
+    <app-confirm-dialog
+      title="Discard changes?"
+      [message]="'Discard ' + newEvents().length + ' unsaved ' + (newEvents().length === 1 ? 'activity' : 'activities') + '?'"
+      confirmLabel="Discard"
+      cancelLabel="Keep editing"
+      variant="danger"
+      (confirmed)="onDiscardConfirm()"
+      (cancelled)="onDiscardCancel()"
+    />
+  }
 </div>
