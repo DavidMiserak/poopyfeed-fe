@@ -20,12 +20,19 @@ A modern baby care tracking web application built with Angular 21, TypeScript, a
 
 ## Features
 
-- **Baby Profile Management** - Create and manage multiple child profiles
-- **Activity Tracking** - Log feedings (bottle/breast), diaper changes, and naps
-- **Role-Based Sharing** - Share access with co-parents (full access) or caregivers (view + add only)
-- **Real-Time Updates** - Server-side rendering (SSR) support for fast initial loads
+- **Baby Profile Management** - Create and manage multiple child profiles with age display and gender icons
+- **Activity Tracking** - Log feedings (bottle/breast), diaper changes (wet/dirty/both), and naps with full CRUD
+- **Child Dashboard** - Today's summary counts, recent activity feed, and quick-log actions
+- **Analytics & Charts** - Chart.js visualizations for feeding trends, diaper patterns, and sleep summaries
+- **Data Export** - CSV (instant download) and PDF (async generation via Celery)
+- **Role-Based Sharing** - Share access with co-parents (full access) or caregivers (view + add only) via invite links
+- **Timeline View** - 7-day activity history with timezone-aware display
+- **Push Notifications** - Feeding reminders and activity alerts with quiet hours support
+- **Catch-Up Mode** - Bulk logging for catching up on missed entries
+- **Pediatrician Summary** - "For the Doctor" view with daily averages for appointments
+- **SSR Support** - Server-side rendering with Angular Universal + Express for fast initial loads
 - **Modern Angular Architecture** - Built with Angular 21 standalone components and signals
-- **Responsive Design** - Mobile-first UI with Tailwind CSS v4
+- **Responsive Design** - Mobile-first, one-handed UI with Tailwind CSS v4
 
 ## Prerequisites
 
@@ -97,25 +104,40 @@ npm run serve:ssr:poopyfeed    # Run SSR Node server on :4000
 ```text
 /
 ├── poopyfeed/                    # Angular application root
-│   ├── src/
-│   │   ├── app/                 # Root component (standalone)
-│   │   │   ├── app.ts           # Root component
-│   │   │   ├── app.routes.ts    # Route definitions
-│   │   │   ├── app.config.ts    # App configuration
-│   │   │   └── app.config.server.ts  # SSR configuration
-│   │   ├── main.ts              # Client-side bootstrap
-│   │   ├── main.server.ts       # Server-side bootstrap
-│   │   ├── server.ts            # Express server for SSR
-│   │   └── styles.css           # Global styles (Tailwind)
+│   ├── src/app/
+│   │   ├── app.ts               # Root component
+│   │   ├── app.routes.ts        # Route definitions (lazy loading)
+│   │   ├── app.config.ts        # App configuration
+│   │   ├── auth/                # Login and signup components
+│   │   ├── children/            # Core feature modules
+│   │   │   ├── list/            # Child list with navigation spinners
+│   │   │   ├── form/            # Create/edit child profiles
+│   │   │   ├── dashboard/       # Daily summary and activity feed
+│   │   │   ├── feedings/        # Feeding tracking (bottle/breast)
+│   │   │   ├── diapers/         # Diaper change tracking
+│   │   │   ├── naps/            # Nap tracking
+│   │   │   ├── sharing/         # Share management and invites
+│   │   │   ├── timeline/        # 7-day activity history
+│   │   │   └── pediatrician-summary/  # "For the Doctor" view
+│   │   ├── features/
+│   │   │   ├── analytics/       # Chart.js dashboards and export
+│   │   │   └── catch-up/        # Bulk logging
+│   │   ├── models/              # TypeScript interfaces for API resources
+│   │   ├── services/            # API services with signal-based state
+│   │   ├── utils/               # Shared utilities (dates, forms, etc.)
+│   │   ├── components/          # Shared UI components (header, footer, toast)
+│   │   ├── guards/              # Auth and public-only route guards
+│   │   └── interceptors/        # HTTP auth interceptor
+│   ├── e2e/                     # Playwright E2E tests
 │   ├── angular.json             # Build configuration
-│   ├── tsconfig.json            # TypeScript base config (strict mode)
-│   └── .claude/CLAUDE.md        # Detailed coding guidelines
+│   └── tsconfig.json            # TypeScript base config (strict mode)
 ├── Containerfile                # Multi-stage Docker build
 ├── podman-compose.yaml          # Local development environment
 ├── Makefile                     # Development commands
 ├── CLAUDE.md                    # Project documentation for Claude Code
 └── docs/
-    └── API.md                   # Backend API documentation (773 lines)
+    ├── API.md                   # Backend API documentation
+    └── STYLE.md                 # Frontend styling guide
 ```
 
 ## Technology Stack
@@ -136,16 +158,22 @@ npm run serve:ssr:poopyfeed    # Run SSR Node server on :4000
 - **Angular Universal** - SSR support
 - **Express** 5.1.0+ - Node.js server for SSR
 
-### Testing Framework
+### Testing
 
-- **Vitest** 4.0.8 - Fast unit test framework
-- **JSDOM** 27.1.0 - DOM implementation for testing
+- **Vitest** 4.0.8 - Fast unit test framework (83 spec files)
+- **Playwright** - E2E browser testing (10 spec files, Firefox + Chromium)
+- **JSDOM** 27.1.0 - DOM implementation for unit tests
+
+### Visualization
+
+- **Chart.js** - Analytics charts (feeding trends, diaper patterns, sleep)
+- **dayjs** - Timezone-aware date formatting
 
 ### Development Tools
 
 - **Pre-commit hooks** - Code quality and commit message validation
 - **Prettier** - Code formatting
-- **Markdownlint** - Markdown linting
+- **ESLint** - Code linting
 - **Codespell** - Spell checking
 
 ## Architecture
@@ -212,34 +240,34 @@ The frontend connects to a Django REST API at `/api/v1/`. See `docs/API.md` for 
 
 ## Testing
 
-Run tests with Vitest:
+### Unit Tests (Vitest)
 
 ```bash
 # Container-based
 make test
 
-# Local
-npm test
+# Local (watch mode)
+cd poopyfeed && npm test
+
+# Run specific file
+cd poopyfeed && npx vitest run src/app/services/children.service.spec.ts
+
+# Coverage report
+make test-coverage
 ```
 
 Test files are colocated with source files (`*.spec.ts`). Uses Angular TestBed with Vitest.
 
-Example test:
+### E2E Tests (Playwright)
 
-```typescript
-describe("Component", () => {
-    beforeEach(async () => {
-        await TestBed.configureTestingModule({
-            imports: [Component],
-        }).compileComponents();
-    });
-
-    it("should work", () => {
-        const fixture = TestBed.createComponent(Component);
-        expect(fixture.componentInstance).toBeTruthy();
-    });
-});
+```bash
+# Requires full stack running (make run from root repo)
+cd poopyfeed && npm run test:e2e                       # Firefox (default)
+cd poopyfeed && npm run test:e2e -- --project=chromium  # Chromium
+cd poopyfeed && npm run test:e2e:ui                     # With UI inspector
 ```
+
+E2E tests cover auth flows, child management, tracking CRUD, analytics, sharing, and notifications.
 
 ## Build & Deployment
 
@@ -334,37 +362,25 @@ Key principles:
 
 ## Project Status
 
-**Current Phase**: Initial setup complete, ready for feature development
+**Current Phase**: Full-featured application with comprehensive test coverage
 
-✅ **Completed**:
-
-- Angular 21 standalone component architecture
-- SSR with Express server configuration
-- Containerized development and production builds
-- Backend API documentation (773 lines)
-- Pre-commit hooks and code quality tools
-- Tailwind CSS v4 integration
-- Vitest testing framework
-
-🚧 **Next Steps**:
-
-- Feature routes and navigation
-- API integration services
-- Authentication service with token management
-- TypeScript models/interfaces for API resources
-- Child management components
-- Tracking components (feeding, diaper, nap)
-- Sharing/invite management UI
-- State management with signals
-- Unit tests for components/services
+- Children management with profiles, dashboard, and activity tracking
+- Full CRUD for feedings, diapers, and naps with form validation
+- Analytics dashboard with Chart.js visualizations
+- Data export (CSV instant download, PDF async generation)
+- Push notifications with quiet hours and feeding reminders
+- Sharing and invite system with role-based access
+- Timeline/activity history with timezone-aware display
+- Catch-up mode for bulk logging
+- Pediatrician summary with daily averages
+- Contact page with FormSpree integration
+- 83 test spec files with ~89% coverage
+- 10 Playwright E2E test suites
 
 ## Related Documentation
 
 - **Backend API**: [poopyfeed-be](https://github.com/DavidMiserak/poopyfeed-be) - Django backend setup and API
 - **API Reference**: `docs/API.md` - Comprehensive API documentation
+- **Style Guide**: `docs/STYLE.md` - Frontend styling guide and design tokens
 - **Coding Guidelines**: `CLAUDE.md` - Project-wide coding standards
 - **Angular Guidelines**: `poopyfeed/.claude/CLAUDE.md` - Angular-specific patterns
-
-## License
-
-<!-- Add license information -->

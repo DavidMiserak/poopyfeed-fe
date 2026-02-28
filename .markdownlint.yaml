@@ -1,3 +1,5 @@
 default: true
 MD007: false
 MD013: false  # Line length
+MD024: false  # Allow duplicate headings (e.g., nested "Testing" sections)
+MD033: false  # Allow inline HTML (badges)
