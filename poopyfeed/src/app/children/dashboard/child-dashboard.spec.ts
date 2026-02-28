@@ -464,6 +464,23 @@ describe('ChildDashboard', () => {
       );
       expect(moreButton).toBeTruthy();
     });
+
+    it('should render Recent Activity section when recentActivity has items', () => {
+      const feedings = [makeFeeding({ id: 1, amount_oz: 4 })];
+      const diapers = [makeDiaper({ id: 1, change_type: 'wet' })];
+      setupWithData(feedings, diapers, []);
+      expect(component.recentActivity().length).toBeGreaterThan(0);
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      expect(compiled.textContent).toContain('Recent Activity');
+      // Activity content from getActivityTitle (e.g. "Bottle: 4 oz" or "Wet")
+      const hasActivityContent =
+        compiled.textContent?.includes('Bottle') ||
+        compiled.textContent?.includes('Wet') ||
+        compiled.textContent?.includes('Nap');
+      expect(hasActivityContent).toBe(true);
+    });
   });
 
   describe('data loading', () => {

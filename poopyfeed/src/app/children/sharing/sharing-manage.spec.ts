@@ -5,6 +5,7 @@ import { of, throwError } from 'rxjs';
 import { SharingManage } from './sharing-manage';
 import { SharingService } from '../../services/sharing.service';
 import { ChildrenService } from '../../services/children.service';
+import { ToastService } from '../../services/toast.service';
 import { Child } from '../../models/child.model';
 import { ChildShare, ShareInvite } from '../../models/sharing.model';
 
@@ -15,6 +16,7 @@ describe('SharingManage Component', () => {
   let mockActivatedRoute: any;
   let mockSharingService: any;
   let mockChildrenService: any;
+  let mockToastService: { success: ReturnType<typeof vi.fn>; error: ReturnType<typeof vi.fn> };
 
   const mockChild: Child = {
     id: 1,
@@ -68,6 +70,7 @@ describe('SharingManage Component', () => {
     mockChildrenService = {
       get: vi.fn(),
     };
+    mockToastService = { success: vi.fn(), error: vi.fn() };
 
     await TestBed.configureTestingModule({
       imports: [SharingManage],
@@ -76,6 +79,7 @@ describe('SharingManage Component', () => {
         { provide: ActivatedRoute, useValue: mockActivatedRoute },
         { provide: SharingService, useValue: mockSharingService },
         { provide: ChildrenService, useValue: mockChildrenService },
+        { provide: ToastService, useValue: mockToastService },
       ],
     }).compileComponents();
 
@@ -257,6 +261,15 @@ describe('SharingManage Component', () => {
       expect(component.shares()[0].id).toBe(2);
     });
 
+    it('should show success toast when revoke succeeds', () => {
+      mockSharingService.revokeShare.mockReturnValue(of(null));
+      component.shares.set([mockShare]);
+
+      component.onRevokeShare(1, 'dad@example.com');
+
+      expect(mockToastService.success).toHaveBeenCalledWith('Access revoked');
+    });
+
     it('should not revoke if user cancels confirmation', () => {
       vi.spyOn(window, 'confirm').mockReturnValue(false);
 
@@ -373,6 +386,15 @@ describe('SharingManage Component', () => {
 
       expect(component.invites().length).toBe(1);
       expect(component.invites()[0].id).toBe(2);
+    });
+
+    it('should show success toast when delete invite succeeds', () => {
+      mockSharingService.deleteInvite.mockReturnValue(of(null));
+      component.invites.set([mockInvite]);
+
+      component.onDeleteInvite(1);
+
+      expect(mockToastService.success).toHaveBeenCalledWith('Invite deleted');
     });
 
     it('should not delete if user cancels confirmation', () => {

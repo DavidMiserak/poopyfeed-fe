@@ -147,6 +147,18 @@ export class ChildrenList implements OnInit {
   }
 
   /**
+   * Handle Space key on child card for keyboard accessibility (WCAG 2.1.1).
+   * Prevents default scroll behavior and triggers navigation.
+   */
+  onChildCardKeydown(event: Event, childId: number) {
+    const keyEvent = event as KeyboardEvent;
+    if (keyEvent.code === 'Space') {
+      keyEvent.preventDefault();
+      this.navigateToChild(childId);
+    }
+  }
+
+  /**
    * Format child's age for display (e.g., "3y 2m").
    *
    * Uses getChildAge() utility from date.utils for compact age format.

@@ -16,6 +16,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { SharingService } from '../../services/sharing.service';
 import { ChildrenService } from '../../services/children.service';
+import { ToastService } from '../../services/toast.service';
 import {
   ChildShare,
   ShareInvite,
@@ -35,6 +36,7 @@ export class SharingManage implements OnInit {
   private route = inject(ActivatedRoute);
   private sharingService = inject(SharingService);
   private childrenService = inject(ChildrenService);
+  private toast = inject(ToastService);
 
   childId = signal<number | null>(null);
   child = signal<Child | null>(null);
@@ -132,6 +134,7 @@ export class SharingManage implements OnInit {
 
     this.sharingService.revokeShare(childId, shareId).subscribe({
       next: () => {
+        this.toast.success('Access revoked');
         // Remove share from list
         this.shares.update((shares) =>
           shares.filter((s) => s.id !== shareId)
@@ -180,6 +183,7 @@ export class SharingManage implements OnInit {
 
     this.sharingService.deleteInvite(childId, inviteId).subscribe({
       next: () => {
+        this.toast.success('Invite deleted');
         // Remove invite from list
         this.invites.update((invites) =>
           invites.filter((inv) => inv.id !== inviteId)

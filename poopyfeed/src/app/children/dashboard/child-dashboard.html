@@ -293,6 +293,30 @@
             </button>
           </div>
         </div>
+
+        <!-- Recent Activity -->
+        @if (recentActivity().length > 0) {
+          <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-6 border-2 border-amber-400/20">
+            <h2 class="font-['Fredoka',sans-serif] text-2xl font-bold text-slate-900 mb-4">
+              Recent Activity
+            </h2>
+            <div class="space-y-3">
+              @for (item of recentActivity(); track item.id) {
+                <div class="flex items-center gap-3 p-3 rounded-xl bg-slate-50/80 border border-slate-100">
+                  <span class="text-2xl" [attr.aria-hidden]="true">{{ getActivityIcon(item.type) }}</span>
+                  <div class="flex-1 min-w-0">
+                    <p class="font-['DM_Sans',sans-serif] text-sm font-semibold text-slate-800">
+                      {{ getActivityTitle(item) }}
+                    </p>
+                    <p class="font-['DM_Sans',sans-serif] text-xs text-slate-500">
+                      {{ formatTimestamp(item.timestamp) }}
+                    </p>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
       </div>
     }
   </div>

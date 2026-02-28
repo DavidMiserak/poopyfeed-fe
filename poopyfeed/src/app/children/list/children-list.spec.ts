@@ -714,6 +714,64 @@ describe('ChildrenList', () => {
     });
   });
 
+  describe('Keyboard accessibility (WCAG 2.1.1)', () => {
+    it('should give child cards role="button" and tabindex="0"', () => {
+      fixture.detectChanges();
+
+      const el = fixture.nativeElement as HTMLElement;
+      const cards = el.querySelectorAll('[role="button"]');
+      expect(cards.length).toBe(3);
+      cards.forEach((card) => {
+        expect(card.getAttribute('tabindex')).toBe('0');
+      });
+    });
+
+    it('should navigate to child when Enter is pressed on card', () => {
+      fixture.detectChanges();
+
+      const el = fixture.nativeElement as HTMLElement;
+      const firstCard = el.querySelector('[role="button"]') as HTMLElement;
+      const enterEvent = new KeyboardEvent('keydown', {
+        key: 'Enter',
+        code: 'Enter',
+        bubbles: true,
+      });
+
+      firstCard.dispatchEvent(enterEvent);
+
+      expect(router.navigate).toHaveBeenCalledWith(['/children', 1, 'dashboard']);
+    });
+
+    it('should navigate to child when Space is pressed on card', () => {
+      fixture.detectChanges();
+
+      const el = fixture.nativeElement as HTMLElement;
+      const firstCard = el.querySelector('[role="button"]') as HTMLElement;
+      const spaceEvent = new KeyboardEvent('keydown', {
+        key: ' ',
+        code: 'Space',
+        bubbles: true,
+      });
+      const preventDefaultSpy = vi.spyOn(spaceEvent, 'preventDefault');
+
+      firstCard.dispatchEvent(spaceEvent);
+
+      expect(router.navigate).toHaveBeenCalledWith(['/children', 1, 'dashboard']);
+      expect(preventDefaultSpy).toHaveBeenCalled();
+    });
+
+    it('should call onChildCardKeydown for Space and navigate', () => {
+      const navigateSpy = vi.spyOn(component, 'navigateToChild');
+      const event = new KeyboardEvent('keydown', { code: 'Space', bubbles: true });
+      const preventDefaultSpy = vi.spyOn(event, 'preventDefault');
+
+      component.onChildCardKeydown(event, 2);
+
+      expect(preventDefaultSpy).toHaveBeenCalled();
+      expect(navigateSpy).toHaveBeenCalledWith(2);
+    });
+  });
+
   describe('DOM Rendering', () => {
     afterEach(() => {
       vi.clearAllMocks();

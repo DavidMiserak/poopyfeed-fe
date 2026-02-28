@@ -97,7 +97,11 @@
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         @for (child of children(); track child.id) {
           <div
+            role="button"
+            tabindex="0"
             (click)="navigateToChild(child.id)"
+            (keydown.enter)="navigateToChild(child.id)"
+            (keydown.space)="onChildCardKeydown($event, child.id)"
             [attr.aria-busy]="navigatingToChildId() === child.id"
             class="group relative bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl hover:shadow-2xl p-6 border-2 border-rose-200 hover:border-rose-400 transition-all duration-300 cursor-pointer hover:-translate-y-2"
             [class.opacity-75]="navigatingToChildId() === child.id"
