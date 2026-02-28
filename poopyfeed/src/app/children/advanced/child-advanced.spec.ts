@@ -68,6 +68,7 @@ describe('ChildAdvanced', () => {
 
   it('should render key advanced links', () => {
     const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.textContent).toContain('For the Doctor');
     expect(compiled.textContent).toContain('Trends & Analytics');
     expect(compiled.textContent).toContain('Export Data');
     expect(compiled.textContent).toContain('7‑Day Timeline');

@@ -57,6 +57,21 @@
         <!-- Analytics and history -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <a
+            [routerLink]="['/children', child()!.id, 'pediatrician-summary']"
+            class="group p-6 rounded-2xl bg-white/80 backdrop-blur-lg shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 border-2 border-rose-400/30 text-left no-underline cursor-pointer block"
+          >
+            <div class="flex items-center gap-4 mb-2">
+              <span class="text-4xl">🩺</span>
+              <h2 class="font-['Fredoka',sans-serif] text-xl font-bold text-slate-900">
+                For the Doctor
+              </h2>
+            </div>
+            <p class="font-['DM_Sans',sans-serif] text-slate-600 text-sm">
+              Last 7 days summary to print or show at pediatrician visits.
+            </p>
+          </a>
+
+          <a
             [routerLink]="['/children', child()!.id, 'analytics']"
             class="group p-6 rounded-2xl bg-white/80 backdrop-blur-lg shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 border-2 border-purple-400/30 text-left no-underline cursor-pointer block"
           >

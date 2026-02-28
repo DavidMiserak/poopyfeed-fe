@@ -1,0 +1,150 @@
+<div class="pediatrician-summary min-h-screen relative bg-gradient-to-br from-rose-50 via-amber-50 to-orange-50 px-6 py-12">
+  <div class="max-w-2xl mx-auto relative z-10">
+    <!-- Loading -->
+    @if (isLoading()) {
+      <div class="space-y-6" aria-busy="true" aria-label="Loading pediatrician summary">
+        <div class="h-4 w-48 rounded bg-gradient-to-r from-slate-200 to-slate-300 animate-pulse"></div>
+        <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-6 border-2 border-rose-400/20 animate-pulse">
+          <div class="h-8 w-56 rounded-lg bg-gradient-to-r from-slate-200 to-slate-300 mb-4"></div>
+          <div class="space-y-3">
+            <div class="h-16 rounded-xl bg-gradient-to-r from-slate-200 to-slate-300"></div>
+            <div class="h-16 rounded-xl bg-gradient-to-r from-slate-200 to-slate-300"></div>
+            <div class="h-16 rounded-xl bg-gradient-to-r from-slate-200 to-slate-300"></div>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Error -->
+    @if (error() && !isLoading()) {
+      <app-error-card
+        [errorMessage]="error()!"
+        [backRoute]="childId() != null ? ['/children', childId()!, 'advanced'] : '/children'"
+        [backButtonText]="'Back to Advanced'"
+        [gradientColor]="'rose'"
+      />
+      <div class="mt-4 flex justify-center no-print">
+        <button
+          type="button"
+          (click)="onRetry()"
+          class="px-4 py-2 rounded-xl font-['DM_Sans',sans-serif] font-semibold text-slate-700 bg-white border border-slate-300 shadow-sm hover:bg-rose-50 hover:text-rose-700 transition-colors"
+        >
+          Try again
+        </button>
+      </div>
+    }
+
+    <!-- Content: child + summary -->
+    @if (child() && summary() && !isLoading() && !error()) {
+      <div class="summary-content">
+        <!-- Back link and Print (hidden when printing) -->
+        <div class="flex items-center justify-between mb-6 no-print">
+          <a
+            [routerLink]="['/children', child()!.id, 'advanced']"
+            class="font-['DM_Sans',sans-serif] text-sm text-slate-600 hover:text-rose-400 transition-colors font-medium inline-flex items-center gap-2"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to Advanced
+          </a>
+          <button
+            type="button"
+            (click)="onPrint()"
+            class="inline-flex items-center gap-2 px-4 py-2 rounded-xl font-['DM_Sans',sans-serif] font-bold text-white bg-slate-700 hover:bg-slate-800 shadow-md transition-colors"
+            aria-label="Print summary"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+            </svg>
+            Print
+          </button>
+        </div>
+
+        <!-- Empty state -->
+        @if (isEmpty()) {
+          <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-8 border-2 border-amber-400/20 text-center">
+            <p class="font-['DM_Sans',sans-serif] text-slate-600 text-lg mb-2">
+              No activity in the last 7 days for {{ child()!.name }}.
+            </p>
+            <p class="font-['DM_Sans',sans-serif] text-slate-500 text-sm">
+              Start logging feedings, diapers, and naps to see a summary here.
+            </p>
+          </div>
+        } @else {
+          <!-- Summary card -->
+          <div class="summary-card bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl p-6 sm:p-8 border-2 border-rose-400/20">
+            <h1 class="font-['Fredoka',sans-serif] text-2xl sm:text-3xl font-bold text-slate-900 mb-1">
+              {{ child()!.name }}
+            </h1>
+            <p class="font-['DM_Sans',sans-serif] text-slate-600 text-sm mb-6">
+              {{ summary()!.period }}
+            </p>
+
+            <!-- Feedings -->
+            <section class="mb-6" aria-label="Feeding summary">
+              <h2 class="font-['Fredoka',sans-serif] text-lg font-bold text-slate-800 mb-2 flex items-center gap-2">
+                <span aria-hidden="true">🍼</span> Feedings
+              </h2>
+              <p class="font-['DM_Sans',sans-serif] text-slate-700 font-semibold mb-2">
+                Per day: {{ feedingsPerDay() | number:'1.1-1' }} feedings, {{ ozPerDay() | number:'1.1-1' }} oz
+              </p>
+              <dl class="grid grid-cols-2 gap-x-4 gap-y-1 font-['DM_Sans',sans-serif] text-slate-700">
+                <dt class="text-slate-500">Total sessions</dt>
+                <dd class="font-semibold text-right">{{ summary()!.feedings.count }}</dd>
+                <dt class="text-slate-500">Total oz</dt>
+                <dd class="font-semibold text-right">{{ summary()!.feedings.total_oz | number:'1.1-1' }}</dd>
+                <dt class="text-slate-500">Bottle</dt>
+                <dd class="font-semibold text-right">{{ summary()!.feedings.bottle }}</dd>
+                <dt class="text-slate-500">Breast</dt>
+                <dd class="font-semibold text-right">{{ summary()!.feedings.breast }}</dd>
+                @if (summary()!.feedings.avg_duration != null) {
+                  <dt class="text-slate-500">Avg duration</dt>
+                  <dd class="font-semibold text-right">{{ formatDuration(summary()!.feedings.avg_duration!) }}</dd>
+                }
+              </dl>
+            </section>
+
+            <!-- Diapers -->
+            <section class="mb-6" aria-label="Diaper summary">
+              <h2 class="font-['Fredoka',sans-serif] text-lg font-bold text-slate-800 mb-2 flex items-center gap-2">
+                <span aria-hidden="true">🧷</span> Diapers
+              </h2>
+              <p class="font-['DM_Sans',sans-serif] text-slate-700 font-semibold mb-2">
+                Per day: {{ diapersPerDay() | number:'1.1-1' }} changes
+              </p>
+              <dl class="grid grid-cols-2 gap-x-4 gap-y-1 font-['DM_Sans',sans-serif] text-slate-700">
+                <dt class="text-slate-500">Total changes</dt>
+                <dd class="font-semibold text-right">{{ summary()!.diapers.count }}</dd>
+                <dt class="text-slate-500">Wet</dt>
+                <dd class="font-semibold text-right">{{ summary()!.diapers.wet }}</dd>
+                <dt class="text-slate-500">Dirty</dt>
+                <dd class="font-semibold text-right">{{ summary()!.diapers.dirty }}</dd>
+                <dt class="text-slate-500">Both</dt>
+                <dd class="font-semibold text-right">{{ summary()!.diapers.both }}</dd>
+              </dl>
+            </section>
+
+            <!-- Sleep -->
+            <section aria-label="Sleep summary">
+              <h2 class="font-['Fredoka',sans-serif] text-lg font-bold text-slate-800 mb-2 flex items-center gap-2">
+                <span aria-hidden="true">😴</span> Sleep
+              </h2>
+              <p class="font-['DM_Sans',sans-serif] text-slate-700 font-semibold mb-2">
+                Per day: {{ napsPerDay() | number:'1.1-1' }} naps, {{ formatDuration(sleepMinutesPerDay()) }} sleep
+              </p>
+              <dl class="grid grid-cols-2 gap-x-4 gap-y-1 font-['DM_Sans',sans-serif] text-slate-700">
+                <dt class="text-slate-500">Naps</dt>
+                <dd class="font-semibold text-right">{{ summary()!.sleep.naps }}</dd>
+                <dt class="text-slate-500">Total sleep</dt>
+                <dd class="font-semibold text-right">{{ formatDuration(summary()!.sleep.total_minutes) }}</dd>
+                <dt class="text-slate-500">Avg nap</dt>
+                <dd class="font-semibold text-right">{{ formatDuration(summary()!.sleep.avg_duration) }}</dd>
+              </dl>
+            </section>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>

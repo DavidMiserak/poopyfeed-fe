@@ -74,6 +74,14 @@ export const routes: Routes = [
         title: 'Advanced - PoopyFeed',
       },
       {
+        path: ':childId/pediatrician-summary',
+        loadComponent: () =>
+          import('./children/pediatrician-summary/pediatrician-summary').then(
+            (m) => m.PediatricianSummaryComponent
+          ),
+        title: 'Pediatrician Summary - PoopyFeed',
+      },
+      {
         path: ':childId/analytics',
         children: [
           {

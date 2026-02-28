@@ -1,0 +1,48 @@
+/* Screen: keep gradient and padding */
+.pediatrician-summary {
+  min-height: 100vh;
+}
+
+/* Print: one-page friendly layout, hide non-essential UI */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  .pediatrician-summary {
+    background: white;
+    padding: 0.5in;
+    min-height: auto;
+  }
+
+  .summary-content {
+    max-width: 100%;
+  }
+
+  .summary-card {
+    box-shadow: none;
+    border: 1px solid #e2e8f0;
+    background: white;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+  }
+
+  .pediatrician-summary h1 {
+    font-size: 1.25rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .pediatrician-summary h2 {
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+    margin-top: 0.75rem;
+  }
+
+  .pediatrician-summary section {
+    margin-bottom: 0.75rem;
+  }
+
+  .pediatrician-summary section:last-child {
+    margin-bottom: 0;
+  }
+}
