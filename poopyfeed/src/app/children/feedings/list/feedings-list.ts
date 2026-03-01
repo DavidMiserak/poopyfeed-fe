@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
-import { filter } from 'rxjs';
+import { filter, forkJoin } from 'rxjs';
 import { FeedingsService } from '../../../services/feedings.service';
 import { ChildrenService } from '../../../services/children.service';
 import { ChildNavigationService } from '../../../services/child-navigation.service';
@@ -105,11 +105,27 @@ export class FeedingsList implements OnInit {
     this.listService.isLoading.set(true);
     this.listService.error.set(null);
 
-    // Load child info first
-    this.childrenService.get(childId).subscribe({
-      next: (child) => {
+    const f = this.listService.filters();
+    const filters = {
+      dateFrom: f.dateFrom,
+      dateTo: f.dateTo,
+      feeding_type: f.type,
+    };
+
+    forkJoin({
+      child: this.childrenService.get(childId),
+      feedings: this.feedingsService.list(childId, filters, this.currentPage()),
+    }).subscribe({
+      next: ({ child, feedings }) => {
         this.listService.child.set(child);
-        this.loadFeedings(childId, this.currentPage());
+        this.listService.initialize({
+          timestampField: 'fed_at',
+          typeField: 'feeding_type',
+          resourceName: 'feeding',
+          deleteConfirmMessage: (count: number) => `Delete ${count} feeding(s)? This cannot be undone.`,
+        });
+        this.listService.allItems.set(feedings);
+        this.listService.isLoading.set(false);
       },
       error: (err: Error) => {
         this.listService.error.set(err.message);
@@ -127,12 +143,6 @@ export class FeedingsList implements OnInit {
     };
     this.feedingsService.list(childId, filters, page).subscribe({
       next: (feedings) => {
-        this.listService.initialize({
-          timestampField: 'fed_at',
-          typeField: 'feeding_type',
-          resourceName: 'feeding',
-          deleteConfirmMessage: (count: number) => `Delete ${count} feeding(s)? This cannot be undone.`,
-        });
         this.listService.allItems.set(feedings);
         this.listService.isLoading.set(false);
       },

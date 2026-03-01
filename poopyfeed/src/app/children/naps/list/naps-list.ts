@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
-import { filter } from 'rxjs';
+import { filter, forkJoin } from 'rxjs';
 import { NapsService } from '../../../services/naps.service';
 import { ChildrenService } from '../../../services/children.service';
 import { ChildNavigationService } from '../../../services/child-navigation.service';
@@ -98,10 +98,22 @@ export class NapsList implements OnInit {
     this.listService.isLoading.set(true);
     this.listService.error.set(null);
 
-    this.childrenService.get(childId).subscribe({
-      next: (child) => {
+    const f = this.listService.filters();
+    const filters = { dateFrom: f.dateFrom, dateTo: f.dateTo };
+
+    forkJoin({
+      child: this.childrenService.get(childId),
+      naps: this.napsService.list(childId, filters, this.currentPage()),
+    }).subscribe({
+      next: ({ child, naps }) => {
         this.listService.child.set(child);
-        this.loadNaps(childId, this.currentPage());
+        this.listService.initialize({
+          timestampField: 'napped_at',
+          resourceName: 'nap',
+          deleteConfirmMessage: (count: number) => `Delete ${count} nap(s)? This cannot be undone.`,
+        });
+        this.listService.allItems.set(naps);
+        this.listService.isLoading.set(false);
       },
       error: (err: Error) => {
         this.listService.error.set(err.message);
@@ -115,11 +127,6 @@ export class NapsList implements OnInit {
     const filters = { dateFrom: f.dateFrom, dateTo: f.dateTo };
     this.napsService.list(childId, filters, page).subscribe({
       next: (naps) => {
-        this.listService.initialize({
-          timestampField: 'napped_at',
-          resourceName: 'nap',
-          deleteConfirmMessage: (count: number) => `Delete ${count} nap(s)? This cannot be undone.`,
-        });
         this.listService.allItems.set(naps);
         this.listService.isLoading.set(false);
       },

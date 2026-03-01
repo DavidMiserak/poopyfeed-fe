@@ -33,22 +33,13 @@ describe('TrackingItemContainerComponent', () => {
       expect(container.className).toContain('rounded-xl');
     });
 
-    it('should have responsive containers for desktop and mobile', () => {
+    it('should render a single container', () => {
       fixture.componentRef.setInput('isSelected', false);
       fixture.componentRef.setInput('accentColor', 'rose');
       fixture.detectChanges();
 
-      // Desktop container
-      const desktopContainer = fixture.nativeElement.querySelector('div.hidden.sm\\:block');
-      expect(desktopContainer).toBeTruthy();
-      expect(desktopContainer.className).toContain('hidden');
-      expect(desktopContainer.className).toContain('sm:block');
-
-      // Mobile container has padding
-      const mobileContainer = fixture.nativeElement.querySelector('div.sm\\:hidden');
-      expect(mobileContainer).toBeTruthy();
-      expect(mobileContainer.className).toContain('sm:hidden');
-      expect(mobileContainer.className).toContain('p-4');
+      const containers = fixture.nativeElement.querySelectorAll('div');
+      expect(containers.length).toBe(1);
     });
 
     it('should have hover and transition classes', () => {
@@ -190,22 +181,16 @@ describe('TrackingItemContainerComponent', () => {
   });
 
   describe('core functionality', () => {
-    it('should have base styling classes on all containers', () => {
+    it('should have base styling classes on the container', () => {
       fixture.componentRef.setInput('isSelected', false);
       fixture.componentRef.setInput('accentColor', 'rose');
       fixture.detectChanges();
 
-      const containers = fixture.nativeElement.querySelectorAll('div');
-      // Check that both desktop and mobile containers have the base classes
-      containers.forEach((container: HTMLElement) => {
-        if (container.className.includes('hidden') || container.className.includes('sm:hidden')) {
-          // Both desktop (hidden) and mobile (sm:hidden) containers
-          expect(container.className).toContain('rounded-xl');
-          expect(container.className).toContain('hover:shadow-md');
-          expect(container.className).toContain('transition-all');
-          expect(container.className).toContain('bg-gradient-to-r');
-        }
-      });
+      const container = fixture.nativeElement.querySelector('div');
+      expect(container.className).toContain('rounded-xl');
+      expect(container.className).toContain('hover:shadow-md');
+      expect(container.className).toContain('transition-all');
+      expect(container.className).toContain('bg-gradient-to-r');
     });
 
     it('should support all three accent colors', () => {

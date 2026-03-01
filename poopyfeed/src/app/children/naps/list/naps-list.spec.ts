@@ -109,7 +109,7 @@ describe('NapsList - Batch Operations', () => {
   });
 
   it('should initialize with empty selection', () => {
-    expect(component.selectedIds()).toEqual([]);
+    expect(component.selectedIds()).toEqual(new Set());
   });
 
   it('should have no selected items initially', () => {
@@ -130,27 +130,27 @@ describe('NapsList - Batch Operations', () => {
 
     component.toggleSelectAll();
 
-    expect(component.selectedIds()).toEqual([1, 2, 3]);
+    expect(component.selectedIds()).toEqual(new Set([1, 2, 3]));
     expect(component.isAllSelected()).toBeTruthy();
   });
 
   it('should deselect all when toggling with all selected', () => {
     component.allItems.set(mockNaps);
-    component.selectedIds.set([1, 2, 3]);
+    component.selectedIds.set(new Set([1, 2, 3]));
     fixture.detectChanges();
 
     component.toggleSelectAll();
 
-    expect(component.selectedIds()).toEqual([]);
+    expect(component.selectedIds()).toEqual(new Set());
     expect(component.isAllSelected()).toBeFalsy();
   });
 
   it('should clear selection', () => {
-    component.selectedIds.set([1, 2, 3]);
+    component.selectedIds.set(new Set([1, 2, 3]));
 
     component.clearSelection();
 
-    expect(component.selectedIds()).toEqual([]);
+    expect(component.selectedIds()).toEqual(new Set());
     expect(component.hasSelectedItems()).toBeFalsy();
   });
 
@@ -160,21 +160,21 @@ describe('NapsList - Batch Operations', () => {
 
     component.childId.set(1);
     component.allItems.set(mockNaps);
-    component.selectedIds.set([1, 3]);
+    component.selectedIds.set(new Set([1, 3]));
 
     component.bulkDelete();
 
     await new Promise(resolve => setTimeout(resolve, 100));
     expect(napsService.delete).toHaveBeenCalledWith(1, 1);
     expect(napsService.delete).toHaveBeenCalledWith(1, 3);
-    expect(component.selectedIds()).toEqual([]);
+    expect(component.selectedIds()).toEqual(new Set());
     expect(component.allItems().length).toBe(1);
     confirmSpy.mockRestore();
   });
 
   it('should not delete if confirmation is cancelled', () => {
     const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(false);
-    component.selectedIds.set([1, 2]);
+    component.selectedIds.set(new Set([1, 2]));
 
     component.bulkDelete();
 
@@ -188,7 +188,7 @@ describe('NapsList - Batch Operations', () => {
 
     component.childId.set(1);
     component.allItems.set(mockNaps);
-    component.selectedIds.set([1, 2]);
+    component.selectedIds.set(new Set([1, 2]));
 
     expect(component.isBulkDeleting()).toBeFalsy();
 
@@ -206,7 +206,7 @@ describe('NapsList - Batch Operations', () => {
 
     component.childId.set(1);
     component.allItems.set(mockNaps);
-    component.selectedIds.set([1, 2]);
+    component.selectedIds.set(new Set([1, 2]));
 
     component.bulkDelete();
 
@@ -217,7 +217,7 @@ describe('NapsList - Batch Operations', () => {
 
   it('should filter by date range and maintain selection state', () => {
     component.allItems.set(mockNaps);
-    component.selectedIds.set([1, 2, 3]);
+    component.selectedIds.set(new Set([1, 2, 3]));
 
     // Apply date filter
     component.filters.set({
@@ -227,7 +227,7 @@ describe('NapsList - Batch Operations', () => {
     fixture.detectChanges();
 
     // Selection should persist even with filters
-    expect(component.selectedIds()).toEqual([1, 2, 3]);
+    expect(component.selectedIds()).toEqual(new Set([1, 2, 3]));
   });
 
   it('should count only filtered items in isAllSelected', () => {
@@ -245,7 +245,7 @@ describe('NapsList - Batch Operations', () => {
     component.toggleSelectAll();
 
     // Should be all selected if all filtered items are selected
-    expect(component.selectedIds().length).toBeGreaterThan(0);
+    expect(component.selectedIds().size).toBeGreaterThan(0);
     expect(component.isAllSelected()).toBeTruthy();
   });
 });
@@ -375,7 +375,7 @@ describe('NapsList - Core Functionality Tests', () => {
 
 
     it('should initialize empty selection', () => {
-      expect(component.selectedIds()).toEqual([]);
+      expect(component.selectedIds()).toEqual(new Set());
     });
   });
 
@@ -755,7 +755,7 @@ describe('NapsList - Core Functionality Tests', () => {
 
     it('should abort bulkDelete when childId is null', () => {
       window.confirm = vi.fn().mockReturnValue(true) as any;
-      component.selectedIds.set([1, 2]);
+      component.selectedIds.set(new Set([1, 2]));
       component.childId.set(null);
 
       component.bulkDelete();
@@ -766,7 +766,7 @@ describe('NapsList - Core Functionality Tests', () => {
     it('should toggle selectAll on empty list', () => {
       component.allItems.set([]);
       component.toggleSelectAll();
-      expect(component.selectedIds()).toEqual([]);
+      expect(component.selectedIds()).toEqual(new Set());
     });
 
     it('should handle ngOnInit with no childId in route', () => {

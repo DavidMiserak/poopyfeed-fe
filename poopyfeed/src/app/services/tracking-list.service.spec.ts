@@ -20,7 +20,6 @@ interface TestItem {
 
 describe('TrackingListService<T>', () => {
   let service: TrackingListService<TestItem>;
-  let filterService: FilterService;
 
   const mockChild: Child = {
     id: 1,
@@ -36,8 +35,7 @@ describe('TrackingListService<T>', () => {
     custom_bottle_low_oz: null,
     custom_bottle_mid_oz: null,
     custom_bottle_high_oz: null,
-        feeding_reminder_interval: null,
-
+    feeding_reminder_interval: null,
   };
 
   const mockItems: TestItem[] = [
@@ -58,7 +56,6 @@ describe('TrackingListService<T>', () => {
       ],
     });
     service = TestBed.inject(TrackingListService<TestItem>);
-    filterService = TestBed.inject(FilterService);
   });
 
   describe('Initialization & Signals', () => {
@@ -66,7 +63,7 @@ describe('TrackingListService<T>', () => {
       expect(service.items()).toEqual([]);
       expect(service.allItems()).toEqual([]);
       expect(service.filters()).toEqual({});
-      expect(service.selectedIds()).toEqual([]);
+      expect(service.selectedIds()).toEqual(new Set());
       expect(service.isLoading()).toBe(false);
       expect(service.error()).toBeNull();
       expect(service.isBulkDeleting()).toBe(false);
@@ -75,7 +72,7 @@ describe('TrackingListService<T>', () => {
 
     it('should reset all state via reset()', () => {
       service.items.set([{ id: 1 }]);
-      service.selectedIds.set([1, 2]);
+      service.selectedIds.set(new Set([1, 2]));
       service.isLoading.set(true);
       service.error.set('Error message');
       service.child.set(mockChild);
@@ -83,7 +80,7 @@ describe('TrackingListService<T>', () => {
       service.reset();
 
       expect(service.items()).toEqual([]);
-      expect(service.selectedIds()).toEqual([]);
+      expect(service.selectedIds()).toEqual(new Set());
       expect(service.isLoading()).toBe(false);
       expect(service.error()).toBeNull();
       expect(service.child()).toBeNull();
@@ -103,10 +100,10 @@ describe('TrackingListService<T>', () => {
     it('should compute hasSelectedItems correctly', () => {
       expect(service.hasSelectedItems()).toBe(false);
 
-      service.selectedIds.set([1]);
+      service.selectedIds.set(new Set([1]));
       expect(service.hasSelectedItems()).toBe(true);
 
-      service.selectedIds.set([]);
+      service.selectedIds.set(new Set());
       expect(service.hasSelectedItems()).toBe(false);
     });
 
@@ -115,10 +112,10 @@ describe('TrackingListService<T>', () => {
 
       expect(service.isAllSelected()).toBe(false);
 
-      service.selectedIds.set([1, 2, 3]);
+      service.selectedIds.set(new Set([1, 2, 3]));
       expect(service.isAllSelected()).toBe(true);
 
-      service.selectedIds.set([1, 2]);
+      service.selectedIds.set(new Set([1, 2]));
       expect(service.isAllSelected()).toBe(false);
     });
 
@@ -144,20 +141,10 @@ describe('TrackingListService<T>', () => {
       expect(service.canEdit()).toBe(false);
     });
 
-    it('should compute filteredItems using FilterService', () => {
-      const filtered = [mockItems[0], mockItems[2]];
-      vi.spyOn(filterService, 'filter').mockReturnValue(filtered);
-
+    it('should compute filteredItems directly from allItems', () => {
       service.allItems.set(mockItems);
-      service.filters.set({ type: 'bottle' });
 
-      expect(service.filteredItems()).toEqual(filtered);
-      expect(filterService.filter).toHaveBeenCalledWith(
-        mockItems,
-        { type: 'bottle' },
-        'fed_at',
-        'feeding_type'
-      );
+      expect(service.filteredItems()).toEqual(mockItems);
     });
   });
 
@@ -172,43 +159,43 @@ describe('TrackingListService<T>', () => {
     });
 
     it('should toggle selection for single item', () => {
-      expect(service.selectedIds()).toEqual([]);
+      expect(service.selectedIds()).toEqual(new Set());
 
       service.toggleSelection(1);
-      expect(service.selectedIds()).toEqual([1]);
+      expect(service.selectedIds()).toEqual(new Set([1]));
 
       service.toggleSelection(1);
-      expect(service.selectedIds()).toEqual([]);
+      expect(service.selectedIds()).toEqual(new Set());
     });
 
     it('should toggle selection for multiple items', () => {
       service.toggleSelection(1);
       service.toggleSelection(2);
-      expect(service.selectedIds()).toEqual([1, 2]);
+      expect(service.selectedIds()).toEqual(new Set([1, 2]));
 
       service.toggleSelection(3);
-      expect(service.selectedIds()).toEqual([1, 2, 3]);
+      expect(service.selectedIds()).toEqual(new Set([1, 2, 3]));
 
       service.toggleSelection(2);
-      expect(service.selectedIds()).toEqual([1, 3]);
+      expect(service.selectedIds()).toEqual(new Set([1, 3]));
     });
 
     it('should toggle select all filtered items', () => {
-      expect(service.selectedIds()).toEqual([]);
+      expect(service.selectedIds()).toEqual(new Set());
 
       service.toggleSelectAll();
-      expect(service.selectedIds()).toEqual([1, 2, 3]);
+      expect(service.selectedIds()).toEqual(new Set([1, 2, 3]));
 
       service.toggleSelectAll();
-      expect(service.selectedIds()).toEqual([]);
+      expect(service.selectedIds()).toEqual(new Set());
     });
 
     it('should clear selection', () => {
-      service.selectedIds.set([1, 2, 3]);
-      expect(service.selectedIds()).toEqual([1, 2, 3]);
+      service.selectedIds.set(new Set([1, 2, 3]));
+      expect(service.selectedIds()).toEqual(new Set([1, 2, 3]));
 
       service.clearSelection();
-      expect(service.selectedIds()).toEqual([]);
+      expect(service.selectedIds()).toEqual(new Set());
     });
   });
 
@@ -220,7 +207,7 @@ describe('TrackingListService<T>', () => {
         deleteConfirmMessage: (count: number) => `Delete ${count}?`,
       });
       service.allItems.set(mockItems);
-      service.selectedIds.set([1, 2]);
+      service.selectedIds.set(new Set([1, 2]));
     });
 
     it('should cancel bulk delete on user rejection', () => {
@@ -231,7 +218,7 @@ describe('TrackingListService<T>', () => {
 
       expect(deleteFunc).not.toHaveBeenCalled();
       expect(service.allItems()).toEqual(mockItems);
-      expect(service.selectedIds()).toEqual([1, 2]);
+      expect(service.selectedIds()).toEqual(new Set([1, 2]));
     });
 
     it('should delete all selected items sequentially', async () => {
@@ -246,7 +233,7 @@ describe('TrackingListService<T>', () => {
       // Wait for async operations
       await new Promise(resolve => setTimeout(resolve, 50));
       expect(service.allItems()).toEqual([mockItems[2]]);
-      expect(service.selectedIds()).toEqual([]);
+      expect(service.selectedIds()).toEqual(new Set());
       expect(service.isBulkDeleting()).toBe(false);
     });
 
@@ -296,22 +283,12 @@ describe('TrackingListService<T>', () => {
       expect(service.filters()).toEqual({ dateFrom: '2024-01-01', dateTo: '2024-01-31' });
     });
 
-    it('should trigger filteredItems update when filters change', () => {
-      const filtered = [mockItems[0]];
-      const filterSpy = vi.spyOn(filterService, 'filter').mockReturnValue(filtered);
-
+    it('should return allItems as filteredItems (backend handles filtering)', () => {
       service.filters.set({ type: 'bottle' });
 
-      // Access the computed signal to trigger evaluation
       const result = service.filteredItems();
 
-      expect(filterSpy).toHaveBeenCalledWith(
-        mockItems,
-        { type: 'bottle' },
-        'fed_at',
-        'feeding_type'
-      );
-      expect(result).toEqual(filtered);
+      expect(result).toEqual(mockItems);
     });
   });
 
@@ -374,7 +351,7 @@ describe('TrackingListService<T>', () => {
     it('should handle selection of non-existent items', () => {
       service.allItems.set(mockItems);
       service.toggleSelection(999);
-      expect(service.selectedIds()).toEqual([999]);
+      expect(service.selectedIds()).toEqual(new Set([999]));
     });
 
     it('should handle multiple toggleSelectAll calls', () => {

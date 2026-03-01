@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
-import { filter } from 'rxjs';
+import { filter, forkJoin } from 'rxjs';
 import { DiapersService } from '../../../services/diapers.service';
 import { ChildrenService } from '../../../services/children.service';
 import { ChildNavigationService } from '../../../services/child-navigation.service';
@@ -105,10 +105,27 @@ export class DiapersList implements OnInit {
     this.listService.isLoading.set(true);
     this.listService.error.set(null);
 
-    this.childrenService.get(childId).subscribe({
-      next: (child) => {
+    const f = this.listService.filters();
+    const filters = {
+      dateFrom: f.dateFrom,
+      dateTo: f.dateTo,
+      change_type: f.type,
+    };
+
+    forkJoin({
+      child: this.childrenService.get(childId),
+      diapers: this.diapersService.list(childId, filters, this.currentPage()),
+    }).subscribe({
+      next: ({ child, diapers }) => {
         this.listService.child.set(child);
-        this.loadDiapers(childId, this.currentPage());
+        this.listService.initialize({
+          timestampField: 'changed_at',
+          typeField: 'change_type',
+          resourceName: 'diaper change',
+          deleteConfirmMessage: (count: number) => `Delete ${count} diaper change(s)? This cannot be undone.`,
+        });
+        this.listService.allItems.set(diapers);
+        this.listService.isLoading.set(false);
       },
       error: (err: Error) => {
         this.listService.error.set(err.message);
@@ -126,12 +143,6 @@ export class DiapersList implements OnInit {
     };
     this.diapersService.list(childId, filters, page).subscribe({
       next: (diapers) => {
-        this.listService.initialize({
-          timestampField: 'changed_at',
-          typeField: 'change_type',
-          resourceName: 'diaper change',
-          deleteConfirmMessage: (count: number) => `Delete ${count} diaper change(s)? This cannot be undone.`,
-        });
         this.listService.allItems.set(diapers);
         this.listService.isLoading.set(false);
       },

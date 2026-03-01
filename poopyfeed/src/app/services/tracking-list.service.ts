@@ -14,9 +14,9 @@
  * to their specific needs (different timestamp fields, type fields, etc.)
  */
 
-import { Injectable, inject, signal, computed } from '@angular/core';
+import { Injectable, signal, computed } from '@angular/core';
 import { Observable } from 'rxjs';
-import { FilterService, FilterCriteria } from './filter.service';
+import { FilterCriteria } from './filter.service';
 import { Child } from '../models/child.model';
 
 export interface TrackingListConfig<T> {
@@ -28,13 +28,11 @@ export interface TrackingListConfig<T> {
 
 @Injectable({ providedIn: 'root' })
 export class TrackingListService<T extends { id: number }> {
-  private filterService = inject(FilterService);
-
   // Signals - mutable state
   items = signal<T[]>([]);
   allItems = signal<T[]>([]);
   filters = signal<FilterCriteria>({});
-  selectedIds = signal<number[]>([]);
+  selectedIds = signal<Set<number>>(new Set());
   isLoading = signal(false);
   error = signal<string | null>(null);
   isBulkDeleting = signal(false);
@@ -44,25 +42,15 @@ export class TrackingListService<T extends { id: number }> {
   private config!: TrackingListConfig<T>;
 
   // Computed - derived state
-  filteredItems = computed(() => {
-    const criteria = this.filters();
-    const all = this.allItems();
+  // Backend already returns filtered results via query params,
+  // so no need to re-filter client-side.
+  filteredItems = computed(() => this.allItems());
 
-    if (!this.config?.timestampField) return all;
-
-    return this.filterService.filter(
-      all,
-      criteria,
-      this.config.timestampField as string,
-      this.config.typeField ? (this.config.typeField as string) : undefined
-    );
-  });
-
-  hasSelectedItems = computed(() => this.selectedIds().length > 0);
+  hasSelectedItems = computed(() => this.selectedIds().size > 0);
 
   isAllSelected = computed(() => {
     const items = this.filteredItems();
-    return items.length > 0 && this.selectedIds().length === items.length;
+    return items.length > 0 && this.selectedIds().size === items.length;
   });
 
   canEdit = computed(() => {
@@ -83,12 +71,13 @@ export class TrackingListService<T extends { id: number }> {
    * Adds ID if not selected, removes if already selected.
    */
   toggleSelection(id: number): void {
-    const current = this.selectedIds();
-    if (current.includes(id)) {
-      this.selectedIds.set(current.filter(existingId => existingId !== id));
+    const current = new Set(this.selectedIds());
+    if (current.has(id)) {
+      current.delete(id);
     } else {
-      this.selectedIds.set([...current, id]);
+      current.add(id);
     }
+    this.selectedIds.set(current);
   }
 
   /**
@@ -98,9 +87,9 @@ export class TrackingListService<T extends { id: number }> {
   toggleSelectAll(): void {
     const items = this.filteredItems();
     if (this.isAllSelected()) {
-      this.selectedIds.set([]);
+      this.selectedIds.set(new Set());
     } else {
-      this.selectedIds.set(items.map(item => item.id));
+      this.selectedIds.set(new Set(items.map(item => item.id)));
     }
   }
 
@@ -108,7 +97,7 @@ export class TrackingListService<T extends { id: number }> {
    * Clear all selected items.
    */
   clearSelection(): void {
-    this.selectedIds.set([]);
+    this.selectedIds.set(new Set());
   }
 
   /**
@@ -120,7 +109,7 @@ export class TrackingListService<T extends { id: number }> {
    */
   bulkDelete(deleteFunction: (id: number) => Observable<void>): void {
     const ids = this.selectedIds();
-    const count = ids.length;
+    const count = ids.size;
 
     if (!confirm(this.config.deleteConfirmMessage(count))) {
       return;
@@ -133,18 +122,18 @@ export class TrackingListService<T extends { id: number }> {
       deleteFunction(id).subscribe({
         next: () => {
           completed++;
-          if (completed === ids.length) {
+          if (completed === ids.size) {
             // All deletions complete - update state
             this.allItems.set(
-              this.allItems().filter(item => !ids.includes(item.id))
+              this.allItems().filter(item => !ids.has(item.id))
             );
-            this.selectedIds.set([]);
+            this.selectedIds.set(new Set());
             this.isBulkDeleting.set(false);
           }
         },
         error: () => {
           completed++;
-          if (completed === ids.length) {
+          if (completed === ids.size) {
             // Even on error, mark as complete to re-enable UI
             this.isBulkDeleting.set(false);
           }
@@ -161,7 +150,7 @@ export class TrackingListService<T extends { id: number }> {
     this.items.set([]);
     this.allItems.set([]);
     this.filters.set({});
-    this.selectedIds.set([]);
+    this.selectedIds.set(new Set());
     this.isLoading.set(false);
     this.error.set(null);
     this.isBulkDeleting.set(false);

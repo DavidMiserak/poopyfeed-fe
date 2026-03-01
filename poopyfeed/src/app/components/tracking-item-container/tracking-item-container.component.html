@@ -1,17 +1,8 @@
 <div
-  class="rounded-xl hover:shadow-md transition-all bg-gradient-to-r hidden sm:block"
+  class="rounded-xl hover:shadow-md transition-all bg-gradient-to-r"
   [class]="bgClass()"
   [class.ring-2]="isSelected()"
   [class]="isSelected() ? ringClass() : ''"
 >
-  <ng-content select="[desktop]" />
-</div>
-
-<div
-  class="rounded-xl hover:shadow-md transition-all bg-gradient-to-r sm:hidden p-4"
-  [class]="bgClass()"
-  [class.ring-2]="isSelected()"
-  [class]="isSelected() ? ringClass() : ''"
->
-  <ng-content select="[mobile]" />
+  <ng-content />
 </div>
