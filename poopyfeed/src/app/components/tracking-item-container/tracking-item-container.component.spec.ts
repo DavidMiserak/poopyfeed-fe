@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TrackingItemContainerComponent } from './tracking-item-container.component';
-import { CommonModule } from '@angular/common';
 
 describe('TrackingItemContainerComponent', () => {
   let component: TrackingItemContainerComponent;
@@ -8,7 +7,7 @@ describe('TrackingItemContainerComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TrackingItemContainerComponent, CommonModule],
+      imports: [TrackingItemContainerComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(TrackingItemContainerComponent);

@@ -5,7 +5,6 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FeedingsService } from '../../../services/feedings.service';
 import { ChildrenService } from '../../../services/children.service';
@@ -17,7 +16,7 @@ import { DateTimeService } from '../../../services/datetime.service';
 
 @Component({
   selector: 'app-feeding-delete',
-  imports: [CommonModule, ErrorCardComponent, DeleteConfirmationComponent],
+  imports: [ErrorCardComponent, DeleteConfirmationComponent],
   templateUrl: './feeding-delete.html',
   styleUrl: './feeding-delete.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

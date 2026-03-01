@@ -48,7 +48,7 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { AnalyticsService } from '../../services/analytics.service';
@@ -101,7 +101,7 @@ interface ActivityWithGap {
 
 @Component({
   selector: 'app-child-timeline',
-  imports: [CommonModule, RouterLink, ErrorCardComponent],
+  imports: [DatePipe, RouterLink, ErrorCardComponent],
   templateUrl: './child-timeline.html',
   styleUrl: './child-timeline.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

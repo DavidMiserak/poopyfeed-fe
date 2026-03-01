@@ -18,7 +18,6 @@ import {
   OnDestroy,
   ChangeDetectionStrategy,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { signal } from '@angular/core';
 import { Subject } from 'rxjs';
@@ -32,7 +31,7 @@ import { ExportOptions } from '../../models/analytics.model';
 
 @Component({
   selector: 'app-export-page',
-  imports: [CommonModule, ExportDialogComponent, ExportJobStatusComponent],
+  imports: [ExportDialogComponent, ExportJobStatusComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './export-page.html',
 })

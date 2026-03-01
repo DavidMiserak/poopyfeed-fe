@@ -5,7 +5,6 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { SharingService } from '../../services/sharing.service';
 
@@ -16,7 +15,6 @@ interface ChildInfo {
 
 @Component({
   selector: 'app-invite-accept',
-  imports: [CommonModule],
   templateUrl: './invite-accept.html',
   styleUrl: './invite-accept.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

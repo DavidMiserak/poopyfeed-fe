@@ -41,7 +41,6 @@ import {
   inject,
   OnInit,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import {
   FormControl,
   FormGroup,
@@ -63,7 +62,7 @@ import { ActionButtonGroupComponent } from '../../../components/action-button-gr
 
 @Component({
   selector: 'app-feeding-form',
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, ActionButtonGroupComponent],
+  imports: [ReactiveFormsModule, RouterLink, ActionButtonGroupComponent],
   templateUrl: './feeding-form.html',
   styleUrl: './feeding-form.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -29,7 +29,7 @@
  *
  * @component
  * Selector: app-child-dashboard
- * Imports: CommonModule, RouterLink, QuickLog
+ * Imports: RouterLink, QuickLog
  * Template: child-dashboard.html
  * Style: child-dashboard.css
  */
@@ -42,7 +42,6 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { ChildrenService } from '../../services/children.service';
@@ -85,7 +84,6 @@ interface ActivityItem {
 @Component({
   selector: 'app-child-dashboard',
   imports: [
-    CommonModule,
     RouterLink,
     QuickLog,
     TodaySummaryCards,

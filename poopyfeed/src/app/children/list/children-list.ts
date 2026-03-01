@@ -44,12 +44,11 @@ import { Router, RouterLink, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs';
 import { ChildrenService } from '../../services/children.service';
 import { Child, GENDER_LABELS, ROLE_LABELS } from '../../models/child.model';
-import { CommonModule } from '@angular/common';
 import { getChildAge, formatTimestamp, getGenderIcon, getRoleBadgeColor } from '../../utils/date.utils';
 
 @Component({
   selector: 'app-children-list',
-  imports: [CommonModule, RouterLink],
+  imports: [RouterLink],
   templateUrl: './children-list.html',
   styleUrl: './children-list.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

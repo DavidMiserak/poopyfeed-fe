@@ -18,14 +18,12 @@ import {
   inject,
   ChangeDetectionStrategy,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { CatchUpEvent, CATCH_UP_VALIDATION } from '../../models';
 import { DateTimeService } from '../../services/datetime.service';
 import { getActivityIcon, formatActivityAge } from '../../utils/date.utils';
 
 @Component({
   selector: 'app-event-timeline',
-  imports: [CommonModule],
   templateUrl: './event-timeline.html',
   styles: [
     `

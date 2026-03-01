@@ -4,12 +4,10 @@ import {
   output,
   ChangeDetectionStrategy,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { PaginationMeta } from '../../models/pagination.model';
 
 @Component({
   selector: 'app-tracking-pagination',
-  imports: [CommonModule],
   templateUrl: './tracking-pagination.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

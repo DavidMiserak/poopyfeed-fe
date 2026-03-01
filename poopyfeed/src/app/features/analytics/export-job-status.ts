@@ -66,7 +66,7 @@ import {
   OnDestroy,
   ChangeDetectionStrategy,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { timer, Subject, takeUntil, switchMap, finalize } from 'rxjs';
 import { AnalyticsService } from '../../services/analytics.service';
 import { ToastService } from '../../services/toast.service';
@@ -75,7 +75,7 @@ import { JobStatusResponse } from '../../models/analytics.model';
 
 @Component({
   selector: 'app-export-job-status',
-  imports: [CommonModule],
+  imports: [DatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './export-job-status.html',
 })

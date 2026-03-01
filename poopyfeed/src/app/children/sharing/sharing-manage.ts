@@ -5,7 +5,7 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { CommonModule, DOCUMENT } from '@angular/common';
+import { DOCUMENT } from '@angular/common';
 import {
   FormControl,
   FormGroup,
@@ -28,7 +28,7 @@ import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-
 
 @Component({
   selector: 'app-sharing-manage',
-  imports: [CommonModule, ReactiveFormsModule, ConfirmDialogComponent],
+  imports: [ReactiveFormsModule, ConfirmDialogComponent],
   templateUrl: './sharing-manage.html',
   styleUrl: './sharing-manage.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

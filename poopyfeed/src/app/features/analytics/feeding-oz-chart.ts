@@ -25,14 +25,12 @@ import {
   OnDestroy,
   ChangeDetectionStrategy,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { FeedingTrends } from '../../models/analytics.model';
 import type { Chart, ChartConfiguration } from 'chart.js';
 import { CHART_FACTORY } from './chart.token';
 
 @Component({
   selector: 'app-feeding-oz-chart',
-  imports: [CommonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './feeding-oz-chart.html',
 })

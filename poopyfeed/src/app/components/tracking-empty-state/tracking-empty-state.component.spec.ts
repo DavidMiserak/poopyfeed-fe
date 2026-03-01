@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TrackingEmptyStateComponent } from './tracking-empty-state.component';
-import { CommonModule } from '@angular/common';
 
 describe('TrackingEmptyStateComponent', () => {
   let component: TrackingEmptyStateComponent;
@@ -8,7 +7,7 @@ describe('TrackingEmptyStateComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TrackingEmptyStateComponent, CommonModule],
+      imports: [TrackingEmptyStateComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(TrackingEmptyStateComponent);

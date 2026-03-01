@@ -7,7 +7,6 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs';
 import { DiapersService } from '../../../services/diapers.service';
@@ -33,7 +32,6 @@ import { DateTimeService } from '../../../services/datetime.service';
 @Component({
   selector: 'app-diapers-list',
   imports: [
-    CommonModule,
     TrackingFilterComponent,
     LoadingStateComponent,
     ErrorCardComponent,

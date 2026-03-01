@@ -7,7 +7,6 @@ import {
   computed,
   inject,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { FilterService, FilterCriteria } from '../../services/filter.service';
 
 /**
@@ -25,7 +24,6 @@ import { FilterService, FilterCriteria } from '../../services/filter.service';
  */
 @Component({
   selector: 'app-tracking-filter',
-  imports: [CommonModule],
   templateUrl: './tracking-filter.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

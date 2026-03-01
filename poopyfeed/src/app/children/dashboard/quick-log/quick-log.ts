@@ -7,7 +7,6 @@ import {
   output,
   signal,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { NapsService } from '../../../services/naps.service';
 import { DiapersService } from '../../../services/diapers.service';
 import { FeedingsService } from '../../../services/feedings.service';
@@ -22,7 +21,6 @@ import { getRecommendedBottleAmount } from '../../../utils/bottle-feeding.utils'
 
 @Component({
   selector: 'app-quick-log',
-  imports: [CommonModule],
   templateUrl: './quick-log.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

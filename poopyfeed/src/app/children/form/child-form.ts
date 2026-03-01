@@ -49,7 +49,6 @@ import {
   signal,
   computed,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import {
   FormControl,
   FormGroup,
@@ -119,7 +118,7 @@ function bottleAmountsValidator(control: AbstractControl): ValidationErrors | nu
 
 @Component({
   selector: 'app-child-form',
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './child-form.html',
   styleUrl: './child-form.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -5,7 +5,6 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { DiapersService } from '../../../services/diapers.service';
 import { ChildrenService } from '../../../services/children.service';
@@ -17,7 +16,7 @@ import { DateTimeService } from '../../../services/datetime.service';
 
 @Component({
   selector: 'app-diaper-delete',
-  imports: [CommonModule, ErrorCardComponent, DeleteConfirmationComponent],
+  imports: [ErrorCardComponent, DeleteConfirmationComponent],
   templateUrl: './diaper-delete.html',
   styleUrl: './diaper-delete.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

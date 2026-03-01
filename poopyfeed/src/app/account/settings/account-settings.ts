@@ -5,7 +5,6 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import {
   FormControl,
   FormGroup,
@@ -22,7 +21,7 @@ import { TIMEZONES } from '../timezones';
 
 @Component({
   selector: 'app-account-settings',
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './account-settings.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

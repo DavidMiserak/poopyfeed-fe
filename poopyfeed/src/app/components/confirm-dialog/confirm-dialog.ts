@@ -4,7 +4,6 @@ import {
   output,
   ChangeDetectionStrategy,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
 
 /**
  * Reusable confirmation modal dialog.
@@ -13,7 +12,6 @@ import { CommonModule } from '@angular/common';
  */
 @Component({
   selector: 'app-confirm-dialog',
-  imports: [CommonModule],
   templateUrl: './confirm-dialog.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {

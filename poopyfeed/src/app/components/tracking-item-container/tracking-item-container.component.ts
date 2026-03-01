@@ -1,9 +1,7 @@
 import { Component, input, ChangeDetectionStrategy, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-tracking-item-container',
-  imports: [CommonModule],
   templateUrl: './tracking-item-container.component.html',
   styleUrl: './tracking-item-container.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

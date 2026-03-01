@@ -1,9 +1,7 @@
 import { Component, input, output, ChangeDetectionStrategy } from '@angular/core';
-import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-tracking-bulk-actions',
-  imports: [CommonModule],
   templateUrl: './tracking-bulk-actions.component.html',
   styleUrl: './tracking-bulk-actions.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

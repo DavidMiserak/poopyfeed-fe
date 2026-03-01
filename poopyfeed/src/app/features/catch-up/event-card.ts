@@ -16,7 +16,6 @@ import {
   AfterViewInit,
   DestroyRef,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { debounceTime } from 'rxjs/operators';
@@ -33,7 +32,7 @@ import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-
 
 @Component({
   selector: 'app-event-card',
-  imports: [CommonModule, ReactiveFormsModule, ConfirmDialogComponent],
+  imports: [ReactiveFormsModule, ConfirmDialogComponent],
   templateUrl: './event-card.html',
   styles: [
     `

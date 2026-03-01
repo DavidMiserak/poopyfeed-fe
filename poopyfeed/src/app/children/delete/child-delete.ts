@@ -5,7 +5,6 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ChildrenService } from '../../services/children.service';
 import { Child } from '../../models/child.model';
@@ -14,7 +13,7 @@ import { DeleteConfirmationComponent } from '../../components/delete-confirmatio
 
 @Component({
   selector: 'app-child-delete',
-  imports: [CommonModule, ErrorCardComponent, DeleteConfirmationComponent],
+  imports: [ErrorCardComponent, DeleteConfirmationComponent],
   templateUrl: './child-delete.html',
   styleUrl: './child-delete.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

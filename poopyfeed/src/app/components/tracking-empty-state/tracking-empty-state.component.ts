@@ -1,9 +1,7 @@
 import { Component, input, output, ChangeDetectionStrategy } from '@angular/core';
-import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-tracking-empty-state',
-  imports: [CommonModule],
   templateUrl: './tracking-empty-state.component.html',
   styleUrl: './tracking-empty-state.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

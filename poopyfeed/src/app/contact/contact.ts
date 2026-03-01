@@ -4,7 +4,6 @@
  */
 
 import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import {
   FormGroup,
   FormControl,
@@ -14,7 +13,7 @@ import {
 
 @Component({
   selector: 'app-contact',
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [ReactiveFormsModule],
   templateUrl: './contact.html',
   styleUrl: './contact.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

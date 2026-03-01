@@ -5,7 +5,6 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ChildrenService } from '../../services/children.service';
 import { Child } from '../../models/child.model';
@@ -13,7 +12,7 @@ import { ErrorCardComponent } from '../../components/error-card/error-card.compo
 
 @Component({
   selector: 'app-child-advanced',
-  imports: [CommonModule, RouterLink, ErrorCardComponent],
+  imports: [RouterLink, ErrorCardComponent],
   templateUrl: './child-advanced.html',
   styleUrl: './child-advanced.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

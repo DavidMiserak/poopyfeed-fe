@@ -1,9 +1,7 @@
 import { Component, input, output, ChangeDetectionStrategy } from '@angular/core';
-import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-tracking-list-select-header',
-  imports: [CommonModule],
   templateUrl: './tracking-list-select-header.component.html',
   styleUrl: './tracking-list-select-header.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

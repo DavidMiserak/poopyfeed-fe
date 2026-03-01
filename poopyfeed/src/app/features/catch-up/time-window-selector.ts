@@ -18,7 +18,6 @@ import {
   ChangeDetectionStrategy,
   OnInit,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { TimeWindow } from '../../models';
 import { DateTimeService } from '../../services/datetime.service';
@@ -27,7 +26,7 @@ import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-time-window-selector',
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [ReactiveFormsModule],
   templateUrl: './time-window-selector.html',
   styles: [
     `

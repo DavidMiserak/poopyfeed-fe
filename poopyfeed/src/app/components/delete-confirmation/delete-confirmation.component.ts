@@ -4,12 +4,11 @@ import {
   output,
   ChangeDetectionStrategy,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-delete-confirmation',
-  imports: [CommonModule, RouterLink],
+  imports: [RouterLink],
   templateUrl: './delete-confirmation.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

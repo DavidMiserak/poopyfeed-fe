@@ -4,11 +4,9 @@ import {
   output,
   ChangeDetectionStrategy,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-action-button-group',
-  imports: [CommonModule],
   templateUrl: './action-button-group.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

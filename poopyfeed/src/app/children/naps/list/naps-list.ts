@@ -7,7 +7,6 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs';
 import { NapsService } from '../../../services/naps.service';
@@ -33,7 +32,6 @@ import { DateTimeService } from '../../../services/datetime.service';
 @Component({
   selector: 'app-naps-list',
   imports: [
-    CommonModule,
     TrackingFilterComponent,
     LoadingStateComponent,
     ErrorCardComponent,

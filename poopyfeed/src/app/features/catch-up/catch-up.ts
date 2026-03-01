@@ -24,7 +24,6 @@ import {
   inject,
   OnInit,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { forkJoin, throwError, of } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
@@ -61,7 +60,6 @@ import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-
 @Component({
   selector: 'app-catch-up',
   imports: [
-    CommonModule,
     TimeWindowSelector,
     EventTimeline,
     EventCard,

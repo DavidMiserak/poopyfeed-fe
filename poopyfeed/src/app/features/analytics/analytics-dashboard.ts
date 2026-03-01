@@ -23,7 +23,6 @@ import {
   OnInit,
   ChangeDetectionStrategy,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { finalize } from 'rxjs/operators';
@@ -42,7 +41,6 @@ import { ChartFactoryService } from './chart-factory.service';
 @Component({
   selector: 'app-analytics-dashboard',
   imports: [
-    CommonModule,
     RouterLink,
     FeedingTrendsChart,
     FeedingOzChart,

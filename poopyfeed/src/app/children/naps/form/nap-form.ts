@@ -31,7 +31,6 @@
  * Style: nap-form.css
  */
 import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import {
   FormControl,
   FormGroup,
@@ -49,7 +48,7 @@ import { ActionButtonGroupComponent } from '../../../components/action-button-gr
 
 @Component({
   selector: 'app-nap-form',
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, ActionButtonGroupComponent],
+  imports: [ReactiveFormsModule, RouterLink, ActionButtonGroupComponent],
   templateUrl: './nap-form.html',
   styleUrl: './nap-form.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

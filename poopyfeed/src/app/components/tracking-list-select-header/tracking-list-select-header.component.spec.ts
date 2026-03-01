@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TrackingListSelectHeaderComponent } from './tracking-list-select-header.component';
-import { CommonModule } from '@angular/common';
 
 describe('TrackingListSelectHeaderComponent', () => {
   let component: TrackingListSelectHeaderComponent;
@@ -8,7 +7,7 @@ describe('TrackingListSelectHeaderComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TrackingListSelectHeaderComponent, CommonModule],
+      imports: [TrackingListSelectHeaderComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(TrackingListSelectHeaderComponent);

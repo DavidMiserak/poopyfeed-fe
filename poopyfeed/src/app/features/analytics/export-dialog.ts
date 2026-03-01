@@ -53,7 +53,6 @@ import {
   ChangeDetectionStrategy,
   OnInit,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import {
   FormControl,
   FormGroup,
@@ -64,7 +63,7 @@ import { ExportOptions } from '../../models/analytics.model';
 
 @Component({
   selector: 'app-export-dialog',
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [ReactiveFormsModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './export-dialog.html',
 })

@@ -16,7 +16,7 @@ import {
   signal,
   computed,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { DecimalPipe } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Title } from '@angular/platform-browser';
 import { ChildrenService } from '../../services/children.service';
@@ -28,7 +28,7 @@ import { formatMinutes } from '../../utils/date.utils';
 
 @Component({
   selector: 'app-pediatrician-summary',
-  imports: [CommonModule, RouterLink, ErrorCardComponent],
+  imports: [DecimalPipe, RouterLink, ErrorCardComponent],
   templateUrl: './pediatrician-summary.html',
   styleUrl: './pediatrician-summary.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

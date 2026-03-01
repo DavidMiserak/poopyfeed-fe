@@ -32,7 +32,6 @@
  * Style: diaper-form.css
  */
 import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import {
   FormControl,
   FormGroup,
@@ -56,7 +55,7 @@ import { ActionButtonGroupComponent } from '../../../components/action-button-gr
 
 @Component({
   selector: 'app-diaper-form',
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, ActionButtonGroupComponent],
+  imports: [ReactiveFormsModule, RouterLink, ActionButtonGroupComponent],
   templateUrl: './diaper-form.html',
   styleUrl: './diaper-form.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
