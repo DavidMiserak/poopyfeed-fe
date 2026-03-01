@@ -1236,6 +1236,9 @@ describe('ChildForm', () => {
       });
     });
 
+    // Note: These async tests may log NG0406 (ApplicationRef already destroyed) to stderr
+    // when the next test's beforeEach runs; it is a known Angular + Vitest async teardown
+    // quirk and does not indicate a test failure. See https://angular.dev/errors (NG0205/NG0406).
     describe('Feeding Reminders', () => {
       it('should show feeding reminders section in edit mode for owner', async () => {
         vi.mocked(childrenService.get).mockReturnValue(of(mockChild));

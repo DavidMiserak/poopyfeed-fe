@@ -8,7 +8,7 @@
  *
  * For async operations in tests, use:
  *   await fixture.whenStable()
- * instead of arbitrary setTimeout delays.
+ * or fakeAsync() + flush() when you need to drain the zone before teardown.
  */
 import { TestBed } from '@angular/core/testing';
 import { platformBrowserTesting } from '@angular/platform-browser/testing';
