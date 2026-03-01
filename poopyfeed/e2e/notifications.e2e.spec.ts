@@ -166,6 +166,7 @@ test.describe('Notifications', () => {
   test('child edit page shows notification preference toggles', async ({
     page,
   }) => {
+    test.setTimeout(120_000); // Extra time for retry on transient API failures
     await createChildAndGoToDashboard(page, 'E2E Notify');
 
     const url = page.url();
@@ -174,7 +175,9 @@ test.describe('Notifications', () => {
 
     async function openAdvancedAndWaitForToggles() {
       await page.goto(`/children/${childId}/edit`);
-      await expect(page.getByLabel("Baby's Name")).toBeVisible({ timeout: 10000 });
+      // Wait for child data to load (form populated), not just the label.
+      // This ensures loadChild() completed and loadNotificationPreference() was triggered.
+      await expect(page.getByLabel("Baby's Name")).toHaveValue(/\S/, { timeout: 15000 });
       await page.getByRole('button', { name: /Show advanced/ }).click();
       await expect(
         page.locator('#advanced-settings-panel')
@@ -189,6 +192,13 @@ test.describe('Notifications', () => {
       await expect
         .poll(
           async () => {
+            // Fail fast if the API returned an error
+            const hasError = await prefsGroup
+              .locator('.border-red-500')
+              .isVisible()
+              .catch(() => false);
+            if (hasError) throw new Error('Notification preferences API error');
+
             const loadingVisible = await prefsGroup
               .getByText('Loading notification preferences...')
               .isVisible()
@@ -196,7 +206,7 @@ test.describe('Notifications', () => {
             if (loadingVisible) return false;
             return await prefsGroup.getByText('Feedings').isVisible().catch(() => false);
           },
-          { timeout: 45000, intervals: [1000] }
+          { timeout: 30000, intervals: [1000] }
         )
         .toBe(true);
       return prefsGroup;
@@ -206,7 +216,7 @@ test.describe('Notifications', () => {
     try {
       prefsGroup = await openAdvancedAndWaitForToggles();
     } catch {
-      // Retry once: reload edit page (preferences API may return child on second load)
+      // Retry once: reload edit page (preferences API may return on second load)
       prefsGroup = await openAdvancedAndWaitForToggles();
     }
 

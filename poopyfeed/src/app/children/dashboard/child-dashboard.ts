@@ -13,9 +13,9 @@
  * - Co-parent: Can add and edit tracking records
  * - Caregiver: Can only add tracking records
  *
- * Data loading strategy:
- * - forkJoin loads all data in parallel (child + 3 tracking types)
- * - Efficient pagination (API returns last 50 records per type)
+ * Data loading strategy (two-phase progressive):
+ * - Phase 1: Child profile loads first → dashboard shell + action buttons render immediately
+ * - Phase 2: Tracking data + summary load in parallel via forkJoin (non-blocking)
  * - ActivityItem merges and sorts to show most recent 10 combined
  *
  * Permission system:
@@ -141,8 +141,11 @@ export class ChildDashboard implements OnInit {
     return result;
   });
 
-  /** Loading state while fetching dashboard data */
+  /** Loading state for child profile (gates dashboard shell + action buttons) */
   isLoading = signal(true);
+
+  /** Loading state for tracking data and summary (gates activity feed + summary cards) */
+  isDetailLoading = signal(true);
 
   /** Error message from API calls */
   error = signal<string | null>(null);
@@ -243,17 +246,42 @@ export class ChildDashboard implements OnInit {
     if (showLoading) {
       this.isLoading.set(true);
     }
+    this.isDetailLoading.set(true);
     this.error.set(null);
 
+    // Phase 1: Load child profile first — unlocks dashboard shell and action buttons
+    this.childrenService.get(childId).subscribe({
+      next: (child) => {
+        this.child.set(child);
+        this.isLoading.set(false);
+
+        // Phase 2: Load tracking data and summary in parallel (non-blocking)
+        this.loadDetailData(childId);
+        this.loadPatternAlerts(childId);
+      },
+      error: (err: Error) => {
+        this.error.set(err.message);
+        this.isLoading.set(false);
+        this.isDetailLoading.set(false);
+      },
+    });
+  }
+
+  /**
+   * Load tracking data and today summary (phase 2).
+   *
+   * Called after child profile loads. Fetches feedings, diapers, naps,
+   * and today summary in parallel. Updates signals progressively —
+   * the dashboard shell is already visible while this loads.
+   */
+  private loadDetailData(childId: number): void {
     forkJoin({
-      child: this.childrenService.get(childId),
       feedings: this.feedingsService.list(childId),
       diapers: this.diapersService.list(childId),
       naps: this.napsService.list(childId),
       todaySummary: this.analyticsService.getTodaySummary(childId),
     }).subscribe({
-      next: ({ child, feedings, diapers, naps, todaySummary }) => {
-        this.child.set(child);
+      next: ({ feedings, diapers, naps, todaySummary }) => {
         this.feedings.set(feedings);
         this.diapers.set(diapers);
         this.naps.set(naps);
@@ -289,12 +317,10 @@ export class ChildDashboard implements OnInit {
         );
         this.recentActivity.set(activity.slice(0, 10));
 
-        this.isLoading.set(false);
-        this.loadPatternAlerts(childId);
+        this.isDetailLoading.set(false);
       },
-      error: (err: Error) => {
-        this.error.set(err.message);
-        this.isLoading.set(false);
+      error: () => {
+        this.isDetailLoading.set(false);
       },
     });
   }
