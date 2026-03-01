@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 import { ChildAdvanced } from './child-advanced';
 import { ChildrenService } from '../../services/children.service';
@@ -25,57 +25,132 @@ const mockChild: Child = {
 };
 
 describe('ChildAdvanced', () => {
-  let component: ChildAdvanced;
-  let fixture: ComponentFixture<ChildAdvanced>;
-  let childrenService: ChildrenService;
+  describe('when child loads successfully', () => {
+    let component: ChildAdvanced;
+    let fixture: ComponentFixture<ChildAdvanced>;
+    let childrenService: ChildrenService;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [ChildAdvanced],
-      providers: [
-        provideHttpClient(),
-        provideHttpClientTesting(),
-        {
-          provide: ActivatedRoute,
-          useValue: {
-            snapshot: {
-              paramMap: {
-                get: (key: string) => (key === 'childId' ? '1' : null),
+    beforeEach(async () => {
+      await TestBed.configureTestingModule({
+        imports: [ChildAdvanced],
+        providers: [
+          provideHttpClient(),
+          provideHttpClientTesting(),
+          {
+            provide: ActivatedRoute,
+            useValue: {
+              snapshot: {
+                paramMap: {
+                  get: (key: string) => (key === 'childId' ? '1' : null),
+                },
               },
             },
           },
-        },
-      ],
-    }).compileComponents();
+        ],
+      }).compileComponents();
 
-    childrenService = TestBed.inject(ChildrenService);
-    vi.spyOn(childrenService, 'get').mockReturnValue(of(mockChild));
+      childrenService = TestBed.inject(ChildrenService);
+      vi.spyOn(childrenService, 'get').mockReturnValue(of(mockChild));
 
-    fixture = TestBed.createComponent(ChildAdvanced);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
+      fixture = TestBed.createComponent(ChildAdvanced);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+    });
+
+    it('should create', () => {
+      expect(component).toBeTruthy();
+    });
+
+    it('should load child and render advanced options heading', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      expect(compiled.textContent).toContain('Advanced options for');
+      expect(compiled.textContent).toContain('Baby Alice');
+    });
+
+    it('should render key advanced links', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      expect(compiled.textContent).toContain('For the Doctor');
+      expect(compiled.textContent).toContain('Trends & Analytics');
+      expect(compiled.textContent).toContain('Export Data');
+      expect(compiled.textContent).toContain('7‑Day Timeline');
+      expect(compiled.textContent).toContain('Catch‑Up Mode');
+      expect(compiled.textContent).toContain('All Feedings');
+      expect(compiled.textContent).toContain('All Diapers');
+      expect(compiled.textContent).toContain('All Naps');
+      expect(compiled.textContent).toContain('Manage Sharing');
+    });
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  describe('when childId is missing from route', () => {
+    let fixture: ComponentFixture<ChildAdvanced>;
+
+    beforeEach(async () => {
+      await TestBed.configureTestingModule({
+        imports: [ChildAdvanced],
+        providers: [
+          provideHttpClient(),
+          provideHttpClientTesting(),
+          {
+            provide: ActivatedRoute,
+            useValue: {
+              snapshot: {
+                paramMap: {
+                  get: () => null,
+                },
+              },
+            },
+          },
+        ],
+      }).compileComponents();
+
+      fixture = TestBed.createComponent(ChildAdvanced);
+      fixture.detectChanges();
+    });
+
+    it('should set error and stop loading', () => {
+      const component = fixture.componentInstance;
+      expect(component.childId()).toBeNull();
+      expect(component.isLoading()).toBe(false);
+      expect(component.error()).toBe('Child not found.');
+    });
   });
 
-  it('should load child and render advanced options heading', () => {
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.textContent).toContain('Advanced options for');
-    expect(compiled.textContent).toContain('Baby Alice');
-  });
+  describe('when get() fails', () => {
+    let fixture: ComponentFixture<ChildAdvanced>;
 
-  it('should render key advanced links', () => {
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.textContent).toContain('For the Doctor');
-    expect(compiled.textContent).toContain('Trends & Analytics');
-    expect(compiled.textContent).toContain('Export Data');
-    expect(compiled.textContent).toContain('7‑Day Timeline');
-    expect(compiled.textContent).toContain('Catch‑Up Mode');
-    expect(compiled.textContent).toContain('All Feedings');
-    expect(compiled.textContent).toContain('All Diapers');
-    expect(compiled.textContent).toContain('All Naps');
-    expect(compiled.textContent).toContain('Manage Sharing');
+    beforeEach(async () => {
+      await TestBed.configureTestingModule({
+        imports: [ChildAdvanced],
+        providers: [
+          provideHttpClient(),
+          provideHttpClientTesting(),
+          {
+            provide: ActivatedRoute,
+            useValue: {
+              snapshot: {
+                paramMap: {
+                  get: (key: string) => (key === 'childId' ? '1' : null),
+                },
+              },
+            },
+          },
+        ],
+      }).compileComponents();
+
+      const errService = TestBed.inject(ChildrenService);
+      vi.spyOn(errService, 'get').mockReturnValue(
+        throwError(() => new Error('Network error'))
+      );
+
+      fixture = TestBed.createComponent(ChildAdvanced);
+      fixture.detectChanges();
+    });
+
+    it('should set error and stop loading', async () => {
+      await fixture.whenStable();
+      const component = fixture.componentInstance;
+      expect(component.error()).toBe('Network error');
+      expect(component.isLoading()).toBe(false);
+    });
   });
 });
