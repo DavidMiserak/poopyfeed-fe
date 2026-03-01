@@ -321,7 +321,7 @@ describe('FeedingTrendsChart', () => {
     });
 
     it('should handle chart factory error', async () => {
-      const errorChartConstructor = vi.fn(() => {
+      const errorChartConstructor = vi.fn(function (this: unknown) {
         throw new Error('Canvas error');
       });
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});

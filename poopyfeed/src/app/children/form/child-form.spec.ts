@@ -1219,6 +1219,23 @@ describe('ChildForm', () => {
       });
     });
 
+    describe('Branch coverage - restoreDefaultBottleAmounts', () => {
+      it('should clear custom bottle amounts to null', () => {
+        component.childForm.patchValue({
+          custom_bottle_low_oz: 2,
+          custom_bottle_mid_oz: 4,
+          custom_bottle_high_oz: 6,
+          feeding_reminder_interval: null,
+        });
+
+        component.restoreDefaultBottleAmounts();
+
+        expect(component.childForm.get('custom_bottle_low_oz')?.value).toBeNull();
+        expect(component.childForm.get('custom_bottle_mid_oz')?.value).toBeNull();
+        expect(component.childForm.get('custom_bottle_high_oz')?.value).toBeNull();
+      });
+    });
+
     describe('Feeding Reminders', () => {
       it('should show feeding reminders section in edit mode for owner', async () => {
         vi.mocked(childrenService.get).mockReturnValue(of(mockChild));
@@ -1258,43 +1275,6 @@ describe('ChildForm', () => {
         await fixture.whenStable();
 
         expect(component.childForm.get('feeding_reminder_interval')?.value).toBeNull();
-      });
-
-      it('should not show feeding reminders section in create mode', async () => {
-        await TestBed.resetTestingModule();
-        const mockChildrenService = {
-          get: vi.fn(),
-          create: vi.fn().mockReturnValue(of({ id: 100, name: 'New Baby' })),
-          update: vi.fn(),
-        };
-        const mockActivatedRoute = {
-          paramMap: of(new Map()),
-          queryParamMap: of(new Map()),
-          snapshot: {
-            paramMap: {
-              get: vi.fn(() => null), // No :id = create mode
-            },
-          },
-        } as any;
-
-        await TestBed.configureTestingModule({
-          imports: [ChildForm],
-          providers: [
-            { provide: ChildrenService, useValue: mockChildrenService },
-            { provide: NotificationService, useValue: { getPreferences: vi.fn(), updatePreference: vi.fn() } },
-            { provide: ToastService, useValue: { success: vi.fn(), error: vi.fn() } },
-            { provide: Router, useValue: { navigate: vi.fn(), parseUrl: vi.fn(), createUrlTree: vi.fn(), serializeUrl: vi.fn(() => ''), events: of() } as any },
-            { provide: ActivatedRoute, useValue: mockActivatedRoute },
-          ],
-        }).compileComponents();
-
-        const createFixture = TestBed.createComponent(ChildForm);
-        const createComponent = createFixture.componentInstance;
-        createFixture.detectChanges();
-        await createFixture.whenStable();
-
-        const el = createFixture.nativeElement as HTMLElement;
-        expect(el.textContent).not.toContain('Feeding Reminders');
       });
 
       it('should verify canManageReminders returns false for caregiver role', () => {
@@ -1390,23 +1370,7 @@ describe('ChildForm', () => {
           })
         );
       });
-    });
-  });
 
-  describe('Branch coverage - restoreDefaultBottleAmounts', () => {
-    it('should clear custom bottle amounts to null', () => {
-      component.childForm.patchValue({
-        custom_bottle_low_oz: 2,
-        custom_bottle_mid_oz: 4,
-        custom_bottle_high_oz: 6,
-        feeding_reminder_interval: null,
-      });
-
-      component.restoreDefaultBottleAmounts();
-
-      expect(component.childForm.get('custom_bottle_low_oz')?.value).toBeNull();
-      expect(component.childForm.get('custom_bottle_mid_oz')?.value).toBeNull();
-      expect(component.childForm.get('custom_bottle_high_oz')?.value).toBeNull();
     });
   });
 
@@ -1439,6 +1403,37 @@ describe('ChildForm', () => {
       createFixture.detectChanges();
 
       expect(createComponent.isEdit()).toBe(false);
+    });
+
+    it('should not show feeding reminders section in create mode', async () => {
+      const createModeRoute = {
+        paramMap: of(new Map()),
+        queryParamMap: of(new Map()),
+        snapshot: {
+          paramMap: {
+            get: vi.fn(() => null), // No :id = create mode
+          },
+        },
+      } as any;
+
+      await TestBed.resetTestingModule();
+      await TestBed.configureTestingModule({
+        imports: [ChildForm],
+        providers: [
+          { provide: ChildrenService, useValue: { get: vi.fn(), create: vi.fn().mockReturnValue(of({ id: 100, name: 'New Baby' })), update: vi.fn() } },
+          { provide: NotificationService, useValue: { getPreferences: vi.fn(), updatePreference: vi.fn() } },
+          { provide: ToastService, useValue: { success: vi.fn(), error: vi.fn() } },
+          { provide: Router, useValue: { navigate: vi.fn(), parseUrl: vi.fn(), createUrlTree: vi.fn(), serializeUrl: vi.fn(() => ''), events: of() } as any },
+          { provide: ActivatedRoute, useValue: createModeRoute },
+        ],
+      }).compileComponents();
+
+      const createFixture = TestBed.createComponent(ChildForm);
+      createFixture.detectChanges();
+      await createFixture.whenStable();
+
+      const el = createFixture.nativeElement as HTMLElement;
+      expect(el.textContent).not.toContain('Feeding Reminders');
     });
   });
 });
