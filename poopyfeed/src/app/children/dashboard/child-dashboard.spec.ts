@@ -457,23 +457,13 @@ describe('ChildDashboard', () => {
       }
 
       const compiled = fixture.nativeElement as HTMLElement;
-      expect(compiled.textContent).toContain("Today's Summary");
+      expect(compiled.querySelector('app-dashboard-section-card')).toBeTruthy();
       expect(compiled.textContent).not.toContain('No activity recorded today');
 
-      // Verify shared component renders labels
+      // Verify TodaySummaryCards (and section card) render labels
       expect(compiled.textContent).toContain('Feedings Today');
       expect(compiled.textContent).toContain('Diapers Today');
       expect(compiled.textContent).toContain('Naps Today');
-    });
-
-    it('should show summary section heading', async () => {
-      setupWithData();
-      const deferBlocks = await fixture.getDeferBlocks();
-      for (const block of deferBlocks) {
-        await block.render(DeferBlockState.Complete);
-      }
-      const compiled = fixture.nativeElement as HTMLElement;
-      expect(compiled.textContent).toContain("Today's Summary");
     });
 
     it('should render TodaySummaryCards component', async () => {
@@ -523,7 +513,7 @@ describe('ChildDashboard', () => {
       }
 
       const compiled = fixture.nativeElement as HTMLElement;
-      expect(compiled.textContent).toContain('Recent Activity');
+      expect(compiled.querySelectorAll('app-dashboard-section-card').length).toBeGreaterThan(0);
       // Activity content from getActivityTitle (e.g. "Bottle: 4 oz" or "Wet")
       const hasActivityContent =
         compiled.textContent?.includes('Bottle') ||

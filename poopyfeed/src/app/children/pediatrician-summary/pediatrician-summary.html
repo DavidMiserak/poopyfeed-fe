@@ -37,40 +37,13 @@
     <!-- Content: child + summary -->
     @if (child() && summary() && !isLoading() && !error()) {
       <div class="summary-content">
-        <!-- Back link and Print (hidden when printing) -->
-        <div class="flex items-center justify-between mb-6 no-print">
-          <a
-            [routerLink]="['/children', child()!.id, 'advanced']"
-            class="font-['DM_Sans',sans-serif] text-sm text-slate-600 hover:text-rose-400 transition-colors font-medium inline-flex items-center gap-2"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            Back to Advanced
-          </a>
-          <button
-            type="button"
-            (click)="onPrint()"
-            class="inline-flex items-center gap-2 px-4 py-2 rounded-xl font-['DM_Sans',sans-serif] font-bold text-white bg-slate-700 hover:bg-slate-800 shadow-md transition-colors"
-            aria-label="Print summary"
-          >
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-            </svg>
-            Print
-          </button>
-        </div>
+        <app-summary-nav
+          [childId]="child()!.id"
+          (printRequested)="onPrint()"
+        />
 
-        <!-- Empty state -->
         @if (isEmpty()) {
-          <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-8 border-2 border-amber-400/20 text-center">
-            <p class="font-['DM_Sans',sans-serif] text-slate-600 text-lg mb-2">
-              No activity in the last 7 days for {{ child()!.name }}.
-            </p>
-            <p class="font-['DM_Sans',sans-serif] text-slate-500 text-sm">
-              Start logging feedings, diapers, and naps to see a summary here.
-            </p>
-          </div>
+          <app-summary-empty-state [childName]="child()!.name" />
         } @else {
           <!-- Summary card -->
           <div class="summary-card bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl p-6 sm:p-8 border-2 border-rose-400/20">

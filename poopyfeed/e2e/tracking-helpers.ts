@@ -25,7 +25,7 @@ export interface EditTrackingItemAndSeeUpdateOptions {
 
 /**
  * Shared E2E flow: create child, add one tracking item, edit it, return to list and assert updated row.
- * Uses form-scoped submit, reload + networkidle, and optional second reload if updated row not visible.
+ * Uses form-scoped submit, reload, and element-based waits (no networkidle) for mobile-network reliability.
  */
 export async function editTrackingItemAndSeeUpdateOnList(
   page: Page,
@@ -67,9 +67,12 @@ export async function editTrackingItemAndSeeUpdateOnList(
     page.getByRole('heading', { name: editHeadingPattern })
   ).toBeVisible();
 
-  // Wait for the edit form to finish loading resource data from the API
-  // before making changes (prevents race where patchFormWithResource overwrites user edits)
-  await page.waitForLoadState('networkidle');
+  // Wait for the edit form to be ready (update button visible) so resource data has loaded
+  // before making changes (prevents race where patchFormWithResource overwrites user edits).
+  // Element-based wait is reliable on slow/flaky mobile networks; avoid networkidle.
+  await expect(
+    page.getByRole('button', { name: updateButtonLabel })
+  ).toBeVisible({ timeout: 15000 });
 
   await changeForm(page);
   await page.locator('form').getByRole('button', { name: updateButtonLabel }).click();
@@ -85,7 +88,6 @@ export async function editTrackingItemAndSeeUpdateOnList(
   ).toBeVisible({ timeout: 15000 });
 
   await page.reload();
-  await page.waitForLoadState('networkidle');
   await expect(
     page.getByRole('button', { name: listHeaderButton })
   ).toBeVisible({ timeout: 15000 });
@@ -98,7 +100,6 @@ export async function editTrackingItemAndSeeUpdateOnList(
     .catch(() => false);
   if (!updatedVisible) {
     await page.reload();
-    await page.waitForLoadState('networkidle');
     await expect(
       page.getByRole('button', { name: listHeaderButton })
     ).toBeVisible({ timeout: 15000 });

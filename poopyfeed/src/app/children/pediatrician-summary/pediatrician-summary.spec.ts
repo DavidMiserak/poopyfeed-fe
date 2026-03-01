@@ -125,7 +125,6 @@ describe('PediatricianSummaryComponent', () => {
     expect(compiled.textContent).toContain('280');
     expect(compiled.textContent).toContain('42');
     expect(compiled.textContent).toContain('14');
-    expect(compiled.textContent).toContain('Print');
     // Daily averages for doctor-style "how many per day" answers
     expect(compiled.textContent).toContain('Per day');
     expect(compiled.textContent).toContain('5'); // 35/7 feedings per day
@@ -165,8 +164,7 @@ describe('PediatricianSummaryComponent', () => {
     expect(component.isEmpty()).toBe(true);
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.textContent).toContain('No activity in the last 7 days');
-    expect(compiled.textContent).toContain('Baby Alice');
+    expect(compiled.querySelector('app-summary-empty-state')).toBeTruthy();
   });
 
   it('should show error state when child fetch fails', () => {

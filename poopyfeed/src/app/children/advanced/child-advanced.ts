@@ -5,14 +5,15 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { ChildrenService } from '../../services/children.service';
 import { Child } from '../../models/child.model';
 import { ErrorCardComponent } from '../../components/error-card/error-card.component';
+import { AdvancedToolsGridComponent } from './advanced-tools-grid/advanced-tools-grid';
 
 @Component({
   selector: 'app-child-advanced',
-  imports: [RouterLink, ErrorCardComponent],
+  imports: [ErrorCardComponent, AdvancedToolsGridComponent],
   templateUrl: './child-advanced.html',
   styleUrl: './child-advanced.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

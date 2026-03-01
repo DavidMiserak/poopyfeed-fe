@@ -58,6 +58,8 @@ import { TodaySummaryData, PatternAlertsResponse } from '../../models/analytics.
 import { QuickLog } from './quick-log/quick-log';
 import { TodaySummaryCards } from '../../components/today-summary-cards';
 import { ErrorCardComponent } from '../../components/error-card/error-card.component';
+import { DashboardSkeletonComponent } from '../../components/dashboard-skeleton/dashboard-skeleton.component';
+import { DashboardSectionCardComponent } from '../../components/dashboard-section-card/dashboard-section-card.component';
 import {
   getChildAgeLong,
   formatActivityAge,
@@ -88,6 +90,8 @@ interface ActivityItem {
     QuickLog,
     TodaySummaryCards,
     ErrorCardComponent,
+    DashboardSkeletonComponent,
+    DashboardSectionCardComponent,
   ],
   templateUrl: './child-dashboard.html',
   styleUrl: './child-dashboard.css',

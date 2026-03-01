@@ -1,0 +1,9 @@
+<div
+  class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-6 border-2"
+  [class]="borderClass()"
+>
+  <h2 class="font-['Fredoka',sans-serif] text-2xl font-bold text-slate-900 mb-4">
+    {{ title() }}
+  </h2>
+  <ng-content />
+</div>

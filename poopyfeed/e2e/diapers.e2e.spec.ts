@@ -29,7 +29,6 @@ test.describe('Diapers', () => {
       page.getByRole('button', { name: 'Add Diaper Change' })
     ).toBeVisible({ timeout: 15000 });
     await page.reload();
-    await page.waitForLoadState('networkidle');
     await expect(
       page.getByRole('button', { name: 'Add Diaper Change' })
     ).toBeVisible({ timeout: 15000 });

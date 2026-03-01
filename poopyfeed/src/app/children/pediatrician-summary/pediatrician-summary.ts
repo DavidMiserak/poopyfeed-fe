@@ -17,7 +17,7 @@ import {
   computed,
 } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { Title } from '@angular/platform-browser';
 import { ChildrenService } from '../../services/children.service';
 import { AnalyticsService } from '../../services/analytics.service';
@@ -25,10 +25,17 @@ import { Child } from '../../models/child.model';
 import { WeeklySummaryData } from '../../models/analytics.model';
 import { ErrorCardComponent } from '../../components/error-card/error-card.component';
 import { formatMinutes } from '../../utils/date.utils';
+import { SummaryNavComponent } from './summary-nav/summary-nav';
+import { SummaryEmptyStateComponent } from './summary-empty-state/summary-empty-state';
 
 @Component({
   selector: 'app-pediatrician-summary',
-  imports: [DecimalPipe, RouterLink, ErrorCardComponent],
+  imports: [
+    DecimalPipe,
+    ErrorCardComponent,
+    SummaryNavComponent,
+    SummaryEmptyStateComponent,
+  ],
   templateUrl: './pediatrician-summary.html',
   styleUrl: './pediatrician-summary.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

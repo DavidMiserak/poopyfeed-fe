@@ -85,6 +85,9 @@
               "html",
               "lcov",
               "text-summary"
+            ],
+            "setupFiles": [
+              "src/test-setup.ts"
             ]
           }
         },

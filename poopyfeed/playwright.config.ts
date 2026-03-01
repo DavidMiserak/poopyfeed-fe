@@ -11,6 +11,9 @@ import { defineConfig, devices } from '@playwright/test';
  *
  * Browsers: Firefox is default. In container (make test-e2e): BASE_URL=http://frontend:4200.
  *
+ * Mobile-network friendly: Tests use element-based waits (e.g. toBeVisible with timeout)
+ * instead of waitForLoadState('networkidle'), so they remain reliable on slow or flaky networks.
+ *
  * Run from repo root: make test-e2e (container) or make test-e2e-local (host)
  * Run from front-end/poopyfeed: npm run test:e2e
  */

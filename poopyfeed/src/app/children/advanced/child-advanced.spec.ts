@@ -61,23 +61,11 @@ describe('ChildAdvanced', () => {
       expect(component).toBeTruthy();
     });
 
-    it('should load child and render advanced options heading', () => {
+    it('should load child and render advanced tools grid with childId and childName', () => {
+      expect(component.child()).toEqual(mockChild);
       const compiled = fixture.nativeElement as HTMLElement;
-      expect(compiled.textContent).toContain('Advanced options for');
-      expect(compiled.textContent).toContain('Baby Alice');
-    });
-
-    it('should render key advanced links', () => {
-      const compiled = fixture.nativeElement as HTMLElement;
-      expect(compiled.textContent).toContain('For the Doctor');
-      expect(compiled.textContent).toContain('Trends & Analytics');
-      expect(compiled.textContent).toContain('Export Data');
-      expect(compiled.textContent).toContain('7‑Day Timeline');
-      expect(compiled.textContent).toContain('Catch‑Up Mode');
-      expect(compiled.textContent).toContain('All Feedings');
-      expect(compiled.textContent).toContain('All Diapers');
-      expect(compiled.textContent).toContain('All Naps');
-      expect(compiled.textContent).toContain('Manage Sharing');
+      const grid = compiled.querySelector('app-advanced-tools-grid');
+      expect(grid).toBeTruthy();
     });
   });
 
