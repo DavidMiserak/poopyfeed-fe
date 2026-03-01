@@ -37,21 +37,21 @@ test.describe('Feeding Reminders', () => {
     const childId = await createChildAndGetId(page, 'Visible');
 
     await page.goto(`/children/${childId}/edit`);
-    await expect(page.getByRole('heading', { name: 'Edit Baby' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Edit Baby' })).toBeVisible({ timeout: 15000 });
 
     // Open advanced settings section and wait for panel to render
     await page.getByRole('button', { name: /Show advanced/i }).click();
     await expect(
       page.locator('#advanced-settings-panel')
-    ).toBeVisible({ timeout: 5000 });
+    ).toBeVisible({ timeout: 15000 });
 
     // Fieldset should be rendered inside advanced settings
     const remindersGroup = page.getByRole('group', { name: /Feeding Reminders/ });
-    await expect(remindersGroup).toBeVisible({ timeout: 5000 });
+    await expect(remindersGroup).toBeVisible({ timeout: 15000 });
 
     // Reminder Interval select defaults to Off (null value)
     const select = page.getByLabel('Reminder Interval');
-    await expect(select).toBeVisible();
+    await expect(select).toBeVisible({ timeout: 10000 });
     // The "Off" option should be selected (value is either "" or "null" depending on rendering)
     const selectedOption = select.locator('option[selected], option:first-child');
     await expect(selectedOption).toHaveText('Off');

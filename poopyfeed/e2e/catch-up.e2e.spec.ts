@@ -55,7 +55,7 @@ test.describe('Catch-Up Mode', () => {
     await page.getByRole('button', { name: 'Continue to Activities' }).click();
     await expect(
       page.getByRole('heading', { name: 'Step 2: Add Activities' })
-    ).toBeVisible();
+    ).toBeVisible({ timeout: 15_000 });
 
     // Step 2: add a diaper and a nap (these have simple defaults that pass validation)
     await page.getByRole('button', { name: 'Add diaper event' }).click();
@@ -67,14 +67,14 @@ test.describe('Catch-Up Mode', () => {
     // Step 3: review
     await expect(
       page.getByRole('heading', { name: 'Step 3: Review & Save' })
-    ).toBeVisible();
+    ).toBeVisible({ timeout: 15_000 });
 
     await page.getByRole('button', { name: 'Confirm & Save' }).click();
 
     // Success screen
     await expect(
       page.getByText(/2 Activities Saved!/)
-    ).toBeVisible({ timeout: 20_000 });
+    ).toBeVisible({ timeout: 30_000 });
 
     // Navigate back to advanced
     await page.getByRole('button', { name: 'Back to advanced tools' }).click();

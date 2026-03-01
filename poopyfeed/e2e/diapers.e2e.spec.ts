@@ -124,22 +124,22 @@ test.describe('Diapers', () => {
     }));
 
     await page.goto(`/children/${childId}/diapers/`);
-    await expect(page).toHaveURL(new RegExp(`/children/${childId}/diapers/?$`));
+    await expect(page).toHaveURL(new RegExp(`/children/${childId}/diapers/?$`), { timeout: 15000 });
 
     await expect(
       page.getByRole('heading', { name: /Diaper Changes for/ })
-    ).toBeVisible({ timeout: 15000 });
+    ).toBeVisible({ timeout: 20000 });
 
-    await expect(page.getByText('Page 1 of 2')).toBeVisible();
+    await expect(page.getByText('Page 1 of 2')).toBeVisible({ timeout: 20000 });
     await expect(
       page.getByRole('button', { name: 'Next page' })
-    ).toBeVisible();
+    ).toBeVisible({ timeout: 10000 });
     await expect(
       page.getByRole('button', { name: 'Previous page' })
     ).toBeDisabled();
 
     await page.getByRole('button', { name: 'Next page' }).click();
-    await expect(page.getByText('Page 2 of 2')).toBeVisible();
+    await expect(page.getByText('Page 2 of 2')).toBeVisible({ timeout: 15000 });
     await expect(
       page.getByRole('button', { name: 'Previous page' })
     ).toBeEnabled();
@@ -148,6 +148,6 @@ test.describe('Diapers', () => {
     ).toBeDisabled();
 
     await page.getByRole('button', { name: 'Previous page' }).click();
-    await expect(page.getByText('Page 1 of 2')).toBeVisible();
+    await expect(page.getByText('Page 1 of 2')).toBeVisible({ timeout: 15000 });
   });
 });

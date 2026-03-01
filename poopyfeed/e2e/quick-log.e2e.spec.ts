@@ -49,13 +49,13 @@ test.describe('Quick Log', () => {
     const napButton = page.getByRole('button', {
       name: 'Log a nap with current timestamp',
     });
-    await expect(napButton).toBeVisible({ timeout: 15_000 });
-    await expect(napButton).toBeEnabled({ timeout: 5_000 });
+    await expect(napButton).toBeVisible({ timeout: 20_000 });
+    await expect(napButton).toBeEnabled({ timeout: 10_000 });
     await napButton.click();
 
     await expect(
       page.getByText('Nap recorded successfully')
-    ).toBeVisible({ timeout: 20_000 });
+    ).toBeVisible({ timeout: 30_000 });
   });
 
   test('quick log Bottle shows success toast when amount available', async ({

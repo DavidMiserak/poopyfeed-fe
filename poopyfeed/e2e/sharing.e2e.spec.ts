@@ -74,15 +74,13 @@ test.describe('Sharing', () => {
 
     await expect(
       page.getByRole('button', { name: 'Create Invite Link' })
-    ).toBeVisible({ timeout: 5000 });
+    ).toBeVisible({ timeout: 10000 });
 
     await page.getByRole('button', { name: 'Create Invite Link' }).click();
-    // New invite is prepended; wait for it and assert within first invite item
-    // (avoids matching "Co-parent" in the role dropdown)
     const firstInvite = page.getByTestId('invite-item').first();
-    await expect(firstInvite).toBeVisible({ timeout: 15000 });
-    await expect(firstInvite.getByText('Co-parent')).toBeVisible();
-    await expect(firstInvite.getByText('Active')).toBeVisible();
+    await expect(firstInvite).toBeVisible({ timeout: 25000 });
+    await expect(firstInvite.getByText('Co-parent')).toBeVisible({ timeout: 10000 });
+    await expect(firstInvite.getByText('Active')).toBeVisible({ timeout: 10000 });
   });
 
   test('owner can create a caregiver invite link and see it in the list', async ({

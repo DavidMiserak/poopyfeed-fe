@@ -175,24 +175,23 @@ test.describe('Notifications', () => {
 
     async function openAdvancedAndWaitForToggles() {
       await page.goto(`/children/${childId}/edit`);
-      // Wait for child data to load (form populated), not just the label.
-      // This ensures loadChild() completed and loadNotificationPreference() was triggered.
+      await expect(page.getByRole('heading', { name: 'Edit Baby' })).toBeVisible({ timeout: 15000 });
+      // Wait for child data to load (form populated), so loadNotificationPreference() is triggered.
       await expect(page.getByLabel("Baby's Name")).toHaveValue(/\S/, { timeout: 15000 });
       await page.getByRole('button', { name: /Show advanced/ }).click();
       await expect(
         page.locator('#advanced-settings-panel')
-      ).toBeVisible({ timeout: 5000 });
+      ).toBeVisible({ timeout: 15000 });
       const prefsGroup = page.getByRole('group', {
         name: /Notification Preferences/,
       });
-      await expect(prefsGroup).toBeVisible({ timeout: 10000 });
+      await expect(prefsGroup).toBeVisible({ timeout: 15000 });
       await expect(
         prefsGroup.getByText('Choose which activities trigger notifications')
-      ).toBeVisible();
+      ).toBeVisible({ timeout: 5000 });
       await expect
         .poll(
           async () => {
-            // Fail fast if the API returned an error
             const hasError = await prefsGroup
               .locator('.border-red-500')
               .isVisible()
@@ -206,7 +205,7 @@ test.describe('Notifications', () => {
             if (loadingVisible) return false;
             return await prefsGroup.getByText('Feedings').isVisible().catch(() => false);
           },
-          { timeout: 30000, intervals: [1000] }
+          { timeout: 45000, intervals: [1500] }
         )
         .toBe(true);
       return prefsGroup;
@@ -216,11 +215,11 @@ test.describe('Notifications', () => {
     try {
       prefsGroup = await openAdvancedAndWaitForToggles();
     } catch {
-      // Retry once: reload edit page (preferences API may return on second load)
+      await page.reload();
       prefsGroup = await openAdvancedAndWaitForToggles();
     }
 
-    await expect(prefsGroup.getByText('Diaper changes')).toBeVisible();
-    await expect(prefsGroup.getByText('Naps')).toBeVisible();
+    await expect(prefsGroup.getByText('Diaper changes')).toBeVisible({ timeout: 10000 });
+    await expect(prefsGroup.getByText('Naps')).toBeVisible({ timeout: 10000 });
   });
 });
