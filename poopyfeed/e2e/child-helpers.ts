@@ -57,7 +57,8 @@ export async function createChildAndGoToDashboard(
       });
     }
 
-    // Dashboard URL reached — wait for content to render
+    // Dashboard URL reached — wait for main content (dashboard may show skeleton first, then
+    // DashboardSectionCardComponent sections with Add Feeding / Add Diaper / Add Nap)
     const feedingButton = page.getByRole('button', { name: 'Add Feeding' });
 
     const contentLoaded = await feedingButton

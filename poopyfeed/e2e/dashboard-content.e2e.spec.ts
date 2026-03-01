@@ -1,9 +1,10 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './fixtures';
 import { createChildAndGoToDashboard } from './child-helpers';
 
 /**
  * E2E: Child dashboard content — Today's Summary and Recent Activity.
  * Uses auth fixture; creates a child and asserts dashboard sections render.
+ * Section headings are rendered by DashboardSectionCardComponent (title input).
  * Covers VERIFICATION.md E2E gap: Child dashboard content (Today Summary, Recent Activity).
  */
 test.describe('Dashboard content', () => {
@@ -60,14 +61,17 @@ test.describe('Dashboard content', () => {
       page.getByText('Wet diaper recorded successfully')
     ).toBeVisible({ timeout: 15_000 });
 
-    // Summary refreshes; Diapers Today card should show count 1
+    // Summary refreshes; Diapers Today card (inside Today's Summary section card) shows count 1
     await expect(
       page.getByText('Diapers Today', { exact: true })
     ).toBeVisible({ timeout: 15_000 });
-    await expect(
-      page.getByRole('heading', { name: "Today's Summary", level: 2 })
-        .locator('..')
-        .getByText('1')
-    ).toBeVisible({ timeout: 10_000 });
+    const todaySummarySection = page.getByRole('heading', {
+      name: "Today's Summary",
+      level: 2,
+    });
+    await expect(todaySummarySection).toBeVisible({ timeout: 10_000 });
+    await expect(todaySummarySection.locator('..').getByText('1')).toBeVisible({
+      timeout: 10_000,
+    });
   });
 });

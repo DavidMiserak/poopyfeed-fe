@@ -1,9 +1,10 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './fixtures';
 import { createChildAndGoToDashboard } from './child-helpers';
 
 /**
  * E2E: Quick Log flow (dashboard one-tap logging for diaper, nap, bottle).
  * Uses auth fixture; ensures one child then uses Quick Log buttons and verifies success toasts.
+ * Quick Log section is rendered by DashboardSectionCardComponent (title "Quick Log").
  * Covers VERIFICATION.md E2E gap: Quick-Log buttons (Mom, Maria primary daily UI).
  */
 test.describe('Quick Log', () => {
@@ -14,17 +15,17 @@ test.describe('Quick Log', () => {
 
     await expect(
       page.getByRole('heading', { name: 'Quick Log', level: 2 })
-    ).toBeVisible();
-    await expect(page.getByText('Diaper', { exact: true }).first()).toBeVisible();
-    await expect(page.getByText('Nap', { exact: true }).first()).toBeVisible();
-    await expect(page.getByText('Bottle', { exact: true }).first()).toBeVisible();
+    ).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByText('Diaper', { exact: true }).first()).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByText('Nap', { exact: true }).first()).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByText('Bottle', { exact: true }).first()).toBeVisible({ timeout: 15_000 });
 
     await expect(
       page.getByRole('button', { name: 'Log a wet diaper change with current timestamp' })
-    ).toBeVisible();
+    ).toBeVisible({ timeout: 15_000 });
     await expect(
       page.getByRole('button', { name: 'Log a nap with current timestamp' })
-    ).toBeVisible();
+    ).toBeVisible({ timeout: 15_000 });
   });
 
   test('quick log Wet diaper shows success toast', async ({ page }) => {

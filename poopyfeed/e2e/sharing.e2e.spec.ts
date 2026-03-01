@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './fixtures';
 import { createChildAndGoToDashboard } from './child-helpers';
 
 /**
@@ -18,6 +18,7 @@ async function navigateToSharingPage(page: import('@playwright/test').Page) {
   await expect(moreTools).toBeVisible({ timeout: 15000 });
   await moreTools.click();
   await expect(page).toHaveURL(/\/children\/\d+\/advanced$/, { timeout: 10000 });
+  // Advanced page uses AdvancedToolsGridComponent for tool links
   await expect(
     page.getByRole('link', { name: 'Manage Sharing' })
   ).toBeVisible({ timeout: 10000 });

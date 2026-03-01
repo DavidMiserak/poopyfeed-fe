@@ -14,6 +14,9 @@ import { defineConfig, devices } from '@playwright/test';
  * Mobile-network friendly: Tests use element-based waits (e.g. toBeVisible with timeout)
  * instead of waitForLoadState('networkidle'), so they remain reliable on slow or flaky networks.
  *
+ * Fail-fast: All specs use e2e/fixtures.ts. Any API 5xx or 429 fails the test immediately.
+ * Backend must run with RELAX_E2E_THROTTLES=1 or DEBUG=True when running E2E (see podman-compose).
+ *
  * Run from repo root: make test-e2e (container) or make test-e2e-local (host)
  * Run from front-end/poopyfeed: npm run test:e2e
  */
@@ -62,5 +65,5 @@ export default defineConfig({
     },
   ],
   timeout: 60_000,
-  expect: { timeout: 10_000 },
+  expect: { timeout: 15_000 },
 });
