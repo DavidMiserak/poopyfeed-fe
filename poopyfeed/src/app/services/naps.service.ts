@@ -15,14 +15,11 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { ErrorHandler } from './error.utils';
 import { Observable, tap, catchError, throwError, map } from 'rxjs';
 import { Nap, NapCreate, NapUpdate } from '../models/nap.model';
-
-// Django REST Framework paginated response
-interface PaginatedResponse<T> {
-  count: number;
-  next: string | null;
-  previous: string | null;
-  results: T[];
-}
+import {
+  PaginatedResponse,
+  PaginationMeta,
+  DEFAULT_PAGE_SIZE,
+} from '../models/pagination.model';
 
 @Injectable({
   providedIn: 'root',
@@ -32,12 +29,14 @@ export class NapsService {
   private readonly API_BASE = '/api/v1/children';
 
   /**
-   * Cached list of naps from last list() call.
-   *
-   * Automatically updated after create/update/delete operations.
-   * Use in templates with async pipe or in computed() functions.
+   * Cached list of naps from last list() call (current page).
    */
   naps = signal<Nap[]>([]);
+
+  /**
+   * Pagination meta from last list() call (count, next, previous, page).
+   */
+  pagination = signal<PaginationMeta | null>(null);
 
   /**
    * Get base URL for nap operations for a specific child.
@@ -62,7 +61,8 @@ export class NapsService {
    *
    * @param childId Child whose naps to fetch
    * @param filters Optional filter object with dateFrom, dateTo
-   * @returns Observable<Nap[]> Array of naps for this child
+   * @param page Page number (1-based, default 1)
+   * @returns Observable<Nap[]> Array of naps for the requested page
    *
    * @throws ApiError if child not found or user lacks access
    */
@@ -71,9 +71,10 @@ export class NapsService {
     filters?: {
       dateFrom?: string;
       dateTo?: string;
-    }
+    },
+    page = 1
   ): Observable<Nap[]> {
-    let params = new HttpParams();
+    let params = new HttpParams().set('page', String(page));
 
     if (filters) {
       if (filters.dateFrom) {
@@ -87,10 +88,18 @@ export class NapsService {
     return this.http
       .get<PaginatedResponse<Nap>>(`${this.baseUrl(childId)}/`, { params })
       .pipe(
-        map((response) => response.results),
-        tap((naps) => {
-          this.naps.set(naps);
+        tap((response) => {
+          this.naps.set(response.results);
+          this.pagination.set({
+            count: response.count,
+            next: response.next,
+            previous: response.previous,
+            page,
+            pageSize: DEFAULT_PAGE_SIZE,
+            totalPages: Math.ceil(response.count / DEFAULT_PAGE_SIZE) || 1,
+          });
         }),
+        map((response) => response.results),
         catchError((error) => {
           return throwError(() => ErrorHandler.handle(error, 'List'));
         })

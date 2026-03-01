@@ -1,0 +1,35 @@
+@if (meta() && meta()!.totalPages > 1) {
+  <nav
+    aria-label="Pagination"
+    class="flex justify-center mt-6"
+  >
+    <div class="inline-flex items-center gap-2 rounded-xl bg-white/80 backdrop-blur border-2 border-slate-200/60 px-4 py-2 shadow-sm">
+      <button
+        type="button"
+        [disabled]="!meta()!.previous"
+        (click)="onPrevious()"
+        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-['DM_Sans',sans-serif] font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+        aria-label="Previous page"
+      >
+        <span aria-hidden="true">←</span>
+        Previous
+      </button>
+      <span
+        class="px-3 py-1.5 text-sm font-['DM_Sans',sans-serif] text-slate-600"
+        aria-live="polite"
+      >
+        Page {{ meta()!.page }} of {{ meta()!.totalPages }}
+      </span>
+      <button
+        type="button"
+        [disabled]="!meta()!.next"
+        (click)="onNext()"
+        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-['DM_Sans',sans-serif] font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+        aria-label="Next page"
+      >
+        Next
+        <span aria-hidden="true">→</span>
+      </button>
+    </div>
+  </nav>
+}

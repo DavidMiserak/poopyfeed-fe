@@ -23,14 +23,11 @@ import {
   DiaperChangeCreate,
   DiaperChangeUpdate,
 } from '../models/diaper.model';
-
-// Django REST Framework paginated response
-interface PaginatedResponse<T> {
-  count: number;
-  next: string | null;
-  previous: string | null;
-  results: T[];
-}
+import {
+  PaginatedResponse,
+  PaginationMeta,
+  DEFAULT_PAGE_SIZE,
+} from '../models/pagination.model';
 
 @Injectable({
   providedIn: 'root',
@@ -40,12 +37,14 @@ export class DiapersService {
   private readonly API_BASE = '/api/v1/children';
 
   /**
-   * Cached list of diaper changes from last list() call.
-   *
-   * Automatically updated after create/update/delete operations.
-   * Use in templates with async pipe or in computed() functions.
+   * Cached list of diaper changes from last list() call (current page).
    */
   diapers = signal<DiaperChange[]>([]);
+
+  /**
+   * Pagination meta from last list() call (count, next, previous, page).
+   */
+  pagination = signal<PaginationMeta | null>(null);
 
   /**
    * Get base URL for diaper operations for a specific child.
@@ -71,7 +70,8 @@ export class DiapersService {
    *
    * @param childId Child whose diaper changes to fetch
    * @param filters Optional filter object with dateFrom, dateTo, change_type
-   * @returns Observable<DiaperChange[]> Array of diaper changes for this child
+   * @param page Page number (1-based, default 1)
+   * @returns Observable<DiaperChange[]> Array of diaper changes for the requested page
    *
    * @throws ApiError if child not found or user lacks access
    */
@@ -81,9 +81,10 @@ export class DiapersService {
       dateFrom?: string;
       dateTo?: string;
       change_type?: string;
-    }
+    },
+    page = 1
   ): Observable<DiaperChange[]> {
-    let params = new HttpParams();
+    let params = new HttpParams().set('page', String(page));
 
     if (filters) {
       if (filters.dateFrom) {
@@ -98,12 +99,22 @@ export class DiapersService {
     }
 
     return this.http
-      .get<PaginatedResponse<DiaperChange>>(`${this.baseUrl(childId)}/`, { params })
+      .get<PaginatedResponse<DiaperChange>>(`${this.baseUrl(childId)}/`, {
+        params,
+      })
       .pipe(
-        map((response) => response.results),
-        tap((diapers) => {
-          this.diapers.set(diapers);
+        tap((response) => {
+          this.diapers.set(response.results);
+          this.pagination.set({
+            count: response.count,
+            next: response.next,
+            previous: response.previous,
+            page,
+            pageSize: DEFAULT_PAGE_SIZE,
+            totalPages: Math.ceil(response.count / DEFAULT_PAGE_SIZE) || 1,
+          });
         }),
+        map((response) => response.results),
         catchError((error) => {
           return throwError(() => ErrorHandler.handle(error, 'List'));
         })

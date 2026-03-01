@@ -65,7 +65,9 @@ describe('FeedingsService', () => {
         },
       });
 
-      const req = httpMock.expectOne('/api/v1/children/1/feedings/');
+      const req = httpMock.expectOne(
+        (r) => r.url.startsWith('/api/v1/children/1/feedings/') && r.params.get('page') === '1'
+      );
       expect(req.request.method).toBe('GET');
       req.flush({ count: mockFeedings.length, next: null, previous: null, results: mockFeedings });
     });
@@ -77,7 +79,9 @@ describe('FeedingsService', () => {
         },
       });
 
-      const req = httpMock.expectOne('/api/v1/children/1/feedings/');
+      const req = httpMock.expectOne(
+        (r) => r.url.startsWith('/api/v1/children/1/feedings/') && r.params.get('page') === '1'
+      );
       req.flush({ count: 0, next: null, previous: null, results: [] });
     });
 
@@ -95,7 +99,8 @@ describe('FeedingsService', () => {
 
       const req = httpMock.expectOne(
         (r) =>
-          r.url === '/api/v1/children/1/feedings/' &&
+          r.url.startsWith('/api/v1/children/1/feedings/') &&
+          r.params.get('page') === '1' &&
           r.params.get('fed_at__gte') === filters.dateFrom &&
           r.params.get('fed_at__lt') === filters.dateTo &&
           r.params.get('feeding_type') === filters.feeding_type
@@ -114,7 +119,11 @@ describe('FeedingsService', () => {
         },
       });
 
-      const req = httpMock.expectOne('/api/v1/children/1/feedings/');
+      const req = httpMock.expectOne(
+        (r) =>
+          r.url.startsWith('/api/v1/children/1/feedings/') &&
+          (r.request.method !== 'GET' || r.params.get('page') === '1')
+      );
       req.flush(null, { status: 401, statusText: 'Unauthorized' });
 
       expect(errorCaught).toBe(true);
@@ -130,7 +139,11 @@ describe('FeedingsService', () => {
         },
       });
 
-      const req = httpMock.expectOne('/api/v1/children/1/feedings/');
+      const req = httpMock.expectOne(
+        (r) =>
+          r.url.startsWith('/api/v1/children/1/feedings/') &&
+          (r.request.method !== 'GET' || r.params.get('page') === '1')
+      );
       req.flush(null, { status: 403, statusText: 'Forbidden' });
 
       expect(errorCaught).toBe(true);
@@ -162,7 +175,11 @@ describe('FeedingsService', () => {
         },
       });
 
-      const req = httpMock.expectOne('/api/v1/children/1/feedings/');
+      const req = httpMock.expectOne(
+        (r) =>
+          r.url.startsWith('/api/v1/children/1/feedings/') &&
+          (r.request.method !== 'GET' || r.params.get('page') === '1')
+      );
       req.flush(null, { status: 500, statusText: 'Internal Server Error' });
 
       expect(errorCaught).toBe(true);
@@ -254,7 +271,11 @@ describe('FeedingsService', () => {
         },
       });
 
-      const req = httpMock.expectOne('/api/v1/children/1/feedings/');
+      const req = httpMock.expectOne(
+        (r) =>
+          r.url.startsWith('/api/v1/children/1/feedings/') &&
+          (r.request.method !== 'GET' || r.params.get('page') === '1')
+      );
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual(createBottleData);
       req.flush(createdBottleFeeding);
@@ -267,7 +288,11 @@ describe('FeedingsService', () => {
         },
       });
 
-      const req = httpMock.expectOne('/api/v1/children/1/feedings/');
+      const req = httpMock.expectOne(
+        (r) =>
+          r.url.startsWith('/api/v1/children/1/feedings/') &&
+          (r.request.method !== 'GET' || r.params.get('page') === '1')
+      );
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual(createBreastData);
       req.flush(createdBreastFeeding);
@@ -284,7 +309,11 @@ describe('FeedingsService', () => {
         },
       });
 
-      const req = httpMock.expectOne('/api/v1/children/1/feedings/');
+      const req = httpMock.expectOne(
+        (r) =>
+          r.url.startsWith('/api/v1/children/1/feedings/') &&
+          (r.request.method !== 'GET' || r.params.get('page') === '1')
+      );
       req.flush(
         { amount_oz: ['This field is required for bottle feeding'] },
         { status: 400, statusText: 'Bad Request' }
@@ -304,7 +333,11 @@ describe('FeedingsService', () => {
         },
       });
 
-      const req = httpMock.expectOne('/api/v1/children/1/feedings/');
+      const req = httpMock.expectOne(
+        (r) =>
+          r.url.startsWith('/api/v1/children/1/feedings/') &&
+          (r.request.method !== 'GET' || r.params.get('page') === '1')
+      );
       req.flush(
         { side: ['This field is required for breast feeding'] },
         { status: 400, statusText: 'Bad Request' }
@@ -323,7 +356,11 @@ describe('FeedingsService', () => {
         },
       });
 
-      const req = httpMock.expectOne('/api/v1/children/1/feedings/');
+      const req = httpMock.expectOne(
+        (r) =>
+          r.url.startsWith('/api/v1/children/1/feedings/') &&
+          (r.request.method !== 'GET' || r.params.get('page') === '1')
+      );
       req.flush(
         { non_field_errors: ['Invalid feeding data'] },
         { status: 400, statusText: 'Bad Request' }
@@ -342,7 +379,11 @@ describe('FeedingsService', () => {
         },
       });
 
-      const req = httpMock.expectOne('/api/v1/children/1/feedings/');
+      const req = httpMock.expectOne(
+        (r) =>
+          r.url.startsWith('/api/v1/children/1/feedings/') &&
+          (r.request.method !== 'GET' || r.params.get('page') === '1')
+      );
       req.flush(null, { status: 403, statusText: 'Forbidden' });
 
       expect(errorCaught).toBe(true);
@@ -551,7 +592,11 @@ describe('FeedingsService', () => {
         },
       });
 
-      const req = httpMock.expectOne('/api/v1/children/1/feedings/');
+      const req = httpMock.expectOne(
+        (r) =>
+          r.url.startsWith('/api/v1/children/1/feedings/') &&
+          (r.request.method !== 'GET' || r.params.get('page') === '1')
+      );
       req.error(new ProgressEvent('error'), {
         status: 0,
         statusText: 'Unknown Error',
@@ -589,7 +634,11 @@ describe('FeedingsService', () => {
         },
       });
 
-      const req = httpMock.expectOne('/api/v1/children/1/feedings/');
+      const req = httpMock.expectOne(
+        (r) =>
+          r.url.startsWith('/api/v1/children/1/feedings/') &&
+          (r.request.method !== 'GET' || r.params.get('page') === '1')
+      );
       req.error(new ProgressEvent('error'), {
         status: 0,
         statusText: 'Connection refused',
@@ -664,7 +713,11 @@ describe('FeedingsService', () => {
         },
       });
 
-      const req = httpMock.expectOne('/api/v1/children/1/feedings/');
+      const req = httpMock.expectOne(
+        (r) =>
+          r.url.startsWith('/api/v1/children/1/feedings/') &&
+          (r.request.method !== 'GET' || r.params.get('page') === '1')
+      );
       req.flush({}, { status: 400, statusText: 'Bad Request' });
 
       expect(errorCaught).toBe(true);
@@ -680,7 +733,11 @@ describe('FeedingsService', () => {
         },
       });
 
-      const req = httpMock.expectOne('/api/v1/children/1/feedings/');
+      const req = httpMock.expectOne(
+        (r) =>
+          r.url.startsWith('/api/v1/children/1/feedings/') &&
+          (r.request.method !== 'GET' || r.params.get('page') === '1')
+      );
       req.flush(null, { status: 500, statusText: 'Internal Server Error' });
 
       expect(errorCaught).toBe(true);
@@ -698,7 +755,11 @@ describe('FeedingsService', () => {
         },
       });
 
-      const req = httpMock.expectOne('/api/v1/children/1/feedings/');
+      const req = httpMock.expectOne(
+        (r) =>
+          r.url.startsWith('/api/v1/children/1/feedings/') &&
+          (r.request.method !== 'GET' || r.params.get('page') === '1')
+      );
       req.flush({}, { status: 429, statusText: 'Too Many Requests' });
 
       expect(errorCaught).toBe(true);
@@ -714,7 +775,11 @@ describe('FeedingsService', () => {
         },
       });
 
-      const req = httpMock.expectOne('/api/v1/children/1/feedings/');
+      const req = httpMock.expectOne(
+        (r) =>
+          r.url.startsWith('/api/v1/children/1/feedings/') &&
+          (r.request.method !== 'GET' || r.params.get('page') === '1')
+      );
       req.flush({}, { status: 422, statusText: 'Unprocessable Entity' });
 
       expect(errorCaught).toBe(true);
@@ -746,7 +811,11 @@ describe('FeedingsService', () => {
         },
       });
 
-      const req = httpMock.expectOne('/api/v1/children/1/feedings/');
+      const req = httpMock.expectOne(
+        (r) =>
+          r.url.startsWith('/api/v1/children/1/feedings/') &&
+          (r.request.method !== 'GET' || r.params.get('page') === '1')
+      );
       req.flush(null, { status: 503, statusText: 'Service Unavailable' });
 
       expect(errorCaught).toBe(true);
@@ -778,7 +847,11 @@ describe('FeedingsService', () => {
         },
       });
 
-      const req = httpMock.expectOne('/api/v1/children/1/feedings/');
+      const req = httpMock.expectOne(
+        (r) =>
+          r.url.startsWith('/api/v1/children/1/feedings/') &&
+          (r.request.method !== 'GET' || r.params.get('page') === '1')
+      );
       req.flush(null, { status: 401, statusText: 'Unauthorized' });
 
       expect(errorCaught).toBe(true);
@@ -828,7 +901,11 @@ describe('FeedingsService', () => {
         },
       });
 
-      const req = httpMock.expectOne('/api/v1/children/1/feedings/');
+      const req = httpMock.expectOne(
+        (r) =>
+          r.url.startsWith('/api/v1/children/1/feedings/') &&
+          (r.request.method !== 'GET' || r.params.get('page') === '1')
+      );
       req.flush(
         { amount_oz: ['Must be positive'] },
         { status: 400, statusText: 'Bad Request' }
@@ -897,7 +974,11 @@ describe('FeedingsService', () => {
         },
       });
 
-      let req = httpMock.expectOne('/api/v1/children/1/feedings/');
+      let req = httpMock.expectOne(
+        (r) =>
+          r.url.startsWith('/api/v1/children/1/feedings/') &&
+          (r.request.method !== 'GET' || r.params.get('page') === '1')
+      );
       req.flush({}, { status: 400, statusText: 'Bad Request' });
 
       expect(firstErrorCaught).toBe(true);
@@ -910,7 +991,11 @@ describe('FeedingsService', () => {
         },
       });
 
-      req = httpMock.expectOne('/api/v1/children/1/feedings/');
+      req = httpMock.expectOne(
+        (r) =>
+          r.url.startsWith('/api/v1/children/1/feedings/') &&
+          (r.request.method !== 'GET' || r.params.get('page') === '1')
+      );
       req.flush(createdFeeding);
 
       expect(secondSuccessCaught).toBe(true);
@@ -961,7 +1046,11 @@ describe('FeedingsService', () => {
 
       service.create(1, { feeding_type: 'bottle', fed_at: '2024-01-20T12:00:00Z', amount_oz: 5 }).subscribe();
 
-      const req = httpMock.expectOne('/api/v1/children/1/feedings/');
+      const req = httpMock.expectOne(
+        (r) =>
+          r.url.startsWith('/api/v1/children/1/feedings/') &&
+          (r.request.method !== 'GET' || r.params.get('page') === '1')
+      );
       req.flush(newFeeding);
 
       expect(service.feedings().length).toBe(3);
@@ -1024,7 +1113,11 @@ describe('FeedingsService', () => {
 
       service.create(1, { feeding_type: 'bottle', fed_at: '2024-01-20T12:00:00Z', amount_oz: 5 }).subscribe();
 
-      const req = httpMock.expectOne('/api/v1/children/1/feedings/');
+      const req = httpMock.expectOne(
+        (r) =>
+          r.url.startsWith('/api/v1/children/1/feedings/') &&
+          (r.request.method !== 'GET' || r.params.get('page') === '1')
+      );
       req.flush(newFeeding);
 
       expect(service.feedings().length).toBe(3);

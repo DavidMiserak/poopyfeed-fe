@@ -25,3 +25,4 @@ export { TrackingBulkActionsComponent } from './tracking-bulk-actions/tracking-b
 export { TrackingListSelectHeaderComponent } from './tracking-list-select-header/tracking-list-select-header.component';
 export { TrackingEmptyStateComponent } from './tracking-empty-state/tracking-empty-state.component';
 export { TrackingItemContainerComponent } from './tracking-item-container/tracking-item-container.component';
+export { TrackingPaginationComponent } from './tracking-pagination/tracking-pagination.component';

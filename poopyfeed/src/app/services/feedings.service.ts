@@ -21,18 +21,11 @@ import {
   FeedingCreate,
   FeedingUpdate,
 } from '../models/feeding.model';
-
-/**
- * Django REST Framework paginated response wrapper.
- *
- * @template T Type of items in the results array
- */
-interface PaginatedResponse<T> {
-  count: number;
-  next: string | null;
-  previous: string | null;
-  results: T[];
-}
+import {
+  PaginatedResponse,
+  PaginationMeta,
+  DEFAULT_PAGE_SIZE,
+} from '../models/pagination.model';
 
 @Injectable({
   providedIn: 'root',
@@ -42,12 +35,15 @@ export class FeedingsService {
   private readonly API_BASE = '/api/v1/children';
 
   /**
-   * Cached list of feedings from last list() call.
-   *
-   * Automatically updated after create/update/delete operations.
-   * Use in templates with async pipe or in computed() functions.
+   * Cached list of feedings from last list() call (current page).
    */
   feedings = signal<Feeding[]>([]);
+
+  /**
+   * Pagination meta from last list() call (count, next, previous, page).
+   * Null until first list() completes.
+   */
+  pagination = signal<PaginationMeta | null>(null);
 
   /**
    * Get base URL for feeding operations for a specific child.
@@ -73,7 +69,8 @@ export class FeedingsService {
    *
    * @param childId Child whose feedings to fetch
    * @param filters Optional filter object with dateFrom, dateTo, feeding_type
-   * @returns Observable<Feeding[]> Array of feedings for this child
+   * @param page Page number (1-based, default 1)
+   * @returns Observable<Feeding[]> Array of feedings for the requested page
    *
    * @throws ApiError if child not found or user lacks access
    *
@@ -94,9 +91,10 @@ export class FeedingsService {
       dateFrom?: string;
       dateTo?: string;
       feeding_type?: string;
-    }
+    },
+    page = 1
   ): Observable<Feeding[]> {
-    let params = new HttpParams();
+    let params = new HttpParams().set('page', String(page));
 
     if (filters) {
       if (filters.dateFrom) {
@@ -113,10 +111,18 @@ export class FeedingsService {
     return this.http
       .get<PaginatedResponse<Feeding>>(`${this.baseUrl(childId)}/`, { params })
       .pipe(
-        map((response) => response.results),
-        tap((feedings) => {
-          this.feedings.set(feedings);
+        tap((response) => {
+          this.feedings.set(response.results);
+          this.pagination.set({
+            count: response.count,
+            next: response.next,
+            previous: response.previous,
+            page,
+            pageSize: DEFAULT_PAGE_SIZE,
+            totalPages: Math.ceil(response.count / DEFAULT_PAGE_SIZE) || 1,
+          });
         }),
+        map((response) => response.results),
         catchError((error) => {
           return throwError(() => ErrorHandler.handle(error, 'List'));
         })

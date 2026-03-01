@@ -211,6 +211,11 @@
                 </app-tracking-item-container>
               }
             </div>
+            <app-tracking-pagination
+              [meta]="pagination()"
+              accentColor="green"
+              (pageChange)="onPageChange($event)"
+            />
           </div>
         }
       </div>

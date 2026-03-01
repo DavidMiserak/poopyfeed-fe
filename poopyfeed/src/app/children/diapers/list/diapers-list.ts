@@ -24,6 +24,7 @@ import {
   TrackingListSelectHeaderComponent,
   TrackingEmptyStateComponent,
   TrackingItemContainerComponent,
+  TrackingPaginationComponent,
 } from '../../../components';
 import { DiaperChange } from '../../../models/diaper.model';
 import { formatActivityAge } from '../../../utils/date.utils';
@@ -41,6 +42,7 @@ import { DateTimeService } from '../../../services/datetime.service';
     TrackingListSelectHeaderComponent,
     TrackingEmptyStateComponent,
     TrackingItemContainerComponent,
+    TrackingPaginationComponent,
   ],
   templateUrl: './diapers-list.html',
   styleUrl: './diapers-list.css',
@@ -57,6 +59,9 @@ export class DiapersList implements OnInit {
   private datetimeService = inject(DateTimeService);
 
   childId = signal<number | null>(null);
+  currentPage = signal(1);
+
+  pagination = this.diapersService.pagination;
 
   // Diaper change type options for filter dropdown
   changeTypeOptions = [
@@ -105,7 +110,7 @@ export class DiapersList implements OnInit {
     this.childrenService.get(childId).subscribe({
       next: (child) => {
         this.listService.child.set(child);
-        this.loadDiapers(childId);
+        this.loadDiapers(childId, this.currentPage());
       },
       error: (err: Error) => {
         this.listService.error.set(err.message);
@@ -114,8 +119,14 @@ export class DiapersList implements OnInit {
     });
   }
 
-  private loadDiapers(childId: number) {
-    this.diapersService.list(childId).subscribe({
+  private loadDiapers(childId: number, page: number) {
+    const f = this.listService.filters();
+    const filters = {
+      dateFrom: f.dateFrom,
+      dateTo: f.dateTo,
+      change_type: f.type,
+    };
+    this.diapersService.list(childId, filters, page).subscribe({
       next: (diapers) => {
         this.listService.initialize({
           timestampField: 'changed_at',
@@ -135,6 +146,15 @@ export class DiapersList implements OnInit {
 
   onFilterChange(criteria: FilterCriteria): void {
     this.listService.filters.set(criteria);
+    this.currentPage.set(1);
+    const childId = this.childId();
+    if (childId) this.loadDiapers(childId, 1);
+  }
+
+  onPageChange(page: number): void {
+    this.currentPage.set(page);
+    const childId = this.childId();
+    if (childId) this.loadDiapers(childId, page);
   }
 
   navigateToCreate() {

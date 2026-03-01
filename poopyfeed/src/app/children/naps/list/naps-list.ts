@@ -24,6 +24,7 @@ import {
   TrackingListSelectHeaderComponent,
   TrackingEmptyStateComponent,
   TrackingItemContainerComponent,
+  TrackingPaginationComponent,
 } from '../../../components';
 import { Nap } from '../../../models/nap.model';
 import { formatActivityAge } from '../../../utils/date.utils';
@@ -41,6 +42,7 @@ import { DateTimeService } from '../../../services/datetime.service';
     TrackingListSelectHeaderComponent,
     TrackingEmptyStateComponent,
     TrackingItemContainerComponent,
+    TrackingPaginationComponent,
   ],
   templateUrl: './naps-list.html',
   styleUrl: './naps-list.css',
@@ -57,6 +59,9 @@ export class NapsList implements OnInit {
   private datetimeService = inject(DateTimeService);
 
   childId = signal<number | null>(null);
+  currentPage = signal(1);
+
+  pagination = this.napsService.pagination;
 
   // Expose service state directly
   child = this.listService.child;
@@ -98,7 +103,7 @@ export class NapsList implements OnInit {
     this.childrenService.get(childId).subscribe({
       next: (child) => {
         this.listService.child.set(child);
-        this.loadNaps(childId);
+        this.loadNaps(childId, this.currentPage());
       },
       error: (err: Error) => {
         this.listService.error.set(err.message);
@@ -107,8 +112,10 @@ export class NapsList implements OnInit {
     });
   }
 
-  private loadNaps(childId: number) {
-    this.napsService.list(childId).subscribe({
+  private loadNaps(childId: number, page: number) {
+    const f = this.listService.filters();
+    const filters = { dateFrom: f.dateFrom, dateTo: f.dateTo };
+    this.napsService.list(childId, filters, page).subscribe({
       next: (naps) => {
         this.listService.initialize({
           timestampField: 'napped_at',
@@ -127,6 +134,15 @@ export class NapsList implements OnInit {
 
   onFilterChange(criteria: FilterCriteria): void {
     this.listService.filters.set(criteria);
+    this.currentPage.set(1);
+    const childId = this.childId();
+    if (childId) this.loadNaps(childId, 1);
+  }
+
+  onPageChange(page: number): void {
+    this.currentPage.set(page);
+    const childId = this.childId();
+    if (childId) this.loadNaps(childId, page);
   }
 
   navigateToCreate() {

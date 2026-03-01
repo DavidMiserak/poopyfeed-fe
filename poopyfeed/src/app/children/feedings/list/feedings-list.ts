@@ -24,6 +24,7 @@ import {
   TrackingListSelectHeaderComponent,
   TrackingEmptyStateComponent,
   TrackingItemContainerComponent,
+  TrackingPaginationComponent,
 } from '../../../components';
 import { Feeding } from '../../../models/feeding.model';
 import { formatActivityAge } from '../../../utils/date.utils';
@@ -41,6 +42,7 @@ import { DateTimeService } from '../../../services/datetime.service';
     TrackingListSelectHeaderComponent,
     TrackingEmptyStateComponent,
     TrackingItemContainerComponent,
+    TrackingPaginationComponent,
   ],
   templateUrl: './feedings-list.html',
   styleUrl: './feedings-list.css',
@@ -57,6 +59,10 @@ export class FeedingsList implements OnInit {
   private datetimeService = inject(DateTimeService);
 
   childId = signal<number | null>(null);
+  currentPage = signal(1);
+
+  /** Pagination meta from service (count, page, totalPages, etc.). */
+  pagination = this.feedingsService.pagination;
 
   // Feeding type options for filter dropdown
   feedingTypeOptions = [
@@ -105,7 +111,7 @@ export class FeedingsList implements OnInit {
     this.childrenService.get(childId).subscribe({
       next: (child) => {
         this.listService.child.set(child);
-        this.loadFeedings(childId);
+        this.loadFeedings(childId, this.currentPage());
       },
       error: (err: Error) => {
         this.listService.error.set(err.message);
@@ -114,10 +120,15 @@ export class FeedingsList implements OnInit {
     });
   }
 
-  private loadFeedings(childId: number) {
-    this.feedingsService.list(childId).subscribe({
+  private loadFeedings(childId: number, page: number) {
+    const f = this.listService.filters();
+    const filters = {
+      dateFrom: f.dateFrom,
+      dateTo: f.dateTo,
+      feeding_type: f.type,
+    };
+    this.feedingsService.list(childId, filters, page).subscribe({
       next: (feedings) => {
-        // Initialize service with feedings and configuration
         this.listService.initialize({
           timestampField: 'fed_at',
           typeField: 'feeding_type',
@@ -136,6 +147,15 @@ export class FeedingsList implements OnInit {
 
   onFilterChange(criteria: FilterCriteria): void {
     this.listService.filters.set(criteria);
+    this.currentPage.set(1);
+    const childId = this.childId();
+    if (childId) this.loadFeedings(childId, 1);
+  }
+
+  onPageChange(page: number): void {
+    this.currentPage.set(page);
+    const childId = this.childId();
+    if (childId) this.loadFeedings(childId, page);
   }
 
   navigateToCreate() {
