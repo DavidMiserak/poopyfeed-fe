@@ -4,4 +4,8 @@
 <main class="app-main">
   <router-outlet />
 </main>
-<app-footer />
+@defer (on viewport) {
+  <app-footer />
+} @placeholder {
+  <div style="min-height: 200px"></div>
+}

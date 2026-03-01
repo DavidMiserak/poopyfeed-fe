@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, DeferBlockState, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
@@ -429,13 +429,17 @@ describe('ChildDashboard', () => {
   });
 
   describe('template rendering', () => {
-    it('should show empty state when no activity today', () => {
+    it('should show empty state when no activity today', async () => {
       setupWithData();
+      const deferBlocks = await fixture.getDeferBlocks();
+      for (const block of deferBlocks) {
+        await block.render(DeferBlockState.Complete);
+      }
       const compiled = fixture.nativeElement as HTMLElement;
       expect(compiled.textContent).toContain('No activity recorded today');
     });
 
-    it('should show summary cards when there is activity today', () => {
+    it('should show summary cards when there is activity today', async () => {
       const summary = makeTodaySummary({
         feedings: { count: 3, total_oz: 12, bottle: 2, breast: 1 },
         diapers: { count: 2, wet: 1, dirty: 1, both: 0 },
@@ -447,6 +451,10 @@ describe('ChildDashboard', () => {
         [makeNap({ id: 1 })],
         summary,
       );
+      const deferBlocks = await fixture.getDeferBlocks();
+      for (const block of deferBlocks) {
+        await block.render(DeferBlockState.Complete);
+      }
 
       const compiled = fixture.nativeElement as HTMLElement;
       expect(compiled.textContent).toContain("Today's Summary");
@@ -458,25 +466,37 @@ describe('ChildDashboard', () => {
       expect(compiled.textContent).toContain('Naps Today');
     });
 
-    it('should show summary section heading', () => {
+    it('should show summary section heading', async () => {
       setupWithData();
+      const deferBlocks = await fixture.getDeferBlocks();
+      for (const block of deferBlocks) {
+        await block.render(DeferBlockState.Complete);
+      }
       const compiled = fixture.nativeElement as HTMLElement;
       expect(compiled.textContent).toContain("Today's Summary");
     });
 
-    it('should render TodaySummaryCards component', () => {
+    it('should render TodaySummaryCards component', async () => {
       const summary = makeTodaySummary({
         feedings: { count: 1, total_oz: 4, bottle: 1, breast: 0 },
       });
       setupWithData([], [], [], summary);
+      const deferBlocks = await fixture.getDeferBlocks();
+      for (const block of deferBlocks) {
+        await block.render(DeferBlockState.Complete);
+      }
 
       const compiled = fixture.nativeElement as HTMLElement;
       const summaryCards = compiled.querySelector('app-today-summary-cards');
       expect(summaryCards).toBeTruthy();
     });
 
-    it('should show empty state when summary has zero counts', () => {
+    it('should show empty state when summary has zero counts', async () => {
       setupWithData([], [], [], makeTodaySummary());
+      const deferBlocks = await fixture.getDeferBlocks();
+      for (const block of deferBlocks) {
+        await block.render(DeferBlockState.Complete);
+      }
 
       const compiled = fixture.nativeElement as HTMLElement;
       expect(compiled.textContent).toContain('No activity recorded today');
@@ -491,12 +511,16 @@ describe('ChildDashboard', () => {
       expect(moreButton).toBeTruthy();
     });
 
-    it('should render Recent Activity section when recentActivity has items', () => {
+    it('should render Recent Activity section when recentActivity has items', async () => {
       const feedings = [makeFeeding({ id: 1, amount_oz: 4 })];
       const diapers = [makeDiaper({ id: 1, change_type: 'wet' })];
       setupWithData(feedings, diapers, []);
       expect(component.recentActivity().length).toBeGreaterThan(0);
       fixture.detectChanges();
+      const deferBlocks = await fixture.getDeferBlocks();
+      for (const block of deferBlocks) {
+        await block.render(DeferBlockState.Complete);
+      }
 
       const compiled = fixture.nativeElement as HTMLElement;
       expect(compiled.textContent).toContain('Recent Activity');

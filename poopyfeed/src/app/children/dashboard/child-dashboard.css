@@ -1,1 +1,6 @@
 /* Styling handled by Tailwind CSS */
+
+@keyframes gentle-glow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}

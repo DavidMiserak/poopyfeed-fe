@@ -1,4 +1,4 @@
-import { TestBed } from '@angular/core/testing';
+import { DeferBlockState, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
@@ -49,7 +49,10 @@ describe('App', () => {
   it('should always render footer component', async () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
-    await fixture.whenStable();
+
+    // Render the @defer block containing the footer
+    const deferBlock = (await fixture.getDeferBlocks())[0];
+    await deferBlock.render(DeferBlockState.Complete);
 
     const compiled = fixture.nativeElement as HTMLElement;
     const footer = compiled.querySelector('app-footer');

@@ -13,7 +13,8 @@
           "/manifest.webmanifest",
           "/*.css",
           "/main-*.js",
-          "/polyfills-*.js"
+          "/polyfills-*.js",
+          "/fonts/*.woff2"
         ]
       }
     },

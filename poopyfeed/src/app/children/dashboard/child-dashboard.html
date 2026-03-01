@@ -1,8 +1,8 @@
 <div class="min-h-screen relative bg-gradient-to-br from-rose-50 via-amber-50 to-orange-50 px-6 py-12 overflow-hidden">
   <!-- Decorative background elements -->
   <div class="absolute inset-0 opacity-20 pointer-events-none">
-    <div class="absolute top-20 left-20 w-64 h-64 bg-gradient-to-br from-rose-400 to-orange-400 rounded-full blur-3xl animate-pulse"></div>
-    <div class="absolute bottom-20 right-20 w-96 h-96 bg-gradient-to-br from-amber-400 to-orange-400 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s;"></div>
+    <div class="absolute top-20 left-20 w-64 h-64 bg-gradient-to-br from-rose-400 to-orange-400 rounded-full blur-3xl animate-[gentle-glow_6s_ease-in-out_infinite]" style="will-change: opacity"></div>
+    <div class="absolute bottom-20 right-20 w-96 h-96 bg-gradient-to-br from-amber-400 to-orange-400 rounded-full blur-3xl animate-[gentle-glow_6s_ease-in-out_infinite_3s]" style="will-change: opacity"></div>
   </div>
 
   <div class="max-w-6xl mx-auto relative z-10">
@@ -242,21 +242,25 @@
         </div>
 
         <!-- Today's Summary -->
-        <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-6 border-2 border-rose-400/20">
-          <h2 class="font-['Fredoka',sans-serif] text-2xl font-bold text-slate-900 mb-4">
-            Today's Summary
-          </h2>
-          @if (isDetailLoading() && !todaySummaryData()) {
-            <div class="flex items-center justify-center py-6">
-              <svg class="w-6 h-6 animate-spin text-rose-400" aria-hidden="true" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-            </div>
-          } @else {
-            <app-today-summary-cards [summary]="todaySummaryData()" />
-          }
-        </div>
+        @defer (on viewport) {
+          <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-6 border-2 border-rose-400/20">
+            <h2 class="font-['Fredoka',sans-serif] text-2xl font-bold text-slate-900 mb-4">
+              Today's Summary
+            </h2>
+            @if (isDetailLoading() && !todaySummaryData()) {
+              <div class="flex items-center justify-center py-6">
+                <svg class="w-6 h-6 animate-spin text-rose-400" aria-hidden="true" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+              </div>
+            } @else {
+              <app-today-summary-cards [summary]="todaySummaryData()" />
+            }
+          </div>
+        } @placeholder {
+          <div class="rounded-3xl bg-white/80 p-6" style="min-height: 120px"></div>
+        }
 
         <!-- Quick Actions (primary logging path) -->
         <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-6 border-2 border-orange-400/20">
@@ -321,27 +325,31 @@
         </div>
 
         <!-- Recent Activity -->
-        @if (recentActivity().length > 0) {
-          <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-6 border-2 border-amber-400/20">
-            <h2 class="font-['Fredoka',sans-serif] text-2xl font-bold text-slate-900 mb-4">
-              Recent Activity
-            </h2>
-            <div class="space-y-3">
-              @for (item of recentActivity(); track item.id) {
-                <div class="flex items-center gap-3 p-3 rounded-xl bg-slate-50/80 border border-slate-100">
-                  <span class="text-2xl" [attr.aria-hidden]="true">{{ getActivityIcon(item.type) }}</span>
-                  <div class="flex-1 min-w-0">
-                    <p class="font-['DM_Sans',sans-serif] text-sm font-semibold text-slate-800">
-                      {{ getActivityTitle(item) }}
-                    </p>
-                    <p class="font-['DM_Sans',sans-serif] text-xs text-slate-500">
-                      {{ formatTimestamp(item.timestamp) }}
-                    </p>
+        @defer (on viewport) {
+          @if (recentActivity().length > 0) {
+            <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-6 border-2 border-amber-400/20">
+              <h2 class="font-['Fredoka',sans-serif] text-2xl font-bold text-slate-900 mb-4">
+                Recent Activity
+              </h2>
+              <div class="space-y-3">
+                @for (item of recentActivity(); track item.id) {
+                  <div class="flex items-center gap-3 p-3 rounded-xl bg-slate-50/80 border border-slate-100">
+                    <span class="text-2xl" [attr.aria-hidden]="true">{{ getActivityIcon(item.type) }}</span>
+                    <div class="flex-1 min-w-0">
+                      <p class="font-['DM_Sans',sans-serif] text-sm font-semibold text-slate-800">
+                        {{ getActivityTitle(item) }}
+                      </p>
+                      <p class="font-['DM_Sans',sans-serif] text-xs text-slate-500">
+                        {{ formatTimestamp(item.timestamp) }}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              }
+                }
+              </div>
             </div>
-          </div>
+          }
+        } @placeholder {
+          <div style="min-height: 100px"></div>
         }
       </div>
     }

@@ -1,6 +1,18 @@
 <main>
   <app-hero />
-  <app-features />
-  <app-benefits />
-  <app-cta />
+  @defer (on viewport) {
+    <app-features />
+  } @placeholder {
+    <div style="min-height: 400px"></div>
+  }
+  @defer (on viewport) {
+    <app-benefits />
+  } @placeholder {
+    <div style="min-height: 400px"></div>
+  }
+  @defer (on viewport) {
+    <app-cta />
+  } @placeholder {
+    <div style="min-height: 200px"></div>
+  }
 </main>

@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, DeferBlockState, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { Landing } from './landing';
 
@@ -21,8 +21,15 @@ describe('Landing', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should render all section components', () => {
+  it('should render all section components', async () => {
     fixture.detectChanges();
+
+    // Render all @defer blocks
+    const deferBlocks = await fixture.getDeferBlocks();
+    for (const block of deferBlocks) {
+      await block.render(DeferBlockState.Complete);
+    }
+
     const compiled = fixture.nativeElement as HTMLElement;
 
     expect(compiled.querySelector('app-hero')).toBeTruthy();
@@ -31,8 +38,14 @@ describe('Landing', () => {
     expect(compiled.querySelector('app-cta')).toBeTruthy();
   });
 
-  it('should wrap sections in main element', () => {
+  it('should wrap sections in main element', async () => {
     fixture.detectChanges();
+
+    const deferBlocks = await fixture.getDeferBlocks();
+    for (const block of deferBlocks) {
+      await block.render(DeferBlockState.Complete);
+    }
+
     const compiled = fixture.nativeElement as HTMLElement;
     const main = compiled.querySelector('main');
 
