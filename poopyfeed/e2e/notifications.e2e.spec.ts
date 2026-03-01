@@ -177,20 +177,31 @@ test.describe('Notifications', () => {
     // Wait for the form to load
     await expect(page.getByLabel("Baby's Name")).toBeVisible({ timeout: 10000 });
 
-    // Expand Advanced settings section to reveal notification preferences
+    // Expand Advanced settings section and wait for panel to render
     await page.getByRole('button', { name: /Show advanced/ }).click();
+    await expect(
+      page.locator('#advanced-settings-panel')
+    ).toBeVisible({ timeout: 5000 });
 
-    // Notification Preferences section should appear (edit mode)
+    // Notification Preferences section (edit mode)
+    const prefsGroup = page.getByRole('group', {
+      name: /Notification Preferences/,
+    });
+    await expect(prefsGroup).toBeVisible({ timeout: 10000 });
     await expect(
-      page.getByRole('group', { name: /Notification Preferences/ })
-    ).toBeVisible({ timeout: 10000 });
-    await expect(
-      page.getByText('Choose which activities trigger notifications')
+      prefsGroup.getByText('Choose which activities trigger notifications')
     ).toBeVisible();
 
-    // Three toggles should be visible: Feedings, Diaper changes, Naps
-    await expect(page.getByText('Feedings')).toBeVisible();
-    await expect(page.getByText('Diaper changes')).toBeVisible();
-    await expect(page.getByText('Naps')).toBeVisible();
+    // Wait for preferences to finish loading (toggles hidden while loading)
+    await expect(
+      prefsGroup.getByText('Loading notification preferences...')
+    ).toBeHidden({ timeout: 20000 });
+
+    // Three toggles visible inside the group: Feedings, Diaper changes, Naps
+    await expect(prefsGroup.getByText('Feedings')).toBeVisible({
+      timeout: 10000,
+    });
+    await expect(prefsGroup.getByText('Diaper changes')).toBeVisible();
+    await expect(prefsGroup.getByText('Naps')).toBeVisible();
   });
 });

@@ -39,12 +39,15 @@ test.describe('Feeding Reminders', () => {
     await page.goto(`/children/${childId}/edit`);
     await expect(page.getByRole('heading', { name: 'Edit Baby' })).toBeVisible();
 
-    // Open advanced settings section
+    // Open advanced settings section and wait for panel to render
     await page.getByRole('button', { name: /Show advanced/i }).click();
+    await expect(
+      page.locator('#advanced-settings-panel')
+    ).toBeVisible({ timeout: 5000 });
 
     // Fieldset should be rendered inside advanced settings
     const remindersGroup = page.getByRole('group', { name: /Feeding Reminders/ });
-    await expect(remindersGroup).toBeVisible();
+    await expect(remindersGroup).toBeVisible({ timeout: 5000 });
 
     // Reminder Interval select defaults to Off (null value)
     const select = page.getByLabel('Reminder Interval');

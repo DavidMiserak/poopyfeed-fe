@@ -109,7 +109,8 @@ test.describe('Naps', () => {
       page.getByRole('heading', { name: /Naps for/ })
     ).toBeVisible({ timeout: 15000 });
 
-    await expect(page.getByText('Page 1 of 2')).toBeVisible();
+    // List and pagination load asynchronously; wait for pagination to appear
+    await expect(page.getByText('Page 1 of 2')).toBeVisible({ timeout: 15000 });
     await expect(
       page.getByRole('button', { name: 'Next page' })
     ).toBeVisible();
