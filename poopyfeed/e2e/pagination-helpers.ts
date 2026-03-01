@@ -3,7 +3,7 @@ import type { Page } from '@playwright/test';
 const baseURL = process.env.BASE_URL ?? 'http://localhost:4200';
 
 /** Number of items to create so a list with page size 50 shows two pages. */
-const PAGINATION_ITEM_COUNT = 51;
+const PAGINATION_ITEM_COUNT = 21;
 
 /** Max events per batch request (backend limit). */
 const BATCH_SIZE = 20;
@@ -16,9 +16,9 @@ const SEGMENT_TO_BATCH_TYPE: Record<string, string> = {
 };
 
 /**
- * Create 51 items via batch API so a tracking list has two pages (page size 50).
+ * Create 21 items via batch API so a tracking list has two pages (page size 50).
  * Uses the batch endpoint (up to 20 events per request) to avoid rate limiting (120/hour).
- * Uses recent timestamps (last 51 minutes) so items are within any default date filter.
+ * Uses recent timestamps (last 21 minutes) so items are within any default date filter.
  * Call when already on a child dashboard. Returns childId.
  *
  * @param page - Playwright page (must be on child dashboard)
