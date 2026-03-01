@@ -133,4 +133,30 @@ describe('Hero', () => {
   it('should have access to authentication state', () => {
     expect(component.authService.isAuthenticated).toBeDefined();
   });
+
+  it('should show My Children link when authenticated', async () => {
+    const authServiceMockAuthenticated = {
+      isAuthenticated: vi.fn(() => true),
+      getToken: vi.fn(() => 'token'),
+    };
+
+    await TestBed.resetTestingModule()
+      .configureTestingModule({
+        imports: [Hero],
+        providers: [
+          provideRouter([]),
+          { provide: AuthService, useValue: authServiceMockAuthenticated },
+        ],
+      })
+      .compileComponents();
+
+    const authFixture = TestBed.createComponent(Hero);
+    authFixture.detectChanges();
+
+    const compiled = authFixture.nativeElement as HTMLElement;
+    expect(compiled.textContent).toContain('My Children');
+    expect(compiled.textContent).not.toContain('Get Started Free');
+
+    authFixture.destroy();
+  });
 });

@@ -63,12 +63,47 @@ describe('ActionButtonGroupComponent', () => {
   });
 
   describe('buildGradientClass', () => {
+    function setRequiredInputs(): void {
+      fixture.componentRef.setInput('primaryLabel', 'Save');
+      fixture.componentRef.setInput('primaryLoadingLabel', 'Saving...');
+    }
+
     it('should apply rose gradient by default', () => {
       const classes = component.buildGradientClass();
 
       expect(classes).toContain('from-rose-400');
       expect(classes).toContain('via-rose-500');
       expect(classes).toContain('to-rose-600');
+    });
+
+    it('should apply orange gradient when accentColor is orange', () => {
+      setRequiredInputs();
+      fixture.componentRef.setInput('accentColor', 'orange');
+      fixture.detectChanges();
+      const classes = component.buildGradientClass();
+      expect(classes).toContain('from-orange-400');
+      expect(classes).toContain('via-orange-500');
+      expect(classes).toContain('to-orange-600');
+    });
+
+    it('should apply amber gradient when accentColor is amber', () => {
+      setRequiredInputs();
+      fixture.componentRef.setInput('accentColor', 'amber');
+      fixture.detectChanges();
+      const classes = component.buildGradientClass();
+      expect(classes).toContain('from-amber-400');
+      expect(classes).toContain('via-amber-500');
+      expect(classes).toContain('to-amber-600');
+    });
+
+    it('should apply red gradient when accentColor is red', () => {
+      setRequiredInputs();
+      fixture.componentRef.setInput('accentColor', 'red');
+      fixture.detectChanges();
+      const classes = component.buildGradientClass();
+      expect(classes).toContain('from-red-500');
+      expect(classes).toContain('via-rose-500');
+      expect(classes).toContain('to-red-600');
     });
 
     it('should include transition classes', () => {
@@ -84,6 +119,37 @@ describe('ActionButtonGroupComponent', () => {
       const classes = component.buildGradientClass();
       expect(typeof classes).toBe('string');
       expect(classes.length).toBeGreaterThan(0);
+    });
+  });
+
+  describe('buildPrimaryButtonClass accent colors', () => {
+    function setRequiredInputs(): void {
+      fixture.componentRef.setInput('primaryLabel', 'Save');
+      fixture.componentRef.setInput('primaryLoadingLabel', 'Saving...');
+    }
+
+    it('should apply orange border when accentColor is orange', () => {
+      setRequiredInputs();
+      fixture.componentRef.setInput('accentColor', 'orange');
+      fixture.detectChanges();
+      const classes = component.buildPrimaryButtonClass();
+      expect(classes).toContain('border-orange-400');
+    });
+
+    it('should apply amber border when accentColor is amber', () => {
+      setRequiredInputs();
+      fixture.componentRef.setInput('accentColor', 'amber');
+      fixture.detectChanges();
+      const classes = component.buildPrimaryButtonClass();
+      expect(classes).toContain('border-amber-400');
+    });
+
+    it('should apply red border when accentColor is red', () => {
+      setRequiredInputs();
+      fixture.componentRef.setInput('accentColor', 'red');
+      fixture.detectChanges();
+      const classes = component.buildPrimaryButtonClass();
+      expect(classes).toContain('border-red-600');
     });
   });
 });
