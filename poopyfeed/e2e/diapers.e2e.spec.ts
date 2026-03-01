@@ -1,43 +1,7 @@
 import { test, expect } from '@playwright/test';
-import type { Page } from '@playwright/test';
 import { createChildAndGoToDashboard } from './child-helpers';
+import { createItemsForPagination } from './pagination-helpers';
 import { editTrackingItemAndSeeUpdateOnList } from './tracking-helpers';
-
-const baseURL = process.env.BASE_URL ?? 'http://localhost:4200';
-
-/**
- * Create 51 diaper changes via API so the diapers list has two pages (page size 50).
- * Call when already on a child dashboard. Returns childId.
- */
-async function createDiapersForPagination(page: Page): Promise<string> {
-  const match = page.url().match(/\/children\/(\d+)\//);
-  if (!match) throw new Error('Expected to be on child dashboard');
-  const childId = match[1];
-
-  const token = await page.evaluate(() => localStorage.getItem('auth_token'));
-  if (!token) throw new Error('No auth token in localStorage');
-
-  // Use recent timestamps (last 51 minutes) so items are within any default date filter
-  const baseTime = Date.now() - 51 * 60 * 1000;
-  for (let i = 0; i < 51; i++) {
-    const changedAt = new Date(baseTime + i * 60 * 1000);
-    await page.request.post(
-      `${baseURL}/api/v1/children/${childId}/diapers/`,
-      {
-        headers: {
-          Authorization: `Token ${token}`,
-          'Content-Type': 'application/json',
-        },
-        data: {
-          change_type: 'wet',
-          changed_at: changedAt.toISOString(),
-        },
-      }
-    );
-  }
-
-  return childId;
-}
 
 /**
  * E2E: Diaper change tracking flow (P0 core workflow).
@@ -148,7 +112,10 @@ test.describe('Diapers', () => {
     page,
   }) => {
     await createChildAndGoToDashboard(page, 'E2E Diapers Pagination');
-    const childId = await createDiapersForPagination(page);
+    const childId = await createItemsForPagination(page, 'diapers', (at) => ({
+      change_type: 'wet',
+      changed_at: at.toISOString(),
+    }));
 
     await page.goto(`/children/${childId}/diapers/`);
     await expect(page).toHaveURL(new RegExp(`/children/${childId}/diapers/?$`));
