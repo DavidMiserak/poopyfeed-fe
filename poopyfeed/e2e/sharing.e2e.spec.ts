@@ -73,12 +73,15 @@ test.describe('Sharing', () => {
     await navigateToSharingPage(page);
 
     await expect(
+      page.getByRole('heading', { name: /Invite Links/ })
+    ).toBeVisible({ timeout: 5000 });
+    await expect(
       page.getByRole('button', { name: 'Create Invite Link' })
-    ).toBeVisible({ timeout: 10000 });
+    ).toBeVisible({ timeout: 5000 });
 
     await page.getByRole('button', { name: 'Create Invite Link' }).click();
     const firstInvite = page.getByTestId('invite-item').first();
-    await expect(firstInvite).toBeVisible({ timeout: 25000 });
+    await expect(firstInvite).toBeVisible({ timeout: 20000 });
     await expect(firstInvite.getByText('Co-parent')).toBeVisible({ timeout: 10000 });
     await expect(firstInvite.getByText('Active')).toBeVisible({ timeout: 10000 });
   });

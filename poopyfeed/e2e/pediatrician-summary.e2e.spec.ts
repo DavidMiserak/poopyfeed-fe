@@ -24,13 +24,13 @@ test.describe('Pediatrician summary', () => {
 
     await expect(page).toHaveURL(/\/children\/\d+\/pediatrician-summary$/, { timeout: 10_000 });
 
-    // SummaryNavComponent: back link and Print button
+    // Wait for SummaryNavComponent (loading finished); then Print button
     await expect(page.getByRole('link', { name: 'Back to Advanced' })).toBeVisible({
-      timeout: 10_000,
+      timeout: 15_000,
     });
     await expect(
       page.getByRole('button', { name: /Print/ })
-    ).toBeVisible({ timeout: 25_000 });
+    ).toBeVisible({ timeout: 10_000 });
 
     // Summary section: either period label (content) or SummaryEmptyStateComponent message
     const summaryContent = page.getByText(/Last 7 days|No activity in the last 7 days/);

@@ -189,25 +189,15 @@ test.describe('Notifications', () => {
       await expect(
         prefsGroup.getByText('Choose which activities trigger notifications')
       ).toBeVisible({ timeout: 5000 });
-      await expect
-        .poll(
-          async () => {
-            const hasError = await prefsGroup
-              .locator('.border-red-500')
-              .isVisible()
-              .catch(() => false);
-            if (hasError) throw new Error('Notification preferences API error');
-
-            const loadingVisible = await prefsGroup
-              .getByText('Loading notification preferences...')
-              .isVisible()
-              .catch(() => false);
-            if (loadingVisible) return false;
-            return await prefsGroup.getByText('Feedings').isVisible().catch(() => false);
-          },
-          { timeout: 45000, intervals: [1500] }
-        )
-        .toBe(true);
+      await expect(
+        prefsGroup.getByText('Loading notification preferences...')
+      ).toBeHidden({ timeout: 25000 });
+      const hasError = await prefsGroup
+        .locator('.border-red-500')
+        .isVisible()
+        .catch(() => false);
+      if (hasError) throw new Error('Notification preferences API error');
+      await expect(prefsGroup.getByText('Feedings')).toBeVisible({ timeout: 10000 });
       return prefsGroup;
     }
 

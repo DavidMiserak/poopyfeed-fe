@@ -177,9 +177,9 @@ test.describe('Pattern alerts', () => {
 
     await expect(
       page.getByRole('region', { name: 'Pattern alerts' })
-    ).toBeVisible({ timeout: 35_000 });
+    ).toBeVisible({ timeout: 25_000 });
     await expect(
       page.getByRole('alert').filter({ hasText: /usually naps after|awake for/ })
-    ).toBeVisible({ timeout: 30_000 });
+    ).toBeVisible({ timeout: 15_000 });
   });
 });

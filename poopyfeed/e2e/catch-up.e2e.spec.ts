@@ -71,10 +71,10 @@ test.describe('Catch-Up Mode', () => {
 
     await page.getByRole('button', { name: 'Confirm & Save' }).click();
 
-    // Success screen
+    await expect(page.getByText('Saving...')).toBeVisible({ timeout: 5000 });
     await expect(
       page.getByText(/2 Activities Saved!/)
-    ).toBeVisible({ timeout: 30_000 });
+    ).toBeVisible({ timeout: 25_000 });
 
     // Navigate back to advanced
     await page.getByRole('button', { name: 'Back to advanced tools' }).click();

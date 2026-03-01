@@ -77,10 +77,11 @@ test.describe('Naps', () => {
     await expect(page).toHaveURL(/\/children\/\d+\/naps\/create/, { timeout: 15000 });
     await page.getByLabel('Date & Time').fill('2024-06-22T12:00');
     await page.locator('form').getByRole('button', { name: 'Add Nap' }).click();
-    await expect(page).toHaveURL(/\/children\/\d+\/naps$/, { timeout: 20000 });
+    await expect(page).toHaveURL(/\/children\/\d+\/naps$/, { timeout: 15000 });
+    await expect(page.getByText('Loading naps...')).toBeHidden({ timeout: 15000 });
     await expect(
       page.getByText('Nap Time').first()
-    ).toBeVisible({ timeout: 20000 });
+    ).toBeVisible({ timeout: 10000 });
 
     await page.getByRole('button', { name: 'Delete nap' }).first().click();
     await expect(page).toHaveURL(/\/children\/\d+\/naps\/\d+\/delete/, { timeout: 15000 });
@@ -90,7 +91,11 @@ test.describe('Naps', () => {
 
     await page.getByRole('button', { name: 'Yes, Delete Forever' }).click();
 
-    await expect(page).toHaveURL(/\/children\/\d+\/naps$/, { timeout: 20000 });
+    await expect(page).toHaveURL(/\/children\/\d+\/naps$/, { timeout: 15000 });
+    await expect(page.getByText('Loading naps...')).toBeHidden({ timeout: 15000 });
+    await expect(
+      page.getByRole('button', { name: 'Add Nap' })
+    ).toBeVisible({ timeout: 10000 });
   });
 
   test('naps list shows pagination and user can go to next and previous page', async ({
