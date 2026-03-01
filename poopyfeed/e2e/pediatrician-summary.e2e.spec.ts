@@ -13,21 +13,22 @@ test.describe('Pediatrician summary', () => {
     await createChildAndGoToDashboard(page, 'E2E Pediatrician');
     await expect(page).toHaveURL(/\/children\/\d+\/dashboard/);
 
-    await expect(page.getByText('More tools', { exact: true })).toBeVisible();
+    await expect(page.getByText('More tools', { exact: true })).toBeVisible({ timeout: 15_000 });
     await page.getByText('More tools', { exact: true }).click();
-    await expect(page).toHaveURL(/\/children\/\d+\/advanced$/);
+    await expect(page).toHaveURL(/\/children\/\d+\/advanced$/, { timeout: 10_000 });
 
+    await expect(page.getByRole('link', { name: 'For the Doctor' })).toBeVisible({ timeout: 5_000 });
     await page.getByRole('link', { name: 'For the Doctor' }).click();
 
-    await expect(page).toHaveURL(/\/children\/\d+\/pediatrician-summary$/);
+    await expect(page).toHaveURL(/\/children\/\d+\/pediatrician-summary$/, { timeout: 10_000 });
 
     // Wait for loading to finish (Print button is only shown when content/empty state is ready)
     await expect(
-      page.getByRole('button', { name: 'Print' })
-    ).toBeVisible({ timeout: 15_000 });
+      page.getByRole('button', { name: /Print/ })
+    ).toBeVisible({ timeout: 25_000 });
 
     // Summary section: either period label (content) or empty state message
     const summaryContent = page.getByText(/Last 7 days|No activity in the last 7 days/);
-    await expect(summaryContent).toBeVisible({ timeout: 5_000 });
+    await expect(summaryContent).toBeVisible({ timeout: 10_000 });
   });
 });

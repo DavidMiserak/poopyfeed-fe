@@ -93,9 +93,13 @@ test.describe('Diapers', () => {
     await page.getByLabel('Date & Time').fill('2024-06-21T11:00');
     await page.locator('form').getByRole('button', { name: 'Add Diaper Change' }).click();
     await expect(page).toHaveURL(/\/children\/\d+\/diapers$/, { timeout: 15000 });
+    // Wait for list to show the new row before clicking delete
     await expect(
       page.getByText('Wet & Dirty').first()
     ).toBeVisible({ timeout: 15000 });
+    await expect(
+      page.getByRole('button', { name: 'Delete diaper change' }).first()
+    ).toBeVisible({ timeout: 5000 });
 
     await page.getByRole('button', { name: 'Delete diaper change' }).first().click();
     await expect(page).toHaveURL(/\/children\/\d+\/diapers\/\d+\/delete/);
@@ -106,6 +110,9 @@ test.describe('Diapers', () => {
     await page.getByRole('button', { name: 'Yes, Delete Forever' }).click();
 
     await expect(page).toHaveURL(/\/children\/\d+\/diapers$/, { timeout: 15000 });
+    await expect(
+      page.getByRole('button', { name: 'Add Diaper Change' })
+    ).toBeVisible({ timeout: 10000 });
   });
 
   test('diapers list shows pagination and user can go to next and previous page', async ({

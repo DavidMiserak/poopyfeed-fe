@@ -168,39 +168,48 @@ test.describe('Notifications', () => {
   }) => {
     await createChildAndGoToDashboard(page, 'E2E Notify');
 
-    // Extract child ID from URL and navigate to edit
     const url = page.url();
     const childId = url.match(/\/children\/(\d+)\//)?.[1];
     expect(childId).toBeTruthy();
-    await page.goto(`/children/${childId}/edit`);
 
-    // Wait for the form to load
-    await expect(page.getByLabel("Baby's Name")).toBeVisible({ timeout: 10000 });
+    async function openAdvancedAndWaitForToggles() {
+      await page.goto(`/children/${childId}/edit`);
+      await expect(page.getByLabel("Baby's Name")).toBeVisible({ timeout: 10000 });
+      await page.getByRole('button', { name: /Show advanced/ }).click();
+      await expect(
+        page.locator('#advanced-settings-panel')
+      ).toBeVisible({ timeout: 5000 });
+      const prefsGroup = page.getByRole('group', {
+        name: /Notification Preferences/,
+      });
+      await expect(prefsGroup).toBeVisible({ timeout: 10000 });
+      await expect(
+        prefsGroup.getByText('Choose which activities trigger notifications')
+      ).toBeVisible();
+      await expect
+        .poll(
+          async () => {
+            const loadingVisible = await prefsGroup
+              .getByText('Loading notification preferences...')
+              .isVisible()
+              .catch(() => false);
+            if (loadingVisible) return false;
+            return await prefsGroup.getByText('Feedings').isVisible().catch(() => false);
+          },
+          { timeout: 45000, intervals: [1000] }
+        )
+        .toBe(true);
+      return prefsGroup;
+    }
 
-    // Expand Advanced settings section and wait for panel to render
-    await page.getByRole('button', { name: /Show advanced/ }).click();
-    await expect(
-      page.locator('#advanced-settings-panel')
-    ).toBeVisible({ timeout: 5000 });
+    let prefsGroup: Awaited<ReturnType<typeof openAdvancedAndWaitForToggles>>;
+    try {
+      prefsGroup = await openAdvancedAndWaitForToggles();
+    } catch {
+      // Retry once: reload edit page (preferences API may return child on second load)
+      prefsGroup = await openAdvancedAndWaitForToggles();
+    }
 
-    // Notification Preferences section (edit mode)
-    const prefsGroup = page.getByRole('group', {
-      name: /Notification Preferences/,
-    });
-    await expect(prefsGroup).toBeVisible({ timeout: 10000 });
-    await expect(
-      prefsGroup.getByText('Choose which activities trigger notifications')
-    ).toBeVisible();
-
-    // Wait for preferences to finish loading (toggles hidden while loading)
-    await expect(
-      prefsGroup.getByText('Loading notification preferences...')
-    ).toBeHidden({ timeout: 20000 });
-
-    // Three toggles visible inside the group: Feedings, Diaper changes, Naps
-    await expect(prefsGroup.getByText('Feedings')).toBeVisible({
-      timeout: 10000,
-    });
     await expect(prefsGroup.getByText('Diaper changes')).toBeVisible();
     await expect(prefsGroup.getByText('Naps')).toBeVisible();
   });

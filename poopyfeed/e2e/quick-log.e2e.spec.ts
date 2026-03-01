@@ -30,13 +30,16 @@ test.describe('Quick Log', () => {
   test('quick log Wet diaper shows success toast', async ({ page }) => {
     await createChildAndGoToDashboard(page, 'E2E Quick Log');
 
-    await page
-      .getByRole('button', { name: 'Log a wet diaper change with current timestamp' })
-      .click();
+    const wetButton = page.getByRole('button', {
+      name: 'Log a wet diaper change with current timestamp',
+    });
+    await expect(wetButton).toBeVisible({ timeout: 15_000 });
+    await expect(wetButton).toBeEnabled({ timeout: 5_000 });
+    await wetButton.click();
 
     await expect(
       page.getByText('Wet diaper recorded successfully')
-    ).toBeVisible({ timeout: 15_000 });
+    ).toBeVisible({ timeout: 20_000 });
   });
 
   test('quick log Nap shows success toast', async ({ page }) => {

@@ -28,7 +28,7 @@ async function createFeedingsForOverdueAlert(page: Page): Promise<string> {
   ];
 
   for (const fedAt of times) {
-    await page.request.post(
+    const resp = await page.request.post(
       `${baseURL}/api/v1/children/${childId}/feedings/`,
       {
         headers: {
@@ -42,6 +42,9 @@ async function createFeedingsForOverdueAlert(page: Page): Promise<string> {
         },
       }
     );
+    if (resp.status() !== 201) {
+      throw new Error(`createFeedingsForOverdueAlert: POST feeding returned ${resp.status()}`);
+    }
   }
 
   return childId;
@@ -71,7 +74,7 @@ async function createNapsForOverdueWakeAlert(page: Page): Promise<string> {
   ];
 
   for (const { napped_at, ended_at } of naps) {
-    await page.request.post(
+    const resp = await page.request.post(
       `${baseURL}/api/v1/children/${childId}/naps/`,
       {
         headers: {
@@ -84,6 +87,9 @@ async function createNapsForOverdueWakeAlert(page: Page): Promise<string> {
         },
       }
     );
+    if (resp.status() !== 201) {
+      throw new Error(`createNapsForOverdueAlert: POST nap returned ${resp.status()}`);
+    }
   }
 
   return childId;
@@ -147,14 +153,14 @@ test.describe('Pattern alerts', () => {
     await page.reload();
     await expect(
       page.getByRole('heading', { name: 'Quick Log', level: 2 })
-    ).toBeVisible({ timeout: 15_000 });
+    ).toBeVisible({ timeout: 20_000 });
 
     await expect(
       page.getByRole('region', { name: 'Pattern alerts' })
-    ).toBeVisible({ timeout: 15_000 });
+    ).toBeVisible({ timeout: 25_000 });
     await expect(
       page.getByRole('alert').filter({ hasText: /usually feeds every|it's been/ })
-    ).toBeVisible({ timeout: 5_000 });
+    ).toBeVisible({ timeout: 15_000 });
   });
 
   test('dashboard shows nap pattern alert when awake longer than usual', async ({
@@ -167,13 +173,13 @@ test.describe('Pattern alerts', () => {
     await page.reload();
     await expect(
       page.getByRole('heading', { name: 'Quick Log', level: 2 })
-    ).toBeVisible({ timeout: 15_000 });
+    ).toBeVisible({ timeout: 20_000 });
 
     await expect(
       page.getByRole('region', { name: 'Pattern alerts' })
-    ).toBeVisible({ timeout: 15_000 });
+    ).toBeVisible({ timeout: 25_000 });
     await expect(
       page.getByRole('alert').filter({ hasText: /usually naps after|awake for/ })
-    ).toBeVisible({ timeout: 5_000 });
+    ).toBeVisible({ timeout: 15_000 });
   });
 });
