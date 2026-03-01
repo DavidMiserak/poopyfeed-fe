@@ -1,6 +1,44 @@
 import { test, expect } from '@playwright/test';
+import type { Page } from '@playwright/test';
 import { createChildAndGoToDashboard } from './child-helpers';
 import { editTrackingItemAndSeeUpdateOnList } from './tracking-helpers';
+
+const baseURL = process.env.BASE_URL ?? 'http://localhost:4200';
+
+/**
+ * Create 51 feedings via API so the feedings list has two pages (page size 50).
+ * Call when already on a child dashboard. Returns childId.
+ */
+async function createFeedingsForPagination(page: Page): Promise<string> {
+  const match = page.url().match(/\/children\/(\d+)\//);
+  if (!match) throw new Error('Expected to be on child dashboard');
+  const childId = match[1];
+
+  const token = await page.evaluate(() => localStorage.getItem('auth_token'));
+  if (!token) throw new Error('No auth token in localStorage');
+
+  // Use recent timestamps (last 51 minutes) so items are within any default date filter
+  const baseTime = Date.now() - 51 * 60 * 1000;
+  for (let i = 0; i < 51; i++) {
+    const fedAt = new Date(baseTime + i * 60 * 1000);
+    await page.request.post(
+      `${baseURL}/api/v1/children/${childId}/feedings/`,
+      {
+        headers: {
+          Authorization: `Token ${token}`,
+          'Content-Type': 'application/json',
+        },
+        data: {
+          feeding_type: 'bottle',
+          fed_at: fedAt.toISOString(),
+          amount_oz: 4,
+        },
+      }
+    );
+  }
+
+  return childId;
+}
 
 /**
  * E2E: Feeding tracking flow (P0 core workflow).
@@ -98,5 +136,39 @@ test.describe('Feedings', () => {
     await page.getByRole('button', { name: 'Yes, Delete Forever' }).click();
 
     await expect(page).toHaveURL(/\/children\/\d+\/feedings$/);
+  });
+
+  test('feedings list shows pagination and user can go to next and previous page', async ({
+    page,
+  }) => {
+    await createChildAndGoToDashboard(page, 'E2E Feedings Pagination');
+    const childId = await createFeedingsForPagination(page);
+
+    await page.goto(`/children/${childId}/feedings/`);
+    await expect(page).toHaveURL(new RegExp(`/children/${childId}/feedings/?$`));
+
+    await expect(
+      page.getByRole('heading', { name: /Feedings for/ })
+    ).toBeVisible({ timeout: 15000 });
+
+    await expect(page.getByText('Page 1 of 2')).toBeVisible();
+    await expect(
+      page.getByRole('button', { name: 'Next page' })
+    ).toBeVisible();
+    await expect(
+      page.getByRole('button', { name: 'Previous page' })
+    ).toBeDisabled();
+
+    await page.getByRole('button', { name: 'Next page' }).click();
+    await expect(page.getByText('Page 2 of 2')).toBeVisible();
+    await expect(
+      page.getByRole('button', { name: 'Previous page' })
+    ).toBeEnabled();
+    await expect(
+      page.getByRole('button', { name: 'Next page' })
+    ).toBeDisabled();
+
+    await page.getByRole('button', { name: 'Previous page' }).click();
+    await expect(page.getByText('Page 1 of 2')).toBeVisible();
   });
 });
