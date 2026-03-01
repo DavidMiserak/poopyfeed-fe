@@ -70,6 +70,7 @@ describe('NapsList - Batch Operations', () => {
     const napsServiceMock = {
       list: vi.fn().mockReturnValue(of(mockNaps)),
       delete: vi.fn().mockReturnValue(of(void 0)),
+      pagination: signal(null),
     };
     const childrenServiceMock = {
       get: vi.fn().mockReturnValue(of(mockChild)),
@@ -323,6 +324,7 @@ describe('NapsList - Core Functionality Tests', () => {
     const napsServiceMock = {
       list: vi.fn().mockReturnValue(of(mockNaps)),
       delete: vi.fn().mockReturnValue(of(void 0)),
+      pagination: signal(null),
     };
 
     const childrenServiceMock = {

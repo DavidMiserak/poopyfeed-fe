@@ -73,6 +73,7 @@ describe('FeedingsList - Batch Operations', () => {
     const feedingsServiceMock = {
       list: vi.fn().mockReturnValue(of(mockFeedings)),
       delete: vi.fn().mockReturnValue(of(void 0)),
+      pagination: signal(null),
     };
     const childrenServiceMock = {
       get: vi.fn().mockReturnValue(of(mockChild)),
@@ -621,6 +622,7 @@ describe('FeedingsList - Core Functionality Tests', () => {
     const feedingsServiceMock = {
       list: vi.fn().mockReturnValue(of(mockFeedings)),
       delete: vi.fn().mockReturnValue(of(void 0)),
+      pagination: signal(null),
     };
     const childrenServiceMock = {
       get: vi.fn().mockReturnValue(of(mockChild)),

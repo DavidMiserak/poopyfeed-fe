@@ -66,7 +66,10 @@ describe('FeedingsService', () => {
       });
 
       const req = httpMock.expectOne(
-        (r) => r.url.startsWith('/api/v1/children/1/feedings/') && r.params.get('page') === '1'
+        (r) =>
+          r.method === 'GET' &&
+          r.url.startsWith('/api/v1/children/1/feedings/') &&
+          r.params.get('page') === '1'
       );
       expect(req.request.method).toBe('GET');
       req.flush({ count: mockFeedings.length, next: null, previous: null, results: mockFeedings });
@@ -80,7 +83,10 @@ describe('FeedingsService', () => {
       });
 
       const req = httpMock.expectOne(
-        (r) => r.url.startsWith('/api/v1/children/1/feedings/') && r.params.get('page') === '1'
+        (r) =>
+          r.method === 'GET' &&
+          r.url.startsWith('/api/v1/children/1/feedings/') &&
+          r.params.get('page') === '1'
       );
       req.flush({ count: 0, next: null, previous: null, results: [] });
     });
@@ -121,8 +127,9 @@ describe('FeedingsService', () => {
 
       const req = httpMock.expectOne(
         (r) =>
+          r.method === 'GET' &&
           r.url.startsWith('/api/v1/children/1/feedings/') &&
-          (r.request.method !== 'GET' || r.params.get('page') === '1')
+          r.params.get('page') === '1'
       );
       req.flush(null, { status: 401, statusText: 'Unauthorized' });
 
@@ -141,8 +148,9 @@ describe('FeedingsService', () => {
 
       const req = httpMock.expectOne(
         (r) =>
+          r.method === 'GET' &&
           r.url.startsWith('/api/v1/children/1/feedings/') &&
-          (r.request.method !== 'GET' || r.params.get('page') === '1')
+          r.params.get('page') === '1'
       );
       req.flush(null, { status: 403, statusText: 'Forbidden' });
 
@@ -159,7 +167,12 @@ describe('FeedingsService', () => {
         },
       });
 
-      const req = httpMock.expectOne('/api/v1/children/999/feedings/');
+      const req = httpMock.expectOne(
+        (r) =>
+          r.method === 'GET' &&
+          r.url.startsWith('/api/v1/children/999/feedings/') &&
+          r.params.get('page') === '1'
+      );
       req.flush(null, { status: 404, statusText: 'Not Found' });
 
       expect(errorCaught).toBe(true);
@@ -177,8 +190,9 @@ describe('FeedingsService', () => {
 
       const req = httpMock.expectOne(
         (r) =>
+          r.method === 'GET' &&
           r.url.startsWith('/api/v1/children/1/feedings/') &&
-          (r.request.method !== 'GET' || r.params.get('page') === '1')
+          r.params.get('page') === '1'
       );
       req.flush(null, { status: 500, statusText: 'Internal Server Error' });
 
@@ -273,8 +287,9 @@ describe('FeedingsService', () => {
 
       const req = httpMock.expectOne(
         (r) =>
+          r.method === 'POST' &&
           r.url.startsWith('/api/v1/children/1/feedings/') &&
-          (r.request.method !== 'GET' || r.params.get('page') === '1')
+          !/\/feedings\/\d+/.test(r.url)
       );
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual(createBottleData);
@@ -290,8 +305,9 @@ describe('FeedingsService', () => {
 
       const req = httpMock.expectOne(
         (r) =>
+          r.method === 'POST' &&
           r.url.startsWith('/api/v1/children/1/feedings/') &&
-          (r.request.method !== 'GET' || r.params.get('page') === '1')
+          !/\/feedings\/\d+/.test(r.url)
       );
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual(createBreastData);
@@ -311,8 +327,9 @@ describe('FeedingsService', () => {
 
       const req = httpMock.expectOne(
         (r) =>
+          r.method === 'POST' &&
           r.url.startsWith('/api/v1/children/1/feedings/') &&
-          (r.request.method !== 'GET' || r.params.get('page') === '1')
+          !/\/feedings\/\d+/.test(r.url)
       );
       req.flush(
         { amount_oz: ['This field is required for bottle feeding'] },
@@ -335,8 +352,9 @@ describe('FeedingsService', () => {
 
       const req = httpMock.expectOne(
         (r) =>
+          r.method === 'POST' &&
           r.url.startsWith('/api/v1/children/1/feedings/') &&
-          (r.request.method !== 'GET' || r.params.get('page') === '1')
+          !/\/feedings\/\d+/.test(r.url)
       );
       req.flush(
         { side: ['This field is required for breast feeding'] },
@@ -358,8 +376,9 @@ describe('FeedingsService', () => {
 
       const req = httpMock.expectOne(
         (r) =>
+          r.method === 'POST' &&
           r.url.startsWith('/api/v1/children/1/feedings/') &&
-          (r.request.method !== 'GET' || r.params.get('page') === '1')
+          !/\/feedings\/\d+/.test(r.url)
       );
       req.flush(
         { non_field_errors: ['Invalid feeding data'] },
@@ -381,8 +400,9 @@ describe('FeedingsService', () => {
 
       const req = httpMock.expectOne(
         (r) =>
+          r.method === 'POST' &&
           r.url.startsWith('/api/v1/children/1/feedings/') &&
-          (r.request.method !== 'GET' || r.params.get('page') === '1')
+          !/\/feedings\/\d+/.test(r.url)
       );
       req.flush(null, { status: 403, statusText: 'Forbidden' });
 
@@ -594,8 +614,9 @@ describe('FeedingsService', () => {
 
       const req = httpMock.expectOne(
         (r) =>
+          r.method === 'GET' &&
           r.url.startsWith('/api/v1/children/1/feedings/') &&
-          (r.request.method !== 'GET' || r.params.get('page') === '1')
+          r.params.get('page') === '1'
       );
       req.error(new ProgressEvent('error'), {
         status: 0,
@@ -636,8 +657,9 @@ describe('FeedingsService', () => {
 
       const req = httpMock.expectOne(
         (r) =>
+          r.method === 'POST' &&
           r.url.startsWith('/api/v1/children/1/feedings/') &&
-          (r.request.method !== 'GET' || r.params.get('page') === '1')
+          !/\/feedings\/\d+/.test(r.url)
       );
       req.error(new ProgressEvent('error'), {
         status: 0,
@@ -715,8 +737,9 @@ describe('FeedingsService', () => {
 
       const req = httpMock.expectOne(
         (r) =>
+          r.method === 'POST' &&
           r.url.startsWith('/api/v1/children/1/feedings/') &&
-          (r.request.method !== 'GET' || r.params.get('page') === '1')
+          !/\/feedings\/\d+/.test(r.url)
       );
       req.flush({}, { status: 400, statusText: 'Bad Request' });
 
@@ -735,8 +758,9 @@ describe('FeedingsService', () => {
 
       const req = httpMock.expectOne(
         (r) =>
+          r.method === 'GET' &&
           r.url.startsWith('/api/v1/children/1/feedings/') &&
-          (r.request.method !== 'GET' || r.params.get('page') === '1')
+          r.params.get('page') === '1'
       );
       req.flush(null, { status: 500, statusText: 'Internal Server Error' });
 
@@ -757,8 +781,9 @@ describe('FeedingsService', () => {
 
       const req = httpMock.expectOne(
         (r) =>
+          r.method === 'GET' &&
           r.url.startsWith('/api/v1/children/1/feedings/') &&
-          (r.request.method !== 'GET' || r.params.get('page') === '1')
+          r.params.get('page') === '1'
       );
       req.flush({}, { status: 429, statusText: 'Too Many Requests' });
 
@@ -777,8 +802,9 @@ describe('FeedingsService', () => {
 
       const req = httpMock.expectOne(
         (r) =>
+          r.method === 'POST' &&
           r.url.startsWith('/api/v1/children/1/feedings/') &&
-          (r.request.method !== 'GET' || r.params.get('page') === '1')
+          !/\/feedings\/\d+/.test(r.url)
       );
       req.flush({}, { status: 422, statusText: 'Unprocessable Entity' });
 
@@ -813,8 +839,9 @@ describe('FeedingsService', () => {
 
       const req = httpMock.expectOne(
         (r) =>
+          r.method === 'GET' &&
           r.url.startsWith('/api/v1/children/1/feedings/') &&
-          (r.request.method !== 'GET' || r.params.get('page') === '1')
+          r.params.get('page') === '1'
       );
       req.flush(null, { status: 503, statusText: 'Service Unavailable' });
 
@@ -849,8 +876,9 @@ describe('FeedingsService', () => {
 
       const req = httpMock.expectOne(
         (r) =>
+          r.method === 'POST' &&
           r.url.startsWith('/api/v1/children/1/feedings/') &&
-          (r.request.method !== 'GET' || r.params.get('page') === '1')
+          !/\/feedings\/\d+/.test(r.url)
       );
       req.flush(null, { status: 401, statusText: 'Unauthorized' });
 
@@ -903,8 +931,9 @@ describe('FeedingsService', () => {
 
       const req = httpMock.expectOne(
         (r) =>
+          r.method === 'POST' &&
           r.url.startsWith('/api/v1/children/1/feedings/') &&
-          (r.request.method !== 'GET' || r.params.get('page') === '1')
+          !/\/feedings\/\d+/.test(r.url)
       );
       req.flush(
         { amount_oz: ['Must be positive'] },
@@ -976,8 +1005,9 @@ describe('FeedingsService', () => {
 
       let req = httpMock.expectOne(
         (r) =>
+          r.method === 'POST' &&
           r.url.startsWith('/api/v1/children/1/feedings/') &&
-          (r.request.method !== 'GET' || r.params.get('page') === '1')
+          !/\/feedings\/\d+/.test(r.url)
       );
       req.flush({}, { status: 400, statusText: 'Bad Request' });
 
@@ -993,8 +1023,9 @@ describe('FeedingsService', () => {
 
       req = httpMock.expectOne(
         (r) =>
+          r.method === 'POST' &&
           r.url.startsWith('/api/v1/children/1/feedings/') &&
-          (r.request.method !== 'GET' || r.params.get('page') === '1')
+          !/\/feedings\/\d+/.test(r.url)
       );
       req.flush(createdFeeding);
 
@@ -1048,8 +1079,9 @@ describe('FeedingsService', () => {
 
       const req = httpMock.expectOne(
         (r) =>
+          r.method === 'POST' &&
           r.url.startsWith('/api/v1/children/1/feedings/') &&
-          (r.request.method !== 'GET' || r.params.get('page') === '1')
+          !/\/feedings\/\d+/.test(r.url)
       );
       req.flush(newFeeding);
 
@@ -1115,8 +1147,9 @@ describe('FeedingsService', () => {
 
       const req = httpMock.expectOne(
         (r) =>
+          r.method === 'POST' &&
           r.url.startsWith('/api/v1/children/1/feedings/') &&
-          (r.request.method !== 'GET' || r.params.get('page') === '1')
+          !/\/feedings\/\d+/.test(r.url)
       );
       req.flush(newFeeding);
 

@@ -67,6 +67,7 @@ describe('DiapersList - Batch Operations', () => {
     const diapersServiceMock = {
       list: vi.fn().mockReturnValue(of(mockDiapers)),
       delete: vi.fn().mockReturnValue(of(void 0)),
+      pagination: signal(null),
     };
     const childrenServiceMock = {
       get: vi.fn().mockReturnValue(of(mockChild)),
@@ -248,6 +249,7 @@ describe('DiapersList - Comprehensive Tests', () => {
     const diapersServiceMock = {
       list: vi.fn().mockReturnValue(of(mockDiapers)),
       delete: vi.fn().mockReturnValue(of(void 0)),
+      pagination: signal(null),
     };
 
     const childrenServiceMock = {
@@ -336,7 +338,7 @@ describe('DiapersList - Comprehensive Tests', () => {
       component.ngOnInit();
       await new Promise(resolve => setTimeout(resolve, 10));
 
-      expect(diapersService.list).toHaveBeenCalledWith(1);
+      expect(diapersService.list).toHaveBeenCalledWith(1, expect.any(Object), 1);
     });
 
     it('should populate child signal', () => {
@@ -717,6 +719,7 @@ describe('DiapersList - Route and Concurrent Operations', () => {
     const diapersServiceMock = {
       list: vi.fn().mockReturnValue(of(mockDiapers)),
       delete: vi.fn().mockReturnValue(of(void 0)),
+      pagination: signal(null),
     };
     const childrenServiceMock = {
       get: vi.fn().mockReturnValue(of(mockChild)),
