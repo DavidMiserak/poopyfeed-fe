@@ -148,5 +148,18 @@ describe('ConfirmDialogComponent', () => {
       expect(dialog).toBeTruthy();
       expect(dialog?.getAttribute('aria-modal')).toBe('true');
     });
+
+    it('should set aria-labelledby when title is provided', () => {
+      fixture.componentRef.setInput('message', 'Msg');
+      fixture.componentRef.setInput('title', 'Confirm action');
+      fixture.detectChanges();
+      const dialog = fixture.nativeElement.querySelector('[role="dialog"]');
+      expect(dialog?.getAttribute('aria-labelledby')).toBe('confirm-dialog-title');
+    });
+
+    it('should not set aria-labelledby when title is empty', () => {
+      const dialog = fixture.nativeElement.querySelector('[role="dialog"]');
+      expect(dialog?.getAttribute('aria-labelledby')).toBeNull();
+    });
   });
 });

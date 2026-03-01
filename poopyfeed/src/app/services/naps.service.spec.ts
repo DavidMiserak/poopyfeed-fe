@@ -90,6 +90,27 @@ describe('NapsService', () => {
       req.flush({ count: 0, next: null, previous: null, results: [] });
     });
 
+    it('should pass filter params when filters provided', () => {
+      const filters = {
+        dateFrom: '2024-01-01T00:00:00Z',
+        dateTo: '2024-01-31T23:59:59Z',
+      };
+      service.list(1, filters).subscribe({
+        next: (naps) => {
+          expect(naps).toEqual(mockNaps);
+        },
+      });
+
+      const req = httpMock.expectOne(
+        (r) =>
+          r.url === '/api/v1/children/1/naps/' &&
+          r.params.get('napped_at__gte') === filters.dateFrom &&
+          r.params.get('napped_at__lt') === filters.dateTo
+      );
+      expect(req.request.method).toBe('GET');
+      req.flush({ count: mockNaps.length, next: null, previous: null, results: mockNaps });
+    });
+
     it('should handle 401 unauthorized error', () => {
       let errorCaught = false;
 
@@ -361,6 +382,23 @@ describe('NapsService', () => {
       );
 
       expect(errorCaught).toBe(true);
+    });
+
+    it('should not mutate cache when updated item is not in cached list', () => {
+      service.naps.set([]);
+      const before = service.naps();
+
+      service.update(1, 1, updateData).subscribe({
+        next: (nap) => {
+          expect(nap).toEqual(updatedNap);
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/naps/1/');
+      req.flush(updatedNap);
+
+      expect(service.naps()).toBe(before);
+      expect(service.naps().length).toBe(0);
     });
   });
 

@@ -98,6 +98,29 @@ describe('DiapersService', () => {
       req.flush({ count: 0, next: null, previous: null, results: [] });
     });
 
+    it('should pass filter params when filters provided', () => {
+      const filters = {
+        dateFrom: '2024-01-01T00:00:00Z',
+        dateTo: '2024-01-31T23:59:59Z',
+        change_type: 'wet',
+      };
+      service.list(1, filters).subscribe({
+        next: (diapers) => {
+          expect(diapers).toEqual(mockDiapers);
+        },
+      });
+
+      const req = httpMock.expectOne(
+        (r) =>
+          r.url === '/api/v1/children/1/diapers/' &&
+          r.params.get('changed_at__gte') === filters.dateFrom &&
+          r.params.get('changed_at__lt') === filters.dateTo &&
+          r.params.get('change_type') === filters.change_type
+      );
+      expect(req.request.method).toBe('GET');
+      req.flush({ count: mockDiapers.length, next: null, previous: null, results: mockDiapers });
+    });
+
     it('should handle 401 unauthorized error', () => {
       let errorCaught = false;
 
@@ -426,6 +449,23 @@ describe('DiapersService', () => {
       );
 
       expect(errorCaught).toBe(true);
+    });
+
+    it('should not mutate cache when updated item is not in cached list', () => {
+      service.diapers.set([]);
+      const before = service.diapers();
+
+      service.update(1, 1, updateData).subscribe({
+        next: (diaper) => {
+          expect(diaper).toEqual(updatedDiaper);
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/diapers/1/');
+      req.flush(updatedDiaper);
+
+      expect(service.diapers()).toBe(before);
+      expect(service.diapers().length).toBe(0);
     });
   });
 

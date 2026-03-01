@@ -81,6 +81,29 @@ describe('FeedingsService', () => {
       req.flush({ count: 0, next: null, previous: null, results: [] });
     });
 
+    it('should pass filter params when filters provided', () => {
+      const filters = {
+        dateFrom: '2024-01-01T00:00:00Z',
+        dateTo: '2024-01-31T23:59:59Z',
+        feeding_type: 'bottle',
+      };
+      service.list(1, filters).subscribe({
+        next: (feedings) => {
+          expect(feedings).toEqual(mockFeedings);
+        },
+      });
+
+      const req = httpMock.expectOne(
+        (r) =>
+          r.url === '/api/v1/children/1/feedings/' &&
+          r.params.get('fed_at__gte') === filters.dateFrom &&
+          r.params.get('fed_at__lt') === filters.dateTo &&
+          r.params.get('feeding_type') === filters.feeding_type
+      );
+      expect(req.request.method).toBe('GET');
+      req.flush({ count: mockFeedings.length, next: null, previous: null, results: mockFeedings });
+    });
+
     it('should handle 401 unauthorized error', () => {
       let errorCaught = false;
 
@@ -402,6 +425,23 @@ describe('FeedingsService', () => {
       );
 
       expect(errorCaught).toBe(true);
+    });
+
+    it('should not mutate cache when updated item is not in cached list', () => {
+      service.feedings.set([]);
+      const before = service.feedings();
+
+      service.update(1, 1, updateData).subscribe({
+        next: (feeding) => {
+          expect(feeding).toEqual(updatedFeeding);
+        },
+      });
+
+      const req = httpMock.expectOne('/api/v1/children/1/feedings/1/');
+      req.flush(updatedFeeding);
+
+      expect(service.feedings()).toBe(before);
+      expect(service.feedings().length).toBe(0);
     });
   });
 

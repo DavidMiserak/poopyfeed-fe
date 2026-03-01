@@ -78,12 +78,58 @@ describe('ErrorCardComponent', () => {
       expect(classes).toContain('to-amber-400');
     });
 
+    it('should apply orange gradient when gradientColor is orange', () => {
+      fixture.componentRef.setInput('gradientColor', 'orange');
+      fixture.detectChanges();
+      const classes = component.buildGradientClass();
+
+      expect(classes).toContain('from-orange-400');
+      expect(classes).toContain('via-orange-500');
+      expect(classes).toContain('to-amber-400');
+    });
+
+    it('should apply amber gradient when gradientColor is amber', () => {
+      fixture.componentRef.setInput('gradientColor', 'amber');
+      fixture.detectChanges();
+      const classes = component.buildGradientClass();
+
+      expect(classes).toContain('from-amber-400');
+      expect(classes).toContain('via-amber-500');
+      expect(classes).toContain('to-amber-600');
+    });
+
     it('should include transition classes', () => {
       const classes = component.buildGradientClass();
 
       expect(classes).toContain('transition-transform');
       expect(classes).toContain('duration-300');
       expect(classes).toContain('group-hover:scale-110');
+    });
+  });
+
+  describe('template branches', () => {
+    it('should render router link when useRouter is true', () => {
+      fixture.componentRef.setInput('useRouter', true);
+      fixture.componentRef.setInput('backRoute', ['/dashboard']);
+      fixture.detectChanges();
+      const el = fixture.nativeElement as HTMLElement;
+      const link = el.querySelector('a');
+      expect(link).toBeTruthy();
+      expect(el.querySelector('button')).toBeFalsy();
+    });
+
+    it('should render button and emit backAction when useRouter is false', () => {
+      fixture.componentRef.setInput('useRouter', false);
+      fixture.detectChanges();
+      const el = fixture.nativeElement as HTMLElement;
+      const button = el.querySelector('button');
+      expect(button).toBeTruthy();
+      expect(el.querySelector('a[routerLink]')).toBeFalsy();
+
+      const spy = vi.fn();
+      component.backAction.subscribe(spy);
+      (button as HTMLButtonElement).click();
+      expect(spy).toHaveBeenCalled();
     });
   });
 });
