@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router, ActivatedRoute } from '@angular/router';
-import { of, throwError, Observable } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { DiapersList } from './diapers-list';
 import { DiapersService } from '../../../services/diapers.service';
 import { ChildrenService } from '../../../services/children.service';
@@ -16,7 +16,7 @@ describe('DiapersList - Batch Operations', () => {
   let component: DiapersList;
   let fixture: ComponentFixture<DiapersList>;
   let diapersService: DiapersService;
-  let childrenService: ChildrenService;
+  let _childrenService: ChildrenService;
 
   const mockChild: Child = {
     id: 1,
@@ -98,7 +98,7 @@ describe('DiapersList - Batch Operations', () => {
     }).compileComponents();
 
     diapersService = TestBed.inject(DiapersService);
-    childrenService = TestBed.inject(ChildrenService);
+    _childrenService = TestBed.inject(ChildrenService);
 
     fixture = TestBed.createComponent(DiapersList);
     component = fixture.componentInstance;

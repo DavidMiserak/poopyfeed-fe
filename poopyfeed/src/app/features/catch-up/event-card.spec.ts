@@ -160,7 +160,7 @@ describe('EventCard', () => {
 
   describe('Delete', () => {
     it('should emit onRemove when delete confirmed', () => {
-      const removeSpy = vi.spyOn(component.onRemove, 'emit');
+      const removeSpy = vi.spyOn(component.remove, 'emit');
 
       fixture.componentRef.setInput('event', mockNewFeedingEvent);
       fixture.detectChanges();
@@ -172,7 +172,7 @@ describe('EventCard', () => {
     });
 
     it('should not emit onRemove when delete cancelled', () => {
-      const removeSpy = vi.spyOn(component.onRemove, 'emit');
+      const removeSpy = vi.spyOn(component.remove, 'emit');
 
       fixture.componentRef.setInput('event', mockNewFeedingEvent);
       fixture.detectChanges();

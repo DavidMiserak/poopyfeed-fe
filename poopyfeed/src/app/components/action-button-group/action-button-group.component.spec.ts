@@ -18,7 +18,7 @@ describe('ActionButtonGroupComponent', () => {
   describe('Event Outputs', () => {
     it('should emit cancel event when onCancel is called', () => {
       const spy = vi.fn();
-      component.cancel.subscribe(spy);
+      component.cancelClick.subscribe(spy);
 
       component.onCancel();
 

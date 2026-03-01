@@ -8,7 +8,7 @@
   <div class="flex gap-2">
     <button
       type="button"
-      (click)="cancel.emit()"
+      (click)="cancelClick.emit()"
       class="px-4 py-2 rounded-lg bg-white text-slate-700 hover:bg-slate-50 border border-slate-300 font-['DM_Sans',sans-serif] font-medium transition-colors"
       [disabled]="isDeleting()"
       aria-label="Cancel selection"

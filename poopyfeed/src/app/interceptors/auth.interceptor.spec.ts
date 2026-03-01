@@ -4,12 +4,12 @@ import { HttpClient, provideHttpClient, withInterceptors } from '@angular/common
 import { authInterceptor } from './auth.interceptor';
 import { AuthService } from '../services/auth.service';
 import { provideRouter } from '@angular/router';
-import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 
 describe('authInterceptor', () => {
   let httpMock: HttpTestingController;
   let httpClient: HttpClient;
-  let authService: AuthService;
+  let _authService: AuthService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -22,7 +22,7 @@ describe('authInterceptor', () => {
 
     httpMock = TestBed.inject(HttpTestingController);
     httpClient = TestBed.inject(HttpClient);
-    authService = TestBed.inject(AuthService);
+    _authService = TestBed.inject(AuthService);
     localStorage.clear();
   });
 
@@ -46,7 +46,7 @@ describe('authInterceptor', () => {
 
     httpMock = TestBed.inject(HttpTestingController);
     httpClient = TestBed.inject(HttpClient);
-    authService = TestBed.inject(AuthService);
+    _authService = TestBed.inject(AuthService);
 
     httpClient.get('/api/v1/children/').subscribe();
 

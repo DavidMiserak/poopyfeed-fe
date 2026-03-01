@@ -19,12 +19,12 @@ export class ActionButtonGroupComponent {
   isPrimaryDisabled = input<boolean>(false);
   buttonType = input<'submit' | 'button'>('button');
 
-  // Outputs
-  cancel = output<void>();
+  // Outputs (named to avoid native DOM "cancel" event)
+  cancelClick = output<void>();
   primary = output<void>();
 
   onCancel() {
-    this.cancel.emit();
+    this.cancelClick.emit();
   }
 
   onPrimaryClick() {

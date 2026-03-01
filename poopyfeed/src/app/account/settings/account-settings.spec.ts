@@ -692,7 +692,7 @@ describe('AccountSettings', () => {
       fixture.detectChanges();
 
       const compiled = fixture.nativeElement as HTMLElement;
-      const submitContent = compiled.querySelector('form:first-child button')?.textContent;
+      const _submitContent = compiled.querySelector('form:first-child button')?.textContent;
       // Button shows "Saving..." when submitting due to the @if condition
       expect(component.profileSubmitting()).toBe(true);
     });

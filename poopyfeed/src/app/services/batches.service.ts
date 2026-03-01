@@ -145,7 +145,7 @@ export class BatchesService {
    */
   private handleError(
     error: HttpErrorResponse,
-    totalEvents: number,
+    _totalEvents: number,
   ): Observable<never> {
     // Try to parse batch-specific error format
     if (error.status === 400 && error.error?.errors) {

@@ -152,7 +152,7 @@ describe('CatchUpComponent - Step Wizard', () => {
       };
 
       // This event should NOT be returned by the service because it's outside the window
-      const eventOutside4h = {
+      const _eventOutside4h = {
         id: 2,
         child: 1,
         feeding_type: 'bottle',
@@ -162,7 +162,7 @@ describe('CatchUpComponent - Step Wizard', () => {
         updated_at: '2024-01-15T09:00:00Z',
       };
 
-      const eventFromYesterday = {
+      const _eventFromYesterday = {
         id: 3,
         child: 1,
         feeding_type: 'bottle',
@@ -311,7 +311,9 @@ describe('CatchUpComponent - Step Wizard', () => {
 
     it('should handle submission errors', () => {
       // Mock console.error to suppress error output during test
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation((): void => {
+        return;
+      });
 
       batchesService.create.mockReturnValue(
         throwError(() => ({

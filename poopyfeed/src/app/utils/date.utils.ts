@@ -233,7 +233,7 @@ export function formatActivityAge(timestamp: string): string {
  *
  * Use case: Generic child lists, fallback when gender distinction isn't needed
  */
-export function getGenderIcon(gender: 'M' | 'F' | 'O' | string): string {
+export function getGenderIcon(_gender: 'M' | 'F' | 'O' | string): string {
   return '👶';
 }
 

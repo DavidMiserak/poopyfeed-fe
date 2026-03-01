@@ -10,7 +10,7 @@ describe('Header', () => {
   let component: Header;
   let fixture: ComponentFixture<Header>;
   let authService: AuthService;
-  let httpMock: HttpTestingController;
+  let _httpMock: HttpTestingController;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -21,7 +21,7 @@ describe('Header', () => {
     fixture = TestBed.createComponent(Header);
     component = fixture.componentInstance;
     authService = TestBed.inject(AuthService);
-    httpMock = TestBed.inject(HttpTestingController);
+    _httpMock = TestBed.inject(HttpTestingController);
     await fixture.whenStable();
   });
 

@@ -2,7 +2,7 @@
  * Form utility functions for common form operations
  */
 
-import { FormGroup, AbstractControl } from '@angular/forms';
+import { FormGroup } from '@angular/forms';
 
 /**
  * Mark all form controls as touched to trigger validation display

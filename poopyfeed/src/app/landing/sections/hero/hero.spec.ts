@@ -7,7 +7,7 @@ import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 describe('Hero', () => {
   let component: Hero;
   let fixture: ComponentFixture<Hero>;
-  let authService: AuthService;
+  let _authService: AuthService;
 
   beforeEach(async () => {
     const authServiceMock = {
@@ -25,7 +25,7 @@ describe('Hero', () => {
 
     fixture = TestBed.createComponent(Hero);
     component = fixture.componentInstance;
-    authService = TestBed.inject(AuthService);
+    _authService = TestBed.inject(AuthService);
     await fixture.whenStable();
   });
 
@@ -113,7 +113,7 @@ describe('Hero', () => {
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
     const section = compiled.querySelector('section');
-    const styles = window.getComputedStyle(section!);
+    const _styles = window.getComputedStyle(section!);
     expect(section?.className).toBeTruthy();
   });
 

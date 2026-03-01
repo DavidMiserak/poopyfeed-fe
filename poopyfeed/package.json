@@ -9,7 +9,11 @@
     "test": "ng test",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "serve:ssr:poopyfeed": "node dist/poopyfeed/server/server.mjs"
+    "serve:ssr:poopyfeed": "node dist/poopyfeed/server/server.mjs",
+    "lint": "ng lint",
+    "lint:fix": "ng lint --fix",
+    "format": "prettier --write \"src/**/*.{ts,html,css,json}\" \"e2e/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.{ts,html,css,json}\" \"e2e/**/*.ts\""
   },
   "prettier": {
     "printWidth": 100,
@@ -52,10 +56,15 @@
     "@types/express": "^5.0.1",
     "@types/node": "^20.17.19",
     "@vitest/coverage-v8": "^4.0.18",
+    "angular-eslint": "21.2.0",
+    "eslint": "^9.39.2",
+    "eslint-config-prettier": "^10.1.8",
     "jsdom": "^27.1.0",
     "postcss": "^8.5.3",
+    "prettier": "^3.8.1",
     "tailwindcss": "^4.1.12",
     "typescript": "~5.9.2",
+    "typescript-eslint": "8.50.1",
     "vitest": "^4.0.8",
     "zone.js": "^0.16.1"
   }

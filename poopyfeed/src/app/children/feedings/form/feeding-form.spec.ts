@@ -1,24 +1,23 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router, ActivatedRoute } from '@angular/router';
-import { of, throwError } from 'rxjs';
+import { of } from 'rxjs';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { FeedingForm } from './feeding-form';
 import { FeedingsService } from '../../../services/feedings.service';
 import { ChildrenService } from '../../../services/children.service';
 import { DateTimeService } from '../../../services/datetime.service';
 import { ToastService } from '../../../services/toast.service';
-import { Feeding, FeedingCreate, FEEDING_VALIDATION } from '../../../models/feeding.model';
+import { Feeding, FEEDING_VALIDATION } from '../../../models/feeding.model';
 import { Child } from '../../../models/child.model';
 
 describe('FeedingForm', () => {
   let component: FeedingForm;
   let fixture: ComponentFixture<FeedingForm>;
-  let feedingsService: FeedingsService;
+  let _feedingsService: FeedingsService;
   let childrenService: ChildrenService;
   let dateTimeService: DateTimeService;
-  let toastService: ToastService;
-  let router: Router;
-  let route: ActivatedRoute;
+  let _toastService: ToastService;
+  let _router: Router;
 
   const mockChild: Child = {
     id: 1,
@@ -119,11 +118,11 @@ describe('FeedingForm', () => {
 
     fixture = TestBed.createComponent(FeedingForm);
     component = fixture.componentInstance;
-    feedingsService = TestBed.inject(FeedingsService);
+    _feedingsService = TestBed.inject(FeedingsService);
     childrenService = TestBed.inject(ChildrenService);
     dateTimeService = TestBed.inject(DateTimeService);
-    toastService = TestBed.inject(ToastService);
-    router = TestBed.inject(Router);
+    _toastService = TestBed.inject(ToastService);
+    _router = TestBed.inject(Router);
   });
 
   describe('Form Initialization', () => {
@@ -183,7 +182,7 @@ describe('FeedingForm', () => {
 
     it('should accept valid breast side values (left, right, both)', () => {
       const sideControl = component.feedingForm.get('side');
-      const sides: Array<'left' | 'right' | 'both'> = ['left', 'right', 'both'];
+      const sides: ('left' | 'right' | 'both')[] = ['left', 'right', 'both'];
 
       sides.forEach((side) => {
         sideControl?.setValue(side);
@@ -349,7 +348,7 @@ describe('FeedingForm', () => {
     });
 
     it('should convert UTC datetime to local format for bottle feeding', () => {
-      const mockLocalDate = new Date('2024-02-10T14:30:00');
+      const _mockLocalDate = new Date('2024-02-10T14:30:00');
       vi.mocked(dateTimeService.toInputFormat).mockReturnValue(
         '2024-02-10T14:30'
       );
@@ -486,7 +485,7 @@ describe('FeedingForm', () => {
 
     it('should preserve breast side values (left, right, both)', () => {
       const sideControl = component.feedingForm.get('side');
-      const sides: Array<'left' | 'right' | 'both'> = [
+      const sides: ('left' | 'right' | 'both')[] = [
         'left',
         'right',
         'both',
@@ -800,7 +799,7 @@ describe('FeedingForm', () => {
           fed_at: '2024-02-10T10:30',
           amount_oz: 0.1,
         });
-        let valid = component.feedingForm.valid;
+        const valid = component.feedingForm.valid;
 
         // Max value
         component.feedingForm.get('amount_oz')?.setValue(50);
@@ -815,7 +814,7 @@ describe('FeedingForm', () => {
           duration_minutes: 1,
           side: 'left' as const,
         });
-        let valid = component.feedingForm.valid;
+        const valid = component.feedingForm.valid;
 
         // Max value
         component.feedingForm.get('duration_minutes')?.setValue(180);
@@ -997,7 +996,7 @@ describe('FeedingForm', () => {
           amount_oz: 5,
         });
 
-        let isValid = component.feedingForm.valid;
+        const isValid = component.feedingForm.valid;
         expect(isValid).toBe(true);
 
         // Switch to breast and set required fields

@@ -326,9 +326,9 @@ describe('authGuard', () => {
       mockAuthService.isAuthenticated.set(true);
 
       // Multiple guard checks should all return true
-      let result1 = TestBed.runInInjectionContext(() => authGuard({} as any, {} as any));
-      let result2 = TestBed.runInInjectionContext(() => authGuard({} as any, {} as any));
-      let result3 = TestBed.runInInjectionContext(() => authGuard({} as any, {} as any));
+      const result1 = TestBed.runInInjectionContext(() => authGuard({} as any, {} as any));
+      const result2 = TestBed.runInInjectionContext(() => authGuard({} as any, {} as any));
+      const result3 = TestBed.runInInjectionContext(() => authGuard({} as any, {} as any));
 
       expect(result1).toBe(true);
       expect(result2).toBe(true);

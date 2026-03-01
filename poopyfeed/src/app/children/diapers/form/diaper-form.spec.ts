@@ -1,23 +1,22 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router, ActivatedRoute } from '@angular/router';
-import { of, throwError } from 'rxjs';
+import { of } from 'rxjs';
 import { DiaperForm } from './diaper-form';
 import { DiapersService } from '../../../services/diapers.service';
 import { ChildrenService } from '../../../services/children.service';
 import { DateTimeService } from '../../../services/datetime.service';
 import { ToastService } from '../../../services/toast.service';
-import { DiaperChange, DiaperChangeCreate } from '../../../models/diaper.model';
+import { DiaperChange } from '../../../models/diaper.model';
 import { Child } from '../../../models/child.model';
 
 describe('DiaperForm', () => {
   let component: DiaperForm;
   let fixture: ComponentFixture<DiaperForm>;
-  let diapersService: DiapersService;
+  let _diapersService: DiapersService;
   let childrenService: ChildrenService;
   let dateTimeService: DateTimeService;
-  let toastService: ToastService;
-  let router: Router;
-  let route: ActivatedRoute;
+  let _toastService: ToastService;
+  let _router: Router;
 
   const mockChild: Child = {
     id: 1,
@@ -123,11 +122,11 @@ describe('DiaperForm', () => {
 
     fixture = TestBed.createComponent(DiaperForm);
     component = fixture.componentInstance;
-    diapersService = TestBed.inject(DiapersService);
+    _diapersService = TestBed.inject(DiapersService);
     childrenService = TestBed.inject(ChildrenService);
     dateTimeService = TestBed.inject(DateTimeService);
-    toastService = TestBed.inject(ToastService);
-    router = TestBed.inject(Router);
+    _toastService = TestBed.inject(ToastService);
+    _router = TestBed.inject(Router);
   });
 
   describe('Form Initialization', () => {
@@ -357,7 +356,7 @@ describe('DiaperForm', () => {
     });
 
     it('should convert UTC datetime to local format', () => {
-      const mockLocalDate = new Date('2024-02-10T14:30:00');
+      const _mockLocalDate = new Date('2024-02-10T14:30:00');
       vi.mocked(dateTimeService.toInputFormat).mockReturnValue(
         '2024-02-10T14:30'
       );
@@ -460,7 +459,7 @@ describe('DiaperForm', () => {
 
   describe('Form State Transitions', () => {
     it('should allow switching change types multiple times', () => {
-      const types: Array<'wet' | 'dirty' | 'both'> = ['wet', 'dirty', 'both'];
+      const types: ('wet' | 'dirty' | 'both')[] = ['wet', 'dirty', 'both'];
 
       types.forEach((type) => {
         component.diaperForm.get('change_type')?.setValue(type);

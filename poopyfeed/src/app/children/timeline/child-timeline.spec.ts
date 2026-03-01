@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ActivatedRoute, Router, provideRouter } from '@angular/router';
+import { ActivatedRoute, provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { ChildTimeline, ActivityItem } from './child-timeline';
@@ -155,7 +155,7 @@ describe('ChildTimeline', () => {
       list: vi.fn(() => of(mockNaps)),
       create: vi.fn(),
     };
-    const routerMock = {
+    const _routerMock = {
       navigate: vi.fn(),
     };
     const toastServiceMock = {

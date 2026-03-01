@@ -41,7 +41,7 @@ export class ConfirmDialogComponent {
     this.cancelled.emit();
   }
 
-  onBackdropClick(event: MouseEvent): void {
+  onBackdropClick(event: Event): void {
     if ((event.target as HTMLElement)?.getAttribute('data-backdrop') === 'true') {
       this.cancelled.emit();
     }

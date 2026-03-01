@@ -50,7 +50,7 @@
             [selectedCount]="selectedIds().length"
             [accentColor]="'amber'"
             [isDeleting]="isBulkDeleting()"
-            (cancel)="clearSelection()"
+            (cancelClick)="clearSelection()"
             (delete)="bulkDelete()"
           />
         }

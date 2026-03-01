@@ -9,7 +9,6 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ExportDialogComponent } from './export-dialog';
-import { ExportOptions } from '../../models/analytics.model';
 
 describe('ExportDialogComponent', () => {
   let component: ExportDialogComponent;

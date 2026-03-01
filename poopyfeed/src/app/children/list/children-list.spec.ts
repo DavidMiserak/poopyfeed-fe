@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router, ActivatedRoute } from '@angular/router';
-import { of, throwError, Observable } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { ChildrenList } from './children-list';
 import { ChildrenService } from '../../services/children.service';
 import { Child } from '../../models/child.model';

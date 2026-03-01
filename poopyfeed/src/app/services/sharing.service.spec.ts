@@ -794,7 +794,7 @@ describe('SharingService', () => {
     it('should handle toggle when invite index not found', () => {
       service.invites.set([mockInvite]);
 
-      const updatedInvite = { ...mockInviteCaregiver, is_active: false };
+      const _updatedInvite = { ...mockInviteCaregiver, is_active: false };
 
       service.toggleInvite(1, 999, false).subscribe({
         error: () => {

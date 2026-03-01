@@ -42,9 +42,9 @@
       <form [formGroup]="feedingForm" (ngSubmit)="onSubmit()" class="space-y-6">
         <!-- Feeding Type -->
         <div>
-          <label class="font-['DM_Sans',sans-serif] text-sm font-bold text-slate-700 mb-2 block">
+          <span class="font-['DM_Sans',sans-serif] text-sm font-bold text-slate-700 mb-2 block" role="text">
             Feeding Type <span class="text-red-500">*</span>
-          </label>
+          </span>
           <div class="grid grid-cols-2 gap-4">
             <label class="relative cursor-pointer">
               <input
@@ -154,9 +154,9 @@
           </div>
 
           <div>
-            <label class="font-['DM_Sans',sans-serif] text-sm font-bold text-slate-700 mb-2 block">
+            <span class="font-['DM_Sans',sans-serif] text-sm font-bold text-slate-700 mb-2 block" role="text">
               Side <span class="text-red-500">*</span>
-            </label>
+            </span>
             <div class="grid grid-cols-3 gap-3">
               <label class="relative cursor-pointer">
                 <input
@@ -226,7 +226,7 @@
           [isLoading]="isSubmitting()"
           [isPrimaryDisabled]="feedingForm.invalid"
           buttonType="submit"
-          (cancel)="onCancel()"
+          (cancelClick)="onCancel()"
         />
       </form>
     </div>

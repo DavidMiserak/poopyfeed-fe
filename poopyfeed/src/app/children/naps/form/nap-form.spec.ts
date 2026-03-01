@@ -1,22 +1,22 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router, ActivatedRoute } from '@angular/router';
-import { of, throwError } from 'rxjs';
+import { of } from 'rxjs';
 import { NapForm } from './nap-form';
 import { NapsService } from '../../../services/naps.service';
 import { ChildrenService } from '../../../services/children.service';
 import { DateTimeService } from '../../../services/datetime.service';
 import { ToastService } from '../../../services/toast.service';
-import { Nap, NapCreate } from '../../../models/nap.model';
+import { Nap } from '../../../models/nap.model';
 import { Child } from '../../../models/child.model';
 
 describe('NapForm', () => {
   let component: NapForm;
   let fixture: ComponentFixture<NapForm>;
-  let napsService: NapsService;
+  let _napsService: NapsService;
   let childrenService: ChildrenService;
   let dateTimeService: DateTimeService;
-  let toastService: ToastService;
-  let router: Router;
+  let _toastService: ToastService;
+  let _router: Router;
 
   const mockChild: Child = {
     id: 1,
@@ -114,11 +114,11 @@ describe('NapForm', () => {
 
     fixture = TestBed.createComponent(NapForm);
     component = fixture.componentInstance;
-    napsService = TestBed.inject(NapsService);
+    _napsService = TestBed.inject(NapsService);
     childrenService = TestBed.inject(ChildrenService);
     dateTimeService = TestBed.inject(DateTimeService);
-    toastService = TestBed.inject(ToastService);
-    router = TestBed.inject(Router);
+    _toastService = TestBed.inject(ToastService);
+    _router = TestBed.inject(Router);
   });
 
   describe('Form Initialization', () => {

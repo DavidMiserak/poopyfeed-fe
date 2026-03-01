@@ -189,7 +189,9 @@ describe('SleepSummaryChart', () => {
       const errorChartConstructor = vi.fn(function (this: unknown) {
         throw new Error('Canvas not supported');
       });
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation((): void => {
+        return;
+      });
 
       await TestBed.resetTestingModule();
       await TestBed.configureTestingModule({

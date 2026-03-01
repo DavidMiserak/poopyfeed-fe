@@ -219,7 +219,9 @@ describe('PediatricianSummaryComponent', () => {
   });
 
   it('should open print window with summary HTML and call print when Print button is clicked', () => {
-    let loadListener: () => void = () => {};
+    let loadListener: () => void = (): void => {
+      return;
+    };
     const mockPrint = vi.fn();
     const mockWin = {
       print: mockPrint,
@@ -230,7 +232,9 @@ describe('PediatricianSummaryComponent', () => {
       }),
     } as unknown as Window;
     const openSpy = vi.spyOn(window, 'open').mockReturnValue(mockWin);
-    const revokeSpy = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
+    const revokeSpy = vi.spyOn(URL, 'revokeObjectURL').mockImplementation((): void => {
+  return;
+});
 
     fixture = TestBed.createComponent(PediatricianSummaryComponent);
     component = fixture.componentInstance;

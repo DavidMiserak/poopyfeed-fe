@@ -34,14 +34,14 @@ const mockChild: Child = {
 
 };
 
-function makeTodayTimestamp(minutesAfterMidnight: number = 720): string {
+function makeTodayTimestamp(minutesAfterMidnight = 720): string {
   const d = new Date();
   d.setHours(0, 0, 0, 0);
   d.setMinutes(minutesAfterMidnight);
   return d.toISOString();
 }
 
-function makeYesterdayTimestamp(): string {
+function _makeYesterdayTimestamp(): string {
   const d = new Date();
   d.setDate(d.getDate() - 1);
   d.setHours(10, 0, 0, 0);

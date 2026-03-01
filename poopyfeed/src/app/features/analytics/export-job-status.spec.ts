@@ -13,7 +13,7 @@ import { ExportJobStatusComponent } from './export-job-status';
 import { AnalyticsService } from '../../services/analytics.service';
 import { ToastService } from '../../services/toast.service';
 import { JobStatusResponse } from '../../models/analytics.model';
-import { of, throwError } from 'rxjs';
+import { of } from 'rxjs';
 
 /**
  * Helper to flush microtasks and wait for observables to process.

@@ -6,7 +6,7 @@ import { TestBed } from '@angular/core/testing';
 import { DateTimeService } from './datetime.service';
 import { AccountService } from './account.service';
 import { signal } from '@angular/core';
-import { vi, describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 
 describe('DateTimeService', () => {
   let service: DateTimeService;

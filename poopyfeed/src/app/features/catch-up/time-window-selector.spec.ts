@@ -13,7 +13,7 @@ describe('TimeWindowSelector', () => {
   let dateTimeService: any;
   let toastService: any;
 
-  const mockTimeWindow: TimeWindow = {
+  const _mockTimeWindow: TimeWindow = {
     startTime: '2024-01-15T10:00:00Z',
     endTime: '2024-01-15T14:00:00Z',
   };
@@ -146,7 +146,7 @@ describe('TimeWindowSelector', () => {
 
   describe('Apply Action', () => {
     it('should emit onTimeWindowChange on valid 4h apply', () => {
-      const emitSpy = vi.spyOn(component.onTimeWindowChange, 'emit');
+      const emitSpy = vi.spyOn(component.timeWindowChange, 'emit');
       timeEstimationService.validateTimeWindow.mockReturnValue([]);
 
       component.applyPreset('4h');
@@ -159,7 +159,7 @@ describe('TimeWindowSelector', () => {
     });
 
     it('should emit onTimeWindowChange on valid 8h apply', () => {
-      const emitSpy = vi.spyOn(component.onTimeWindowChange, 'emit');
+      const emitSpy = vi.spyOn(component.timeWindowChange, 'emit');
       timeEstimationService.validateTimeWindow.mockReturnValue([]);
 
       component.applyPreset('8h');
@@ -169,7 +169,7 @@ describe('TimeWindowSelector', () => {
     });
 
     it('should emit onTimeWindowChange on valid 24h apply', () => {
-      const emitSpy = vi.spyOn(component.onTimeWindowChange, 'emit');
+      const emitSpy = vi.spyOn(component.timeWindowChange, 'emit');
       timeEstimationService.validateTimeWindow.mockReturnValue([]);
 
       component.applyPreset('24h');
@@ -179,7 +179,7 @@ describe('TimeWindowSelector', () => {
     });
 
     it('should not apply when no preset selected', () => {
-      const emitSpy = vi.spyOn(component.onTimeWindowChange, 'emit');
+      const emitSpy = vi.spyOn(component.timeWindowChange, 'emit');
 
       component.onApply();
 

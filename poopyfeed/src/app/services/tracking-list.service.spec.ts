@@ -5,7 +5,7 @@
  */
 
 import { TestBed } from '@angular/core/testing';
-import { of, throwError, Subject } from 'rxjs';
+import { of, Subject } from 'rxjs';
 import { signal } from '@angular/core';
 import { TrackingListService } from './tracking-list.service';
 import { FilterService } from './filter.service';

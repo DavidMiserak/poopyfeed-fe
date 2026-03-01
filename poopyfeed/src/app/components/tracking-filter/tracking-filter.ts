@@ -31,7 +31,7 @@ export class TrackingFilterComponent {
   private filterService = inject(FilterService);
 
   // Inputs
-  typeOptions = input<Array<{ value: string; label: string }>>([]);
+  typeOptions = input<{ value: string; label: string }[]>([]);
   filterLabel = input('Type');
 
   // Outputs

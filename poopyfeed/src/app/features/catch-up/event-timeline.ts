@@ -13,7 +13,6 @@ import {
   Component,
   input,
   output,
-  signal,
   computed,
   inject,
   ChangeDetectionStrategy,
@@ -43,9 +42,9 @@ export class EventTimeline {
 
   // Input/Output
   events = input<CatchUpEvent[]>([]);
-  onAddEvent = output<'feeding' | 'diaper' | 'nap'>();
-  onSelectEvent = output<string>();
-  onReorderEvents = output<CatchUpEvent[]>();
+  addEvent = output<'feeding' | 'diaper' | 'nap'>();
+  selectEvent = output<string>();
+  reorderEvents = output<CatchUpEvent[]>();
 
   // Constants
   readonly maxEvents = CATCH_UP_VALIDATION.MAX_EVENTS_PER_BATCH;
@@ -80,14 +79,14 @@ export class EventTimeline {
    * Handler for add event button clicks.
    */
   addEventHandler(type: 'feeding' | 'diaper' | 'nap') {
-    this.onAddEvent.emit(type);
+    this.addEvent.emit(type);
   }
 
   /**
    * Handler for event selection clicks.
    */
   selectEventHandler(eventId: string) {
-    this.onSelectEvent.emit(eventId);
+    this.selectEvent.emit(eventId);
   }
 
   /**
@@ -97,7 +96,7 @@ export class EventTimeline {
     if (index <= 0) return;
     const reordered = [...this.events()];
     [reordered[index], reordered[index - 1]] = [reordered[index - 1], reordered[index]];
-    this.onReorderEvents.emit(reordered);
+    this.reorderEvents.emit(reordered);
   }
 
   /**
@@ -107,6 +106,6 @@ export class EventTimeline {
     if (index >= this.events().length - 1) return;
     const reordered = [...this.events()];
     [reordered[index], reordered[index + 1]] = [reordered[index + 1], reordered[index]];
-    this.onReorderEvents.emit(reordered);
+    this.reorderEvents.emit(reordered);
   }
 }

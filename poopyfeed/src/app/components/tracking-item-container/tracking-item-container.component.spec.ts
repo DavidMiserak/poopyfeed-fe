@@ -209,7 +209,7 @@ describe('TrackingItemContainerComponent', () => {
     });
 
     it('should support all three accent colors', () => {
-      const colors: Array<'rose' | 'orange' | 'amber'> = ['rose', 'orange', 'amber'];
+      const colors: ('rose' | 'orange' | 'amber')[] = ['rose', 'orange', 'amber'];
       const expectedGradients = {
         rose: 'from-rose-50 to-pink-50',
         orange: 'from-orange-50 to-amber-50',
@@ -225,7 +225,7 @@ describe('TrackingItemContainerComponent', () => {
     });
 
     it('should support selected and unselected states for all colors', () => {
-      const colors: Array<'rose' | 'orange' | 'amber'> = ['rose', 'orange', 'amber'];
+      const colors: ('rose' | 'orange' | 'amber')[] = ['rose', 'orange', 'amber'];
 
       colors.forEach(color => {
         fixture.componentRef.setInput('accentColor', color);
@@ -245,7 +245,7 @@ describe('TrackingItemContainerComponent', () => {
     });
 
     it('should apply correct ring color for all accent colors when selected', () => {
-      const colors: Array<'rose' | 'orange' | 'amber'> = ['rose', 'orange', 'amber'];
+      const colors: ('rose' | 'orange' | 'amber')[] = ['rose', 'orange', 'amber'];
       const expectedRings = {
         rose: 'ring-rose-400',
         orange: 'ring-orange-400',

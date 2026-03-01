@@ -6,7 +6,7 @@ import { ChildForm } from './child-form';
 import { ChildrenService } from '../../services/children.service';
 import { NotificationService } from '../../services/notification.service';
 import { ToastService } from '../../services/toast.service';
-import { Child, ChildCreate } from '../../models/child.model';
+import { Child } from '../../models/child.model';
 import type { NotificationPreference } from '../../models/notification.model';
 
 describe('ChildForm', () => {

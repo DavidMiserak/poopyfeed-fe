@@ -96,7 +96,7 @@ describe('EventTimeline', () => {
 
   describe('Add Event Buttons', () => {
     it('should emit onAddEvent when feeding button clicked', () => {
-      const addSpy = vi.spyOn(component.onAddEvent, 'emit');
+      const addSpy = vi.spyOn(component.addEvent, 'emit');
       fixture.componentRef.setInput('events', []);
       fixture.detectChanges();
 
@@ -110,7 +110,7 @@ describe('EventTimeline', () => {
     });
 
     it('should emit onAddEvent when diaper button clicked', () => {
-      const addSpy = vi.spyOn(component.onAddEvent, 'emit');
+      const addSpy = vi.spyOn(component.addEvent, 'emit');
       fixture.componentRef.setInput('events', []);
       fixture.detectChanges();
 
@@ -124,7 +124,7 @@ describe('EventTimeline', () => {
     });
 
     it('should emit onAddEvent when nap button clicked', () => {
-      const addSpy = vi.spyOn(component.onAddEvent, 'emit');
+      const addSpy = vi.spyOn(component.addEvent, 'emit');
       fixture.componentRef.setInput('events', []);
       fixture.detectChanges();
 
@@ -153,7 +153,7 @@ describe('EventTimeline', () => {
 
   describe('Event Selection', () => {
     it('should emit onSelectEvent when event clicked', () => {
-      const selectSpy = vi.spyOn(component.onSelectEvent, 'emit');
+      const selectSpy = vi.spyOn(component.selectEvent, 'emit');
       fixture.componentRef.setInput('events', [mockNewEvent]);
       fixture.detectChanges();
 
@@ -173,7 +173,7 @@ describe('EventTimeline', () => {
 
   describe('Reordering with Arrow Buttons', () => {
     it('should move event up', () => {
-      const reorderSpy = vi.spyOn(component.onReorderEvents, 'emit');
+      const reorderSpy = vi.spyOn(component.reorderEvents, 'emit');
       fixture.componentRef.setInput('events', [mockNewEvent, mockNewEvent2]);
       fixture.detectChanges();
 
@@ -186,7 +186,7 @@ describe('EventTimeline', () => {
     });
 
     it('should move event down', () => {
-      const reorderSpy = vi.spyOn(component.onReorderEvents, 'emit');
+      const reorderSpy = vi.spyOn(component.reorderEvents, 'emit');
       fixture.componentRef.setInput('events', [mockNewEvent, mockNewEvent2]);
       fixture.detectChanges();
 
@@ -199,7 +199,7 @@ describe('EventTimeline', () => {
     });
 
     it('should not move up from first position', () => {
-      const reorderSpy = vi.spyOn(component.onReorderEvents, 'emit');
+      const reorderSpy = vi.spyOn(component.reorderEvents, 'emit');
       fixture.componentRef.setInput('events', [mockNewEvent, mockNewEvent2]);
       fixture.detectChanges();
 
@@ -209,7 +209,7 @@ describe('EventTimeline', () => {
     });
 
     it('should not move down from last position', () => {
-      const reorderSpy = vi.spyOn(component.onReorderEvents, 'emit');
+      const reorderSpy = vi.spyOn(component.reorderEvents, 'emit');
       fixture.componentRef.setInput('events', [mockNewEvent, mockNewEvent2]);
       fixture.detectChanges();
 
@@ -219,7 +219,7 @@ describe('EventTimeline', () => {
     });
 
     it('should prevent reordering of existing events', () => {
-      const reorderSpy = vi.spyOn(component.onReorderEvents, 'emit');
+      const _reorderSpy = vi.spyOn(component.reorderEvents, 'emit');
       fixture.componentRef.setInput('events', [mockExistingEvent, mockNewEvent]);
       fixture.detectChanges();
 

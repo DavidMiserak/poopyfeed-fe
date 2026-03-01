@@ -128,7 +128,7 @@ describe('Toast Component', () => {
     });
 
     it('should remove toast when close button clicked', () => {
-      const toastId = toastService.success('Test message');
+      const _toastId = toastService.success('Test message');
       fixture.detectChanges();
 
       const closeButton = fixture.nativeElement.querySelector('button');

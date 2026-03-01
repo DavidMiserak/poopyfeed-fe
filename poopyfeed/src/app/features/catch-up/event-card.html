@@ -9,7 +9,14 @@
 >
   <!-- Header (Collapsible for existing events only) -->
   @if (evt.isExisting) {
-    <div class="flex items-center justify-between cursor-pointer" (click)="toggleExpand()">
+    <div
+      class="flex items-center justify-between cursor-pointer"
+      (click)="toggleExpand()"
+      (keydown.enter)="toggleExpand()"
+      (keydown.space)="toggleExpand()"
+      tabindex="0"
+      role="button"
+    >
       <div class="flex items-center gap-3 flex-1">
         <!-- Event Type Icon -->
         <span class="text-2xl" [attr.aria-label]="evt.type + ' event'">

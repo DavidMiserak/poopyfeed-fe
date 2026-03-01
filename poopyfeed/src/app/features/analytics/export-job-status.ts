@@ -117,7 +117,7 @@ export class ExportJobStatusComponent implements OnInit, OnDestroy {
   // Polling configuration
   private readonly POLL_INTERVAL_MS = 2000;
   private readonly MAX_POLL_TIME_MS = 30 * 60 * 1000; // 30 minutes
-  private startTime: number = 0;
+  private startTime = 0;
 
   ngOnInit(): void {
     this.startTime = Date.now();

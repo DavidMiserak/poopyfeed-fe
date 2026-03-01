@@ -154,7 +154,7 @@ describe('TrackingBulkActionsComponent', () => {
       fixture.detectChanges();
 
       let cancelEmitted = false;
-      component.cancel.subscribe(() => {
+      component.cancelClick.subscribe(() => {
         cancelEmitted = true;
       });
 

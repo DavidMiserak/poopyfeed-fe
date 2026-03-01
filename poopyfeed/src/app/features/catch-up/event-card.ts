@@ -26,7 +26,6 @@ import type {
   NapCreate,
 } from '../../models';
 import { DateTimeService } from '../../services/datetime.service';
-import { ToastService } from '../../services/toast.service';
 import { getActivityIcon, formatTimestamp, formatActivityAge } from '../../utils/date.utils';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog';
 
@@ -62,8 +61,8 @@ export class EventCard implements OnInit, AfterViewInit {
 
   // Input/Output
   event = input<CatchUpEvent>();
-  onUpdate = output<Partial<CatchUpEvent>>();
-  onRemove = output<void>();
+  update = output<Partial<CatchUpEvent>>();
+  remove = output<void>();
 
   // Computed property for template
   get evt(): CatchUpEvent {
@@ -199,7 +198,7 @@ export class EventCard implements OnInit, AfterViewInit {
    */
   private emitUpdate() {
     const data = this.buildEventData();
-    this.onUpdate.emit({
+    this.update.emit({
       isPinned: false,
       data,
     });
@@ -249,7 +248,7 @@ export class EventCard implements OnInit, AfterViewInit {
 
   onDeleteConfirm() {
     this.showDeleteConfirm.set(false);
-    this.onRemove.emit();
+    this.remove.emit();
   }
 
   onDeleteCancel() {

@@ -18,7 +18,7 @@ import {
   ChangeDetectionStrategy,
   OnInit,
 } from '@angular/core';
-import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
+import { ReactiveFormsModule } from '@angular/forms';
 import { TimeWindow } from '../../models';
 import { DateTimeService } from '../../services/datetime.service';
 import { TimeEstimationService } from '../../services/time-estimation.service';
@@ -45,8 +45,8 @@ export class TimeWindowSelector implements OnInit {
 
   // Input/Output
   timeWindow = input<TimeWindow>();
-  onTimeWindowChange = output<TimeWindow>();
-  onCancelClick = output<void>();
+  timeWindowChange = output<TimeWindow>();
+  cancelClick = output<void>();
 
   // State
   selectedPreset = signal<'4h' | '8h' | '24h' | null>(null);
@@ -142,9 +142,9 @@ export class TimeWindowSelector implements OnInit {
         return;
       }
 
-      this.onTimeWindowChange.emit(timeWindow);
+      this.timeWindowChange.emit(timeWindow);
       this.isValidating.set(false);
-    } catch (err) {
+    } catch {
       this.toast.error('Failed to apply time window');
       this.isValidating.set(false);
     }

@@ -114,7 +114,7 @@ export class AnalyticsDashboard implements OnInit {
     // Lazy-load Chart.js before rendering charts
     try {
       await this.chartFactory.getChart();
-    } catch (err) {
+    } catch {
       this.error.set('Failed to load chart library');
       this.isLoading.set(false);
       return;

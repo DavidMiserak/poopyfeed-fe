@@ -18,7 +18,7 @@
  */
 
 import { Injectable, inject, signal } from '@angular/core';
-import { HttpClient, HttpParams, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, throwError, map, EMPTY } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 import { ErrorHandler } from './error.utils';
@@ -114,7 +114,7 @@ export class AnalyticsService {
    *   }
    * });
    */
-  getFeedingTrends(childId: number, days: number = 30): Observable<FeedingTrends> {
+  getFeedingTrends(childId: number, days = 30): Observable<FeedingTrends> {
     const params = new HttpParams().set('days', days.toString());
 
     return this.http
@@ -146,7 +146,7 @@ export class AnalyticsService {
    *   }
    * });
    */
-  getDiaperPatterns(childId: number, days: number = 30): Observable<DiaperPatterns> {
+  getDiaperPatterns(childId: number, days = 30): Observable<DiaperPatterns> {
     const params = new HttpParams().set('days', days.toString());
 
     return this.http
@@ -178,7 +178,7 @@ export class AnalyticsService {
    *   }
    * });
    */
-  getSleepSummary(childId: number, days: number = 30): Observable<SleepSummary> {
+  getSleepSummary(childId: number, days = 30): Observable<SleepSummary> {
     const params = new HttpParams().set('days', days.toString());
 
     return this.http
@@ -260,8 +260,8 @@ export class AnalyticsService {
    */
   getTimeline(
     childId: number,
-    page: number = 1,
-    pageSize: number = 100
+    page = 1,
+    pageSize = 100
   ): Observable<TimelineResponse> {
     const params = new HttpParams()
       .set('page', page.toString())
@@ -298,7 +298,7 @@ export class AnalyticsService {
    *   }
    * });
    */
-  exportCSV(childId: number, days: number = 30): Observable<Blob> {
+  exportCSV(childId: number, days = 30): Observable<Blob> {
     const params = new HttpParams().set('days', days.toString());
 
     return this.http
@@ -335,7 +335,7 @@ export class AnalyticsService {
    *   }
    * });
    */
-  exportPDFAsync(childId: number, days: number = 30): Observable<ExportJobResponse> {
+  exportPDFAsync(childId: number, days = 30): Observable<ExportJobResponse> {
     return this.http
       .post<ExportJobResponse>(`${this.API_BASE}/${childId}/export-pdf/`, { days })
       .pipe(

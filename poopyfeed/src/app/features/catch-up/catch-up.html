@@ -63,7 +63,7 @@
         <h2 class="text-2xl font-bold text-slate-900 mb-6">Step 1: Choose Time Window</h2>
         <app-time-window-selector
           [timeWindow]="timeWindow()"
-          (onTimeWindowChange)="goToStep('events', $event)"
+          (timeWindowChange)="goToStep('events', $event)"
         />
         <button
           (click)="onCancel()"
@@ -80,9 +80,9 @@
         <h2 class="text-2xl font-bold text-slate-900 mb-6">Step 2: Add Activities</h2>
         <app-event-timeline
           [events]="eventList()"
-          (onAddEvent)="onAddEvent($event)"
-          (onSelectEvent)="selectedEventId.set($event)"
-          (onReorderEvents)="onReorderEvents($event)"
+          (addEvent)="onAddEvent($event)"
+          (selectEvent)="selectedEventId.set($event)"
+          (reorderEvents)="onReorderEvents($event)"
         />
 
         <!-- Event Details (when selected) -->
@@ -92,8 +92,8 @@
               <h3 class="text-lg font-bold text-slate-900 mb-4">Edit Activity</h3>
               <app-event-card
                 [event]="event"
-                (onUpdate)="onUpdateEvent(eventId, $event)"
-                (onRemove)="onRemoveEvent(eventId)"
+                (update)="onUpdateEvent(eventId, $event)"
+                (remove)="onRemoveEvent(eventId)"
               />
               <button
                 (click)="selectedEventId.set(null)"

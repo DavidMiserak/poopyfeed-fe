@@ -10,7 +10,7 @@ export class TrackingBulkActionsComponent {
   selectedCount = input.required<number>();
   accentColor = input.required<'rose' | 'orange' | 'amber'>();
   isDeleting = input.required<boolean>();
-  cancel = output<void>();
+  cancelClick = output<void>();
   delete = output<void>();
 
   gradientClass() {

@@ -3,7 +3,10 @@
   <div class="mb-6">
     <a
       (click)="goBack()"
+      (keydown.enter)="goBack()"
+      (keydown.space)="goBack()"
       class="text-orange-600 hover:text-orange-700 font-medium cursor-pointer flex items-center gap-2"
+      tabindex="0"
     >
       ← Back to advanced tools
     </a>

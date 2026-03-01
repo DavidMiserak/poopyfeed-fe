@@ -84,21 +84,6 @@ export interface ActivityItem {
   data: Feeding | DiaperChange | Nap;
 }
 
-/**
- * Activity item with gap information.
- *
- * Wraps an ActivityItem and includes gap time before it.
- * Used to display time gaps between consecutive events.
- */
-interface ActivityWithGap {
-  activity: ActivityItem;
-  gapMinutes: number | null; // null if first event or gap < 5 minutes
-  gapStartTime: string | null; // Previous activity time (HH:mm format for display)
-  gapEndTime: string | null; // Current activity time (HH:mm format for display)
-  gapStartTimestamp: string | null; // Previous activity UTC timestamp (ISO 8601)
-  gapEndTimestamp: string | null; // Current activity UTC timestamp (ISO 8601)
-}
-
 @Component({
   selector: 'app-child-timeline',
   imports: [DatePipe, RouterLink, ErrorCardComponent],
@@ -202,9 +187,6 @@ export class ChildTimeline implements OnInit {
           gapMinutes = diffMinutes;
 
           // Format times as HH:mm for display
-          const prevDate = new Date(prevTime);
-          const currDate = new Date(currentTime);
-
           gapStartTime = this.datetimeService.formatTimeHHmm(prevTimestamp);
 
           gapEndTime = this.datetimeService.formatTimeHHmm(currentTimestamp);

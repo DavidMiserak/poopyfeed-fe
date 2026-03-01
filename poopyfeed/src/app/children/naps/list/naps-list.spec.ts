@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NapsList } from './naps-list';
 import { NapsService } from '../../../services/naps.service';
 import { ChildrenService } from '../../../services/children.service';
-import { FilterService, FilterCriteria } from '../../../services/filter.service';
+import { FilterService } from '../../../services/filter.service';
 import { AccountService } from '../../../services/account.service';
 import { Router } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
@@ -16,7 +16,7 @@ describe('NapsList - Batch Operations', () => {
   let component: NapsList;
   let fixture: ComponentFixture<NapsList>;
   let napsService: NapsService;
-  let childrenService: ChildrenService;
+  let _childrenService: ChildrenService;
 
   const mockChild: Child = {
     id: 1,
@@ -101,7 +101,7 @@ describe('NapsList - Batch Operations', () => {
     }).compileComponents();
 
     napsService = TestBed.inject(NapsService);
-    childrenService = TestBed.inject(ChildrenService);
+    _childrenService = TestBed.inject(ChildrenService);
 
     fixture = TestBed.createComponent(NapsList);
     component = fixture.componentInstance;

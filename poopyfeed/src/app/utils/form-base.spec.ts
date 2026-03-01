@@ -122,7 +122,7 @@ describe('TrackingFormBase', () => {
       snapshot: {
         paramMap: {
           get: (key: string) => {
-            const params: { [key: string]: string } = {
+            const params: Record<string, string> = {
               childId: '1',
             };
             return params[key] || null;
@@ -210,7 +210,7 @@ describe('TrackingFormBase', () => {
     it('should detect edit mode when resourceId is set', () => {
       const mockRoute = TestBed.inject(ActivatedRoute);
       mockRoute.snapshot.paramMap.get = (key: string) => {
-        const params: { [key: string]: string } = {
+        const params: Record<string, string> = {
           childId: '1',
           id: '99',
         };
@@ -243,7 +243,7 @@ describe('TrackingFormBase', () => {
     it('should load resource when resourceId is present', () => {
       const mockRoute = TestBed.inject(ActivatedRoute);
       mockRoute.snapshot.paramMap.get = (key: string) => {
-        const params: { [key: string]: string } = {
+        const params: Record<string, string> = {
           childId: '1',
           id: '99',
         };
@@ -259,7 +259,7 @@ describe('TrackingFormBase', () => {
     it('should patch form with loaded resource data', () => {
       const mockRoute = TestBed.inject(ActivatedRoute);
       mockRoute.snapshot.paramMap.get = (key: string) => {
-        const params: { [key: string]: string } = {
+        const params: Record<string, string> = {
           childId: '1',
           id: '99',
         };
@@ -306,7 +306,7 @@ describe('TrackingFormBase', () => {
     it('should update resource on update submission', () => {
       const mockRoute = TestBed.inject(ActivatedRoute);
       mockRoute.snapshot.paramMap.get = (key: string) => {
-        const params: { [key: string]: string } = {
+        const params: Record<string, string> = {
           childId: '1',
           id: '99',
         };

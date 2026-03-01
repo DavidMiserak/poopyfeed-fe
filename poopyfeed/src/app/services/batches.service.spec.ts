@@ -433,7 +433,7 @@ describe('BatchesService', () => {
       let errorCaught = false;
 
       service.create(childId, events).subscribe({
-        error: (err) => {
+        error: (_err) => {
           errorCaught = true;
         },
       });
@@ -467,7 +467,7 @@ describe('BatchesService', () => {
       let errorCaught = false;
 
       service.create(childId, events).subscribe({
-        error: (err) => {
+        error: (_err) => {
           errorCaught = true;
         },
       });
@@ -501,7 +501,7 @@ describe('BatchesService', () => {
       let errorCaught = false;
 
       service.create(childId, events).subscribe({
-        error: (err) => {
+        error: (_err) => {
           errorCaught = true;
         },
       });

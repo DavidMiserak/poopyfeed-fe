@@ -6,12 +6,16 @@
   [attr.aria-describedby]="'confirm-dialog-message'"
   data-backdrop="true"
   (click)="onBackdropClick($event)"
+  (keydown.escape)="onBackdropClick($event)"
+  tabindex="-1"
 >
   <div
     class="w-full max-w-md bg-white rounded-3xl shadow-2xl border-2 p-6 relative"
     [class.border-red-300]="variant() === 'danger'"
     [class.border-rose-300]="variant() === 'primary'"
     (click)="$event.stopPropagation()"
+    (keydown)="$event.stopPropagation()"
+    tabindex="0"
   >
     @if (title()) {
       <h2

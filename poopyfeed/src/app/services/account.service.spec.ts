@@ -399,7 +399,7 @@ describe('AccountService', () => {
       let errorCaught = false;
 
       service.updateProfile({ first_name: 'Updated' }).subscribe({
-        error: (error) => {
+        error: (_error) => {
           errorCaught = true;
         },
       });
@@ -533,7 +533,7 @@ describe('AccountService', () => {
       let timeoutError = false;
 
       service.getProfile().subscribe({
-        error: (error) => {
+        error: (_error) => {
           timeoutError = true;
         },
       });
@@ -574,7 +574,7 @@ describe('AccountService', () => {
         error: () => {
           // Retry
           service.getProfile().subscribe({
-            next: (profile) => {
+            next: (_profile) => {
               successCount++;
             },
           });
@@ -657,7 +657,7 @@ describe('AccountService', () => {
       let errorCaught = false;
 
       service.getProfile().subscribe({
-        error: (error) => {
+        error: (_error) => {
           errorCaught = true;
         },
       });
@@ -672,7 +672,7 @@ describe('AccountService', () => {
       let errorCaught = false;
 
       service.updateProfile({ first_name: 'Test' }).subscribe({
-        error: (error) => {
+        error: (_error) => {
           errorCaught = true;
         },
       });

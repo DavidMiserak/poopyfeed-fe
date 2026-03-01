@@ -143,7 +143,7 @@ export class NotificationService {
     return this.http
       .post<MarkAllReadResponse>(`${NOTIFICATIONS_BASE}/mark-all-read/`, {})
       .pipe(
-        tap((res) => {
+        tap(() => {
           this.unreadCount.set(0);
           this.notifications.update((list) =>
             list.map((n) => ({ ...n, is_read: true }))
@@ -255,7 +255,9 @@ export class NotificationService {
     merge(pollTick, onFocus)
       .pipe(takeUntilDestroyed(destroyRef))
       .subscribe({
-        next: () => {},
+        next: (): void => {
+          return;
+        },
         error: () => {
           this.isPolling.set(false);
         },

@@ -3,7 +3,6 @@ import { TimeEstimationService } from './time-estimation.service';
 import {
   CatchUpEvent,
   TimeWindow,
-  DEFAULT_TIME_ESTIMATION_CONFIG,
   CATCH_UP_VALIDATION,
 } from '../models';
 

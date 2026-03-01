@@ -4,21 +4,20 @@ import { FeedingsService } from '../../../services/feedings.service';
 import { ChildrenService } from '../../../services/children.service';
 import { FilterService } from '../../../services/filter.service';
 import { AccountService } from '../../../services/account.service';
-import { ToastService } from '../../../services/toast.service';
 import { Router } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
-import { of, throwError, Observable } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { signal } from '@angular/core';
 import { Feeding } from '../../../models/feeding.model';
 import { Child } from '../../../models/child.model';
-import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 
 describe('FeedingsList - Batch Operations', () => {
   let component: FeedingsList;
   let fixture: ComponentFixture<FeedingsList>;
   let feedingsService: FeedingsService;
   let childrenService: ChildrenService;
-  let router: Router;
+  let _router: Router;
 
   const mockChild: Child = {
     id: 1,
@@ -105,7 +104,7 @@ describe('FeedingsList - Batch Operations', () => {
 
     feedingsService = TestBed.inject(FeedingsService);
     childrenService = TestBed.inject(ChildrenService);
-    router = TestBed.inject(Router);
+    _router = TestBed.inject(Router);
 
     fixture = TestBed.createComponent(FeedingsList);
     component = fixture.componentInstance;
