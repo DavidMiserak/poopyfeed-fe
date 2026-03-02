@@ -92,6 +92,33 @@
       "icons": [
         { "src": "icons/icon-96x96.png", "sizes": "96x96", "type": "image/png", "purpose": "any" }
       ]
+    },
+    {
+      "name": "Log Feeding",
+      "short_name": "Feeding",
+      "url": "/quick-log/feeding",
+      "description": "Log a feeding for your last viewed child",
+      "icons": [
+        { "src": "icons/icon-96x96.png", "sizes": "96x96", "type": "image/png", "purpose": "any" }
+      ]
+    },
+    {
+      "name": "Log Diaper",
+      "short_name": "Diaper",
+      "url": "/quick-log/diaper",
+      "description": "Log a diaper change for your last viewed child",
+      "icons": [
+        { "src": "icons/icon-96x96.png", "sizes": "96x96", "type": "image/png", "purpose": "any" }
+      ]
+    },
+    {
+      "name": "Log Nap",
+      "short_name": "Nap",
+      "url": "/quick-log/nap",
+      "description": "Log a nap for your last viewed child",
+      "icons": [
+        { "src": "icons/icon-96x96.png", "sizes": "96x96", "type": "image/png", "purpose": "any" }
+      ]
     }
   ]
 }

@@ -39,6 +39,15 @@ export const routes: Routes = [
     title: 'Notifications - PoopyFeed',
   },
   {
+    path: 'quick-log/:type',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./quick-log/quick-log-redirect').then(
+        (m) => m.QuickLogRedirect
+      ),
+    title: 'Quick Log - PoopyFeed',
+  },
+  {
     path: 'children',
     canActivate: [authGuard],
     children: [
