@@ -13,10 +13,17 @@ import { ChildShare, ShareInvite } from '../../models/sharing.model';
 describe('SharingManage Component', () => {
   let component: SharingManage;
   let fixture: ComponentFixture<SharingManage>;
-  let mockRouter: any;
-  let mockActivatedRoute: any;
-  let mockSharingService: any;
-  let mockChildrenService: any;
+  let mockRouter: { navigate: ReturnType<typeof vi.fn> };
+  let mockActivatedRoute: { snapshot: { paramMap: { get: ReturnType<typeof vi.fn> } } };
+  let mockSharingService: {
+    listShares: ReturnType<typeof vi.fn>;
+    listInvites: ReturnType<typeof vi.fn>;
+    createInvite: ReturnType<typeof vi.fn>;
+    revokeShare: ReturnType<typeof vi.fn>;
+    toggleInvite: ReturnType<typeof vi.fn>;
+    deleteInvite: ReturnType<typeof vi.fn>;
+  };
+  let mockChildrenService: { get: ReturnType<typeof vi.fn> };
   let mockToastService: { success: ReturnType<typeof vi.fn>; error: ReturnType<typeof vi.fn> };
 
   const mockChild: Child = {

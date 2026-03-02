@@ -345,8 +345,8 @@ describe('ErrorHandler - network error edge cases', () => {
   });
 
   it('should handle error with circular JSON reference', () => {
-    const circular: any = { error: {} };
-    circular.error.self = circular;
+    const circular: Record<string, Record<string, unknown>> = { error: {} };
+    circular['error']['self'] = circular;
 
     const result = ErrorHandler.handle({ status: 400, error: circular });
     expect(result.message).toBeDefined();

@@ -13,6 +13,11 @@ import { SleepSummaryChart } from './sleep-summary-chart';
 import { CHART_FACTORY } from './chart.token';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 
+interface MockChartInstance {
+  destroy: ReturnType<typeof vi.fn>;
+  update: ReturnType<typeof vi.fn>;
+}
+
 describe('SleepSummaryChart', () => {
   let component: SleepSummaryChart;
   let fixture: ComponentFixture<SleepSummaryChart>;
@@ -32,12 +37,12 @@ describe('SleepSummaryChart', () => {
 
   beforeEach(async () => {
     mockDestroyFn = vi.fn();
-    mockChartConstructor = vi.fn(function (this: any) {
+    mockChartConstructor = vi.fn(function (this: MockChartInstance) {
       this.destroy = mockDestroyFn;
       this.update = vi.fn();
       return this;
-    }) as any;
-    (mockChartConstructor as any).register = vi.fn();
+    }) as unknown as ReturnType<typeof vi.fn>;
+    (mockChartConstructor as unknown as Record<string, unknown>)['register'] = vi.fn();
 
     await TestBed.configureTestingModule({
       imports: [SleepSummaryChart],
@@ -69,8 +74,8 @@ describe('SleepSummaryChart', () => {
     fixture.componentRef.setInput('isLoading', false);
     await fixture.whenStable();
 
-    const chartConfig = mockChartConstructor.mock.calls[0][1] as any;
-    expect(chartConfig.type).toBe('line');
+    const chartConfig = mockChartConstructor.mock.calls[0][1] as Record<string, unknown>;
+    expect(chartConfig['type']).toBe('line');
   });
 
   it('should use amber color for sleep chart', async () => {
@@ -227,7 +232,7 @@ describe('SleepSummaryChart', () => {
       const config = mockChartConstructor.mock.calls[0][1];
       const afterLabel = config.options?.plugins?.tooltip?.callbacks?.afterLabel;
       if (afterLabel) {
-        const result = afterLabel({ dataIndex: 0, parsed: { y: 2 } } as any);
+        const result = afterLabel({ dataIndex: 0, parsed: { y: 2 } } as unknown);
         expect(result).toBe('');
       }
     });
@@ -240,7 +245,7 @@ describe('SleepSummaryChart', () => {
       const config = mockChartConstructor.mock.calls[0][1];
       const afterLabel = config.options?.plugins?.tooltip?.callbacks?.afterLabel;
       if (afterLabel) {
-        const result = afterLabel({ dataIndex: 0, parsed: { y: 3 } } as any);
+        const result = afterLabel({ dataIndex: 0, parsed: { y: 3 } } as unknown);
         expect(result).toContain('Avg duration: 45.0 min');
       }
     });

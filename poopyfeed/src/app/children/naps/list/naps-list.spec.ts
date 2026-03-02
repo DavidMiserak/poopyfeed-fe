@@ -156,7 +156,7 @@ describe('NapsList - Batch Operations', () => {
 
   it('should delete selected naps', async () => {
     const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
-    (napsService.delete as any).mockReturnValue(of(void 0));
+    vi.mocked(napsService.delete).mockReturnValue(of(void 0));
 
     component.childId.set(1);
     component.allItems.set(mockNaps);
@@ -184,7 +184,7 @@ describe('NapsList - Batch Operations', () => {
 
   it('should manage isBulkDeleting flag correctly', async () => {
     const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
-    (napsService.delete as any).mockReturnValue(of(void 0));
+    vi.mocked(napsService.delete).mockReturnValue(of(void 0));
 
     component.childId.set(1);
     component.allItems.set(mockNaps);
@@ -202,7 +202,7 @@ describe('NapsList - Batch Operations', () => {
 
   it('should clear isBulkDeleting after deletion completes', async () => {
     const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
-    (napsService.delete as any).mockReturnValue(of(void 0));
+    vi.mocked(napsService.delete).mockReturnValue(of(void 0));
 
     component.childId.set(1);
     component.allItems.set(mockNaps);
@@ -754,7 +754,7 @@ describe('NapsList - Core Functionality Tests', () => {
     });
 
     it('should abort bulkDelete when childId is null', () => {
-      window.confirm = vi.fn().mockReturnValue(true) as any;
+      vi.spyOn(window, 'confirm').mockReturnValue(true);
       component.selectedIds.set(new Set([1, 2]));
       component.childId.set(null);
 
@@ -771,7 +771,7 @@ describe('NapsList - Core Functionality Tests', () => {
 
     it('should handle ngOnInit with no childId in route', () => {
       const activatedRoute = TestBed.inject(ActivatedRoute);
-      activatedRoute.snapshot.paramMap.get = vi.fn().mockReturnValue(null) as any;
+      activatedRoute.snapshot.paramMap.get = vi.fn().mockReturnValue(null) as typeof activatedRoute.snapshot.paramMap.get;
       (childrenService.get as ReturnType<typeof vi.fn>).mockClear();
 
       component.ngOnInit();

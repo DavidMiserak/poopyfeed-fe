@@ -92,7 +92,7 @@ describe('FeedingForm', () => {
       createUrlTree: vi.fn(),
       serializeUrl: vi.fn(() => ''),
       events: of(),
-    } as any;
+    } as unknown as Router;
 
     const mockActivatedRoute = {
       paramMap: of(new Map([['childId', '1']])),
@@ -102,7 +102,7 @@ describe('FeedingForm', () => {
           get: vi.fn(() => null),
         },
       },
-    } as any;
+    } as unknown as ActivatedRoute;
 
     await TestBed.configureTestingModule({
       imports: [FeedingForm],
@@ -200,7 +200,7 @@ describe('FeedingForm', () => {
 
       const setDefaultSpy = vi.spyOn(
         component,
-        'setDefaultDateTime' as any
+        'setDefaultDateTime' as never
       );
       component['setDefaultDateTime']();
 

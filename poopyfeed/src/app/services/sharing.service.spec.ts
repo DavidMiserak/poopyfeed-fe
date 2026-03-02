@@ -384,7 +384,7 @@ describe('SharingService', () => {
       let errorCaught = false;
 
       const invalidData: InviteCreate = {
-        role: 'invalid' as any,
+        role: 'invalid' as InviteCreate['role'],
       };
 
       service.createInvite(1, invalidData).subscribe({
@@ -1045,7 +1045,7 @@ describe('SharingService', () => {
     it('should handle multiple field validation errors on createInvite()', () => {
       let errorCaught = false;
 
-      service.createInvite(1, { role: 'invalid' as any }).subscribe({
+      service.createInvite(1, { role: 'invalid' as InviteCreate['role'] }).subscribe({
         error: (error: Error) => {
           expect(error.message).toBeDefined();
           errorCaught = true;

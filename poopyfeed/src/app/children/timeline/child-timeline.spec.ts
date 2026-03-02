@@ -255,8 +255,8 @@ describe('ChildTimeline', () => {
     it('should load child and timeline data on init', () => {
       component.ngOnInit();
 
-      const analyticsService = TestBed.inject(AnalyticsService) as any;
-      expect(analyticsService.getTimeline).toHaveBeenCalledWith(1, 1, 100);
+      const analyticsService = TestBed.inject(AnalyticsService);
+      expect(vi.mocked(analyticsService.getTimeline)).toHaveBeenCalledWith(1, 1, 100);
       expect(component.child()).toEqual(mockChild);
       expect(component.allActivities().length).toBe(4);
       expect(component.isLoading()).toBeFalsy();
@@ -271,8 +271,8 @@ describe('ChildTimeline', () => {
     });
 
     it('should handle API errors gracefully', async () => {
-      const childrenService = TestBed.inject(ChildrenService) as any;
-      childrenService.get.mockReturnValue(
+      const childrenService = TestBed.inject(ChildrenService);
+      vi.mocked(childrenService.get).mockReturnValue(
         throwError(() => new Error('Failed to load'))
       );
 
@@ -721,8 +721,8 @@ describe('ChildTimeline', () => {
     });
 
     it('should create nap with gap timestamps adjusted by ±1 minute', () => {
-      const napsServiceMock = TestBed.inject(NapsService) as any;
-      const toastServiceMock = TestBed.inject(ToastService) as any;
+      const napsServiceMock = TestBed.inject(NapsService);
+      const toastServiceMock = TestBed.inject(ToastService);
 
       const newNap = {
         ...mockNaps[0],
@@ -741,12 +741,12 @@ describe('ChildTimeline', () => {
       component.addNapForGap(startTimestamp, endTimestamp);
 
       // Verify napsService.create was called with adjusted times (±1 minute)
-      const callArgs = napsServiceMock.create.mock.calls[0][1];
+      const callArgs = vi.mocked(napsServiceMock.create).mock.calls[0][1];
       expect(callArgs.napped_at).toContain(`${todayStr}T08:01:00`); // +1 minute
       expect(callArgs.ended_at).toContain(`${todayStr}T10:29:00`); // -1 minute
       expect(callArgs.notes).toBeUndefined();
 
-      expect(toastServiceMock.success).toHaveBeenCalledWith('Nap recorded');
+      expect(vi.mocked(toastServiceMock.success)).toHaveBeenCalledWith('Nap recorded');
 
       // Verify nap was added to timeline
       const activities = component.allActivities();
@@ -765,7 +765,7 @@ describe('ChildTimeline', () => {
      * without Z is included when the selected day matches (UTC date).
      */
     it('should include activity when API returns timestamp without Z', () => {
-      const dateTimeServiceMock = TestBed.inject(DateTimeService) as any;
+      const dateTimeServiceMock = TestBed.inject(DateTimeService);
       vi.mocked(dateTimeServiceMock.getDateInUserTimezone).mockImplementation(
         (date: Date | string) => {
           const s = typeof date === 'string' ? date : (date as Date).toISOString();
@@ -810,7 +810,7 @@ describe('ChildTimeline', () => {
     });
 
     it('should exclude activity when timestamp without Z falls on different day in UTC', () => {
-      const dateTimeServiceMock = TestBed.inject(DateTimeService) as any;
+      const dateTimeServiceMock = TestBed.inject(DateTimeService);
       vi.mocked(dateTimeServiceMock.getDateInUserTimezone).mockImplementation(
         (date: Date | string) => {
           const s = typeof date === 'string' ? date : (date as Date).toISOString();
@@ -862,7 +862,7 @@ describe('ChildTimeline', () => {
      */
 
     it('should place 4:30 AM UTC activity on Jan 15 in EST (11:30 PM EST)', () => {
-      const dateTimeServiceMock = TestBed.inject(DateTimeService) as any;
+      const dateTimeServiceMock = TestBed.inject(DateTimeService);
       vi.mocked(dateTimeServiceMock.getDateInUserTimezone).mockImplementation(
         (date: Date | string) => {
           const d = typeof date === 'string' ? new Date(date) : date;
@@ -902,7 +902,7 @@ describe('ChildTimeline', () => {
     });
 
     it('should place 5:01 AM UTC activity on Jan 16 in EST (12:01 AM EST)', () => {
-      const dateTimeServiceMock = TestBed.inject(DateTimeService) as any;
+      const dateTimeServiceMock = TestBed.inject(DateTimeService);
       vi.mocked(dateTimeServiceMock.getDateInUserTimezone).mockImplementation(
         (date: Date | string) => {
           const d = typeof date === 'string' ? new Date(date) : date;
@@ -942,7 +942,7 @@ describe('ChildTimeline', () => {
     });
 
     it('should split activities at EST midnight into correct days', () => {
-      const dateTimeServiceMock = TestBed.inject(DateTimeService) as any;
+      const dateTimeServiceMock = TestBed.inject(DateTimeService);
       vi.mocked(dateTimeServiceMock.getDateInUserTimezone).mockImplementation(
         (date: Date | string) => {
           const d = typeof date === 'string' ? new Date(date) : date;
@@ -1004,7 +1004,7 @@ describe('ChildTimeline', () => {
     });
 
     it('should correctly filter with positive timezone offset (Asia/Tokyo)', () => {
-      const dateTimeServiceMock = TestBed.inject(DateTimeService) as any;
+      const dateTimeServiceMock = TestBed.inject(DateTimeService);
       vi.mocked(dateTimeServiceMock.getDateInUserTimezone).mockImplementation(
         (date: Date | string) => {
           const d = typeof date === 'string' ? new Date(date) : date;

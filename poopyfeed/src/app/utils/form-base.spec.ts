@@ -7,7 +7,7 @@ import { DateTimeService } from '../services/datetime.service';
 import { AccountService } from '../services/account.service';
 import { ToastService } from '../services/toast.service';
 import { Child } from '../models/child.model';
-import { Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { of, throwError } from 'rxjs';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
@@ -40,7 +40,7 @@ class MockTrackingService implements TrackingService<MockResource, MockCreate> {
 @Component({
   selector: 'app-test-form',
   template: '',
-  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class TestForm extends TrackingFormBase<MockResource, MockCreate, MockTrackingService> {
   protected router = inject(Router);

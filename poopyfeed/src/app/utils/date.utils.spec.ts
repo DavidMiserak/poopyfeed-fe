@@ -339,11 +339,11 @@ describe('Date Utilities', () => {
 
   describe('getActivityIcon - default fallback', () => {
     it('should return fallback emoji for unknown activity type', () => {
-      expect(getActivityIcon('unknown' as any)).toBe('📝');
+      expect(getActivityIcon('unknown' as Parameters<typeof getActivityIcon>[0])).toBe('📝');
     });
 
     it('should return fallback emoji for empty string', () => {
-      expect(getActivityIcon('' as any)).toBe('📝');
+      expect(getActivityIcon('' as Parameters<typeof getActivityIcon>[0])).toBe('📝');
     });
   });
 

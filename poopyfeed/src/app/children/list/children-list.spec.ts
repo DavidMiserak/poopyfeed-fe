@@ -84,7 +84,7 @@ describe('ChildrenList', () => {
       createUrlTree: vi.fn(),
       serializeUrl: vi.fn(() => ''),
       events: of(),
-    } as any;
+    } as unknown as Router;
 
     const activatedRouteMock = {
       paramMap: of(new Map()),
@@ -94,7 +94,7 @@ describe('ChildrenList', () => {
           get: vi.fn(() => null),
         },
       },
-    } as any;
+    } as unknown as ActivatedRoute;
 
     await TestBed.configureTestingModule({
       imports: [ChildrenList],
@@ -430,9 +430,9 @@ describe('ChildrenList', () => {
       const childWithNullActivity: Child = {
         ...mockChildOwner,
         id: 99,
-        last_feeding: null as any,
-        last_diaper_change: null as any,
-        last_nap: null as any,
+        last_feeding: null,
+        last_diaper_change: null,
+        last_nap: null,
       };
 
       component.children.set([childWithNullActivity]);
@@ -853,7 +853,7 @@ describe('ChildrenList', () => {
       const childNoActivity: Child = {
         ...mockChildOwner,
         id: 99,
-        last_diaper_change: null as any,
+        last_diaper_change: null,
         last_nap: '2024-02-10T13:00:00Z',
         last_feeding: '2024-02-10T12:00:00Z',
             custom_bottle_low_oz: null,
@@ -888,7 +888,7 @@ describe('ChildrenList', () => {
         ...mockChildOwner,
         id: 99,
         last_diaper_change: '2024-02-10T14:30:00Z',
-        last_nap: null as any,
+        last_nap: null,
         last_feeding: '2024-02-10T12:00:00Z',
             custom_bottle_low_oz: null,
             custom_bottle_mid_oz: null,
@@ -913,7 +913,7 @@ describe('ChildrenList', () => {
         id: 99,
         last_diaper_change: '2024-02-10T14:30:00Z',
         last_nap: '2024-02-10T13:00:00Z',
-        last_feeding: null as any,
+        last_feeding: null,
             custom_bottle_low_oz: null,
             custom_bottle_mid_oz: null,
             custom_bottle_high_oz: null,

@@ -1,7 +1,7 @@
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { EventTimeline } from './event-timeline';
-import { CatchUpEvent, CATCH_UP_VALIDATION } from '../../models';
+import { CatchUpEvent, CATCH_UP_VALIDATION, FeedingCreate, DiaperChangeCreate } from '../../models';
 
 describe('EventTimeline', () => {
   let component: EventTimeline;
@@ -13,7 +13,7 @@ describe('EventTimeline', () => {
     estimatedTime: '2024-01-15T10:00:00Z',
     isPinned: false,
     isExisting: false,
-    data: { feeding_type: 'bottle', fed_at: '2024-01-15T10:00:00Z' } as any,
+    data: { feeding_type: 'bottle', fed_at: '2024-01-15T10:00:00Z' } as FeedingCreate,
   };
 
   const mockNewEvent2: CatchUpEvent = {
@@ -22,7 +22,7 @@ describe('EventTimeline', () => {
     estimatedTime: '2024-01-15T10:30:00Z',
     isPinned: false,
     isExisting: false,
-    data: { change_type: 'wet', changed_at: '2024-01-15T10:30:00Z' } as any,
+    data: { change_type: 'wet', changed_at: '2024-01-15T10:30:00Z' } as DiaperChangeCreate,
   };
 
   const mockExistingEvent: CatchUpEvent = {
@@ -32,7 +32,7 @@ describe('EventTimeline', () => {
     isPinned: true,
     isExisting: true,
     existingId: 1,
-    data: { feeding_type: 'bottle', fed_at: '2024-01-15T09:00:00Z' } as any,
+    data: { feeding_type: 'bottle', fed_at: '2024-01-15T09:00:00Z' } as FeedingCreate,
   };
 
   beforeEach(async () => {
@@ -100,9 +100,9 @@ describe('EventTimeline', () => {
       fixture.componentRef.setInput('events', []);
       fixture.detectChanges();
 
-      const feedingButton = Array.from(
+      const feedingButton = (Array.from(
         fixture.nativeElement.querySelectorAll('button'),
-      ).find((b: any) => b.textContent?.includes('Feeding'));
+      ) as Element[]).find((b) => b.textContent?.includes('Feeding'));
 
       (feedingButton as HTMLElement)?.click();
 
@@ -114,9 +114,9 @@ describe('EventTimeline', () => {
       fixture.componentRef.setInput('events', []);
       fixture.detectChanges();
 
-      const diaperButton = Array.from(
+      const diaperButton = (Array.from(
         fixture.nativeElement.querySelectorAll('button'),
-      ).find((b: any) => b.textContent?.includes('Diaper'));
+      ) as Element[]).find((b) => b.textContent?.includes('Diaper'));
 
       (diaperButton as HTMLElement)?.click();
 
@@ -128,9 +128,9 @@ describe('EventTimeline', () => {
       fixture.componentRef.setInput('events', []);
       fixture.detectChanges();
 
-      const napButton = Array.from(
+      const napButton = (Array.from(
         fixture.nativeElement.querySelectorAll('button'),
-      ).find((b: any) => b.textContent?.includes('Nap'));
+      ) as Element[]).find((b) => b.textContent?.includes('Nap'));
 
       (napButton as HTMLElement)?.click();
 
@@ -145,8 +145,8 @@ describe('EventTimeline', () => {
       const buttons = fixture.nativeElement.querySelectorAll(
         'button[aria-label*="Add"]',
       );
-      buttons.forEach((btn: HTMLElement) => {
-        expect((btn as HTMLButtonElement).disabled).toBe(true);
+      (Array.from(buttons) as HTMLButtonElement[]).forEach((btn) => {
+        expect(btn.disabled).toBe(true);
       });
     });
   });
@@ -158,9 +158,9 @@ describe('EventTimeline', () => {
       fixture.detectChanges();
 
       // Find the event card button by looking for button with aria-label containing "event at" (not "Add")
-      const eventButton = Array.from(
+      const eventButton = (Array.from(
         fixture.nativeElement.querySelectorAll('button'),
-      ).find((b: any) => {
+      ) as Element[]).find((b) => {
         const label = b.getAttribute('aria-label') || '';
         return label.includes('feeding') && label.includes('event at');
       });

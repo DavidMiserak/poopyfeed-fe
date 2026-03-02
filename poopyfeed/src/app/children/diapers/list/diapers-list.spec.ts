@@ -138,7 +138,7 @@ describe('DiapersList - Batch Operations', () => {
 
   it('should delete selected diapers', async () => {
     const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
-    (diapersService.delete as any).mockReturnValue(of(void 0));
+    vi.mocked(diapersService.delete).mockReturnValue(of(void 0));
 
     component.childId.set(1);
     component.allItems.set(mockDiapers);
@@ -258,7 +258,7 @@ describe('DiapersList - Comprehensive Tests', () => {
       routerState: { root: {} },
       parseUrl: vi.fn(),
       events: of(),
-    } as any;
+    } as unknown as Router;
 
     const activatedRouteMock = {
       paramMap: of(new Map([['childId', '1']])),
@@ -268,7 +268,7 @@ describe('DiapersList - Comprehensive Tests', () => {
           get: (key: string) => (key === 'childId' ? '1' : null),
         },
       },
-    } as any;
+    } as unknown as ActivatedRoute;
 
     await TestBed.configureTestingModule({
       imports: [DiapersList, TrackingFilterComponent],
@@ -859,7 +859,7 @@ describe('DiapersList - Route and Concurrent Operations', () => {
     });
 
     it('should abort bulkDelete when childId is null', () => {
-      window.confirm = vi.fn().mockReturnValue(true) as any;
+      vi.spyOn(window, 'confirm').mockReturnValue(true);
       component.selectedIds.set(new Set([1, 2]));
       component.childId.set(null);
 
@@ -877,7 +877,7 @@ describe('DiapersList - Route and Concurrent Operations', () => {
     it('should handle ngOnInit with no childId in route', () => {
       const activatedRoute = TestBed.inject(ActivatedRoute);
       const originalGet = activatedRoute.snapshot.paramMap.get;
-      activatedRoute.snapshot.paramMap.get = vi.fn().mockReturnValue(null) as any;
+      activatedRoute.snapshot.paramMap.get = vi.fn().mockReturnValue(null) as typeof activatedRoute.snapshot.paramMap.get;
       vi.mocked(childrenService.get).mockClear();
 
       component.ngOnInit();

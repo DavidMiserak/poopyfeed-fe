@@ -327,7 +327,7 @@ describe('BatchesService', () => {
       };
 
       let errorCaught = false;
-      let error: any = null;
+      let error: (Error & { batchErrors?: BatchErrorResponse }) | null = null;
 
       service.create(childId, events).subscribe({
         error: (err) => {
@@ -341,10 +341,10 @@ describe('BatchesService', () => {
 
       expect(errorCaught).toBe(true);
       expect(error).toBeTruthy();
-      expect(error.batchErrors).toBeDefined();
-      expect(error.batchErrors?.errors[0].index).toBe(0);
-      expect(error.batchErrors?.errors[0].type).toBe('feeding');
-      expect(error.batchErrors?.errors[0].errors.amount_oz).toBeDefined();
+      expect(error!.batchErrors).toBeDefined();
+      expect(error!.batchErrors?.errors[0].index).toBe(0);
+      expect(error!.batchErrors?.errors[0].type).toBe('feeding');
+      expect(error!.batchErrors?.errors[0].errors['amount_oz']).toBeDefined();
     });
 
     it('should handle multiple event validation errors', () => {
@@ -395,7 +395,7 @@ describe('BatchesService', () => {
       };
 
       let errorCaught = false;
-      let error: any = null;
+      let error: (Error & { batchErrors?: BatchErrorResponse }) | null = null;
 
       service.create(childId, events).subscribe({
         error: (err) => {
@@ -408,9 +408,9 @@ describe('BatchesService', () => {
       req.flush(errorResponse, { status: 400, statusText: 'Bad Request' });
 
       expect(errorCaught).toBe(true);
-      expect(error.batchErrors?.errors.length).toBe(2);
-      expect(error.batchErrors?.errors[0].index).toBe(0);
-      expect(error.batchErrors?.errors[1].index).toBe(1);
+      expect(error!.batchErrors?.errors.length).toBe(2);
+      expect(error!.batchErrors?.errors[0].index).toBe(0);
+      expect(error!.batchErrors?.errors[1].index).toBe(1);
     });
 
     it('should handle generic error response (non-batch format)', () => {

@@ -88,7 +88,7 @@ describe('NapForm', () => {
       routerState: { root: {} },
       parseUrl: vi.fn(),
       events: of(),
-    } as any;
+    } as unknown as Router;
 
     const mockActivatedRoute = {
       paramMap: of(new Map([['childId', '1']])),
@@ -98,7 +98,7 @@ describe('NapForm', () => {
           get: vi.fn(() => null),
         },
       },
-    } as any;
+    } as unknown as ActivatedRoute;
 
     await TestBed.configureTestingModule({
       imports: [NapForm],
@@ -177,7 +177,7 @@ describe('NapForm', () => {
       vi.useFakeTimers();
       vi.setSystemTime(now);
 
-      const setDefaultSpy = vi.spyOn(component, 'setDefaultDateTime' as any);
+      const setDefaultSpy = vi.spyOn(component, 'setDefaultDateTime' as never);
       component['setDefaultDateTime']();
 
       expect(setDefaultSpy).toHaveBeenCalled();

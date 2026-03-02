@@ -96,7 +96,7 @@ describe('ChildForm', () => {
         routerState: { root: {} },
         parseUrl: vi.fn(),
         events: of(),
-      } as any;
+      } as unknown as Router;
 
       const mockActivatedRoute = {
         paramMap: of(new Map()),
@@ -106,7 +106,7 @@ describe('ChildForm', () => {
             get: vi.fn(() => null), // No :id parameter = create mode
           },
         },
-      } as any;
+      } as unknown as ActivatedRoute;
 
       await TestBed.configureTestingModule({
         imports: [ChildForm],
@@ -465,7 +465,7 @@ describe('ChildForm', () => {
         routerState: { root: {} },
         parseUrl: vi.fn(),
         events: of(),
-      } as any;
+      } as unknown as Router;
 
       const mockPreference: NotificationPreference = {
         id: 10,
@@ -486,10 +486,10 @@ describe('ChildForm', () => {
         queryParamMap: of(new Map()),
         snapshot: {
           paramMap: {
-            get: vi.fn((param) => (param === 'id' ? '1' : null)),
+            get: vi.fn((param: string) => (param === 'id' ? '1' : null)),
           },
         },
-      } as any;
+      } as unknown as ActivatedRoute;
 
       await TestBed.configureTestingModule({
         imports: [ChildForm],
@@ -781,7 +781,7 @@ describe('ChildForm', () => {
         vi.mocked(childrenService.get).mockReturnValue(of(mockChildMale));
         vi.mocked(childrenService.update).mockReturnValue(of({
           ...mockChildMale,
-          gender: 'O' as any,
+          gender: 'O',
         }));
 
         component.ngOnInit();
@@ -858,7 +858,7 @@ describe('ChildForm', () => {
         routerState: { root: {} },
         parseUrl: vi.fn(),
         events: of(),
-      } as any;
+      } as unknown as Router;
 
       const mockActivatedRoute = {
         paramMap: of(new Map()),
@@ -868,7 +868,7 @@ describe('ChildForm', () => {
             get: vi.fn(() => null),
           },
         },
-      } as any;
+      } as unknown as ActivatedRoute;
 
       const mockNotificationService = {
         getPreferences: vi.fn(),
@@ -986,7 +986,7 @@ describe('ChildForm', () => {
           createUrlTree: vi.fn(),
           serializeUrl: vi.fn(() => ''),
           events: of(),
-        } as any;
+        } as unknown as Router;
 
         const mockNotificationService = {
           getPreferences: vi.fn(),
@@ -1001,7 +1001,7 @@ describe('ChildForm', () => {
               get: vi.fn(() => null),
             },
           },
-        } as any;
+        } as unknown as ActivatedRoute;
 
         await TestBed.configureTestingModule({
           imports: [ChildForm],
@@ -1136,7 +1136,7 @@ describe('ChildForm', () => {
           createUrlTree: vi.fn(),
           serializeUrl: vi.fn(() => ''),
           events: of(),
-        } as any;
+        } as unknown as Router;
 
         const mockActivatedRoute = {
           paramMap: of(new Map([['id', '1']])),
@@ -1146,7 +1146,7 @@ describe('ChildForm', () => {
               get: vi.fn((param: string) => (param === 'id' ? '1' : null)),
             },
           },
-        } as any;
+        } as unknown as ActivatedRoute;
 
         const mockPreference: NotificationPreference = {
           id: 10,
@@ -1387,7 +1387,7 @@ describe('ChildForm', () => {
             get: vi.fn(() => null),
           },
         },
-      } as any;
+      } as unknown as ActivatedRoute;
 
       await TestBed.resetTestingModule();
       await TestBed.configureTestingModule({
@@ -1396,7 +1396,7 @@ describe('ChildForm', () => {
           { provide: ChildrenService, useValue: { get: vi.fn(), create: vi.fn(), update: vi.fn() } },
           { provide: NotificationService, useValue: { getPreferences: vi.fn(), updatePreference: vi.fn() } },
           { provide: ToastService, useValue: { success: vi.fn(), error: vi.fn() } },
-          { provide: Router, useValue: { navigate: vi.fn(), parseUrl: vi.fn(), createUrlTree: vi.fn(), serializeUrl: vi.fn(() => ''), events: of() } as any },
+          { provide: Router, useValue: { navigate: vi.fn(), parseUrl: vi.fn(), createUrlTree: vi.fn(), serializeUrl: vi.fn(() => ''), events: of() } as unknown as Router },
           { provide: ActivatedRoute, useValue: createModeRoute },
         ],
       }).compileComponents();
@@ -1417,7 +1417,7 @@ describe('ChildForm', () => {
             get: vi.fn(() => null), // No :id = create mode
           },
         },
-      } as any;
+      } as unknown as ActivatedRoute;
 
       await TestBed.resetTestingModule();
       await TestBed.configureTestingModule({
@@ -1426,7 +1426,7 @@ describe('ChildForm', () => {
           { provide: ChildrenService, useValue: { get: vi.fn(), create: vi.fn().mockReturnValue(of({ id: 100, name: 'New Baby' })), update: vi.fn() } },
           { provide: NotificationService, useValue: { getPreferences: vi.fn(), updatePreference: vi.fn() } },
           { provide: ToastService, useValue: { success: vi.fn(), error: vi.fn() } },
-          { provide: Router, useValue: { navigate: vi.fn(), parseUrl: vi.fn(), createUrlTree: vi.fn(), serializeUrl: vi.fn(() => ''), events: of() } as any },
+          { provide: Router, useValue: { navigate: vi.fn(), parseUrl: vi.fn(), createUrlTree: vi.fn(), serializeUrl: vi.fn(() => ''), events: of() } as unknown as Router },
           { provide: ActivatedRoute, useValue: createModeRoute },
         ],
       }).compileComponents();

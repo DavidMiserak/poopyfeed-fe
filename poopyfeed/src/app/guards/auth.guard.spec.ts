@@ -3,7 +3,7 @@
  */
 
 import { TestBed } from '@angular/core/testing';
-import { Router, UrlTree } from '@angular/router';
+import { ActivatedRouteSnapshot, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
 import { firstValueFrom, Observable, of, throwError } from 'rxjs';
 import { authGuard } from './auth.guard';
 import { AuthService } from '../services/auth.service';
@@ -43,7 +43,7 @@ describe('authGuard', () => {
   it('should allow navigation when authenticated', () => {
     mockAuthService.isAuthenticated.set(true);
 
-    const result = TestBed.runInInjectionContext(() => authGuard({} as any, {} as any));
+    const result = TestBed.runInInjectionContext(() => authGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot));
 
     expect(result).toBe(true);
     expect(mockRouter.createUrlTree).not.toHaveBeenCalled();
@@ -54,7 +54,7 @@ describe('authGuard', () => {
     const mockUrlTree = {} as UrlTree;
     mockRouter.createUrlTree.mockReturnValue(mockUrlTree);
 
-    const result = TestBed.runInInjectionContext(() => authGuard({} as any, {} as any));
+    const result = TestBed.runInInjectionContext(() => authGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot));
 
     expect(result).toBe(mockUrlTree);
     expect(mockRouter.createUrlTree).toHaveBeenCalledWith(['/login']);
@@ -66,7 +66,7 @@ describe('authGuard', () => {
     const mockUrlTree = {} as UrlTree;
     mockRouter.createUrlTree.mockReturnValue(mockUrlTree);
 
-    TestBed.runInInjectionContext(() => authGuard({} as any, {} as any));
+    TestBed.runInInjectionContext(() => authGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot));
 
     expect(mockAuthService.isAuthenticated()).toBe(false);
     expect(mockRouter.createUrlTree).toHaveBeenCalled();
@@ -78,13 +78,13 @@ describe('authGuard', () => {
     const mockUrlTree = {} as UrlTree;
     mockRouter.createUrlTree.mockReturnValue(mockUrlTree);
 
-    let result = TestBed.runInInjectionContext(() => authGuard({} as any, {} as any));
+    let result = TestBed.runInInjectionContext(() => authGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot));
     expect(result).toBe(mockUrlTree);
 
     // Change to authenticated
     mockAuthService.isAuthenticated.set(true);
 
-    result = TestBed.runInInjectionContext(() => authGuard({} as any, {} as any));
+    result = TestBed.runInInjectionContext(() => authGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot));
     expect(result).toBe(true);
   });
 
@@ -96,7 +96,7 @@ describe('authGuard', () => {
       value: undefined,
     });
 
-    const result = TestBed.runInInjectionContext(() => authGuard({} as any, {} as any));
+    const result = TestBed.runInInjectionContext(() => authGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot));
 
     expect(result).toBe(true);
     expect(mockRouter.createUrlTree).not.toHaveBeenCalled();
@@ -116,7 +116,7 @@ describe('authGuard', () => {
     // No token in localStorage
     localStorage.removeItem('auth_token');
 
-    const result = TestBed.runInInjectionContext(() => authGuard({} as any, {} as any));
+    const result = TestBed.runInInjectionContext(() => authGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot));
 
     expect(result).toBe(mockUrlTree);
     expect(mockRouter.createUrlTree).toHaveBeenCalledWith(['/login']);
@@ -126,7 +126,7 @@ describe('authGuard', () => {
     mockAuthService.isAuthenticated.set(false);
     localStorage.setItem('auth_token', 'test-token');
 
-    const result = TestBed.runInInjectionContext(() => authGuard({} as any, {} as any));
+    const result = TestBed.runInInjectionContext(() => authGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot));
 
     expect(result).toBe(true);
     expect(mockRouter.createUrlTree).not.toHaveBeenCalled();
@@ -138,7 +138,7 @@ describe('authGuard', () => {
     mockAuthService.isAuthenticated.set(true);
     localStorage.removeItem('auth_token');
 
-    const result = TestBed.runInInjectionContext(() => authGuard({} as any, {} as any));
+    const result = TestBed.runInInjectionContext(() => authGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot));
 
     expect(result).toBe(true);
   });
@@ -148,7 +148,7 @@ describe('authGuard', () => {
     mockAccountService.profile.set(null);
     mockAccountService.getProfile.mockReturnValue(of(mockProfile));
 
-    const result = TestBed.runInInjectionContext(() => authGuard({} as any, {} as any));
+    const result = TestBed.runInInjectionContext(() => authGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot));
     const value = await firstValueFrom(result as Observable<boolean>);
     expect(value).toBe(true);
     expect(mockAccountService.getProfile).toHaveBeenCalled();
@@ -159,7 +159,7 @@ describe('authGuard', () => {
     mockAccountService.profile.set(null);
     mockAccountService.getProfile.mockReturnValue(throwError(() => new Error('Network error')));
 
-    const result = TestBed.runInInjectionContext(() => authGuard({} as any, {} as any));
+    const result = TestBed.runInInjectionContext(() => authGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot));
     const value = await firstValueFrom(result as Observable<boolean>);
     expect(value).toBe(true);
   });
@@ -170,7 +170,7 @@ describe('authGuard', () => {
     const mockUrlTree = {} as UrlTree;
     mockRouter.createUrlTree.mockReturnValue(mockUrlTree);
 
-    const result = TestBed.runInInjectionContext(() => authGuard({} as any, {} as any));
+    const result = TestBed.runInInjectionContext(() => authGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot));
 
     expect(result).toBe(mockUrlTree);
   });
@@ -182,7 +182,7 @@ describe('authGuard', () => {
       const mockUrlTree = {} as UrlTree;
       mockRouter.createUrlTree.mockReturnValue(mockUrlTree);
 
-      const result = TestBed.runInInjectionContext(() => authGuard({} as any, {} as any));
+      const result = TestBed.runInInjectionContext(() => authGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot));
 
       expect(result).toBe(mockUrlTree);
       expect(mockRouter.createUrlTree).toHaveBeenCalledWith(['/login']);
@@ -196,7 +196,7 @@ describe('authGuard', () => {
       const mockUrlTree = {} as UrlTree;
       mockRouter.createUrlTree.mockReturnValue(mockUrlTree);
 
-      const result = TestBed.runInInjectionContext(() => authGuard({} as any, {} as any));
+      const result = TestBed.runInInjectionContext(() => authGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot));
 
       expect(result).toBe(true); // Non-empty string is truthy
 
@@ -205,17 +205,17 @@ describe('authGuard', () => {
 
     it('should handle rapid auth state changes', () => {
       mockAuthService.isAuthenticated.set(false);
-      let result = TestBed.runInInjectionContext(() => authGuard({} as any, {} as any));
+      let result = TestBed.runInInjectionContext(() => authGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot));
       expect(result).not.toBe(true);
 
       mockAuthService.isAuthenticated.set(true);
-      result = TestBed.runInInjectionContext(() => authGuard({} as any, {} as any));
+      result = TestBed.runInInjectionContext(() => authGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot));
       expect(result).toBe(true);
 
       mockAuthService.isAuthenticated.set(false);
       const mockUrlTree = {} as UrlTree;
       mockRouter.createUrlTree.mockReturnValue(mockUrlTree);
-      result = TestBed.runInInjectionContext(() => authGuard({} as any, {} as any));
+      result = TestBed.runInInjectionContext(() => authGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot));
       expect(result).toBe(mockUrlTree);
     });
 
@@ -223,7 +223,7 @@ describe('authGuard', () => {
       mockAuthService.isAuthenticated.set(true);
       localStorage.removeItem('auth_token'); // No token in storage
 
-      const result = TestBed.runInInjectionContext(() => authGuard({} as any, {} as any));
+      const result = TestBed.runInInjectionContext(() => authGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot));
 
       expect(result).toBe(true);
       expect(mockRouter.createUrlTree).not.toHaveBeenCalled();
@@ -233,7 +233,7 @@ describe('authGuard', () => {
       mockAuthService.isAuthenticated.set(false);
       localStorage.setItem('auth_token', 'valid-token-value');
 
-      const result = TestBed.runInInjectionContext(() => authGuard({} as any, {} as any));
+      const result = TestBed.runInInjectionContext(() => authGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot));
 
       expect(result).toBe(true);
 
@@ -246,17 +246,17 @@ describe('authGuard', () => {
       mockRouter.createUrlTree.mockReturnValue(mockUrlTree);
 
       // First check - authenticated
-      let result = TestBed.runInInjectionContext(() => authGuard({} as any, {} as any));
+      let result = TestBed.runInInjectionContext(() => authGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot));
       expect(result).toBe(true);
 
       // Second check - still authenticated
-      result = TestBed.runInInjectionContext(() => authGuard({} as any, {} as any));
+      result = TestBed.runInInjectionContext(() => authGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot));
       expect(result).toBe(true);
 
       // Third check - logout (not authenticated)
       mockAuthService.isAuthenticated.set(false);
       localStorage.removeItem('auth_token');
-      result = TestBed.runInInjectionContext(() => authGuard({} as any, {} as any));
+      result = TestBed.runInInjectionContext(() => authGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot));
       expect(result).toBe(mockUrlTree);
     });
 
@@ -266,7 +266,7 @@ describe('authGuard', () => {
       const mockUrlTree = {} as UrlTree;
       mockRouter.createUrlTree.mockReturnValue(mockUrlTree);
 
-      TestBed.runInInjectionContext(() => authGuard({} as any, {} as any));
+      TestBed.runInInjectionContext(() => authGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot));
 
       expect(mockRouter.createUrlTree).toHaveBeenCalledWith(['/login']);
       expect(mockRouter.createUrlTree).toHaveBeenCalledTimes(1);
@@ -282,7 +282,7 @@ describe('authGuard', () => {
         value: undefined,
       });
 
-      let result = TestBed.runInInjectionContext(() => authGuard({} as any, {} as any));
+      let result = TestBed.runInInjectionContext(() => authGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot));
       expect(result).toBe(true);
 
       // Transition to client context - check auth
@@ -297,7 +297,7 @@ describe('authGuard', () => {
       const mockUrlTree = {} as UrlTree;
       mockRouter.createUrlTree.mockReturnValue(mockUrlTree);
 
-      result = TestBed.runInInjectionContext(() => authGuard({} as any, {} as any));
+      result = TestBed.runInInjectionContext(() => authGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot));
       expect(result).toBe(mockUrlTree);
     });
 
@@ -306,17 +306,17 @@ describe('authGuard', () => {
 
       // Test with JWT-like token
       localStorage.setItem('auth_token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9');
-      let result = TestBed.runInInjectionContext(() => authGuard({} as any, {} as any));
+      let result = TestBed.runInInjectionContext(() => authGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot));
       expect(result).toBe(true);
 
       // Test with simple token
       localStorage.setItem('auth_token', 'simple-token');
-      result = TestBed.runInInjectionContext(() => authGuard({} as any, {} as any));
+      result = TestBed.runInInjectionContext(() => authGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot));
       expect(result).toBe(true);
 
       // Test with special characters
       localStorage.setItem('auth_token', 'token-with_special.chars@123');
-      result = TestBed.runInInjectionContext(() => authGuard({} as any, {} as any));
+      result = TestBed.runInInjectionContext(() => authGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot));
       expect(result).toBe(true);
 
       localStorage.removeItem('auth_token');
@@ -326,9 +326,9 @@ describe('authGuard', () => {
       mockAuthService.isAuthenticated.set(true);
 
       // Multiple guard checks should all return true
-      const result1 = TestBed.runInInjectionContext(() => authGuard({} as any, {} as any));
-      const result2 = TestBed.runInInjectionContext(() => authGuard({} as any, {} as any));
-      const result3 = TestBed.runInInjectionContext(() => authGuard({} as any, {} as any));
+      const result1 = TestBed.runInInjectionContext(() => authGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot));
+      const result2 = TestBed.runInInjectionContext(() => authGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot));
+      const result3 = TestBed.runInInjectionContext(() => authGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot));
 
       expect(result1).toBe(true);
       expect(result2).toBe(true);
@@ -341,7 +341,7 @@ describe('authGuard', () => {
       mockAuthService.isAuthenticated.set(true);
 
       // Initial navigation - authenticated
-      let result = TestBed.runInInjectionContext(() => authGuard({} as any, {} as any));
+      let result = TestBed.runInInjectionContext(() => authGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot));
       expect(result).toBe(true);
 
       // Auth expires
@@ -351,7 +351,7 @@ describe('authGuard', () => {
       mockRouter.createUrlTree.mockReturnValue(mockUrlTree);
 
       // Next navigation attempt
-      result = TestBed.runInInjectionContext(() => authGuard({} as any, {} as any));
+      result = TestBed.runInInjectionContext(() => authGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot));
       expect(result).toBe(mockUrlTree);
     });
 
@@ -362,8 +362,8 @@ describe('authGuard', () => {
       mockRouter.createUrlTree.mockReturnValue(mockUrlTree);
 
       // Multiple guard checks
-      TestBed.runInInjectionContext(() => authGuard({} as any, {} as any));
-      TestBed.runInInjectionContext(() => authGuard({} as any, {} as any));
+      TestBed.runInInjectionContext(() => authGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot));
+      TestBed.runInInjectionContext(() => authGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot));
 
       // Should be called twice (once per guard check)
       expect(mockRouter.createUrlTree).toHaveBeenCalledTimes(2);
@@ -376,18 +376,18 @@ describe('authGuard', () => {
       // Start denied
       mockAuthService.isAuthenticated.set(false);
       localStorage.removeItem('auth_token');
-      let result = TestBed.runInInjectionContext(() => authGuard({} as any, {} as any));
+      let result = TestBed.runInInjectionContext(() => authGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot));
       expect(result).toBe(mockUrlTree);
 
       // Switch to allowed
       mockAuthService.isAuthenticated.set(true);
-      result = TestBed.runInInjectionContext(() => authGuard({} as any, {} as any));
+      result = TestBed.runInInjectionContext(() => authGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot));
       expect(result).toBe(true);
 
       // Switch to denied again
       mockAuthService.isAuthenticated.set(false);
       localStorage.removeItem('auth_token');
-      result = TestBed.runInInjectionContext(() => authGuard({} as any, {} as any));
+      result = TestBed.runInInjectionContext(() => authGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot));
       expect(result).toBe(mockUrlTree);
     });
 
@@ -396,9 +396,9 @@ describe('authGuard', () => {
 
       // Simulate concurrent navigation to protected routes
       const results = [
-        TestBed.runInInjectionContext(() => authGuard({} as any, {} as any)),
-        TestBed.runInInjectionContext(() => authGuard({} as any, {} as any)),
-        TestBed.runInInjectionContext(() => authGuard({} as any, {} as any)),
+        TestBed.runInInjectionContext(() => authGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot)),
+        TestBed.runInInjectionContext(() => authGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot)),
+        TestBed.runInInjectionContext(() => authGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot)),
       ];
 
       // All should allow navigation

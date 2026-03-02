@@ -6,13 +6,13 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { TestBed } from '@angular/core/testing';
+import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ExportDialogComponent } from './export-dialog';
 
 describe('ExportDialogComponent', () => {
   let component: ExportDialogComponent;
-  let fixture: any;
+  let fixture: ComponentFixture<ExportDialogComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({

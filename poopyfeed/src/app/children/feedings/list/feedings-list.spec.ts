@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FeedingsList } from './feedings-list';
 import { FeedingsService } from '../../../services/feedings.service';
 import { ChildrenService } from '../../../services/children.service';
-import { FilterService } from '../../../services/filter.service';
+import { FilterService, FilterCriteria } from '../../../services/filter.service';
 import { AccountService } from '../../../services/account.service';
 import { Router } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
@@ -295,7 +295,7 @@ describe('FeedingsList - Batch Operations', () => {
 
     it('should remove deleted items from allFeedings', async () => {
       const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
-      (feedingsService.delete as any).mockReturnValue(of(void 0));
+      vi.mocked(feedingsService.delete).mockReturnValue(of(void 0));
 
       component.childId.set(1);
       component.allItems.set(mockFeedings);
@@ -310,7 +310,7 @@ describe('FeedingsList - Batch Operations', () => {
 
     it('should clear selection after deletion', async () => {
       const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
-      (feedingsService.delete as any).mockReturnValue(of(void 0));
+      vi.mocked(feedingsService.delete).mockReturnValue(of(void 0));
 
       component.childId.set(1);
       component.allItems.set(mockFeedings);
@@ -325,7 +325,7 @@ describe('FeedingsList - Batch Operations', () => {
 
     it('should manage isBulkDeleting flag correctly', async () => {
       const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
-      (feedingsService.delete as any).mockReturnValue(of(void 0));
+      vi.mocked(feedingsService.delete).mockReturnValue(of(void 0));
 
       component.childId.set(1);
       component.allItems.set(mockFeedings);
@@ -343,7 +343,7 @@ describe('FeedingsList - Batch Operations', () => {
 
     it('should clear isBulkDeleting flag after all deletions complete', async () => {
       const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
-      (feedingsService.delete as any).mockReturnValue(of(void 0));
+      vi.mocked(feedingsService.delete).mockReturnValue(of(void 0));
 
       component.childId.set(1);
       component.allItems.set(mockFeedings);
@@ -358,7 +358,7 @@ describe('FeedingsList - Batch Operations', () => {
 
     it('should handle deletion errors gracefully', async () => {
       const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
-      (feedingsService.delete as any).mockImplementation(
+      vi.mocked(feedingsService.delete).mockImplementation(
         (childId: number, id: number) => {
           if (id === 2) {
             return throwError(() => new Error('Delete failed'));
@@ -394,7 +394,7 @@ describe('FeedingsList - Batch Operations', () => {
   describe('integration tests', () => {
     it('should handle complete selection and deletion flow', async () => {
       const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
-      (feedingsService.delete as any).mockReturnValue(of(void 0));
+      vi.mocked(feedingsService.delete).mockReturnValue(of(void 0));
 
       component.childId.set(1);
       component.allItems.set(mockFeedings);
@@ -431,8 +431,8 @@ describe('FeedingsList - Batch Operations', () => {
   describe('error handling - service failures', () => {
     it('should handle feedings list fetch failure on init', () => {
       const error = new Error('Failed to load feedings');
-      (feedingsService.list as any).mockReturnValue(throwError(() => error));
-      (childrenService.get as any).mockReturnValue(of(mockChild));
+      vi.mocked(feedingsService.list).mockReturnValue(throwError(() => error));
+      vi.mocked(childrenService.get).mockReturnValue(of(mockChild));
 
       expect(() => {
         component.ngOnInit?.();
@@ -441,8 +441,8 @@ describe('FeedingsList - Batch Operations', () => {
 
     it('should handle child fetch failure on init', () => {
       const error = new Error('Failed to load child');
-      (childrenService.get as any).mockReturnValue(throwError(() => error));
-      (feedingsService.list as any).mockReturnValue(of(mockFeedings));
+      vi.mocked(childrenService.get).mockReturnValue(throwError(() => error));
+      vi.mocked(feedingsService.list).mockReturnValue(of(mockFeedings));
 
       expect(() => {
         component.ngOnInit?.();
@@ -451,8 +451,8 @@ describe('FeedingsList - Batch Operations', () => {
 
     it('should handle 401 unauthorized on feedings list', () => {
       const error = new Error('Your session has expired');
-      (feedingsService.list as any).mockReturnValue(throwError(() => error));
-      (childrenService.get as any).mockReturnValue(of(mockChild));
+      vi.mocked(feedingsService.list).mockReturnValue(throwError(() => error));
+      vi.mocked(childrenService.get).mockReturnValue(of(mockChild));
 
       expect(() => {
         component.ngOnInit?.();
@@ -463,7 +463,7 @@ describe('FeedingsList - Batch Operations', () => {
       const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
       let callCount = 0;
 
-      (feedingsService.delete as any).mockImplementation(() => {
+      vi.mocked(feedingsService.delete).mockImplementation(() => {
         callCount++;
         if (callCount === 1) {
           return of(void 0); // First delete succeeds
@@ -491,7 +491,7 @@ describe('FeedingsList - Batch Operations', () => {
 
     it('should handle null filters gracefully', () => {
       component.allItems.set(mockFeedings);
-      component.filters.set(null as any);
+      component.filters.set(null as unknown as FilterCriteria);
 
       expect(() => {
         component.allItems();
@@ -1071,7 +1071,7 @@ describe('FeedingsList - Core Functionality Tests', () => {
     });
 
     it('should abort bulkDelete when childId is null', () => {
-      window.confirm = vi.fn().mockReturnValue(true) as any;
+      vi.spyOn(window, 'confirm').mockReturnValue(true);
       component.selectedIds.set(new Set([1, 2]));
       component.childId.set(null);
 

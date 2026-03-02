@@ -11,20 +11,20 @@ import { FeedingsService } from '../../services/feedings.service';
 import { DiapersService } from '../../services/diapers.service';
 import { NapsService } from '../../services/naps.service';
 import { ToastService } from '../../services/toast.service';
-import { Child } from '../../models';
+import { Child, CatchUpEvent, FeedingCreate, NapCreate } from '../../models';
 
 describe('CatchUpComponent - Step Wizard', () => {
   let component: CatchUp;
   let fixture: ComponentFixture<CatchUp>;
-  let childrenService: any;
-  let feedingsService: any;
-  let diapersService: any;
-  let napsService: any;
-  let timeEstimationService: any;
-  let batchesService: any;
-  let toastService: any;
-  let router: any;
-  let route: any;
+  let childrenService: { get: ReturnType<typeof vi.fn> };
+  let feedingsService: { list: ReturnType<typeof vi.fn> };
+  let diapersService: { list: ReturnType<typeof vi.fn> };
+  let napsService: { list: ReturnType<typeof vi.fn> };
+  let timeEstimationService: { validateTimeWindow: ReturnType<typeof vi.fn>; estimateEventTimes: ReturnType<typeof vi.fn> };
+  let batchesService: { create: ReturnType<typeof vi.fn> };
+  let toastService: { success: ReturnType<typeof vi.fn>; error: ReturnType<typeof vi.fn>; warning: ReturnType<typeof vi.fn>; info: ReturnType<typeof vi.fn> };
+  let router: { navigate: ReturnType<typeof vi.fn>; events: typeof EMPTY; createUrlTree: ReturnType<typeof vi.fn>; serializeUrl: ReturnType<typeof vi.fn> };
+  let route: { snapshot: { paramMap: { get: ReturnType<typeof vi.fn> } } };
 
   const mockChild: Child = {
     id: 1,
@@ -502,7 +502,7 @@ describe('CatchUpComponent - Step Wizard', () => {
 
   describe('recalculateTimes - Overflow', () => {
     it('should show warning when events overflow time window', () => {
-      timeEstimationService.estimateEventTimes.mockImplementation((events: any) => ({
+      timeEstimationService.estimateEventTimes.mockImplementation((events: CatchUpEvent[]) => ({
         events,
         isOverflowed: true,
       }));
@@ -540,7 +540,7 @@ describe('CatchUpComponent - Step Wizard', () => {
       component.onUpdateEvent(eventId, { data: { feeding_type: 'breast', fed_at: '2024-01-15T10:00:00Z' } });
 
       const updated = component.getEventById(eventId);
-      expect((updated?.data as any)?.feeding_type).toBe('breast');
+      expect((updated?.data as FeedingCreate)?.feeding_type).toBe('breast');
     });
 
     it('should recalculate times when isPinned changes', () => {
@@ -766,7 +766,7 @@ describe('CatchUpComponent - Step Wizard', () => {
 
       expect(component.existingEvents().length).toBe(3);
       const napEvent = component.existingEvents().find(e => e.existingId === 4);
-      expect((napEvent?.data as any)?.ended_at).toBeUndefined();
+      expect((napEvent?.data as NapCreate)?.ended_at).toBeUndefined();
     });
   });
 });

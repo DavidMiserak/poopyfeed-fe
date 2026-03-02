@@ -15,6 +15,11 @@ import { CHART_FACTORY } from './chart.token';
 import type { FeedingTrends } from '../../models/analytics.model';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 
+interface MockChartInstance {
+  destroy: ReturnType<typeof vi.fn>;
+  update: ReturnType<typeof vi.fn>;
+}
+
 describe('FeedingTrendsChart', () => {
   let component: FeedingTrendsChart;
   let fixture: ComponentFixture<FeedingTrendsChart>;
@@ -39,12 +44,12 @@ describe('FeedingTrendsChart', () => {
 
   beforeEach(async () => {
     mockDestroyFn = vi.fn();
-    mockChartConstructor = vi.fn(function (this: any) {
+    mockChartConstructor = vi.fn(function (this: MockChartInstance) {
       this.destroy = mockDestroyFn;
       this.update = vi.fn();
       return this;
-    }) as any;
-    (mockChartConstructor as any).register = vi.fn();
+    }) as unknown as ReturnType<typeof vi.fn>;
+    (mockChartConstructor as unknown as Record<string, unknown>)['register'] = vi.fn();
 
     await TestBed.configureTestingModule({
       imports: [FeedingTrendsChart],
@@ -359,7 +364,7 @@ describe('FeedingTrendsChart', () => {
       const config = mockChartConstructor.mock.calls[0][1];
       const afterLabel = config.options?.plugins?.tooltip?.callbacks?.afterLabel;
       if (afterLabel) {
-        const result = afterLabel({ dataIndex: 0, parsed: { y: 2 } } as any);
+        const result = afterLabel({ dataIndex: 0, parsed: { y: 2 } } as unknown);
         expect(result).toBe('');
       }
     });
@@ -372,7 +377,7 @@ describe('FeedingTrendsChart', () => {
       const config = mockChartConstructor.mock.calls[0][1];
       const afterLabel = config.options?.plugins?.tooltip?.callbacks?.afterLabel;
       if (afterLabel) {
-        const result = afterLabel({ dataIndex: 0, parsed: { y: 5 } } as any);
+        const result = afterLabel({ dataIndex: 0, parsed: { y: 5 } } as unknown);
         expect(result).toContain('Avg duration: 12.5 min');
       }
     });

@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TrackingFilterComponent } from './tracking-filter';
+import { FilterCriteria } from '../../services/filter.service';
 
 describe('TrackingFilterComponent', () => {
   let component: TrackingFilterComponent;
@@ -34,7 +35,7 @@ describe('TrackingFilterComponent', () => {
 
   describe('onDateFromChange()', () => {
     it('should update filters when date from changes', () => {
-      let lastCriteria: any;
+      let lastCriteria!: FilterCriteria;
       component.filterChange.subscribe((criteria) => {
         lastCriteria = criteria;
       });
@@ -52,7 +53,7 @@ describe('TrackingFilterComponent', () => {
     it('should clear dateFrom when empty', () => {
       component.filters.set({ dateFrom: '2024-01-15' });
 
-      let lastCriteria: any;
+      let lastCriteria!: FilterCriteria;
       component.filterChange.subscribe((criteria) => {
         lastCriteria = criteria;
       });
@@ -70,7 +71,7 @@ describe('TrackingFilterComponent', () => {
 
   describe('onDateToChange()', () => {
     it('should update filters when date to changes', () => {
-      let lastCriteria: any;
+      let lastCriteria!: FilterCriteria;
       component.filterChange.subscribe((criteria) => {
         lastCriteria = criteria;
       });
@@ -88,7 +89,7 @@ describe('TrackingFilterComponent', () => {
     it('should clear dateTo when empty', () => {
       component.filters.set({ dateTo: '2024-01-31' });
 
-      let lastCriteria: any;
+      let lastCriteria!: FilterCriteria;
       component.filterChange.subscribe((criteria) => {
         lastCriteria = criteria;
       });
@@ -113,7 +114,7 @@ describe('TrackingFilterComponent', () => {
         type: 'bottle',
       });
 
-      let lastCriteria: any;
+      let lastCriteria!: FilterCriteria;
       component.filterChange.subscribe((criteria) => {
         lastCriteria = criteria;
       });
@@ -201,7 +202,7 @@ describe('TrackingFilterComponent', () => {
 
   describe('combined filter updates', () => {
     it('should emit correct criteria after multiple changes', () => {
-      const emittedValues: any[] = [];
+      const emittedValues: FilterCriteria[] = [];
 
       component.filterChange.subscribe((criteria) => {
         emittedValues.push(criteria);
@@ -265,7 +266,7 @@ describe('TrackingFilterComponent', () => {
 
   describe('onTypeChange()', () => {
     it('should update filters when type changes', () => {
-      let lastCriteria: any;
+      let lastCriteria!: FilterCriteria;
       component.filterChange.subscribe((criteria) => {
         lastCriteria = criteria;
       });
@@ -282,7 +283,7 @@ describe('TrackingFilterComponent', () => {
     it('should clear type when empty', () => {
       component.filters.set({ type: 'bottle' });
 
-      let lastCriteria: any;
+      let lastCriteria!: FilterCriteria;
       component.filterChange.subscribe((criteria) => {
         lastCriteria = criteria;
       });

@@ -2,15 +2,15 @@ import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { EventCard } from './event-card';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog';
-import { CatchUpEvent } from '../../models';
+import { CatchUpEvent, FeedingCreate, DiaperChangeCreate } from '../../models';
 import { DateTimeService } from '../../services/datetime.service';
 import { ToastService } from '../../services/toast.service';
 
 describe('EventCard', () => {
   let component: EventCard;
   let fixture: ComponentFixture<EventCard>;
-  let dateTimeService: any;
-  let toastService: any;
+  let dateTimeService: { toInputFormat: ReturnType<typeof vi.fn> };
+  let toastService: { success: ReturnType<typeof vi.fn>; error: ReturnType<typeof vi.fn>; warning: ReturnType<typeof vi.fn>; info: ReturnType<typeof vi.fn> };
 
   const mockNewFeedingEvent: CatchUpEvent = {
     id: 'event-feeding-1',
@@ -22,7 +22,7 @@ describe('EventCard', () => {
       feeding_type: 'bottle',
       amount_oz: 4,
       fed_at: '2024-01-15T10:00:00Z',
-    } as any,
+    } as FeedingCreate,
   };
 
   const mockExistingFeedingEvent: CatchUpEvent = {
@@ -87,7 +87,7 @@ describe('EventCard', () => {
       fixture.detectChanges();
 
       const buttons = fixture.nativeElement.querySelectorAll('button');
-      const feedingTypeButtons = Array.from(buttons).filter((b: any) =>
+      const feedingTypeButtons = (Array.from(buttons) as Element[]).filter((b) =>
         b.textContent?.includes('Bottle'),
       );
       expect(feedingTypeButtons.length).toBeGreaterThan(0);
@@ -217,7 +217,7 @@ describe('EventCard', () => {
       const mockDiaperEvent: CatchUpEvent = {
         ...mockNewFeedingEvent,
         type: 'diaper',
-        data: { change_type: 'wet', changed_at: '2024-01-15T10:00:00Z' } as any,
+        data: { change_type: 'wet', changed_at: '2024-01-15T10:00:00Z' } as DiaperChangeCreate,
       };
 
       fixture.componentRef.setInput('event', mockDiaperEvent);
@@ -232,7 +232,7 @@ describe('EventCard', () => {
       const mockDiaperEvent: CatchUpEvent = {
         ...mockNewFeedingEvent,
         type: 'diaper',
-        data: { change_type: 'dirty', changed_at: '2024-01-15T10:00:00Z' } as any,
+        data: { change_type: 'dirty', changed_at: '2024-01-15T10:00:00Z' } as DiaperChangeCreate,
       };
 
       fixture.componentRef.setInput('event', mockDiaperEvent);
@@ -247,7 +247,7 @@ describe('EventCard', () => {
       const mockDiaperEvent: CatchUpEvent = {
         ...mockNewFeedingEvent,
         type: 'diaper',
-        data: { change_type: 'both', changed_at: '2024-01-15T10:00:00Z' } as any,
+        data: { change_type: 'both', changed_at: '2024-01-15T10:00:00Z' } as DiaperChangeCreate,
       };
 
       fixture.componentRef.setInput('event', mockDiaperEvent);
@@ -371,7 +371,7 @@ describe('EventCard', () => {
           duration_minutes: 15,
           side: 'left',
           notes: 'Good feeding session',
-        } as any,
+        } as FeedingCreate,
       };
 
       fixture.componentRef.setInput('event', mockFeedingWithDetails);
@@ -393,7 +393,7 @@ describe('EventCard', () => {
         data: {
           change_type: 'dirty',
           changed_at: '2024-01-15T10:00:00Z',
-        } as any,
+        } as DiaperChangeCreate,
       };
 
       fixture.componentRef.setInput('event', mockDiaperEvent);
@@ -439,7 +439,7 @@ describe('EventCard', () => {
         estimatedTime: '2024-01-15T10:00:00Z',
         isPinned: false,
         isExisting: false,
-        data: { change_type: 'wet', changed_at: '2024-01-15T10:00:00Z' } as any,
+        data: { change_type: 'wet', changed_at: '2024-01-15T10:00:00Z' } as DiaperChangeCreate,
       };
 
       fixture.componentRef.setInput('event', mockDiaperEvent);

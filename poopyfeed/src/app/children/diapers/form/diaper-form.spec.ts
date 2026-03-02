@@ -96,7 +96,7 @@ describe('DiaperForm', () => {
       routerState: { root: {} },
       parseUrl: vi.fn(),
       events: of(),
-    } as any;
+    } as unknown as Router;
 
     const mockActivatedRoute = {
       paramMap: of(new Map([['childId', '1']])),
@@ -106,7 +106,7 @@ describe('DiaperForm', () => {
           get: vi.fn(() => null),
         },
       },
-    } as any;
+    } as unknown as ActivatedRoute;
 
     await TestBed.configureTestingModule({
       imports: [DiaperForm],
@@ -213,7 +213,7 @@ describe('DiaperForm', () => {
       vi.useFakeTimers();
       vi.setSystemTime(now);
 
-      const setDefaultSpy = vi.spyOn(component, 'setDefaultDateTime' as any);
+      const setDefaultSpy = vi.spyOn(component, 'setDefaultDateTime' as never);
       component['setDefaultDateTime']();
 
       expect(setDefaultSpy).toHaveBeenCalled();

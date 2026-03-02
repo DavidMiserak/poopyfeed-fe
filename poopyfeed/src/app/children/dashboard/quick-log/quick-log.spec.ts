@@ -7,6 +7,7 @@ import { FeedingsService } from '../../../services/feedings.service';
 import { DateTimeService } from '../../../services/datetime.service';
 import { ToastService } from '../../../services/toast.service';
 import { Child } from '../../../models/child.model';
+import { DiaperChange } from '../../../models/diaper.model';
 
 describe('QuickLog', () => {
   let component: QuickLog;
@@ -1879,7 +1880,7 @@ describe('QuickLog', () => {
 
     it('should emit quickLogged after successful wet diaper', () => {
       vi.mocked(dateTimeService.toUTC).mockReturnValue(new Date().toISOString());
-      vi.mocked(diapersService.create).mockReturnValue(of({} as any));
+      vi.mocked(diapersService.create).mockReturnValue(of({} as DiaperChange));
       const spy = vi.spyOn(component.quickLogged, 'emit');
 
       component.quickLogWetDiaper();
@@ -1890,7 +1891,7 @@ describe('QuickLog', () => {
 
     it('should emit quickLogged after successful dirty diaper', () => {
       vi.mocked(dateTimeService.toUTC).mockReturnValue(new Date().toISOString());
-      vi.mocked(diapersService.create).mockReturnValue(of({} as any));
+      vi.mocked(diapersService.create).mockReturnValue(of({} as DiaperChange));
       const spy = vi.spyOn(component.quickLogged, 'emit');
 
       component.quickLogDirtyDiaper();
@@ -1901,7 +1902,7 @@ describe('QuickLog', () => {
 
     it('should emit quickLogged after successful both diaper', () => {
       vi.mocked(dateTimeService.toUTC).mockReturnValue(new Date().toISOString());
-      vi.mocked(diapersService.create).mockReturnValue(of({} as any));
+      vi.mocked(diapersService.create).mockReturnValue(of({} as DiaperChange));
       const spy = vi.spyOn(component.quickLogged, 'emit');
 
       component.quickLogBothDiaper();

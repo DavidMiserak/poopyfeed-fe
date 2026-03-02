@@ -6,7 +6,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { TestBed } from '@angular/core/testing';
+import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ExportJobStatusComponent } from './export-job-status';
@@ -28,7 +28,7 @@ function flushMicrotasks(): Promise<void> {
 
 describe('ExportJobStatusComponent', () => {
   let component: ExportJobStatusComponent;
-  let fixture: any;
+  let fixture: ComponentFixture<ExportJobStatusComponent>;
   let analyticsService: AnalyticsService;
   let toastService: ToastService;
 
@@ -565,8 +565,8 @@ describe('ExportJobStatusComponent', () => {
       fixture.detectChanges();
 
       const buttons = fixture.nativeElement.querySelectorAll('button');
-      const dismissButton = Array.from(buttons).find(
-        (btn: any) => btn.textContent.trim().includes('Dismiss')
+      const dismissButton = (Array.from(buttons) as Element[]).find(
+        (btn: Element) => btn.textContent?.trim().includes('Dismiss')
       );
       expect(dismissButton).toBeTruthy();
     });
@@ -576,8 +576,8 @@ describe('ExportJobStatusComponent', () => {
       fixture.detectChanges();
 
       const buttons = fixture.nativeElement.querySelectorAll('button');
-      const closeButton = Array.from(buttons).find(
-        (btn: any) => btn.textContent.trim().includes('Close')
+      const closeButton = (Array.from(buttons) as Element[]).find(
+        (btn: Element) => btn.textContent?.trim().includes('Close')
       );
       expect(closeButton).toBeTruthy();
     });

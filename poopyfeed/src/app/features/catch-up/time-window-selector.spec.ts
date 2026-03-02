@@ -9,9 +9,9 @@ import { TimeWindow } from '../../models';
 describe('TimeWindowSelector', () => {
   let component: TimeWindowSelector;
   let fixture: ComponentFixture<TimeWindowSelector>;
-  let timeEstimationService: any;
-  let dateTimeService: any;
-  let toastService: any;
+  let timeEstimationService: { validateTimeWindow: ReturnType<typeof vi.fn> };
+  let dateTimeService: { toInputFormat: ReturnType<typeof vi.fn> };
+  let toastService: { success: ReturnType<typeof vi.fn>; error: ReturnType<typeof vi.fn>; warning: ReturnType<typeof vi.fn>; info: ReturnType<typeof vi.fn> };
 
   const _mockTimeWindow: TimeWindow = {
     startTime: '2024-01-15T10:00:00Z',

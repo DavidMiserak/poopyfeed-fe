@@ -13,6 +13,11 @@ import { DiaperPatternsChart } from './diaper-patterns-chart';
 import { CHART_FACTORY } from './chart.token';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 
+interface MockChartInstance {
+  destroy: ReturnType<typeof vi.fn>;
+  update: ReturnType<typeof vi.fn>;
+}
+
 describe('DiaperPatternsChart', () => {
   let component: DiaperPatternsChart;
   let fixture: ComponentFixture<DiaperPatternsChart>;
@@ -33,12 +38,12 @@ describe('DiaperPatternsChart', () => {
 
   beforeEach(async () => {
     mockDestroyFn = vi.fn();
-    mockChartConstructor = vi.fn(function (this: any) {
+    mockChartConstructor = vi.fn(function (this: MockChartInstance) {
       this.destroy = mockDestroyFn;
       this.update = vi.fn();
       return this;
-    }) as any;
-    (mockChartConstructor as any).register = vi.fn();
+    }) as unknown as ReturnType<typeof vi.fn>;
+    (mockChartConstructor as unknown as Record<string, unknown>)['register'] = vi.fn();
 
     await TestBed.configureTestingModule({
       imports: [DiaperPatternsChart],
@@ -70,8 +75,8 @@ describe('DiaperPatternsChart', () => {
     fixture.componentRef.setInput('isLoading', false);
     await fixture.whenStable();
 
-    const chartConfig = mockChartConstructor.mock.calls[0][1] as any;
-    expect(chartConfig.type).toBe('bar');
+    const chartConfig = mockChartConstructor.mock.calls[0][1] as Record<string, unknown>;
+    expect(chartConfig['type']).toBe('bar');
   });
 
   it('should display title', async () => {
