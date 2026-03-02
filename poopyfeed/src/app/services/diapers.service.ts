@@ -18,6 +18,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { ErrorHandler } from './error.utils';
 import { Observable, tap, catchError, throwError, map } from 'rxjs';
+import { SwCacheService } from './sw-cache.service';
 import {
   DiaperChange,
   DiaperChangeCreate,
@@ -34,6 +35,7 @@ import {
 })
 export class DiapersService {
   private http = inject(HttpClient);
+  private swCache = inject(SwCacheService);
   private readonly API_BASE = '/api/v1/children';
 
   /**
@@ -144,6 +146,7 @@ export class DiapersService {
         // Add to cached list
         const currentDiapers = this.diapers();
         this.diapers.set([...currentDiapers, diaper]);
+        this.swCache.evictReadonlyListCaches(childId);
       }),
       catchError((error) => {
         return throwError(() => ErrorHandler.handle(error, 'Create'));
@@ -171,6 +174,7 @@ export class DiapersService {
             updatedDiapers[index] = updatedDiaper;
             this.diapers.set(updatedDiapers);
           }
+          this.swCache.evictReadonlyListCaches(childId);
         }),
         catchError((error) => {
           return throwError(() => ErrorHandler.handle(error, 'Update'));
@@ -187,6 +191,7 @@ export class DiapersService {
         // Remove from cached list
         const currentDiapers = this.diapers();
         this.diapers.set(currentDiapers.filter((d) => d.id !== id));
+        this.swCache.evictReadonlyListCaches(childId);
       }),
       catchError((error) => {
         return throwError(() => ErrorHandler.handle(error, 'Delete'));

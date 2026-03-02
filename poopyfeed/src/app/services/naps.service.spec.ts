@@ -10,10 +10,12 @@ import {
 import { provideHttpClient } from '@angular/common/http';
 import { NapsService } from './naps.service';
 import { Nap, NapCreate, NapUpdate } from '../models/nap.model';
+import { SwCacheService } from './sw-cache.service';
 
 describe('NapsService', () => {
   let service: NapsService;
   let httpMock: HttpTestingController;
+  let swCache: { evictReadonlyListCaches: ReturnType<typeof vi.fn> };
 
   const mockNap1: Nap = {
     id: 1,
@@ -50,8 +52,13 @@ describe('NapsService', () => {
   const mockNaps: Nap[] = [mockNap1, mockNap2, mockNap3];
 
   beforeEach(() => {
+    swCache = { evictReadonlyListCaches: vi.fn() };
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting()],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        { provide: SwCacheService, useValue: swCache },
+      ],
     });
     service = TestBed.inject(NapsService);
     httpMock = TestBed.inject(HttpTestingController);
@@ -279,6 +286,7 @@ describe('NapsService', () => {
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual(createData);
       req.flush(createdNap);
+      expect(swCache.evictReadonlyListCaches).toHaveBeenCalledWith(1);
     });
 
     it('should handle validation errors', () => {
@@ -371,6 +379,7 @@ describe('NapsService', () => {
       expect(req.request.method).toBe('PATCH');
       expect(req.request.body).toEqual(updateData);
       req.flush(updatedNap);
+      expect(swCache.evictReadonlyListCaches).toHaveBeenCalledWith(1);
     });
 
     it('should handle 404 error', () => {
@@ -450,6 +459,7 @@ describe('NapsService', () => {
       const req = httpMock.expectOne('/api/v1/children/1/naps/1/');
       expect(req.request.method).toBe('DELETE');
       req.flush(null);
+      expect(swCache.evictReadonlyListCaches).toHaveBeenCalledWith(1);
     });
 
     it('should handle 404 error', () => {

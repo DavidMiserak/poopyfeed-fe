@@ -10,10 +10,12 @@ import {
 import { provideHttpClient } from '@angular/common/http';
 import { FeedingsService } from './feedings.service';
 import { Feeding, FeedingCreate, FeedingUpdate } from '../models/feeding.model';
+import { SwCacheService } from './sw-cache.service';
 
 describe('FeedingsService', () => {
   let service: FeedingsService;
   let httpMock: HttpTestingController;
+  let swCache: { evictReadonlyListCaches: ReturnType<typeof vi.fn> };
 
   const mockBottleFeeding: Feeding = {
     id: 1,
@@ -41,8 +43,13 @@ describe('FeedingsService', () => {
   const mockFeedings: Feeding[] = [mockBottleFeeding, mockBreastFeeding];
 
   beforeEach(() => {
+    swCache = { evictReadonlyListCaches: vi.fn() };
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting()],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        { provide: SwCacheService, useValue: swCache },
+      ],
     });
     service = TestBed.inject(FeedingsService);
     httpMock = TestBed.inject(HttpTestingController);
@@ -294,6 +301,7 @@ describe('FeedingsService', () => {
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual(createBottleData);
       req.flush(createdBottleFeeding);
+      expect(swCache.evictReadonlyListCaches).toHaveBeenCalledWith(1);
     });
 
     it('should create a new breast feeding', () => {
@@ -434,6 +442,7 @@ describe('FeedingsService', () => {
       expect(req.request.method).toBe('PATCH');
       expect(req.request.body).toEqual(updateData);
       req.flush(updatedFeeding);
+      expect(swCache.evictReadonlyListCaches).toHaveBeenCalledWith(1);
     });
 
     it('should handle 404 error', () => {
@@ -513,6 +522,7 @@ describe('FeedingsService', () => {
       const req = httpMock.expectOne('/api/v1/children/1/feedings/1/');
       expect(req.request.method).toBe('DELETE');
       req.flush(null);
+      expect(swCache.evictReadonlyListCaches).toHaveBeenCalledWith(1);
     });
 
     it('should handle 404 error', () => {

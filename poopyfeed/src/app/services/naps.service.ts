@@ -14,6 +14,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { ErrorHandler } from './error.utils';
 import { Observable, tap, catchError, throwError, map } from 'rxjs';
+import { SwCacheService } from './sw-cache.service';
 import { Nap, NapCreate, NapUpdate } from '../models/nap.model';
 import {
   PaginatedResponse,
@@ -26,6 +27,7 @@ import {
 })
 export class NapsService {
   private http = inject(HttpClient);
+  private swCache = inject(SwCacheService);
   private readonly API_BASE = '/api/v1/children';
 
   /**
@@ -126,6 +128,7 @@ export class NapsService {
         // Add to cached list
         const currentNaps = this.naps();
         this.naps.set([...currentNaps, nap]);
+        this.swCache.evictReadonlyListCaches(childId);
       }),
       catchError((error) => {
         return throwError(() => ErrorHandler.handle(error, 'Create'));
@@ -149,6 +152,7 @@ export class NapsService {
             updatedNaps[index] = updatedNap;
             this.naps.set(updatedNaps);
           }
+          this.swCache.evictReadonlyListCaches(childId);
         }),
         catchError((error) => {
           return throwError(() => ErrorHandler.handle(error, 'Update'));
@@ -165,6 +169,7 @@ export class NapsService {
         // Remove from cached list
         const currentNaps = this.naps();
         this.naps.set(currentNaps.filter((n) => n.id !== id));
+        this.swCache.evictReadonlyListCaches(childId);
       }),
       catchError((error) => {
         return throwError(() => ErrorHandler.handle(error, 'Delete'));

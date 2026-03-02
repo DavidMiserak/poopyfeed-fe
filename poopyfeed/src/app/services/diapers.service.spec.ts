@@ -14,10 +14,12 @@ import {
   DiaperChangeCreate,
   DiaperChangeUpdate,
 } from '../models/diaper.model';
+import { SwCacheService } from './sw-cache.service';
 
 describe('DiapersService', () => {
   let service: DiapersService;
   let httpMock: HttpTestingController;
+  let swCache: { evictReadonlyListCaches: ReturnType<typeof vi.fn> };
 
   const mockWetDiaper: DiaperChange = {
     id: 1,
@@ -56,8 +58,13 @@ describe('DiapersService', () => {
   ];
 
   beforeEach(async () => {
+    swCache = { evictReadonlyListCaches: vi.fn() };
     await TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting()],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        { provide: SwCacheService, useValue: swCache },
+      ],
     }).compileComponents();
     service = TestBed.inject(DiapersService);
     httpMock = TestBed.inject(HttpTestingController);
@@ -318,6 +325,7 @@ describe('DiapersService', () => {
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual(createWetData);
       req.flush(createdWetDiaper);
+      expect(swCache.evictReadonlyListCaches).toHaveBeenCalledWith(1);
     });
 
     it('should create a new dirty diaper change', () => {
@@ -446,6 +454,7 @@ describe('DiapersService', () => {
       expect(req.request.method).toBe('PATCH');
       expect(req.request.body).toEqual(updateData);
       req.flush(updatedDiaper);
+      expect(swCache.evictReadonlyListCaches).toHaveBeenCalledWith(1);
     });
 
     it('should handle 404 error', () => {
@@ -525,6 +534,7 @@ describe('DiapersService', () => {
       const req = httpMock.expectOne('/api/v1/children/1/diapers/1/');
       expect(req.request.method).toBe('DELETE');
       req.flush(null);
+      expect(swCache.evictReadonlyListCaches).toHaveBeenCalledWith(1);
     });
 
     it('should handle 404 error', () => {

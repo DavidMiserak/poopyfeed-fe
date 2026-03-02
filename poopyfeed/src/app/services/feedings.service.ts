@@ -16,6 +16,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { ErrorHandler } from './error.utils';
 import { Observable, tap, catchError, throwError, map } from 'rxjs';
+import { SwCacheService } from './sw-cache.service';
 import {
   Feeding,
   FeedingCreate,
@@ -32,6 +33,7 @@ import {
 })
 export class FeedingsService {
   private http = inject(HttpClient);
+  private swCache = inject(SwCacheService);
   private readonly API_BASE = '/api/v1/children';
 
   /**
@@ -196,6 +198,7 @@ export class FeedingsService {
         // Add to cached list
         const currentFeedings = this.feedings();
         this.feedings.set([...currentFeedings, feeding]);
+        this.swCache.evictReadonlyListCaches(childId);
       }),
       catchError((error) => {
         return throwError(() => ErrorHandler.handle(error, 'Create'));
@@ -235,6 +238,7 @@ export class FeedingsService {
             updatedFeedings[index] = updatedFeeding;
             this.feedings.set(updatedFeedings);
           }
+          this.swCache.evictReadonlyListCaches(childId);
         }),
         catchError((error) => {
           return throwError(() => ErrorHandler.handle(error, 'Update'));
@@ -261,6 +265,7 @@ export class FeedingsService {
         // Remove from cached list
         const currentFeedings = this.feedings();
         this.feedings.set(currentFeedings.filter((f) => f.id !== id));
+        this.swCache.evictReadonlyListCaches(childId);
       }),
       catchError((error) => {
         return throwError(() => ErrorHandler.handle(error, 'Delete'));
