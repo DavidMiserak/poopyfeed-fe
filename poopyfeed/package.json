@@ -13,7 +13,8 @@
     "lint": "ng lint",
     "lint:fix": "ng lint --fix",
     "format": "prettier --write \"src/**/*.{ts,html,css,json}\" \"e2e/**/*.ts\"",
-    "format:check": "prettier --check \"src/**/*.{ts,html,css,json}\" \"e2e/**/*.ts\""
+    "format:check": "prettier --check \"src/**/*.{ts,html,css,json}\" \"e2e/**/*.ts\"",
+    "analyze:children": "ng build --configuration production --stats-json && npx source-map-explorer \"dist/poopyfeed/browser/*.js\""
   },
   "prettier": {
     "printWidth": 100,

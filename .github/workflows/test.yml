@@ -34,3 +34,13 @@ jobs:
           files: poopyfeed/coverage/lcov.info
           fail_ci_if_error: false
           token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Build with stats (bundle analysis)
+        working-directory: poopyfeed
+        run: npm run build -- --configuration production --stats-json
+
+      - name: Upload build stats
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-build-stats
+          path: poopyfeed/dist/poopyfeed/stats.json
