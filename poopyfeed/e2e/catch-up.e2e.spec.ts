@@ -72,14 +72,14 @@ test.describe('Catch-Up Mode', () => {
     ).toBeVisible({ timeout: E2E_TIMEOUT });
 
     await page.getByRole('button', { name: 'Confirm & Save' }).click();
-    await expect(page.getByText('Saving...')).toBeVisible({ timeout: E2E_TIMEOUT });
+    // Wait for success (Saving... may be too brief to catch on fast runs)
     await expect
       .poll(
         async () => {
-          const msg = page.getByText(/2 Activit(y|ies) Saved!/);
+          const msg = page.getByText(/2 Activit(y|ies) Saved!/).first();
           return await msg.isVisible();
         },
-        { timeout: E2E_TIMEOUT, intervals: [1000] }
+        { timeout: E2E_TIMEOUT, intervals: [500] }
       )
       .toBe(true);
 

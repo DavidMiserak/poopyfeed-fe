@@ -12,9 +12,9 @@ import { E2E_TIMEOUT } from './constants';
 test.describe('Naps', () => {
   test('user can add a nap and see it on the naps list', async ({ page }) => {
     await createChildAndGoToDashboard(page, 'E2E Naps');
-    await page.getByRole('button', { name: 'Add Nap' }).click();
-
-    await expect(page).toHaveURL(/\/children\/\d+\/naps\/create/);
+    const logWithDetails = page.getByText('Log with details', { exact: true }).locator('..');
+    await logWithDetails.getByRole('button', { name: 'Nap' }).click();
+    await expect(page).toHaveURL(/\/children\/\d+\/naps\/create/, { timeout: E2E_TIMEOUT });
     await expect(
       page.getByRole('heading', { name: /Add Nap/ })
     ).toBeVisible();
@@ -23,7 +23,11 @@ test.describe('Naps', () => {
     await page.getByLabel('End Time (optional)').fill('2024-06-15T14:30');
     await page.getByRole('button', { name: 'Add Nap' }).click();
 
-    await expect(page).toHaveURL(/\/children\/\d+\/naps$/);
+    await expect(page).toHaveURL(/\/children\/\d+\/naps$/, { timeout: E2E_TIMEOUT });
+    await expect(page.getByText('Loading naps...')).toBeHidden({ timeout: E2E_TIMEOUT });
+    await expect(
+      page.getByRole('button', { name: 'Add Nap' })
+    ).toBeVisible({ timeout: E2E_TIMEOUT });
     await expect(
       page.getByText('Nap Time').first()
     ).toBeVisible({ timeout: E2E_TIMEOUT });
@@ -33,9 +37,9 @@ test.describe('Naps', () => {
     page,
   }) => {
     await createChildAndGoToDashboard(page, 'E2E Naps');
-    await page.getByRole('button', { name: 'Add Nap' }).click();
-
-    await expect(page).toHaveURL(/\/children\/\d+\/naps\/create/);
+    const logWithDetails = page.getByText('Log with details', { exact: true }).locator('..');
+    await logWithDetails.getByRole('button', { name: 'Nap' }).click();
+    await expect(page).toHaveURL(/\/children\/\d+\/naps\/create/, { timeout: E2E_TIMEOUT });
     await page.getByLabel('Date & Time').fill('');
     await page.getByLabel('Date & Time').blur();
 
@@ -48,7 +52,7 @@ test.describe('Naps', () => {
   }) => {
     await editTrackingItemAndSeeUpdateOnList(page, {
       childNamePrefix: 'E2E Naps',
-      dashboardAddButton: 'Add Nap',
+      dashboardButton: 'Nap',
       createUrlPattern: /\/children\/\d+\/naps\/create/,
       listUrlPattern: /\/children\/\d+\/naps$/,
       editUrlPattern: /\/children\/\d+\/naps\/\d+\/edit/,
@@ -73,8 +77,8 @@ test.describe('Naps', () => {
     page,
   }) => {
     await createChildAndGoToDashboard(page, 'E2E Naps');
-    await page.getByRole('button', { name: 'Add Nap' }).click();
-
+    const logWithDetails = page.getByText('Log with details', { exact: true }).locator('..');
+    await logWithDetails.getByRole('button', { name: 'Nap' }).click();
     await expect(page).toHaveURL(/\/children\/\d+\/naps\/create/, { timeout: E2E_TIMEOUT });
     await page.getByLabel('Date & Time').fill('2024-06-22T12:00');
     await page.locator('form').getByRole('button', { name: 'Add Nap' }).click();
@@ -108,12 +112,15 @@ test.describe('Naps', () => {
     }));
 
     await page.goto(`/children/${childId}/naps/`);
-    await expect(page).toHaveURL(new RegExp(`/children/${childId}/naps/?$`));
+    await expect(page).toHaveURL(new RegExp(`/children/${childId}/naps/?$`), { timeout: E2E_TIMEOUT });
 
     await expect(
       page.getByRole('heading', { name: /Naps for/ })
     ).toBeVisible({ timeout: E2E_TIMEOUT });
     await expect(page.getByText('Loading naps...')).toBeHidden({ timeout: E2E_TIMEOUT });
+    await expect(
+      page.getByRole('button', { name: 'Add Nap' })
+    ).toBeVisible({ timeout: E2E_TIMEOUT });
 
     await expect(page.getByText('Page 1 of 2')).toBeVisible({ timeout: E2E_TIMEOUT });
     await expect(

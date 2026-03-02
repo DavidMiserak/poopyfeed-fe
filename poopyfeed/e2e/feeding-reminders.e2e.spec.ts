@@ -41,7 +41,7 @@ test.describe('Feeding Reminders', () => {
     await expect(page.getByRole('heading', { name: 'Edit Baby' })).toBeVisible({ timeout: E2E_TIMEOUT });
 
     // Open advanced settings section and wait for panel to render
-    await page.getByRole('button', { name: /Show advanced/i }).click();
+    await page.getByRole('button', { name: /Show advanced/i }).first().click();
     await expect(
       page.locator('#advanced-settings-panel')
     ).toBeVisible({ timeout: E2E_TIMEOUT });
@@ -65,7 +65,7 @@ test.describe('Feeding Reminders', () => {
     await expect(page.getByRole('heading', { name: 'Edit Baby' })).toBeVisible();
 
     // Open advanced settings section
-    await page.getByRole('button', { name: /Show advanced/i }).click();
+    await page.getByRole('button', { name: /Show advanced/i }).first().click();
 
     // Select an interval and submit the form
     const select = page.getByLabel('Reminder Interval');
@@ -89,7 +89,7 @@ test.describe('Feeding Reminders', () => {
     await expect(page.getByRole('heading', { name: 'Edit Baby' })).toBeVisible();
 
     // Open advanced settings section
-    await page.getByRole('button', { name: /Show advanced/i }).click();
+    await page.getByRole('button', { name: /Show advanced/i }).first().click();
 
     // Change the reminder interval to "Off"
     const select = page.getByLabel('Reminder Interval');

@@ -28,7 +28,8 @@ async function navigateToSharingPage(page: import('@playwright/test').Page) {
     page.getByText('Loading sharing settings...')
   ).toBeHidden({ timeout: E2E_TIMEOUT });
 
-  const heading = page.getByRole('heading', { name: /Sharing Settings for/ });
+  // Hero title is "Sharing Settings"; subtitle is "Manage access for {name}" (design-aligned page)
+  const heading = page.getByRole('heading', { name: /Sharing Settings/ });
   const headingVisible = await heading
     .waitFor({ state: 'visible', timeout: E2E_TIMEOUT })
     .then(() => true)

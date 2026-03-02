@@ -123,8 +123,9 @@ test.describe('Analytics', () => {
       .getByRole('button', { name: 'Confirm and start export' })
       .click();
 
+    // Job status card shows "PDF ready for download!"; toast may say "PDF export ready for download!"
     await expect(
-      page.getByText('PDF ready for download!')
+      page.getByText(/PDF.*ready for download/).first()
     ).toBeVisible({ timeout: E2E_TIMEOUT });
 
     await expect(

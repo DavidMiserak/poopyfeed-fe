@@ -32,7 +32,7 @@ test.describe('Pediatrician summary', () => {
     });
 
     // Summary section: either period label (content) or SummaryEmptyStateComponent message
-    const summaryContent = page.getByText(/Last 7 days|No activity in the last 7 days/);
+    const summaryContent = page.getByText(/Last 7 days|No activity in the last 7 days/).first();
     await expect(summaryContent).toBeVisible({ timeout: E2E_TIMEOUT });
   });
 });

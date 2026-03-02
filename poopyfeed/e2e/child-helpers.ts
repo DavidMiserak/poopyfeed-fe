@@ -58,9 +58,9 @@ export async function createChildAndGoToDashboard(
       });
     }
 
-    // Dashboard URL reached — wait for main content (dashboard may show skeleton first, then
-    // sections: Add Feeding, Quick Log, More tools, etc.)
-    const feedingButton = page.getByRole('button', { name: 'Add Feeding' });
+    // Dashboard URL reached — wait for "Log with details" section (Feeding, Diaper, Nap buttons)
+    const logWithDetails = page.getByText('Log with details', { exact: true }).locator('..');
+    const feedingButton = logWithDetails.getByRole('button', { name: 'Feeding' });
     const contentLoaded = await feedingButton
       .waitFor({ state: 'visible', timeout: E2E_TIMEOUT })
       .then(() => true)

@@ -61,13 +61,13 @@ test.describe('Invite Accept', () => {
       page.getByRole('heading', { name: 'Access Granted! 🎉' })
     ).toBeVisible({ timeout: E2E_TIMEOUT });
     await expect(
-      page.getByText(/You now have access to .+'s tracking data!/)
+      page.getByText(/You now have access to .+'s tracking data!/).first()
     ).toBeVisible({ timeout: E2E_TIMEOUT });
 
     await page.getByRole('button', { name: 'View My Children' }).click();
     await expect(page).toHaveURL(/\/children$/, { timeout: E2E_TIMEOUT });
     await expect(
-      page.getByRole('heading', { name: sharedChildName })
+      page.getByRole('heading', { name: sharedChildName }).first()
     ).toBeVisible({ timeout: E2E_TIMEOUT });
   });
 

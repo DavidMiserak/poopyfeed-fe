@@ -14,9 +14,9 @@ test.describe('Diapers', () => {
     page,
   }) => {
     await createChildAndGoToDashboard(page, 'E2E Diapers');
-    await page.getByRole('button', { name: 'Add Diaper' }).click();
-
-    await expect(page).toHaveURL(/\/children\/\d+\/diapers\/create/);
+    const logWithDetails = page.getByText('Log with details', { exact: true }).locator('..');
+    await logWithDetails.getByRole('button', { name: 'Diaper' }).click();
+    await expect(page).toHaveURL(/\/children\/\d+\/diapers\/create/, { timeout: E2E_TIMEOUT });
     await expect(
       page.getByRole('heading', { name: /Add Diaper Change/ })
     ).toBeVisible();
@@ -42,9 +42,9 @@ test.describe('Diapers', () => {
     page,
   }) => {
     await createChildAndGoToDashboard(page, 'E2E Diapers');
-    await page.getByRole('button', { name: 'Add Diaper' }).click();
-
-    await expect(page).toHaveURL(/\/children\/\d+\/diapers\/create/);
+    const logWithDetails = page.getByText('Log with details', { exact: true }).locator('..');
+    await logWithDetails.getByRole('button', { name: 'Diaper' }).click();
+    await expect(page).toHaveURL(/\/children\/\d+\/diapers\/create/, { timeout: E2E_TIMEOUT });
     await page.locator('form label').filter({ hasText: 'Wet' }).click();
     await page.getByLabel('Date & Time').fill('');
     await page.getByLabel('Date & Time').blur();
@@ -58,7 +58,7 @@ test.describe('Diapers', () => {
   }) => {
     await editTrackingItemAndSeeUpdateOnList(page, {
       childNamePrefix: 'E2E Diapers',
-      dashboardAddButton: 'Add Diaper',
+      dashboardButton: 'Diaper',
       createUrlPattern: /\/children\/\d+\/diapers\/create/,
       listUrlPattern: /\/children\/\d+\/diapers$/,
       editUrlPattern: /\/children\/\d+\/diapers\/\d+\/edit/,
@@ -87,8 +87,9 @@ test.describe('Diapers', () => {
     page,
   }) => {
     await createChildAndGoToDashboard(page, 'E2E Diapers');
-    await page.getByRole('button', { name: 'Add Diaper' }).click();
-    await expect(page).toHaveURL(/\/children\/\d+\/diapers\/create/);
+    const logWithDetails = page.getByText('Log with details', { exact: true }).locator('..');
+    await logWithDetails.getByRole('button', { name: 'Diaper' }).click();
+    await expect(page).toHaveURL(/\/children\/\d+\/diapers\/create/, { timeout: E2E_TIMEOUT });
     await page.locator('form label').filter({ hasText: 'Both' }).click();
     await page.getByLabel('Date & Time').fill('2024-06-21T11:00');
     await page.locator('form').getByRole('button', { name: 'Add Diaper Change' }).click();

@@ -60,7 +60,7 @@ test.describe('Notifications', () => {
     await page.getByRole('link', { name: 'Manage Sharing' }).click();
     await expect(page).toHaveURL(/\/children\/\d+\/sharing$/);
     await expect(
-      page.getByRole('heading', { name: /Sharing Settings for/ })
+      page.getByRole('heading', { name: /Sharing Settings/ })
     ).toBeVisible({ timeout: E2E_TIMEOUT });
     await expect(
       page.getByRole('button', { name: 'Create Invite Link' })
@@ -109,13 +109,14 @@ test.describe('Notifications', () => {
       page.getByRole('heading', { name: 'My Children' })
     ).toBeVisible({ timeout: E2E_TIMEOUT });
 
-    await page.getByRole('heading', { name: childName }).click();
+    await page.getByRole('heading', { name: childName }).first().click();
     await expect(page).toHaveURL(/\/children\/\d+\/dashboard/, {
       timeout: E2E_TIMEOUT,
     });
 
-    await page.getByRole('button', { name: 'Add Feeding' }).click();
-    await expect(page).toHaveURL(/\/children\/\d+\/feedings\/create$/);
+    const logWithDetails = page.getByText('Log with details', { exact: true }).locator('..');
+    await logWithDetails.getByRole('button', { name: 'Feeding' }).click();
+    await expect(page).toHaveURL(/\/children\/\d+\/feedings\/create$/, { timeout: E2E_TIMEOUT });
     await page.getByRole('radio', { name: 'Bottle' }).click({ force: true });
     await page.getByLabel('Amount (oz)').fill('4');
     await page
@@ -170,43 +171,42 @@ test.describe('Notifications', () => {
     test.setTimeout(120_000); // Extra time for retry on transient API failures
     await createChildAndGoToDashboard(page, 'E2E Notify');
 
+    await expect(page).toHaveURL(/\/children\/\d+\/dashboard/, { timeout: E2E_TIMEOUT });
     const url = page.url();
-    const childId = url.match(/\/children\/(\d+)\//)?.[1];
+    const childId = url.match(/\/children\/(\d+)/)?.[1];
     expect(childId).toBeTruthy();
 
     async function openAdvancedAndWaitForToggles() {
       await page.goto(`/children/${childId}/edit`);
+      await expect(page).toHaveURL(new RegExp(`/children/${childId}/edit`), { timeout: E2E_TIMEOUT });
       await expect(page.getByRole('heading', { name: 'Edit Baby' })).toBeVisible({ timeout: E2E_TIMEOUT });
       // Wait for child data to load (form populated), so loadNotificationPreference() is triggered.
       await expect(page.getByLabel("Baby's Name")).toHaveValue(/\S/, { timeout: E2E_TIMEOUT });
-      await page.getByRole('button', { name: /Show advanced/ }).click();
+      const showAdvanced = page.getByRole('button', { name: /Show advanced/ }).first();
+      await showAdvanced.scrollIntoViewIfNeeded();
+      await showAdvanced.click();
+      const panel = page.locator('#advanced-settings-panel');
+      await expect(panel).toBeVisible({ timeout: E2E_TIMEOUT });
       await expect(
-        page.locator('#advanced-settings-panel')
-      ).toBeVisible({ timeout: E2E_TIMEOUT });
-      const prefsGroup = page.getByRole('group', {
-        name: /Notification Preferences/,
-      });
-      await expect(prefsGroup).toBeVisible({ timeout: E2E_TIMEOUT });
-      await expect(
-        prefsGroup.getByText('Choose which activities trigger notifications')
+        panel.getByText('Choose which activities trigger notifications')
       ).toBeVisible({ timeout: E2E_TIMEOUT });
       await expect(
-        prefsGroup.getByText('Loading notification preferences...')
-      ).toBeHidden({ timeout: E2E_TIMEOUT });
-      const hasError = await prefsGroup
+        panel.getByText('Loading notification preferences...')
+      ).toBeHidden({ timeout: E2E_TIMEOUT * 2 });
+      const hasError = await panel
         .locator('.border-red-500')
         .isVisible()
         .catch(() => false);
       if (hasError) throw new Error('Notification preferences API error');
-      await expect(prefsGroup.getByText('Feedings')).toBeVisible({ timeout: E2E_TIMEOUT });
-      return prefsGroup;
+      await expect(panel.getByText('Feedings')).toBeVisible({ timeout: E2E_TIMEOUT });
+      return panel;
     }
 
     let prefsGroup: Awaited<ReturnType<typeof openAdvancedAndWaitForToggles>>;
     try {
       prefsGroup = await openAdvancedAndWaitForToggles();
     } catch {
-      await page.reload();
+      await page.reload({ timeout: E2E_TIMEOUT });
       prefsGroup = await openAdvancedAndWaitForToggles();
     }
 

@@ -81,7 +81,7 @@ test.describe('Quick Log', () => {
     await expect
       .poll(
         async () =>
-          await page.getByText(/Bottle feeding recorded: \d+ oz/).isVisible(),
+          await page.getByText(/Bottle feeding recorded: \d+ oz/).first().isVisible(),
         { timeout: E2E_TIMEOUT, intervals: [500] }
       )
       .toBe(true);

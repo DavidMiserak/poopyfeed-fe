@@ -5,7 +5,8 @@ import { E2E_TIMEOUT } from './constants';
 
 export interface EditTrackingItemAndSeeUpdateOptions {
   childNamePrefix: string;
-  dashboardAddButton: string;
+  /** Dashboard "Log with details" button: Feeding | Diaper | Nap — navigates directly to create form. */
+  dashboardButton: string;
   createUrlPattern: RegExp;
   listUrlPattern: RegExp;
   editUrlPattern: RegExp;
@@ -18,6 +19,7 @@ export interface EditTrackingItemAndSeeUpdateOptions {
   /** Change the edit form before submitting (e.g. change type or amount). */
   changeForm: (page: Page) => Promise<void>;
   updateButtonLabel: string;
+  /** List page header button label (e.g. Add Feeding) — used to assert list is visible after create/edit. */
   listHeaderButton: string;
   updatedRowText: string | RegExp;
   /** If set, wait for this success toast after update before proceeding (confirms API success). */
@@ -34,7 +36,7 @@ export async function editTrackingItemAndSeeUpdateOnList(
 ): Promise<void> {
   const {
     childNamePrefix,
-    dashboardAddButton,
+    dashboardButton,
     createUrlPattern,
     listUrlPattern,
     editUrlPattern,
@@ -51,13 +53,17 @@ export async function editTrackingItemAndSeeUpdateOnList(
   } = options;
 
   await createChildAndGoToDashboard(page, childNamePrefix);
-  await page.getByRole('button', { name: dashboardAddButton }).click();
+  const logWithDetails = page.getByText('Log with details', { exact: true }).locator('..');
+  await logWithDetails.getByRole('button', { name: dashboardButton }).click();
+  await expect(page).toHaveURL(createUrlPattern, { timeout: E2E_TIMEOUT });
 
-  await expect(page).toHaveURL(createUrlPattern);
   await fillCreateForm(page);
   await page.locator('form').getByRole('button', { name: createFormSubmitButton }).click();
 
   await expect(page).toHaveURL(listUrlPattern, { timeout: E2E_TIMEOUT });
+  await expect(
+    page.getByRole('button', { name: listHeaderButton })
+  ).toBeVisible({ timeout: E2E_TIMEOUT });
   await expect(
     page.getByText(initialRowText).first()
   ).toBeVisible({ timeout: E2E_TIMEOUT });
