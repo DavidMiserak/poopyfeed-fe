@@ -1,8 +1,8 @@
 <div class="min-h-screen relative bg-gradient-to-br from-rose-50 via-amber-50 to-orange-50 px-6 py-12 overflow-hidden">
-  <!-- Decorative background elements -->
-  <div class="absolute inset-0 opacity-20 pointer-events-none">
-    <div class="absolute top-20 left-20 w-64 h-64 bg-gradient-to-br from-rose-400 to-orange-400 rounded-full blur-3xl animate-[gentle-glow_6s_ease-in-out_infinite]" style="will-change: opacity"></div>
-    <div class="absolute bottom-20 right-20 w-96 h-96 bg-gradient-to-br from-amber-400 to-orange-400 rounded-full blur-3xl animate-[gentle-glow_6s_ease-in-out_infinite_3s]" style="will-change: opacity"></div>
+  <!-- Decorative background elements (static, Tailwind only) -->
+  <div class="absolute inset-0 opacity-10 pointer-events-none">
+    <div class="absolute top-20 left-20 w-64 h-64 bg-gradient-to-br from-rose-400 to-orange-400 rounded-full blur-3xl"></div>
+    <div class="absolute bottom-20 right-20 w-96 h-96 bg-gradient-to-br from-amber-400 to-orange-400 rounded-full blur-3xl"></div>
   </div>
 
   <div class="max-w-6xl mx-auto relative z-10">
@@ -24,7 +24,7 @@
     <!-- Dashboard Content -->
     @if (child() && !isLoading()) {
       <div class="space-y-6">
-        <!-- Header Section -->
+        <!-- Back Navigation -->
         <div class="flex items-center justify-between mb-8">
           <a
             routerLink="/children"
@@ -37,16 +37,18 @@
           </a>
         </div>
 
-        <!-- Child Info Card + More menu -->
-        <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-6 sm:p-8 border-2 border-rose-400/20">
+        <!-- Child Hero Banner -->
+        <div class="bg-gradient-to-r from-rose-400 via-rose-500 to-orange-400 rounded-3xl shadow-2xl p-6 sm:p-8">
           <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
             <div class="flex items-center gap-4">
-              <div class="text-5xl sm:text-6xl">{{ getGenderIcon(child()!.gender) }}</div>
+              <div class="w-16 h-16 sm:w-20 sm:h-20 bg-white rounded-full flex items-center justify-center shadow-lg">
+                <span class="text-4xl sm:text-5xl">{{ getGenderIcon(child()!.gender) }}</span>
+              </div>
               <div>
-                <h1 class="font-['Fredoka',sans-serif] text-2xl sm:text-4xl font-bold text-slate-900 mb-1">
+                <h1 class="font-['Fredoka',sans-serif] text-2xl sm:text-4xl font-bold text-white mb-1">
                   {{ child()!.name }}
                 </h1>
-                <p class="font-['DM_Sans',sans-serif] text-slate-600 text-lg">
+                <p class="font-['DM_Sans',sans-serif] text-rose-100 text-lg">
                   {{ getChildAge(child()!.date_of_birth) }}
                 </p>
               </div>
@@ -55,10 +57,9 @@
               @if (canEdit()) {
                 <a
                   [routerLink]="['/children', child()!.id, 'edit']"
-                  class="group relative inline-flex px-4 py-2 rounded-xl font-['DM_Sans',sans-serif] font-bold text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 overflow-hidden border-2 border-rose-400"
+                  class="inline-flex px-4 py-2 rounded-xl font-['DM_Sans',sans-serif] font-bold text-white border-2 border-white/60 hover:bg-white/20 transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0"
                 >
-                  <span class="absolute inset-0 bg-gradient-to-br from-rose-400 to-orange-400 transition-transform duration-300 group-hover:scale-110"></span>
-                  <span class="relative z-10 flex items-center gap-2">
+                  <span class="flex items-center gap-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                     </svg>
@@ -66,19 +67,17 @@
                   </span>
                 </a>
               }
-              <div class="relative">
-                <button
-                  type="button"
-                  class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl font-['DM_Sans',sans-serif] text-sm font-semibold text-slate-700 bg-white/80 border border-slate-200 shadow-sm hover:bg-rose-50 hover:text-rose-700 transition-colors cursor-pointer"
-                  (click)="navigateToAdvanced()"
-                  aria-label="View advanced options for this child"
-                >
-                  More tools
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                  </svg>
-                </button>
-              </div>
+              <button
+                type="button"
+                class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl font-['DM_Sans',sans-serif] text-sm font-semibold text-white border-2 border-white/40 hover:bg-white/20 transition-colors cursor-pointer"
+                (click)="navigateToAdvanced()"
+                aria-label="View advanced options for this child"
+              >
+                More tools
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
             </div>
           </div>
         </div>
@@ -100,15 +99,16 @@
           </div>
         }
 
-        <!-- Quick Log -->
-        <app-dashboard-section-card title="Quick Log" borderColor="amber">
+        <!-- Quick Log (standalone, no section card wrapper) -->
+        <div>
+          <h2 class="font-['Fredoka',sans-serif] text-2xl font-bold text-slate-900 mb-4">Quick Log</h2>
           <app-quick-log
             [childId]="childId()!"
             [canEdit]="canAdd()"
             [child]="child()"
             (quickLogged)="onQuickLogged()"
           />
-        </app-dashboard-section-card>
+        </div>
 
         <!-- Today's Summary -->
         @defer (on viewport) {
@@ -128,72 +128,62 @@
           <div class="rounded-3xl bg-white/80 p-6" style="min-height: 120px"></div>
         }
 
-        <!-- Quick Actions (primary logging path) -->
-        <app-dashboard-section-card title="Log an activity" borderColor="orange">
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <!-- Add Feeding Button -->
+        <!-- Log with Details (demoted compact row) -->
+        <div>
+          <p class="font-['DM_Sans',sans-serif] text-sm font-medium text-slate-500 mb-3">Log with details</p>
+          <div class="flex flex-wrap gap-3">
             <button
               (click)="navigateToFeedings()"
               [disabled]="isNavigatingToFeeding()"
-              class="group relative p-6 rounded-2xl font-['DM_Sans',sans-serif] font-bold text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 overflow-hidden border-2 border-rose-400 cursor-pointer disabled:opacity-75 disabled:cursor-wait"
+              class="inline-flex items-center gap-2 bg-rose-100 text-rose-700 hover:bg-rose-200 px-4 py-2 rounded-full text-sm font-['DM_Sans',sans-serif] font-semibold transition-colors cursor-pointer disabled:opacity-75 disabled:cursor-wait"
               [attr.aria-busy]="isNavigatingToFeeding()"
             >
-              <span class="absolute inset-0 bg-gradient-to-br from-rose-400 to-rose-500 transition-transform duration-300 group-hover:scale-110"></span>
-              <span class="relative z-10 flex flex-col items-center gap-2">
-                @if (isNavigatingToFeeding()) {
-                  <span class="inline-block w-10 h-10 border-4 border-white border-t-transparent rounded-full animate-spin"></span>
-                } @else {
-                  <span class="text-4xl">🍼</span>
-                  <span class="text-lg">Add Feeding</span>
-                }
-              </span>
+              @if (isNavigatingToFeeding()) {
+                <span class="inline-block w-4 h-4 border-2 border-rose-400 border-t-transparent rounded-full animate-spin"></span>
+              } @else {
+                <span>🍼</span>
+              }
+              Feeding
             </button>
-
-            <!-- Add Diaper Change Button -->
             <button
               (click)="navigateToDiapers()"
               [disabled]="isNavigatingToDiaper()"
-              class="group relative p-6 rounded-2xl font-['DM_Sans',sans-serif] font-bold text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 overflow-hidden border-2 border-orange-400 cursor-pointer disabled:opacity-75 disabled:cursor-wait"
+              class="inline-flex items-center gap-2 bg-orange-100 text-orange-700 hover:bg-orange-200 px-4 py-2 rounded-full text-sm font-['DM_Sans',sans-serif] font-semibold transition-colors cursor-pointer disabled:opacity-75 disabled:cursor-wait"
               [attr.aria-busy]="isNavigatingToDiaper()"
             >
-              <span class="absolute inset-0 bg-gradient-to-br from-orange-400 to-orange-500 transition-transform duration-300 group-hover:scale-110"></span>
-              <span class="relative z-10 flex flex-col items-center gap-2">
-                @if (isNavigatingToDiaper()) {
-                  <span class="inline-block w-10 h-10 border-4 border-white border-t-transparent rounded-full animate-spin"></span>
-                } @else {
-                  <span class="text-4xl">🧷</span>
-                  <span class="text-lg">Add Diaper</span>
-                }
-              </span>
+              @if (isNavigatingToDiaper()) {
+                <span class="inline-block w-4 h-4 border-2 border-orange-400 border-t-transparent rounded-full animate-spin"></span>
+              } @else {
+                <span>🧷</span>
+              }
+              Diaper
             </button>
-
-            <!-- Add Nap Button -->
             <button
               (click)="navigateToNaps()"
               [disabled]="isNavigatingToNap()"
-              class="group relative p-6 rounded-2xl font-['DM_Sans',sans-serif] font-bold text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 overflow-hidden border-2 border-amber-400 cursor-pointer disabled:opacity-75 disabled:cursor-wait"
+              class="inline-flex items-center gap-2 bg-blue-100 text-blue-700 hover:bg-blue-200 px-4 py-2 rounded-full text-sm font-['DM_Sans',sans-serif] font-semibold transition-colors cursor-pointer disabled:opacity-75 disabled:cursor-wait"
               [attr.aria-busy]="isNavigatingToNap()"
             >
-              <span class="absolute inset-0 bg-gradient-to-br from-amber-400 to-amber-500 transition-transform duration-300 group-hover:scale-110"></span>
-              <span class="relative z-10 flex flex-col items-center gap-2">
-                @if (isNavigatingToNap()) {
-                  <span class="inline-block w-10 h-10 border-4 border-white border-t-transparent rounded-full animate-spin"></span>
-                } @else {
-                  <span class="text-4xl">😴</span>
-                  <span class="text-lg">Add Nap</span>
-                }
-              </span>
+              @if (isNavigatingToNap()) {
+                <span class="inline-block w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"></span>
+              } @else {
+                <span>😴</span>
+              }
+              Nap
             </button>
           </div>
-        </app-dashboard-section-card>
+        </div>
 
-        <!-- Recent Activity -->
+        <!-- Recent Activity (color-coded feed) -->
         @defer (on viewport) {
           @if (recentActivity().length > 0) {
             <app-dashboard-section-card title="Recent Activity" borderColor="amber">
               <div class="space-y-3">
                 @for (item of recentActivity(); track item.id) {
-                  <div class="flex items-center gap-3 p-3 rounded-xl bg-slate-50/80 border border-slate-100">
+                  <div
+                    class="flex items-center gap-3 p-3 rounded-xl border-l-4"
+                    [class]="getActivityRowClasses(item.type)"
+                  >
                     <span class="text-2xl" [attr.aria-hidden]="true">{{ getActivityIcon(item.type) }}</span>
                     <div class="flex-1 min-w-0">
                       <p class="font-['DM_Sans',sans-serif] text-sm font-semibold text-slate-800">

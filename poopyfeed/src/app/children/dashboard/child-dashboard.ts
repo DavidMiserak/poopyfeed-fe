@@ -497,6 +497,20 @@ export class ChildDashboard implements OnInit {
   getActivityIcon = (type: 'feeding' | 'diaper' | 'nap') => getActivityIcon(type);
 
   /**
+   * Returns Tailwind classes for color-coded activity rows.
+   */
+  getActivityRowClasses(type: 'feeding' | 'diaper' | 'nap'): string {
+    switch (type) {
+      case 'feeding':
+        return 'border-l-rose-400 bg-rose-50/50';
+      case 'diaper':
+        return 'border-l-orange-400 bg-orange-50/50';
+      case 'nap':
+        return 'border-l-blue-400 bg-blue-50/50';
+    }
+  }
+
+  /**
    * Generate display title for an activity item.
    *
    * Returns human-readable description of activity for dashboard feed:

@@ -1098,10 +1098,10 @@ describe('QuickLog', () => {
     });
 
     it('should have diaper group with border', () => {
-      const diaperGroup = fixture.nativeElement.querySelector('.border-2.border-orange-400\\/20.rounded-3xl');
+      const diaperGroup = fixture.nativeElement.querySelector('.border-2.border-orange-200.rounded-3xl');
       expect(diaperGroup).toBeTruthy();
       expect(diaperGroup.classList.contains('border-2')).toBe(true);
-      expect(diaperGroup.classList.contains('border-orange-400/20')).toBe(true);
+      expect(diaperGroup.classList.contains('border-orange-200')).toBe(true);
     });
 
     it('should show 3 bottle buttons with bottle emoji when not loading', () => {
