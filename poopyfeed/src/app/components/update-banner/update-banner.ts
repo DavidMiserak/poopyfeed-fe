@@ -1,7 +1,16 @@
-import { ChangeDetectionStrategy, Component, inject, signal, PLATFORM_ID } from '@angular/core';
+import {
+  ApplicationRef,
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  inject,
+  signal,
+  PLATFORM_ID,
+} from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { SwUpdate, VersionReadyEvent } from '@angular/service-worker';
-import { filter } from 'rxjs/operators';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { concat, filter, interval, take } from 'rxjs';
 
 @Component({
   selector: 'app-update-banner',
@@ -37,6 +46,8 @@ import { filter } from 'rxjs/operators';
 export class UpdateBanner {
   private swUpdate = inject(SwUpdate);
   private platformId = inject(PLATFORM_ID);
+  private appRef = inject(ApplicationRef);
+  private destroyRef = inject(DestroyRef);
 
   protected updateAvailable = signal(false);
 
@@ -45,8 +56,23 @@ export class UpdateBanner {
       return;
     }
 
+    const appIsStable$ = this.appRef.isStable.pipe(
+      filter((isStable) => isStable),
+      take(1)
+    );
+    const updateInterval$ = interval(6 * 60 * 60 * 1000);
+
+    concat(appIsStable$, updateInterval$)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.swUpdate.checkForUpdate().catch(() => undefined);
+      });
+
     this.swUpdate.versionUpdates
-      .pipe(filter((event): event is VersionReadyEvent => event.type === 'VERSION_READY'))
+      .pipe(
+        filter((event): event is VersionReadyEvent => event.type === 'VERSION_READY'),
+        takeUntilDestroyed(this.destroyRef)
+      )
       .subscribe(() => this.updateAvailable.set(true));
   }
 

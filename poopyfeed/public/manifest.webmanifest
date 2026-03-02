@@ -3,6 +3,8 @@
   "name": "PoopyFeed - Baby Care Tracker",
   "short_name": "PoopyFeed",
   "description": "Track feedings, diapers, and naps for your baby",
+  "lang": "en",
+  "dir": "ltr",
   "theme_color": "#FF6B35",
   "background_color": "#FFFBF5",
   "display": "standalone",
@@ -78,14 +80,18 @@
       "short_name": "Children",
       "url": "/children",
       "description": "View your children",
-      "icons": [{ "src": "icons/icon-96x96.png", "sizes": "96x96" }]
+      "icons": [
+        { "src": "icons/icon-96x96.png", "sizes": "96x96", "type": "image/png", "purpose": "any" }
+      ]
     },
     {
       "name": "Notifications",
       "short_name": "Alerts",
       "url": "/notifications",
       "description": "View notifications and alerts",
-      "icons": [{ "src": "icons/icon-96x96.png", "sizes": "96x96" }]
+      "icons": [
+        { "src": "icons/icon-96x96.png", "sizes": "96x96", "type": "image/png", "purpose": "any" }
+      ]
     }
   ]
 }

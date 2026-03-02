@@ -5,10 +5,11 @@ import { Footer } from './components/footer/footer';
 import { Toast } from './components/toast/toast';
 import { TimezoneBanner } from './components/timezone-banner/timezone-banner';
 import { UpdateBanner } from './components/update-banner/update-banner';
+import { NetworkBanner } from './components/network-banner/network-banner';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, Header, Footer, Toast, TimezoneBanner, UpdateBanner],
+  imports: [RouterOutlet, Header, Footer, Toast, TimezoneBanner, UpdateBanner, NetworkBanner],
   templateUrl: './app.html',
   styleUrl: './app.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -15,6 +15,7 @@ describe('UpdateBanner', () => {
       isEnabled: enabled,
       versionUpdates: versionUpdates$.asObservable(),
       activateUpdate: vi.fn().mockResolvedValue(undefined),
+      checkForUpdate: vi.fn().mockResolvedValue(true),
     };
 
     TestBed.configureTestingModule({
