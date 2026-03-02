@@ -41,6 +41,26 @@
       }
     }
   ],
+  "dataGroups": [
+    {
+      "name": "api-readonly-lists",
+      "urls": [
+        "/api/v1/children/",
+        "/api/v1/children/**/feedings/",
+        "/api/v1/children/**/diapers/",
+        "/api/v1/children/**/naps/",
+        "/api/v1/children/**/shares/",
+        "/api/v1/children/**/invites/",
+        "/api/v1/analytics/children/**/timeline/"
+      ],
+      "cacheConfig": {
+        "strategy": "performance",
+        "maxSize": 100,
+        "maxAge": "10m",
+        "refreshAhead": "2m"
+      }
+    }
+  ],
   "navigationUrls": [
     "/**",
     "!/api/**",
