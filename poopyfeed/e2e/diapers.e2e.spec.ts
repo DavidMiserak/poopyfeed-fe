@@ -74,8 +74,10 @@ test.describe('Diapers', () => {
       editButtonLabel: 'Edit diaper change',
       editHeadingPattern: /Edit Diaper Change/,
       changeForm: async (p) => {
-        // Wait for resource data to load before changing (prevents patchFormWithResource race)
-        await expect(p.getByRole('radio', { name: 'Wet' })).toBeChecked({ timeout: E2E_TIMEOUT });
+        // Wait for resource data to load before changing (prevents patchFormWithResource race).
+        // Cannot rely on radio check — 'Wet' is the form default AND the created value.
+        // Date & Time field is empty until patchFormWithResource fills it on edit routes.
+        await expect(p.getByLabel('Date & Time')).not.toHaveValue('', { timeout: E2E_TIMEOUT });
         await p.locator('form label').filter({ hasText: 'Dirty' }).click();
         await p.getByLabel('Date & Time').fill('2024-06-15T16:30');
       },

@@ -30,8 +30,17 @@ test.describe('Notifications', () => {
     const bell = page.getByRole('button', { name: 'Notifications' }).first();
     await expect(bell).toBeVisible();
 
-    // Click bell → dropdown shows list (empty or with notifications from other runs)
+    // Click bell → wait for notification list API before asserting dropdown content.
+    // The dropdown shows "Loading…" until the API responds; asserting before that is flaky under load.
+    const listResponse = page.waitForResponse(
+      (resp) =>
+        resp.url().includes('/api/v1/notifications/') &&
+        resp.request().method() === 'GET' &&
+        resp.status() === 200,
+      { timeout: E2E_TIMEOUT }
+    );
     await bell.click();
+    await listResponse;
     const dialog = page.getByRole('dialog', { name: 'Notification list' });
     await expect(dialog).toBeVisible({ timeout: E2E_TIMEOUT });
     await expect(
@@ -44,12 +53,13 @@ test.describe('Notifications', () => {
     await page.getByRole('button', { name: 'View all notifications' }).click();
     await expect(page).toHaveURL(/\/notifications$/, { timeout: E2E_TIMEOUT });
     await expect(
-      page.getByRole('heading', { name: 'Notifications' })
+      page.getByRole('heading', { name: 'Notifications', exact: true })
     ).toBeVisible({ timeout: E2E_TIMEOUT });
-    // Page shows empty state or list (same as dropdown)
+    // Page shows empty state or list (same as dropdown).
+    // Use exact match to avoid matching the h2 "No notifications yet" heading.
     await expect(
       page
-        .getByText('No notifications yet')
+        .getByText('No notifications yet', { exact: true })
         .or(page.getByRole('list'))
     ).toBeVisible({ timeout: E2E_TIMEOUT });
   });

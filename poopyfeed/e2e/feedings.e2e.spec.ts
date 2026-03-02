@@ -70,6 +70,9 @@ test.describe('Feedings', () => {
       editButtonLabel: 'Edit feeding',
       editHeadingPattern: /Edit Feeding/,
       changeForm: async (p) => {
+        // Wait for resource data to load before changing (prevents patchFormWithResource race).
+        // API returns float "4.0", not "4" — use regex to match either format.
+        await expect(p.getByLabel('Amount (oz)')).toHaveValue(/^4(\.0)?$/, { timeout: E2E_TIMEOUT });
         await p.getByLabel('Amount (oz)').fill('6');
       },
       updateButtonLabel: 'Update Feeding',
