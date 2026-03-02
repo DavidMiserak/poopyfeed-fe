@@ -2,13 +2,20 @@ import { DeferBlockState, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { SwUpdate } from '@angular/service-worker';
+import { EMPTY } from 'rxjs';
 import { App } from './app';
 
 describe('App', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [App],
-      providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()],
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        { provide: SwUpdate, useValue: { isEnabled: false, versionUpdates: EMPTY } },
+      ],
     }).compileComponents();
   });
 
@@ -30,7 +37,6 @@ describe('App', () => {
     const app = fixture.componentInstance;
     expect(app['title']()).toBe('poopyfeed');
   });
-
 
   it('should render header component', async () => {
     const fixture = TestBed.createComponent(App);
