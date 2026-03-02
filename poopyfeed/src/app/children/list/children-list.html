@@ -1,8 +1,8 @@
 <div class="min-h-screen relative bg-gradient-to-br from-rose-50 via-amber-50 to-orange-50 px-6 py-8 overflow-hidden">
-  <!-- Decorative background elements -->
-  <div class="absolute inset-0 opacity-20 pointer-events-none">
-    <div class="absolute top-20 left-20 w-64 h-64 bg-gradient-to-br from-rose-400 to-amber-400 rounded-full blur-3xl animate-pulse"></div>
-    <div class="absolute bottom-20 right-20 w-96 h-96 bg-gradient-to-br from-orange-400 to-rose-500 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s;"></div>
+  <!-- Decorative background elements (static, Tailwind only) -->
+  <div class="absolute inset-0 opacity-10 pointer-events-none">
+    <div class="absolute top-20 left-20 w-64 h-64 bg-gradient-to-br from-rose-400 to-amber-400 rounded-full blur-3xl"></div>
+    <div class="absolute bottom-20 right-20 w-96 h-96 bg-gradient-to-br from-orange-400 to-rose-500 rounded-full blur-3xl"></div>
   </div>
 
   <div class="max-w-6xl mx-auto relative z-10">
@@ -34,7 +34,7 @@
     @if (isLoading()) {
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         @for (i of [1, 2, 3]; track i) {
-          <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl p-6 border-2 border-rose-200 animate-pulse">
+          <div class="backdrop-blur-lg rounded-3xl shadow-xl p-6 border-2 border-slate-200 bg-gradient-to-br from-white/80 to-slate-50/60 animate-pulse">
             <div class="h-24 bg-gradient-to-r from-slate-200 to-slate-300 rounded-2xl mb-4"></div>
             <div class="h-6 bg-gradient-to-r from-slate-200 to-slate-300 rounded mb-2"></div>
             <div class="h-4 bg-gradient-to-r from-slate-200 to-slate-300 rounded w-2/3"></div>
@@ -103,7 +103,8 @@
             (keydown.enter)="navigateToChild(child.id)"
             (keydown.space)="onChildCardKeydown($event, child.id)"
             [attr.aria-busy]="navigatingToChildId() === child.id"
-            class="group relative bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl hover:shadow-2xl p-6 border-2 border-rose-200 hover:border-rose-400 transition-all duration-300 cursor-pointer hover:-translate-y-2"
+            class="group relative backdrop-blur-lg rounded-3xl shadow-xl hover:shadow-2xl p-6 border-2 transition-all duration-300 cursor-pointer hover:-translate-y-2"
+            [class]="getCardClasses(child.gender)"
             [class.opacity-75]="navigatingToChildId() === child.id"
           >
             <!-- Loading Spinner Overlay -->
@@ -125,7 +126,10 @@
             <!-- Child Avatar -->
             <div class="flex items-center justify-center mb-4">
               <div class="relative">
-                <div class="w-24 h-24 bg-gradient-to-br from-rose-400 to-amber-400 rounded-full flex items-center justify-center text-5xl group-hover:scale-110 transition-transform duration-300">
+                <div
+                  class="w-24 h-24 rounded-full flex items-center justify-center text-5xl group-hover:scale-110 transition-transform duration-300"
+                  [class]="getAvatarGradient(child.gender)"
+                >
                   {{ getGenderIcon(child.gender) }}
                 </div>
                 <div class="absolute -bottom-1 -right-1 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-lg">
@@ -154,7 +158,7 @@
             </div>
 
             <!-- Last Activity -->
-            <div class="mt-6 pt-4 border-t border-slate-200">
+            <div class="mt-6 pt-4 border-t border-slate-200/60">
               <div class="flex items-center gap-2 mb-3">
                 <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -218,7 +222,7 @@
             </div>
 
             <!-- Quick Action Hint -->
-            <div class="mt-6 pt-4 border-t border-slate-200">
+            <div class="mt-6 pt-4 border-t border-slate-200/60">
               <p class="font-['DM_Sans',sans-serif] text-slate-500 text-xs text-center group-hover:text-rose-400 transition-colors">
                 Click to view dashboard →
               </p>

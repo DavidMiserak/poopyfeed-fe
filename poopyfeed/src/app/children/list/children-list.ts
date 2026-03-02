@@ -207,6 +207,34 @@ export class ChildrenList implements OnInit {
   formatTimestamp = (timestamp: string) => formatTimestamp(timestamp);
 
   /**
+   * Returns Tailwind classes for gender-differentiated card border and tint.
+   */
+  getCardClasses(gender: Child['gender']): string {
+    switch (gender) {
+      case 'M':
+        return 'border-blue-200 hover:border-blue-400 bg-gradient-to-br from-white/80 to-blue-50/60';
+      case 'F':
+        return 'border-rose-200 hover:border-rose-400 bg-gradient-to-br from-white/80 to-rose-50/60';
+      default:
+        return 'border-purple-200 hover:border-purple-400 bg-gradient-to-br from-white/80 to-purple-50/60';
+    }
+  }
+
+  /**
+   * Returns Tailwind gradient classes for gender-differentiated avatar circle.
+   */
+  getAvatarGradient(gender: Child['gender']): string {
+    switch (gender) {
+      case 'M':
+        return 'bg-gradient-to-br from-blue-400 to-indigo-400';
+      case 'F':
+        return 'bg-gradient-to-br from-rose-400 to-pink-400';
+      default:
+        return 'bg-gradient-to-br from-purple-400 to-violet-400';
+    }
+  }
+
+  /**
    * True when the child has feeding reminders enabled and time since last feeding
    * is greater than or equal to the reminder interval (show "Overdue" pill).
    */
