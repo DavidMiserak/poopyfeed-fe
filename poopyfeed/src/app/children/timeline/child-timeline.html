@@ -168,7 +168,7 @@
                     <span class="font-['DM_Sans',sans-serif] text-xs font-medium text-slate-400 px-2 bg-white rounded">
                       {{ itemWithGap.gapStartTime }} - {{ itemWithGap.gapEndTime }} ({{ formatGapTime(itemWithGap.gapMinutes) }})
                     </span>
-                    @if (itemWithGap.gapMinutes >= 120 && canAddNap()) {
+                    @if (itemWithGap.gapMinutes >= minGapMinutesForNap && canAddNap()) {
                       <button
                         (click)="addNapForGap(itemWithGap.gapStartTimestamp!, itemWithGap.gapEndTimestamp!)"
                         [disabled]="isAddingNap()"

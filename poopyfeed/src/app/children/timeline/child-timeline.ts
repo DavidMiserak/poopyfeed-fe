@@ -121,6 +121,9 @@ export class ChildTimeline implements OnInit {
   /** Loading state for "Add nap" button */
   isAddingNap = signal(false);
 
+  /** Minimum gap (in minutes) to show "Add nap" */
+  readonly minGapMinutesForNap = 60;
+
   /**
    * Selected date string (YYYY-MM-DD) computed from dayOffset in user's timezone.
    *
