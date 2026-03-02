@@ -13,10 +13,8 @@
  * - Co-parent: Can add and edit tracking records
  * - Caregiver: Can only add tracking records
  *
- * Data loading strategy (two-phase progressive):
- * - Phase 1: Child profile loads first → dashboard shell + action buttons render immediately
- * - Phase 2: Tracking data + summary load in parallel via forkJoin (non-blocking)
- * - ActivityItem merges and sorts to show most recent 10 combined
+ * Data loading: single forkJoin (child, timeline, today summary, pattern alerts),
+ * same pattern as timeline view. Recent activity is first 10 timeline events.
  *
  * Permission system:
  * - canAdd: Everyone with access can add tracking records
@@ -43,18 +41,20 @@ import {
   signal,
 } from '@angular/core';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
-import { forkJoin } from 'rxjs';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { ChildrenService } from '../../services/children.service';
-import { FeedingsService } from '../../services/feedings.service';
-import { DiapersService } from '../../services/diapers.service';
-import { NapsService } from '../../services/naps.service';
 import { AnalyticsService } from '../../services/analytics.service';
 import { DateTimeService } from '../../services/datetime.service';
 import { Child } from '../../models/child.model';
 import { Feeding } from '../../models/feeding.model';
 import { DiaperChange } from '../../models/diaper.model';
 import { Nap } from '../../models/nap.model';
-import { TodaySummaryData, PatternAlertsResponse } from '../../models/analytics.model';
+import {
+  TodaySummaryData,
+  PatternAlertsResponse,
+  TimelineEvent,
+} from '../../models/analytics.model';
 import { QuickLog } from './quick-log/quick-log';
 import { TodaySummaryCards } from '../../components/today-summary-cards';
 import { ErrorCardComponent } from '../../components/error-card/error-card.component';
@@ -101,9 +101,6 @@ export class ChildDashboard implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private childrenService = inject(ChildrenService);
-  private feedingsService = inject(FeedingsService);
-  private diapersService = inject(DiapersService);
-  private napsService = inject(NapsService);
   private analyticsService = inject(AnalyticsService);
   private datetimeService = inject(DateTimeService);
 
@@ -113,16 +110,7 @@ export class ChildDashboard implements OnInit {
   /** Child profile (name, age, gender, user role) */
   child = signal<Child | null>(null);
 
-  /** List of feedings for this child (last ~50) */
-  feedings = signal<Feeding[]>([]);
-
-  /** List of diaper changes for this child (last ~50) */
-  diapers = signal<DiaperChange[]>([]);
-
-  /** List of naps for this child (last ~50) */
-  naps = signal<Nap[]>([]);
-
-  /** Merged and sorted recent activity (last 10 across all types) */
+  /** Merged and sorted recent activity (last 10 from timeline API) */
   recentActivity = signal<ActivityItem[]>([]);
 
   /** Today's summary data from analytics API */
@@ -224,27 +212,18 @@ export class ChildDashboard implements OnInit {
   }
 
   /**
-   * Load all dashboard data (child + tracking records).
+   * Load all dashboard data in one round of API calls (same pattern as timeline).
    *
-   * Uses forkJoin to load all 4 API calls in parallel:
+   * Uses a single forkJoin to load in parallel:
    * 1. Child profile (name, age, role)
-   * 2. Last ~50 feedings
-   * 3. Last ~50 diaper changes
-   * 4. Last ~50 naps
+   * 2. Timeline (merged feedings, diapers, naps — used for recent activity)
+   * 3. Today's summary
+   * 4. Pattern alerts (feeding/nap overdue; non-blocking on error)
    *
-   * Then merges and sorts activities:
-   * - Takes first 10 from each tracking type
-   * - Combines into single ActivityItem array
-   * - Sorts by timestamp (newest first)
-   * - Keeps top 10 for display
+   * Recent activity is the first 10 timeline events (already newest-first).
    *
    * @param childId Child to load data for
    * @param showLoading Whether to show loading spinner (false when refreshing after quick-log)
-   *
-   * Data processing:
-   * - Loading screen shown during fetch
-   * - Error message displayed if API call fails
-   * - All signals updated on success
    */
   loadDashboardData(childId: number, showLoading = true) {
     if (showLoading) {
@@ -253,15 +232,24 @@ export class ChildDashboard implements OnInit {
     this.isDetailLoading.set(true);
     this.error.set(null);
 
-    // Phase 1: Load child profile first — unlocks dashboard shell and action buttons
-    this.childrenService.get(childId).subscribe({
-      next: (child) => {
+    forkJoin({
+      child: this.childrenService.get(childId),
+      timeline: this.analyticsService.getTimeline(childId, 1, 20),
+      todaySummary: this.analyticsService.getTodaySummary(childId),
+      patternAlerts: this.analyticsService.getPatternAlerts(childId).pipe(
+        catchError(() => of(null))
+      ),
+    }).subscribe({
+      next: ({ child, timeline, todaySummary, patternAlerts }) => {
         this.child.set(child);
+        this.todaySummaryData.set(todaySummary);
+        this.patternAlerts.set(patternAlerts ?? null);
+        const activities = timeline.results
+          .slice(0, 10)
+          .map((event) => this.timelineEventToActivityItem(event, childId));
+        this.recentActivity.set(activities);
         this.isLoading.set(false);
-
-        // Phase 2: Load tracking data and summary in parallel (non-blocking)
-        this.loadDetailData(childId);
-        this.loadPatternAlerts(childId);
+        this.isDetailLoading.set(false);
       },
       error: (err: Error) => {
         this.error.set(err.message);
@@ -272,76 +260,41 @@ export class ChildDashboard implements OnInit {
   }
 
   /**
-   * Load tracking data and today summary (phase 2).
-   *
-   * Called after child profile loads. Fetches feedings, diapers, naps,
-   * and today summary in parallel. Updates signals progressively —
-   * the dashboard shell is already visible while this loads.
+   * Map a timeline API event to ActivityItem for the recent activity feed.
    */
-  private loadDetailData(childId: number): void {
-    forkJoin({
-      feedings: this.feedingsService.list(childId),
-      diapers: this.diapersService.list(childId),
-      naps: this.napsService.list(childId),
-      todaySummary: this.analyticsService.getTodaySummary(childId),
-    }).subscribe({
-      next: ({ feedings, diapers, naps, todaySummary }) => {
-        this.feedings.set(feedings);
-        this.diapers.set(diapers);
-        this.naps.set(naps);
-        this.todaySummaryData.set(todaySummary);
-
-        // Merge and sort recent activity
-        const activity: ActivityItem[] = [
-          ...feedings.slice(0, 10).map((f) => ({
-            id: f.id,
-            type: 'feeding' as const,
-            timestamp: f.fed_at,
-            data: f,
-          })),
-          ...diapers.slice(0, 10).map((d) => ({
-            id: d.id,
-            type: 'diaper' as const,
-            timestamp: d.changed_at,
-            data: d,
-          })),
-          ...naps.slice(0, 10).map((n) => ({
-            id: n.id,
-            type: 'nap' as const,
-            timestamp: n.napped_at,
-            data: n,
-          })),
-        ];
-
-        // Sort by timestamp (newest first); parse as UTC so API timestamps without Z are correct
-        activity.sort(
-          (a, b) =>
-            this.datetimeService.toLocal(b.timestamp).getTime() -
-            this.datetimeService.toLocal(a.timestamp).getTime()
-        );
-        this.recentActivity.set(activity.slice(0, 10));
-
-        this.isDetailLoading.set(false);
-      },
-      error: () => {
-        this.isDetailLoading.set(false);
-      },
-    });
-  }
-
-  /**
-   * Load pattern alerts for a child (non-blocking, silent on error).
-   *
-   * Called after main dashboard data loads. Fetches feeding and nap
-   * pattern alerts. Errors are silently suppressed — alerts are
-   * non-critical and the dashboard should render without them.
-   *
-   * @param childId Child to load alerts for
-   */
-  private loadPatternAlerts(childId: number): void {
-    this.analyticsService.getPatternAlerts(childId).subscribe({
-      next: (alerts) => this.patternAlerts.set(alerts),
-    });
+  private timelineEventToActivityItem(
+    event: TimelineEvent,
+    childId: number
+  ): ActivityItem {
+    const at = event.at;
+    if (event.type === 'feeding' && event.feeding) {
+      const f = event.feeding;
+      return {
+        id: f.id,
+        type: 'feeding',
+        timestamp: at,
+        data: { ...f, child: childId } as Feeding,
+      };
+    }
+    if (event.type === 'diaper' && event.diaper) {
+      const d = event.diaper;
+      return {
+        id: d.id,
+        type: 'diaper',
+        timestamp: at,
+        data: { ...d, child: childId } as DiaperChange,
+      };
+    }
+    if (event.type === 'nap' && event.nap) {
+      const n = event.nap;
+      return {
+        id: n.id,
+        type: 'nap',
+        timestamp: at,
+        data: { ...n, child: childId } as Nap,
+      };
+    }
+    throw new Error(`Invalid timeline event: ${JSON.stringify(event)}`);
   }
 
   /**

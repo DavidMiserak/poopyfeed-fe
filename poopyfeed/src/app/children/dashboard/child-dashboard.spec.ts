@@ -6,15 +6,17 @@ import { of, throwError, EMPTY } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 import { ChildDashboard } from './child-dashboard';
 import { ChildrenService } from '../../services/children.service';
-import { FeedingsService } from '../../services/feedings.service';
-import { DiapersService } from '../../services/diapers.service';
-import { NapsService } from '../../services/naps.service';
 import { AnalyticsService } from '../../services/analytics.service';
 import { Child } from '../../models/child.model';
 import { Feeding } from '../../models/feeding.model';
 import { DiaperChange } from '../../models/diaper.model';
 import { Nap } from '../../models/nap.model';
-import { TodaySummaryData, PatternAlertsResponse } from '../../models/analytics.model';
+import {
+  TodaySummaryData,
+  PatternAlertsResponse,
+  TimelineResponse,
+  TimelineEvent,
+} from '../../models/analytics.model';
 
 const mockChild: Child = {
   id: 1,
@@ -138,13 +140,56 @@ function makePatternAlerts(overrides: Partial<PatternAlertsResponse> = {}): Patt
   };
 }
 
+/** Build timeline API response from feedings, diapers, naps (newest first) for dashboard tests. */
+function makeTimelineResponse(
+  feedings: Feeding[],
+  diapers: DiaperChange[],
+  naps: Nap[]
+): TimelineResponse {
+  const events: TimelineEvent[] = [
+    ...feedings.map((f) => ({
+      type: 'feeding' as const,
+      at: f.fed_at,
+      feeding: {
+        id: f.id,
+        fed_at: f.fed_at,
+        feeding_type: f.feeding_type,
+        amount_oz: f.amount_oz,
+        duration_minutes: f.duration_minutes,
+        side: f.side,
+      },
+    })),
+    ...diapers.map((d) => ({
+      type: 'diaper' as const,
+      at: d.changed_at,
+      diaper: { id: d.id, changed_at: d.changed_at, change_type: d.change_type },
+    })),
+    ...naps.map((n) => ({
+      type: 'nap' as const,
+      at: n.napped_at,
+      nap: {
+        id: n.id,
+        napped_at: n.napped_at,
+        ended_at: n.ended_at,
+        duration_minutes: n.duration_minutes,
+      },
+    })),
+  ];
+  events.sort(
+    (a, b) => new Date(b.at).getTime() - new Date(a.at).getTime()
+  );
+  return {
+    count: events.length,
+    next: null,
+    previous: null,
+    results: events,
+  };
+}
+
 describe('ChildDashboard', () => {
   let component: ChildDashboard;
   let fixture: ComponentFixture<ChildDashboard>;
   let childrenService: ChildrenService;
-  let feedingsService: FeedingsService;
-  let diapersService: DiapersService;
-  let napsService: NapsService;
   let analyticsService: AnalyticsService;
 
   beforeEach(async () => {
@@ -168,13 +213,11 @@ describe('ChildDashboard', () => {
     }).compileComponents();
 
     childrenService = TestBed.inject(ChildrenService);
-    feedingsService = TestBed.inject(FeedingsService);
-    diapersService = TestBed.inject(DiapersService);
-    napsService = TestBed.inject(NapsService);
     analyticsService = TestBed.inject(AnalyticsService);
 
-    // Default: pattern alerts return EMPTY (non-critical, loaded after main data)
-    vi.spyOn(analyticsService, 'getPatternAlerts').mockReturnValue(EMPTY);
+    vi.spyOn(analyticsService, 'getPatternAlerts').mockReturnValue(
+      of(makePatternAlerts())
+    );
   });
 
   function setupWithData(
@@ -188,10 +231,12 @@ describe('ChildDashboard', () => {
     }
 
     vi.spyOn(childrenService, 'get').mockReturnValue(of(mockChild));
-    vi.spyOn(feedingsService, 'list').mockReturnValue(of(feedings));
-    vi.spyOn(diapersService, 'list').mockReturnValue(of(diapers));
-    vi.spyOn(napsService, 'list').mockReturnValue(of(naps));
-    vi.spyOn(analyticsService, 'getTodaySummary').mockReturnValue(of(todaySummary));
+    vi.spyOn(analyticsService, 'getTimeline').mockReturnValue(
+      of(makeTimelineResponse(feedings, diapers, naps))
+    );
+    vi.spyOn(analyticsService, 'getTodaySummary').mockReturnValue(
+      of(todaySummary)
+    );
 
     fixture = TestBed.createComponent(ChildDashboard);
     component = fixture.componentInstance;
@@ -217,10 +262,12 @@ describe('ChildDashboard', () => {
 
     it('should be null before data loads', () => {
       vi.spyOn(childrenService, 'get').mockReturnValue(of(mockChild));
-      vi.spyOn(feedingsService, 'list').mockReturnValue(of([]));
-      vi.spyOn(diapersService, 'list').mockReturnValue(of([]));
-      vi.spyOn(napsService, 'list').mockReturnValue(of([]));
-      vi.spyOn(analyticsService, 'getTodaySummary').mockReturnValue(of(makeTodaySummary()));
+      vi.spyOn(analyticsService, 'getTimeline').mockReturnValue(
+        of(makeTimelineResponse([], [], []))
+      );
+      vi.spyOn(analyticsService, 'getTodaySummary').mockReturnValue(
+        of(makeTodaySummary())
+      );
 
       fixture = TestBed.createComponent(ChildDashboard);
       component = fixture.componentInstance;
@@ -238,9 +285,9 @@ describe('ChildDashboard', () => {
       });
 
       vi.spyOn(childrenService, 'get').mockReturnValue(of(mockChild));
-      vi.spyOn(feedingsService, 'list').mockReturnValue(of([]));
-      vi.spyOn(diapersService, 'list').mockReturnValue(of([]));
-      vi.spyOn(napsService, 'list').mockReturnValue(of([]));
+      vi.spyOn(analyticsService, 'getTimeline').mockReturnValue(
+        of(makeTimelineResponse([], [], []))
+      );
       vi.spyOn(analyticsService, 'getTodaySummary')
         .mockReturnValueOnce(of(summary1))
         .mockReturnValueOnce(of(summary2));
@@ -285,10 +332,12 @@ describe('ChildDashboard', () => {
     describe('loading state combinations', () => {
       it('should load data with showLoading parameter defaulting to true', () => {
         vi.spyOn(childrenService, 'get').mockReturnValue(of(mockChild));
-        vi.spyOn(feedingsService, 'list').mockReturnValue(of([]));
-        vi.spyOn(diapersService, 'list').mockReturnValue(of([]));
-        vi.spyOn(napsService, 'list').mockReturnValue(of([]));
-        vi.spyOn(analyticsService, 'getTodaySummary').mockReturnValue(of(makeTodaySummary()));
+        vi.spyOn(analyticsService, 'getTimeline').mockReturnValue(
+          of(makeTimelineResponse([], [], []))
+        );
+        vi.spyOn(analyticsService, 'getTodaySummary').mockReturnValue(
+          of(makeTodaySummary())
+        );
 
         component.loadDashboardData(1); // showLoading defaults to true
         expect(component.isLoading()).toBe(false); // Loading completes
@@ -297,10 +346,12 @@ describe('ChildDashboard', () => {
 
       it('should skip loading indicator when showLoading=false (refresh after quick-log)', () => {
         vi.spyOn(childrenService, 'get').mockReturnValue(of(mockChild));
-        vi.spyOn(feedingsService, 'list').mockReturnValue(of([]));
-        vi.spyOn(diapersService, 'list').mockReturnValue(of([]));
-        vi.spyOn(napsService, 'list').mockReturnValue(of([]));
-        vi.spyOn(analyticsService, 'getTodaySummary').mockReturnValue(of(makeTodaySummary()));
+        vi.spyOn(analyticsService, 'getTimeline').mockReturnValue(
+          of(makeTimelineResponse([], [], []))
+        );
+        vi.spyOn(analyticsService, 'getTodaySummary').mockReturnValue(
+          of(makeTodaySummary())
+        );
 
         component.isLoading.set(false); // Not loading initially
         component.loadDashboardData(1, false); // showLoading=false
@@ -314,10 +365,12 @@ describe('ChildDashboard', () => {
     describe('error state combinations', () => {
       it('should clear error before loading new data', () => {
         vi.spyOn(childrenService, 'get').mockReturnValue(of(mockChild));
-        vi.spyOn(feedingsService, 'list').mockReturnValue(of([]));
-        vi.spyOn(diapersService, 'list').mockReturnValue(of([]));
-        vi.spyOn(napsService, 'list').mockReturnValue(of([]));
-        vi.spyOn(analyticsService, 'getTodaySummary').mockReturnValue(of(makeTodaySummary()));
+        vi.spyOn(analyticsService, 'getTimeline').mockReturnValue(
+          of(makeTimelineResponse([], [], []))
+        );
+        vi.spyOn(analyticsService, 'getTodaySummary').mockReturnValue(
+          of(makeTodaySummary())
+        );
 
         component.error.set('Previous error');
         component.loadDashboardData(1);
@@ -335,10 +388,12 @@ describe('ChildDashboard', () => {
         vi.spyOn(childrenService, 'get').mockReturnValue(
           throwError(() => new Error('Temporary error'))
         );
-        vi.spyOn(feedingsService, 'list').mockReturnValue(of([]));
-        vi.spyOn(diapersService, 'list').mockReturnValue(of([]));
-        vi.spyOn(napsService, 'list').mockReturnValue(of([]));
-        vi.spyOn(analyticsService, 'getTodaySummary').mockReturnValue(of(makeTodaySummary()));
+        vi.spyOn(analyticsService, 'getTimeline').mockReturnValue(
+          of(makeTimelineResponse([], [], []))
+        );
+        vi.spyOn(analyticsService, 'getTodaySummary').mockReturnValue(
+          of(makeTodaySummary())
+        );
 
         component.loadDashboardData(1);
 
@@ -524,36 +579,44 @@ describe('ChildDashboard', () => {
   });
 
   describe('data loading', () => {
-    it('should populate feedings signal from forkJoin response', () => {
+    it('should populate recent activity from timeline (feedings)', () => {
       const feedings = [
         makeFeeding({ id: 1 }),
         makeFeeding({ id: 2 }),
       ];
       setupWithData(feedings);
 
-      expect(component.feedings()).toHaveLength(2);
+      expect(
+        component.recentActivity().filter((a) => a.type === 'feeding')
+      ).toHaveLength(2);
     });
 
-    it('should populate diapers signal from forkJoin response', () => {
+    it('should populate recent activity from timeline (diapers)', () => {
       const diapers = [makeDiaper({ id: 1 })];
       setupWithData([], diapers);
 
-      expect(component.diapers()).toHaveLength(1);
+      expect(
+        component.recentActivity().filter((a) => a.type === 'diaper')
+      ).toHaveLength(1);
     });
 
-    it('should populate naps signal from forkJoin response', () => {
+    it('should populate recent activity from timeline (naps)', () => {
       const naps = [makeNap({ id: 1 }), makeNap({ id: 2 }), makeNap({ id: 3 })];
       setupWithData([], [], naps);
 
-      expect(component.naps()).toHaveLength(3);
+      expect(
+        component.recentActivity().filter((a) => a.type === 'nap')
+      ).toHaveLength(3);
     });
 
     it('should show loading state initially', () => {
       vi.spyOn(childrenService, 'get').mockReturnValue(of(mockChild));
-      vi.spyOn(feedingsService, 'list').mockReturnValue(of([]));
-      vi.spyOn(diapersService, 'list').mockReturnValue(of([]));
-      vi.spyOn(napsService, 'list').mockReturnValue(of([]));
-      vi.spyOn(analyticsService, 'getTodaySummary').mockReturnValue(of(makeTodaySummary()));
+      vi.spyOn(analyticsService, 'getTimeline').mockReturnValue(
+        of(makeTimelineResponse([], [], []))
+      );
+      vi.spyOn(analyticsService, 'getTodaySummary').mockReturnValue(
+        of(makeTodaySummary())
+      );
 
       fixture = TestBed.createComponent(ChildDashboard);
       component = fixture.componentInstance;
@@ -565,10 +628,12 @@ describe('ChildDashboard', () => {
       vi.spyOn(childrenService, 'get').mockReturnValue(
         throwError(() => new Error('Not found')),
       );
-      vi.spyOn(feedingsService, 'list').mockReturnValue(of([]));
-      vi.spyOn(diapersService, 'list').mockReturnValue(of([]));
-      vi.spyOn(napsService, 'list').mockReturnValue(of([]));
-      vi.spyOn(analyticsService, 'getTodaySummary').mockReturnValue(of(makeTodaySummary()));
+      vi.spyOn(analyticsService, 'getTimeline').mockReturnValue(
+        of(makeTimelineResponse([], [], []))
+      );
+      vi.spyOn(analyticsService, 'getTodaySummary').mockReturnValue(
+        of(makeTodaySummary())
+      );
 
       fixture = TestBed.createComponent(ChildDashboard);
       component = fixture.componentInstance;
@@ -717,10 +782,12 @@ describe('ChildDashboard', () => {
         const napsMock = [makeNap({ id: 1 })];
 
         vi.spyOn(childrenService, 'get').mockReturnValue(of(mockChild));
-        vi.spyOn(feedingsService, 'list').mockReturnValue(of(feedingsMock));
-        vi.spyOn(diapersService, 'list').mockReturnValue(of(diapersMock));
-        vi.spyOn(napsService, 'list').mockReturnValue(of(napsMock));
-        vi.spyOn(analyticsService, 'getTodaySummary').mockReturnValue(of(makeTodaySummary()));
+        vi.spyOn(analyticsService, 'getTimeline').mockReturnValue(
+          of(makeTimelineResponse(feedingsMock, diapersMock, napsMock))
+        );
+        vi.spyOn(analyticsService, 'getTodaySummary').mockReturnValue(
+          of(makeTodaySummary())
+        );
 
         fixture = TestBed.createComponent(ChildDashboard);
         component = fixture.componentInstance;
@@ -729,12 +796,12 @@ describe('ChildDashboard', () => {
         // First call
         component.loadDashboardData(1);
         expect(component.isLoading()).toBe(false);
-        expect(component.feedings().length).toBe(2);
+        expect(component.recentActivity().length).toBeGreaterThanOrEqual(2);
 
         // Rapid second call
         component.loadDashboardData(1);
         expect(component.isLoading()).toBe(false);
-        expect(component.feedings().length).toBe(2);
+        expect(component.recentActivity().length).toBeGreaterThanOrEqual(2);
 
         // Both should have latest data
         expect(component.child()).toEqual(mockChild);
@@ -768,9 +835,12 @@ describe('ChildDashboard', () => {
         vi.spyOn(childrenService, 'get')
           .mockReturnValueOnce(of(child1))
           .mockReturnValueOnce(of(child2));
-        vi.spyOn(feedingsService, 'list').mockReturnValue(of([]));
-        vi.spyOn(diapersService, 'list').mockReturnValue(of([]));
-        vi.spyOn(napsService, 'list').mockReturnValue(of([]));
+        vi.spyOn(analyticsService, 'getTimeline').mockReturnValue(
+          of(makeTimelineResponse([], [], []))
+        );
+        vi.spyOn(analyticsService, 'getTodaySummary').mockReturnValue(
+          of(makeTodaySummary())
+        );
 
         fixture = TestBed.createComponent(ChildDashboard);
         component = fixture.componentInstance;
@@ -788,9 +858,12 @@ describe('ChildDashboard', () => {
 
       it('should update childId signal when ngOnInit called with different route param', () => {
         vi.spyOn(childrenService, 'get').mockReturnValue(of(mockChild));
-        vi.spyOn(feedingsService, 'list').mockReturnValue(of([]));
-        vi.spyOn(diapersService, 'list').mockReturnValue(of([]));
-        vi.spyOn(napsService, 'list').mockReturnValue(of([]));
+        vi.spyOn(analyticsService, 'getTimeline').mockReturnValue(
+          of(makeTimelineResponse([], [], []))
+        );
+        vi.spyOn(analyticsService, 'getTodaySummary').mockReturnValue(
+          of(makeTodaySummary())
+        );
 
         const mockActivatedRoute = TestBed.inject(ActivatedRoute);
         vi.spyOn(mockActivatedRoute.snapshot.paramMap, 'get').mockReturnValue('5');
@@ -837,22 +910,33 @@ describe('ChildDashboard', () => {
         const newFeeding = makeFeeding({ id: 101, amount_oz: 4 });
 
         vi.spyOn(childrenService, 'get').mockReturnValue(of(mockChild));
-        vi.spyOn(feedingsService, 'list')
-          .mockReturnValueOnce(of([oldFeeding]))
-          .mockReturnValueOnce(of([newFeeding]));
-        vi.spyOn(diapersService, 'list').mockReturnValue(of([]));
-        vi.spyOn(napsService, 'list').mockReturnValue(of([]));
+        vi.spyOn(analyticsService, 'getTimeline')
+          .mockReturnValueOnce(
+            of(makeTimelineResponse([oldFeeding], [], []))
+          )
+          .mockReturnValueOnce(
+            of(makeTimelineResponse([newFeeding], [], []))
+          );
+        vi.spyOn(analyticsService, 'getTodaySummary').mockReturnValue(
+          of(makeTodaySummary())
+        );
 
         fixture = TestBed.createComponent(ChildDashboard);
         component = fixture.componentInstance;
 
         // First load
         component.loadDashboardData(1, true);
-        expect(component.feedings()[0]?.amount_oz).toBe(2);
+        const firstFeeding = component
+          .recentActivity()
+          .find((a) => a.type === 'feeding')?.data as Feeding;
+        expect(firstFeeding?.amount_oz).toBe(2);
 
         // Second load - should update to new data
         component.loadDashboardData(1, true);
-        expect(component.feedings()[0]?.amount_oz).toBe(4);
+        const secondFeeding = component
+          .recentActivity()
+          .find((a) => a.type === 'feeding')?.data as Feeding;
+        expect(secondFeeding?.amount_oz).toBe(4);
       });
 
       it('should isolate data between different child dashboard instances', () => {
@@ -860,11 +944,16 @@ describe('ChildDashboard', () => {
         const feeding2 = makeFeeding({ id: 2 });
 
         vi.spyOn(childrenService, 'get').mockReturnValue(of(mockChild));
-        vi.spyOn(feedingsService, 'list')
-          .mockReturnValueOnce(of([feeding1]))
-          .mockReturnValueOnce(of([feeding2]));
-        vi.spyOn(diapersService, 'list').mockReturnValue(of([]));
-        vi.spyOn(napsService, 'list').mockReturnValue(of([]));
+        vi.spyOn(analyticsService, 'getTimeline')
+          .mockReturnValueOnce(
+            of(makeTimelineResponse([feeding1], [], []))
+          )
+          .mockReturnValueOnce(
+            of(makeTimelineResponse([feeding2], [], []))
+          );
+        vi.spyOn(analyticsService, 'getTodaySummary').mockReturnValue(
+          of(makeTodaySummary())
+        );
 
         // Create first instance
         const fixture1 = TestBed.createComponent(ChildDashboard);
@@ -876,9 +965,15 @@ describe('ChildDashboard', () => {
         const component2 = fixture2.componentInstance;
         component2.loadDashboardData(1);
 
-        // Verify each instance has its own data
-        expect(component1.feedings()[0]?.id).toBe(1);
-        expect(component2.feedings()[0]?.id).toBe(2);
+        // Verify each instance has its own data (recent activity from timeline)
+        const act1 = component1
+          .recentActivity()
+          .find((a) => a.type === 'feeding');
+        const act2 = component2
+          .recentActivity()
+          .find((a) => a.type === 'feeding');
+        expect(act1?.id).toBe(1);
+        expect(act2?.id).toBe(2);
       });
     });
 
@@ -890,10 +985,12 @@ describe('ChildDashboard', () => {
         vi.spyOn(childrenService, 'get')
           .mockReturnValueOnce(of(ownerChild))
           .mockReturnValueOnce(of(caregiverChild));
-        vi.spyOn(feedingsService, 'list').mockReturnValue(of([]));
-        vi.spyOn(diapersService, 'list').mockReturnValue(of([]));
-        vi.spyOn(napsService, 'list').mockReturnValue(of([]));
-        vi.spyOn(analyticsService, 'getTodaySummary').mockReturnValue(of(makeTodaySummary()));
+        vi.spyOn(analyticsService, 'getTimeline').mockReturnValue(
+          of(makeTimelineResponse([], [], []))
+        );
+        vi.spyOn(analyticsService, 'getTodaySummary').mockReturnValue(
+          of(makeTodaySummary())
+        );
 
         fixture = TestBed.createComponent(ChildDashboard);
         component = fixture.componentInstance;
@@ -913,24 +1010,33 @@ describe('ChildDashboard', () => {
     describe('quickLogged event and refresh behavior', () => {
       it('should reload data without loading spinner on quickLogged event', () => {
         const feedingBefore = makeFeeding({ id: 1 });
-        const feedingAfter = makeFeeding({ id: 1 });
         const newFeeding = makeFeeding({ id: 2 });
 
         vi.spyOn(childrenService, 'get').mockReturnValue(of(mockChild));
-        vi.spyOn(feedingsService, 'list')
-          .mockReturnValueOnce(of([feedingBefore]))
-          .mockReturnValueOnce(of([newFeeding, feedingAfter]));
-        vi.spyOn(diapersService, 'list').mockReturnValue(of([]));
-        vi.spyOn(napsService, 'list').mockReturnValue(of([]));
+        vi.spyOn(analyticsService, 'getTimeline')
+          .mockReturnValueOnce(
+            of(makeTimelineResponse([feedingBefore], [], []))
+          )
+          .mockReturnValueOnce(
+            of(makeTimelineResponse([newFeeding, feedingBefore], [], []))
+          );
+        vi.spyOn(analyticsService, 'getTodaySummary').mockReturnValue(
+          of(makeTodaySummary())
+        );
 
-        setupWithData([feedingBefore]);
+        fixture = TestBed.createComponent(ChildDashboard);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
 
         component.isLoading.set(false);
         component.onQuickLogged();
 
-        // Should load new data without showing loading spinner
-        expect(component.feedings().length).toBe(2);
-        expect(component.feedings()[0]?.id).toBe(2);
+        // Should load new data without showing loading spinner (recent activity from timeline)
+        expect(component.recentActivity().length).toBeGreaterThanOrEqual(2);
+        const first = component
+          .recentActivity()
+          .find((a) => a.type === 'feeding');
+        expect(first?.id).toBe(2);
       });
 
       it('should handle onQuickLogged when childId is null', () => {
@@ -1148,7 +1254,9 @@ describe('ChildDashboard', () => {
     });
 
     it('should silently handle pattern alerts API error', () => {
-      (analyticsService.getPatternAlerts as ReturnType<typeof vi.fn>).mockReturnValue(EMPTY);
+      (analyticsService.getPatternAlerts as ReturnType<typeof vi.fn>).mockReturnValue(
+        throwError(() => new Error('Pattern alerts failed'))
+      );
       setupWithData();
       fixture.detectChanges();
 
@@ -1158,7 +1266,7 @@ describe('ChildDashboard', () => {
 
     it('should re-fetch pattern alerts after quickLogged', () => {
       const alertsSpy = analyticsService.getPatternAlerts as ReturnType<typeof vi.fn>;
-      alertsSpy.mockReturnValue(EMPTY);
+      alertsSpy.mockReturnValue(of(makePatternAlerts()));
       setupWithData();
 
       alertsSpy.mockClear();
@@ -1200,9 +1308,9 @@ describe('ChildDashboard', () => {
       ]);
     });
 
-    it('should call getPatternAlerts after main dashboard data loads', () => {
+    it('should call getPatternAlerts in same forkJoin as dashboard data', () => {
       const alertsSpy = analyticsService.getPatternAlerts as ReturnType<typeof vi.fn>;
-      alertsSpy.mockReturnValue(EMPTY);
+      alertsSpy.mockReturnValue(of(makePatternAlerts()));
       setupWithData();
 
       expect(alertsSpy).toHaveBeenCalledWith(1);
