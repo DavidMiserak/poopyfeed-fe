@@ -48,13 +48,6 @@ interface PaginatedResponse<T> {
   results: T[];
 }
 
-interface PreferencesListResponse {
-  count: number;
-  next: string | null;
-  previous: string | null;
-  results: NotificationPreference[];
-}
-
 const NOTIFICATIONS_BASE = '/api/v1/notifications';
 const POLL_INTERVAL_MS = 30_000;
 
@@ -179,9 +172,8 @@ export class NotificationService {
    */
   getPreferences(): Observable<NotificationPreference[]> {
     return this.http
-      .get<PreferencesListResponse>(`${NOTIFICATIONS_BASE}/preferences/`)
+      .get<NotificationPreference[]>(`${NOTIFICATIONS_BASE}/preferences/`)
       .pipe(
-        map((res) => res.results),
         tap((list) => this.preferences.set(list)),
         catchError((err) =>
           throwError(() =>

@@ -225,7 +225,7 @@ describe('NotificationService', () => {
 
       const req = httpMock.expectOne('/api/v1/notifications/preferences/');
       expect(req.request.method).toBe('GET');
-      req.flush({ count: 1, next: null, previous: null, results: prefs });
+      req.flush(prefs);
     });
 
     it('should handle getPreferences error', () => {
