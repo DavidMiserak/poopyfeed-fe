@@ -40,7 +40,8 @@
     page-break-inside: avoid;
   }
 
-  .pediatrician-summary h1 {
+  .pediatrician-summary h1,
+  .pediatrician-summary .summary-card > h2.print-only-title {
     font-size: 1.25rem;
     margin-bottom: 0.25rem;
   }
@@ -49,6 +50,10 @@
     font-size: 1rem;
     margin-bottom: 0.25rem;
     margin-top: 0.75rem;
+  }
+
+  .pediatrician-summary .summary-card > h2.print-only-title {
+    margin-top: 0;
   }
 
   .pediatrician-summary section:last-child {

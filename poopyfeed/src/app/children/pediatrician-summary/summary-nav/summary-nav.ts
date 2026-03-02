@@ -1,8 +1,8 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 /**
- * Static nav bar for pediatrician summary: Back to Advanced link and Print button.
+ * Static nav bar for pediatrician summary: Back to Advanced link.
  * No API calls. Child ID used only for routing.
  */
 @Component({
@@ -13,10 +13,4 @@ import { RouterLink } from '@angular/router';
 })
 export class SummaryNavComponent {
   childId = input.required<number>();
-
-  printRequested = output<void>();
-
-  onPrint(): void {
-    this.printRequested.emit();
-  }
 }
