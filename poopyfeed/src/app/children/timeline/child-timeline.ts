@@ -532,6 +532,21 @@ export class ChildTimeline implements OnInit {
    * Expose date utility functions to template.
    */
   getActivityIcon = (type: 'feeding' | 'diaper' | 'nap') => getActivityIcon(type);
+
+  /**
+   * Returns Tailwind classes for color-coded activity rows.
+   */
+  getActivityRowClasses(type: 'feeding' | 'diaper' | 'nap'): string {
+    switch (type) {
+      case 'feeding':
+        return 'border-l-rose-400 bg-rose-50/50';
+      case 'diaper':
+        return 'border-l-orange-400 bg-orange-50/50';
+      case 'nap':
+        return 'border-l-blue-400 bg-blue-50/50';
+    }
+  }
+
   formatTimestamp = (timestamp: string) => formatActivityAge(timestamp);
   formatTimeHHmm = (timestamp: string) => this.datetimeService.formatTimeHHmm(timestamp);
   getGenderIcon = (gender: 'M' | 'F' | 'O') => getGenderIconDetailed(gender);

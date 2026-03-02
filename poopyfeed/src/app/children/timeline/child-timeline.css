@@ -1,4 +1,4 @@
-/* Timeline component styles */
+/* Styling handled by Tailwind CSS */
 
 /* Custom scrollbar for activity list */
 ::-webkit-scrollbar {
@@ -16,14 +16,4 @@
 
 ::-webkit-scrollbar-thumb:hover {
   background: #ea580c;
-}
-
-/* Smooth transitions for navigation */
-button {
-  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-}
-
-button:disabled {
-  cursor: not-allowed;
-  opacity: 0.5;
 }
