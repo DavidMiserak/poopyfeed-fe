@@ -56,9 +56,11 @@ describe('App', () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
 
-    // Render the @defer block containing the footer
-    const deferBlock = (await fixture.getDeferBlocks())[0];
-    await deferBlock.render(DeferBlockState.Complete);
+    // Render all @defer blocks (footer + idle banners)
+    const deferBlocks = await fixture.getDeferBlocks();
+    for (const block of deferBlocks) {
+      await block.render(DeferBlockState.Complete);
+    }
 
     const compiled = fixture.nativeElement as HTMLElement;
     const footer = compiled.querySelector('app-footer');

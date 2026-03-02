@@ -46,6 +46,9 @@ __screenshots__/
 /playwright/.cache/
 /e2e/.auth/
 
+# Lighthouse reports
+/lighthouse-report*.json
+
 # System files
 .DS_Store
 Thumbs.db

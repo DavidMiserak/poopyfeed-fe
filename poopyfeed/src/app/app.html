@@ -1,7 +1,9 @@
 <app-toast />
-<app-update-banner />
-<app-network-banner />
-<app-timezone-banner />
+@defer (on idle) {
+  <app-update-banner />
+  <app-network-banner />
+  <app-timezone-banner />
+}
 <app-header />
 <main class="app-main">
   <router-outlet />
