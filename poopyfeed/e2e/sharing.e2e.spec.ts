@@ -56,7 +56,7 @@ test.describe('Sharing', () => {
     ).toBeVisible({ timeout: E2E_TIMEOUT });
 
     // Verify back arrow text and navigation
-    await page.getByRole('button', { name: 'Back to advanced tools' }).click();
+    await page.getByRole('button', { name: 'Back to Advanced' }).click();
     await expect(page).toHaveURL(/\/children\/\d+\/advanced$/);
   });
 

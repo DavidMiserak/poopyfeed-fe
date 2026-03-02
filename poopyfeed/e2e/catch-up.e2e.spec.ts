@@ -83,7 +83,7 @@ test.describe('Catch-Up Mode', () => {
       )
       .toBe(true);
 
-    await page.getByRole('button', { name: 'Back to advanced tools' }).click();
+    await page.getByRole('button', { name: 'Back to Advanced' }).click();
     await expect(page).toHaveURL(/\/children\/\d+\/advanced$/, { timeout: E2E_TIMEOUT });
   });
 

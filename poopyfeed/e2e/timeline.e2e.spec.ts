@@ -26,7 +26,7 @@ test.describe('Timeline view', () => {
 
     await expect(page).toHaveURL(/\/children\/\d+\/timeline$/);
     await expect(
-      page.getByRole('link', { name: 'Back to advanced tools' })
+      page.getByRole('link', { name: 'Back to Advanced' })
     ).toBeVisible({ timeout: E2E_TIMEOUT });
 
     // Page shows timeline content: heading contains "Timeline" and either empty state or day section
