@@ -296,4 +296,10 @@ export const routes: Routes = [
       import('./contact/contact').then((m) => m.Contact),
     title: 'Contact Us - PoopyFeed',
   },
+  {
+    path: '**',
+    loadComponent: () =>
+      import('./not-found/not-found').then((m) => m.NotFound),
+    title: 'Page Not Found - PoopyFeed',
+  },
 ];
