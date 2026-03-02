@@ -1208,7 +1208,6 @@ describe('ChildForm', () => {
       it('should render notification preferences section when preference loaded in edit mode', () => {
         vi.mocked(childrenService.get).mockReturnValue(of(mockChild));
         component.ngOnInit();
-        component.toggleAdvancedSettings();
         fixture.detectChanges();
 
         const el = fixture.nativeElement as HTMLElement;
@@ -1243,7 +1242,6 @@ describe('ChildForm', () => {
       it('should show feeding reminders section in edit mode for owner', async () => {
         vi.mocked(childrenService.get).mockReturnValue(of(mockChild));
         component.ngOnInit();
-        component.toggleAdvancedSettings();
         fixture.detectChanges();
         await fixture.whenStable();
 
@@ -1259,7 +1257,6 @@ describe('ChildForm', () => {
         };
         vi.mocked(childrenService.get).mockReturnValue(of(childWithReminder));
         component.ngOnInit();
-        component.toggleAdvancedSettings();
         fixture.detectChanges();
         await fixture.whenStable();
 
@@ -1273,7 +1270,6 @@ describe('ChildForm', () => {
         };
         vi.mocked(childrenService.get).mockReturnValue(of(childWithoutReminder));
         component.ngOnInit();
-        component.toggleAdvancedSettings();
         fixture.detectChanges();
         await fixture.whenStable();
 
@@ -1314,7 +1310,6 @@ describe('ChildForm', () => {
         };
         vi.mocked(childrenService.get).mockReturnValue(of(coParentChild));
         component.ngOnInit();
-        component.toggleAdvancedSettings();
         fixture.detectChanges();
         await fixture.whenStable();
 

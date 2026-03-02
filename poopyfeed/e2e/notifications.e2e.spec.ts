@@ -178,7 +178,7 @@ test.describe('Notifications', () => {
     });
   });
 
-  test('child edit page shows notification preference toggles', async ({
+  test('child edit page shows notification preferences', async ({
     page,
   }) => {
     test.setTimeout(120_000); // Extra time for retry on transient API failures
@@ -189,41 +189,55 @@ test.describe('Notifications', () => {
     const childId = url.match(/\/children\/(\d+)/)?.[1];
     expect(childId).toBeTruthy();
 
-    async function openAdvancedAndWaitForToggles() {
-      await page.goto(`/children/${childId}/edit`);
-      await expect(page).toHaveURL(new RegExp(`/children/${childId}/edit`), { timeout: E2E_TIMEOUT });
-      await expect(page.getByRole('heading', { name: 'Edit Baby' })).toBeVisible({ timeout: E2E_TIMEOUT });
-      // Wait for child data to load (form populated), so loadNotificationPreference() is triggered.
-      await expect(page.getByLabel("Baby's Name")).toHaveValue(/\S/, { timeout: E2E_TIMEOUT });
-      const showAdvanced = page.getByRole('button', { name: /Show advanced/ }).first();
-      await showAdvanced.scrollIntoViewIfNeeded();
-      await showAdvanced.click();
-      const panel = page.locator('#advanced-settings-panel');
-      await expect(panel).toBeVisible({ timeout: E2E_TIMEOUT });
-      await expect(
-        panel.getByText('Choose which activities trigger notifications')
-      ).toBeVisible({ timeout: E2E_TIMEOUT });
-      await expect(
-        panel.getByText('Loading notification preferences...')
-      ).toBeHidden({ timeout: E2E_TIMEOUT * 2 });
-      const hasError = await panel
-        .locator('.border-red-500')
-        .isVisible()
-        .catch(() => false);
-      if (hasError) throw new Error('Notification preferences API error');
-      await expect(panel.getByText('Feedings')).toBeVisible({ timeout: E2E_TIMEOUT });
-      return panel;
-    }
+    const preferencesResponse = page.waitForResponse(
+      (resp) =>
+        resp.url().includes('/api/v1/notifications/preferences/') &&
+        resp.status() === 200,
+      { timeout: E2E_TIMEOUT }
+    );
+    await page.goto(`/children/${childId}/edit`);
+    await expect(page).toHaveURL(new RegExp(`/children/${childId}/edit`), {
+      timeout: E2E_TIMEOUT,
+    });
+    await expect(page.getByRole('heading', { name: 'Edit Baby' })).toBeVisible(
+      { timeout: E2E_TIMEOUT }
+    );
+    await expect(page.getByLabel("Baby's Name")).toHaveValue(/\S/, {
+      timeout: E2E_TIMEOUT,
+    });
+    await preferencesResponse;
 
-    let prefsGroup: Awaited<ReturnType<typeof openAdvancedAndWaitForToggles>>;
-    try {
-      prefsGroup = await openAdvancedAndWaitForToggles();
-    } catch {
-      await page.reload({ timeout: E2E_TIMEOUT });
-      prefsGroup = await openAdvancedAndWaitForToggles();
-    }
+    const panel = page.locator('#advanced-settings-panel');
+    await expect(panel).toBeVisible({ timeout: E2E_TIMEOUT });
+    await panel.scrollIntoViewIfNeeded();
+    await expect(
+      panel.getByText('Choose which activities trigger notifications')
+    ).toBeVisible({ timeout: E2E_TIMEOUT });
 
-    await expect(prefsGroup.getByText('Diaper changes')).toBeVisible({ timeout: E2E_TIMEOUT });
-    await expect(prefsGroup.getByText('Naps')).toBeVisible({ timeout: E2E_TIMEOUT });
+    await expect
+      .poll(
+        async () => {
+          const loading = await panel
+            .getByText('Loading notification preferences...')
+            .isVisible()
+            .catch(() => false);
+          if (loading) return false;
+          const err = await panel
+            .locator('.border-red-500')
+            .isVisible()
+            .catch(() => false);
+          if (err) throw new Error('Notification preferences API error');
+          return await panel.getByText('Feedings').isVisible().catch(() => false);
+        },
+        { timeout: E2E_TIMEOUT * 2, intervals: [500] }
+      )
+      .toBe(true);
+
+    await expect(panel.getByText('Diaper changes')).toBeVisible({
+      timeout: E2E_TIMEOUT,
+    });
+    await expect(panel.getByText('Naps')).toBeVisible({
+      timeout: E2E_TIMEOUT,
+    });
   });
 });
