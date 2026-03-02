@@ -148,16 +148,24 @@ export class AuthService {
    * Set the auth token in memory and localStorage
    */
   private setToken(token: string): void {
+    const previousToken = this.authToken();
     this.authToken.set(token);
     localStorage.setItem(this.TOKEN_KEY, token);
+    if (previousToken && previousToken !== token) {
+      this.clearServiceWorkerCaches();
+    }
   }
 
   /**
    * Clear the auth token from memory and localStorage
    */
   private clearToken(): void {
+    const hadToken = this.authToken();
     this.authToken.set(null);
     localStorage.removeItem(this.TOKEN_KEY);
+    if (hadToken) {
+      this.clearServiceWorkerCaches();
+    }
   }
 
   /**
@@ -168,5 +176,16 @@ export class AuthService {
       return null;
     }
     return localStorage.getItem(this.TOKEN_KEY);
+  }
+
+  private clearServiceWorkerCaches(): void {
+    if (typeof window === 'undefined' || !('caches' in window)) {
+      return;
+    }
+
+    void caches
+      .keys()
+      .then((keys) => Promise.all(keys.map((key) => caches.delete(key))))
+      .catch(() => undefined);
   }
 }
