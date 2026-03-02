@@ -24,6 +24,7 @@ import {
   InviteCreate,
 } from '../../models/sharing.model';
 import { Child } from '../../models/child.model';
+import { getGenderIcon } from '../../utils/date.utils';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog';
 
 @Component({
@@ -231,6 +232,8 @@ export class SharingManage implements OnInit {
     const childId = this.childId();
     if (childId !== null) this.childNav.goToAdvanced(childId);
   }
+
+  getGenderIcon = getGenderIcon;
 
   getRoleLabel(role: 'co-parent' | 'caregiver'): string {
     return role === 'co-parent' ? 'Co-parent' : 'Caregiver';

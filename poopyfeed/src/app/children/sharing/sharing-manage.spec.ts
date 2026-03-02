@@ -529,7 +529,7 @@ describe('SharingManage Component', () => {
       fixture.detectChanges();
 
       const el = fixture.nativeElement as HTMLElement;
-      expect(el.textContent).toContain('Sharing Settings for');
+      expect(el.textContent).toContain('Sharing Settings');
       expect(el.textContent).toContain(mockChild.name);
       expect(el.textContent).toContain('Invite Links');
       expect(el.textContent).toContain('Create Invite Link');
