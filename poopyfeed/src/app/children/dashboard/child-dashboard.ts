@@ -212,11 +212,13 @@ export class ChildDashboard implements OnInit {
   }
 
   /**
-   * Load dashboard data in two tiers:
-   * - Tier 1 (critical): child profile + today's summary
-   * - Tier 2 (non-critical): timeline + pattern alerts
+   * Load dashboard data in three tiers:
+   * - Tier 1 (critical): child profile (for hero + quick log)
+   * - Tier 2 (important): today's summary
+   * - Tier 3 (non-critical): timeline + pattern alerts
    *
-   * This keeps the hero + quick log responsive while heavier data loads later.
+   * This shows the hero/header as soon as we know the child, then
+   * fills in summary and recent activity afterwards.
    *
    * @param childId Child to load data for
    * @param showLoading Whether to show loading spinner (false when refreshing after quick-log)
@@ -228,17 +230,14 @@ export class ChildDashboard implements OnInit {
     this.isDetailLoading.set(true);
     this.error.set(null);
 
-    // Tier 1: child profile + today's summary
-    forkJoin({
-      child: this.childrenService.get(childId),
-      todaySummary: this.analyticsService.getTodaySummary(childId),
-    }).subscribe({
-      next: ({ child, todaySummary }) => {
+    // Tier 1: child profile (unblocks hero + quick log)
+    this.childrenService.get(childId).subscribe({
+      next: (child) => {
         this.child.set(child);
-        this.todaySummaryData.set(todaySummary);
         this.isLoading.set(false);
-        // Start non-critical loads in the background
-        this.loadNonCriticalData(childId);
+
+        // Tier 2/3: load summary + non-critical data in background
+        this.loadDetailData(childId);
       },
       error: (err: Error) => {
         this.error.set(err.message);
@@ -249,18 +248,20 @@ export class ChildDashboard implements OnInit {
   }
 
   /**
-   * Load non-critical timeline + pattern alerts data.
+   * Load today's summary plus non-critical timeline + pattern alerts data.
    *
    * Errors here should not block the main dashboard shell.
    */
-  private loadNonCriticalData(childId: number): void {
+  private loadDetailData(childId: number): void {
     forkJoin({
+      todaySummary: this.analyticsService.getTodaySummary(childId),
       timeline: this.analyticsService.getTimeline(childId, 1, 20),
       patternAlerts: this.analyticsService.getPatternAlerts(childId).pipe(
         catchError(() => of(null))
       ),
     }).subscribe({
-      next: ({ timeline, patternAlerts }) => {
+      next: ({ todaySummary, timeline, patternAlerts }) => {
+        this.todaySummaryData.set(todaySummary);
         this.patternAlerts.set(patternAlerts ?? null);
         const activities = timeline.results
           .slice(0, 10)
