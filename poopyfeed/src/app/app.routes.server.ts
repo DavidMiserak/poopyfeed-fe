@@ -26,6 +26,10 @@ export const serverRoutes: ServerRoute[] = [
     path: 'contact',
     renderMode: RenderMode.Prerender,
   },
+  {
+    path: 'children',
+    renderMode: RenderMode.Server,
+  },
   // Protected/dynamic routes - client-only rendering
   // No SEO value and auth guard bypasses SSR anyway, so server-rendering
   // these just produces an empty shell that gets replaced on hydration

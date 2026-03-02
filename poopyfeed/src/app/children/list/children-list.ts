@@ -31,12 +31,14 @@
  * Style: children-list.css
  * Route: /children (default view after login)
  */
+import { isPlatformBrowser } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
   inject,
   OnInit,
+  PLATFORM_ID,
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -45,10 +47,11 @@ import { filter } from 'rxjs';
 import { ChildrenService } from '../../services/children.service';
 import { Child, GENDER_LABELS, ROLE_LABELS } from '../../models/child.model';
 import { getChildAge, formatTimestamp, getGenderIcon, getRoleBadgeColor } from '../../utils/date.utils';
+import { ChildrenListSsr } from './children-list-ssr';
 
 @Component({
   selector: 'app-children-list',
-  imports: [RouterLink],
+  imports: [RouterLink, ChildrenListSsr],
   templateUrl: './children-list.html',
   styleUrl: './children-list.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -57,6 +60,7 @@ export class ChildrenList implements OnInit {
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
   private childrenService = inject(ChildrenService);
+  private platformId = inject(PLATFORM_ID);
 
   /**
    * List of children with user's access role.
@@ -95,6 +99,10 @@ export class ChildrenList implements OnInit {
    * Triggers API call to fetch all children user has access to.
    */
   ngOnInit() {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
     this.loadChildren();
     // Refetch when landing on /children (e.g. return from create/edit) so new child appears.
     if (this.router.events) {
