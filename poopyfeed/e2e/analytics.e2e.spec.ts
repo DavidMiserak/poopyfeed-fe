@@ -1,4 +1,5 @@
 import { test, expect } from './fixtures';
+import { E2E_TIMEOUT } from './constants';
 import { createChildAndGoToDashboard } from './child-helpers';
 
 /**
@@ -26,7 +27,7 @@ test.describe('Analytics', () => {
 
     await expect(
       page.getByText('No Activity Data Yet')
-    ).toBeVisible({ timeout: 15000 });
+    ).toBeVisible({ timeout: E2E_TIMEOUT });
   });
 
   test('user can export CSV and get a download', async ({ page }) => {
@@ -41,11 +42,11 @@ test.describe('Analytics', () => {
       await page.getByLabel('Date of Birth').fill('2024-06-01');
       await page.getByRole('radio', { name: 'Female' }).click({ force: true });
       await page.getByRole('button', { name: 'Add Baby' }).click();
-      await expect(page).toHaveURL(/\/children\/\d+\/dashboard/, { timeout: 15000 });
+      await expect(page).toHaveURL(/\/children\/\d+\/dashboard/, { timeout: E2E_TIMEOUT });
     } else {
       const firstChildHeading = page.getByRole('heading', { level: 3 }).first();
       await firstChildHeading.click();
-      await expect(page).toHaveURL(/\/children\/(\d+)\/dashboard/, { timeout: 15000 });
+      await expect(page).toHaveURL(/\/children\/(\d+)\/dashboard/, { timeout: E2E_TIMEOUT });
     }
 
     const url = page.url();
@@ -63,7 +64,7 @@ test.describe('Analytics', () => {
     ).toBeVisible();
     await page.getByRole('radio', { name: /Export as CSV/ }).check();
 
-    const downloadPromise = page.waitForEvent('download', { timeout: 15000 });
+    const downloadPromise = page.waitForEvent('download', { timeout: E2E_TIMEOUT });
     await page
       .getByRole('button', { name: 'Confirm and start export' })
       .click();
@@ -72,7 +73,7 @@ test.describe('Analytics', () => {
     expect(download.suggestedFilename()).toMatch(/\.csv$/i);
 
     await expect(page).toHaveURL(new RegExp(`/children/${childId}/advanced$`), {
-      timeout: 10000,
+      timeout: E2E_TIMEOUT,
     });
   });
 
@@ -93,13 +94,13 @@ test.describe('Analytics', () => {
       await page.getByRole('radio', { name: 'Female' }).click({ force: true });
       await page.getByRole('button', { name: 'Add Baby' }).click();
       await expect(page).toHaveURL(/\/children\/\d+\/dashboard/, {
-        timeout: 15000,
+        timeout: E2E_TIMEOUT,
       });
     } else {
       const firstChildHeading = page.getByRole('heading', { level: 3 }).first();
       await firstChildHeading.click();
       await expect(page).toHaveURL(/\/children\/(\d+)\/dashboard/, {
-        timeout: 15000,
+        timeout: E2E_TIMEOUT,
       });
     }
 
@@ -124,7 +125,7 @@ test.describe('Analytics', () => {
 
     await expect(
       page.getByText('PDF ready for download!')
-    ).toBeVisible({ timeout: 120_000 });
+    ).toBeVisible({ timeout: E2E_TIMEOUT });
 
     await expect(
       page.getByRole('button', { name: 'Download PDF' })

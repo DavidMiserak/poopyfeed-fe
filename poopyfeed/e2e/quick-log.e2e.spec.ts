@@ -1,5 +1,6 @@
 import { test, expect } from './fixtures';
 import { createChildAndGoToDashboard } from './child-helpers';
+import { E2E_TIMEOUT } from './constants';
 
 /**
  * E2E: Quick Log flow (dashboard one-tap logging for diaper, nap, bottle).
@@ -15,17 +16,17 @@ test.describe('Quick Log', () => {
 
     await expect(
       page.getByRole('heading', { name: 'Quick Log', level: 2 })
-    ).toBeVisible({ timeout: 20_000 });
-    await expect(page.getByText('Diaper', { exact: true }).first()).toBeVisible({ timeout: 15_000 });
-    await expect(page.getByText('Nap', { exact: true }).first()).toBeVisible({ timeout: 15_000 });
-    await expect(page.getByText('Bottle', { exact: true }).first()).toBeVisible({ timeout: 15_000 });
+    ).toBeVisible({ timeout: E2E_TIMEOUT });
+    await expect(page.getByText('Diaper', { exact: true }).first()).toBeVisible({ timeout: E2E_TIMEOUT });
+    await expect(page.getByText('Nap', { exact: true }).first()).toBeVisible({ timeout: E2E_TIMEOUT });
+    await expect(page.getByText('Bottle', { exact: true }).first()).toBeVisible({ timeout: E2E_TIMEOUT });
 
     await expect(
       page.getByRole('button', { name: 'Log a wet diaper change with current timestamp' })
-    ).toBeVisible({ timeout: 15_000 });
+    ).toBeVisible({ timeout: E2E_TIMEOUT });
     await expect(
       page.getByRole('button', { name: 'Log a nap with current timestamp' })
-    ).toBeVisible({ timeout: 15_000 });
+    ).toBeVisible({ timeout: E2E_TIMEOUT });
   });
 
   test('quick log Wet diaper shows success toast', async ({ page }) => {
@@ -34,13 +35,17 @@ test.describe('Quick Log', () => {
     const wetButton = page.getByRole('button', {
       name: 'Log a wet diaper change with current timestamp',
     });
-    await expect(wetButton).toBeVisible({ timeout: 15_000 });
-    await expect(wetButton).toBeEnabled({ timeout: 5_000 });
+    await expect(wetButton).toBeVisible({ timeout: E2E_TIMEOUT });
+    await expect(wetButton).toBeEnabled({ timeout: E2E_TIMEOUT });
     await wetButton.click();
 
-    await expect(
-      page.getByText('Wet diaper recorded successfully')
-    ).toBeVisible({ timeout: 20_000 });
+    await expect
+      .poll(
+        async () =>
+          await page.getByText('Wet diaper recorded successfully').isVisible(),
+        { timeout: E2E_TIMEOUT, intervals: [500] }
+      )
+      .toBe(true);
   });
 
   test('quick log Nap shows success toast', async ({ page }) => {
@@ -49,13 +54,13 @@ test.describe('Quick Log', () => {
     const napButton = page.getByRole('button', {
       name: 'Log a nap with current timestamp',
     });
-    await expect(napButton).toBeVisible({ timeout: 20_000 });
-    await expect(napButton).toBeEnabled({ timeout: 10_000 });
+    await expect(napButton).toBeVisible({ timeout: E2E_TIMEOUT });
+    await expect(napButton).toBeEnabled({ timeout: E2E_TIMEOUT });
     await napButton.click();
 
     await expect(
       page.getByText('Nap recorded successfully')
-    ).toBeVisible({ timeout: 30_000 });
+    ).toBeVisible({ timeout: E2E_TIMEOUT });
   });
 
   test('quick log Bottle shows success toast when amount available', async ({
@@ -66,15 +71,19 @@ test.describe('Quick Log', () => {
     const bottleButton = page.getByRole('button', {
       name: /Log a bottle feeding with \d+ oz/,
     }).first();
-    await expect(bottleButton).toBeVisible({ timeout: 15_000 });
+    await expect(bottleButton).toBeVisible({ timeout: E2E_TIMEOUT });
 
     const isDisabled = await bottleButton.isDisabled();
     test.skip(isDisabled, 'Bottle amount not available for this child');
 
     await bottleButton.click();
 
-    await expect(
-      page.getByText(/Bottle feeding recorded: \d+ oz/)
-    ).toBeVisible({ timeout: 20_000 });
+    await expect
+      .poll(
+        async () =>
+          await page.getByText(/Bottle feeding recorded: \d+ oz/).isVisible(),
+        { timeout: E2E_TIMEOUT, intervals: [500] }
+      )
+      .toBe(true);
   });
 });

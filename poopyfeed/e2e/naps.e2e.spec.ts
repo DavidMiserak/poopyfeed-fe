@@ -2,6 +2,7 @@ import { test, expect } from './fixtures';
 import { createChildAndGoToDashboard } from './child-helpers';
 import { createItemsForPagination } from './pagination-helpers';
 import { editTrackingItemAndSeeUpdateOnList } from './tracking-helpers';
+import { E2E_TIMEOUT } from './constants';
 
 /**
  * E2E: Nap tracking flow (P0 core workflow).
@@ -25,7 +26,7 @@ test.describe('Naps', () => {
     await expect(page).toHaveURL(/\/children\/\d+\/naps$/);
     await expect(
       page.getByText('Nap Time').first()
-    ).toBeVisible({ timeout: 15000 });
+    ).toBeVisible({ timeout: E2E_TIMEOUT });
   });
 
   test('nap form shows validation when date and time is missing', async ({
@@ -74,28 +75,28 @@ test.describe('Naps', () => {
     await createChildAndGoToDashboard(page, 'E2E Naps');
     await page.getByRole('button', { name: 'Add Nap' }).click();
 
-    await expect(page).toHaveURL(/\/children\/\d+\/naps\/create/, { timeout: 15000 });
+    await expect(page).toHaveURL(/\/children\/\d+\/naps\/create/, { timeout: E2E_TIMEOUT });
     await page.getByLabel('Date & Time').fill('2024-06-22T12:00');
     await page.locator('form').getByRole('button', { name: 'Add Nap' }).click();
-    await expect(page).toHaveURL(/\/children\/\d+\/naps$/, { timeout: 15000 });
-    await expect(page.getByText('Loading naps...')).toBeHidden({ timeout: 15000 });
+    await expect(page).toHaveURL(/\/children\/\d+\/naps$/, { timeout: E2E_TIMEOUT });
+    await expect(page.getByText('Loading naps...')).toBeHidden({ timeout: E2E_TIMEOUT });
     await expect(
       page.getByText('Nap Time').first()
-    ).toBeVisible({ timeout: 10000 });
+    ).toBeVisible({ timeout: E2E_TIMEOUT });
 
     await page.getByRole('button', { name: 'Delete nap' }).first().click();
-    await expect(page).toHaveURL(/\/children\/\d+\/naps\/\d+\/delete/, { timeout: 15000 });
+    await expect(page).toHaveURL(/\/children\/\d+\/naps\/\d+\/delete/, { timeout: E2E_TIMEOUT });
     await expect(
       page.getByRole('heading', { name: 'Delete Nap?' })
-    ).toBeVisible({ timeout: 10000 });
+    ).toBeVisible({ timeout: E2E_TIMEOUT });
 
     await page.getByRole('button', { name: 'Yes, Delete Forever' }).click();
 
-    await expect(page).toHaveURL(/\/children\/\d+\/naps$/, { timeout: 15000 });
-    await expect(page.getByText('Loading naps...')).toBeHidden({ timeout: 15000 });
+    await expect(page).toHaveURL(/\/children\/\d+\/naps$/, { timeout: E2E_TIMEOUT });
+    await expect(page.getByText('Loading naps...')).toBeHidden({ timeout: E2E_TIMEOUT });
     await expect(
       page.getByRole('button', { name: 'Add Nap' })
-    ).toBeVisible({ timeout: 10000 });
+    ).toBeVisible({ timeout: E2E_TIMEOUT });
   });
 
   test('naps list shows pagination and user can go to next and previous page', async ({
@@ -111,10 +112,10 @@ test.describe('Naps', () => {
 
     await expect(
       page.getByRole('heading', { name: /Naps for/ })
-    ).toBeVisible({ timeout: 15000 });
+    ).toBeVisible({ timeout: E2E_TIMEOUT });
+    await expect(page.getByText('Loading naps...')).toBeHidden({ timeout: E2E_TIMEOUT });
 
-    // List and pagination load asynchronously; wait for pagination to appear
-    await expect(page.getByText('Page 1 of 2')).toBeVisible({ timeout: 15000 });
+    await expect(page.getByText('Page 1 of 2')).toBeVisible({ timeout: E2E_TIMEOUT });
     await expect(
       page.getByRole('button', { name: 'Next page' })
     ).toBeVisible();

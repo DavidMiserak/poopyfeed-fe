@@ -1,5 +1,6 @@
 import { test, expect } from './fixtures';
 import { createChildAndGoToDashboard } from './child-helpers';
+import { E2E_TIMEOUT } from './constants';
 
 /**
  * E2E: Pediatrician summary — navigate from child context, assert summary and Print.
@@ -12,28 +13,29 @@ test.describe('Pediatrician summary', () => {
     page,
   }) => {
     await createChildAndGoToDashboard(page, 'E2E Pediatrician');
-    await expect(page).toHaveURL(/\/children\/\d+\/dashboard/);
+    await expect(page).toHaveURL(/\/children\/\d+\/dashboard/, { timeout: E2E_TIMEOUT });
 
-    await expect(page.getByText('More tools', { exact: true })).toBeVisible({ timeout: 15_000 });
-    await page.getByText('More tools', { exact: true }).click();
-    await expect(page).toHaveURL(/\/children\/\d+\/advanced$/, { timeout: 10_000 });
+    const moreTools = page.getByText('More tools', { exact: true });
+    await expect(moreTools).toBeVisible({ timeout: E2E_TIMEOUT });
+    await moreTools.scrollIntoViewIfNeeded();
+    await moreTools.click();
+    await expect(page).toHaveURL(/\/children\/\d+\/advanced$/, { timeout: E2E_TIMEOUT });
 
-    // Advanced page uses AdvancedToolsGridComponent for tool links
-    await expect(page.getByRole('link', { name: 'For the Doctor' })).toBeVisible({ timeout: 5_000 });
+    await expect(page.getByRole('link', { name: 'For the Doctor' })).toBeVisible({ timeout: E2E_TIMEOUT });
     await page.getByRole('link', { name: 'For the Doctor' }).click();
 
-    await expect(page).toHaveURL(/\/children\/\d+\/pediatrician-summary$/, { timeout: 10_000 });
+    await expect(page).toHaveURL(/\/children\/\d+\/pediatrician-summary$/, { timeout: E2E_TIMEOUT });
 
     // Wait for SummaryNavComponent (loading finished); then Print button
     await expect(page.getByRole('link', { name: 'Back to Advanced' })).toBeVisible({
-      timeout: 15_000,
+      timeout: E2E_TIMEOUT,
     });
     await expect(
       page.getByRole('button', { name: /Print/ })
-    ).toBeVisible({ timeout: 10_000 });
+    ).toBeVisible({ timeout: E2E_TIMEOUT });
 
     // Summary section: either period label (content) or SummaryEmptyStateComponent message
     const summaryContent = page.getByText(/Last 7 days|No activity in the last 7 days/);
-    await expect(summaryContent).toBeVisible({ timeout: 10_000 });
+    await expect(summaryContent).toBeVisible({ timeout: E2E_TIMEOUT });
   });
 });

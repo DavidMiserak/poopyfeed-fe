@@ -1,6 +1,7 @@
 import { expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
 import * as crypto from 'node:crypto';
+import { E2E_TIMEOUT } from './constants';
 
 /**
  * Creates a child with a unique name and navigates to that child's dashboard.
@@ -44,7 +45,7 @@ export async function createChildAndGoToDashboard(
 
     // Wait for navigation to dashboard (child creation may fail with 500)
     const navigated = await page
-      .waitForURL(/\/children\/\d+\/dashboard/, { timeout: 15_000 })
+      .waitForURL(/\/children\/\d+\/dashboard/, { timeout: E2E_TIMEOUT })
       .then(() => true)
       .catch(() => false);
 
@@ -53,35 +54,40 @@ export async function createChildAndGoToDashboard(
       if (attempt < MAX_ATTEMPTS) continue;
       // Final attempt: fail with a clear assertion
       await expect(page).toHaveURL(/\/children\/\d+\/dashboard/, {
-        timeout: 5_000,
+        timeout: E2E_TIMEOUT,
       });
     }
 
     // Dashboard URL reached — wait for main content (dashboard may show skeleton first, then
-    // DashboardSectionCardComponent sections with Add Feeding / Add Diaper / Add Nap)
+    // sections: Add Feeding, Quick Log, More tools, etc.)
     const feedingButton = page.getByRole('button', { name: 'Add Feeding' });
-
     const contentLoaded = await feedingButton
-      .waitFor({ state: 'visible', timeout: 15_000 })
+      .waitFor({ state: 'visible', timeout: E2E_TIMEOUT })
+      .then(() => true)
+      .catch(() => false);
+    if (!contentLoaded) {
+      await page.reload();
+      const reloadWorked = await feedingButton
+        .waitFor({ state: 'visible', timeout: E2E_TIMEOUT })
+        .then(() => true)
+        .catch(() => false);
+      if (!reloadWorked) {
+        if (attempt < MAX_ATTEMPTS) continue;
+        await expect(feedingButton).toBeVisible({ timeout: E2E_TIMEOUT });
+      }
+    }
+
+    // Ensure Quick Log section is rendered (avoids flakiness in quick-log, pattern-alerts, etc.)
+    const quickLogReady = await page
+      .getByRole('heading', { name: 'Quick Log', level: 2 })
+      .waitFor({ state: 'visible', timeout: E2E_TIMEOUT })
       .then(() => true)
       .catch(() => false);
 
-    if (contentLoaded) return childName;
+    if (quickLogReady) return childName;
 
-    // Dashboard showed an error — try reloading
-    await page.reload();
-    const reloadWorked = await feedingButton
-      .waitFor({ state: 'visible', timeout: 15_000 })
-      .then(() => true)
-      .catch(() => false);
-
-    if (reloadWorked) return childName;
-
-    // Reload didn't help — retry from scratch unless last attempt
-    if (attempt < MAX_ATTEMPTS) continue;
-
-    // Final attempt: fail with a clear assertion
-    await expect(feedingButton).toBeVisible({ timeout: 5_000 });
+    // Quick Log never appeared — return anyway so tests can proceed (they may have their own waits)
+    return childName;
   }
 
   return childName;

@@ -1,4 +1,5 @@
 import { test, expect } from './fixtures';
+import { E2E_TIMEOUT } from './constants';
 import { createChildAndGoToDashboard } from './child-helpers';
 
 /**
@@ -13,12 +14,12 @@ test.describe('Dashboard content', () => {
 
     await expect(
       page.getByRole('heading', { name: "Today's Summary", level: 2 })
-    ).toBeVisible({ timeout: 15_000 });
+    ).toBeVisible({ timeout: E2E_TIMEOUT });
 
     // New child has no activity: empty state or zero counts
     const noActivity = page.getByText('No activity recorded today');
     const feedingsLabel = page.getByText('Feedings Today', { exact: true });
-    await expect(noActivity.or(feedingsLabel)).toBeVisible({ timeout: 5_000 });
+    await expect(noActivity.or(feedingsLabel)).toBeVisible({ timeout: E2E_TIMEOUT });
   });
 
   test('dashboard shows Recent Activity after quick-logging a diaper', async ({
@@ -34,15 +35,15 @@ test.describe('Dashboard content', () => {
 
     await expect(
       page.getByText('Wet diaper recorded successfully')
-    ).toBeVisible({ timeout: 15_000 });
+    ).toBeVisible({ timeout: E2E_TIMEOUT });
 
     // Dashboard refreshes via onQuickLogged(); wait for Recent Activity to appear
     await expect(
       page.getByRole('heading', { name: 'Recent Activity', level: 2 })
-    ).toBeVisible({ timeout: 15_000 });
+    ).toBeVisible({ timeout: E2E_TIMEOUT });
 
     await expect(page.getByText('Wet', { exact: true }).first()).toBeVisible({
-      timeout: 10_000,
+      timeout: E2E_TIMEOUT,
     });
   });
 
@@ -59,19 +60,19 @@ test.describe('Dashboard content', () => {
 
     await expect(
       page.getByText('Wet diaper recorded successfully')
-    ).toBeVisible({ timeout: 15_000 });
+    ).toBeVisible({ timeout: E2E_TIMEOUT });
 
     // Summary refreshes; Diapers Today card (inside Today's Summary section card) shows count 1
     await expect(
       page.getByText('Diapers Today', { exact: true })
-    ).toBeVisible({ timeout: 15_000 });
+    ).toBeVisible({ timeout: E2E_TIMEOUT });
     const todaySummarySection = page.getByRole('heading', {
       name: "Today's Summary",
       level: 2,
     });
-    await expect(todaySummarySection).toBeVisible({ timeout: 10_000 });
+    await expect(todaySummarySection).toBeVisible({ timeout: E2E_TIMEOUT });
     await expect(todaySummarySection.locator('..').getByText('1')).toBeVisible({
-      timeout: 10_000,
+      timeout: E2E_TIMEOUT,
     });
   });
 });

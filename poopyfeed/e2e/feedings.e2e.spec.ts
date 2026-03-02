@@ -1,4 +1,5 @@
 import { test, expect } from './fixtures';
+import { E2E_TIMEOUT } from './constants';
 import { createChildAndGoToDashboard } from './child-helpers';
 import { createItemsForPagination } from './pagination-helpers';
 import { editTrackingItemAndSeeUpdateOnList } from './tracking-helpers';
@@ -28,7 +29,7 @@ test.describe('Feedings', () => {
     await expect(page).toHaveURL(/\/children\/\d+\/feedings$/);
     await expect(
       page.getByText(/Bottle:.*4.*oz/).first()
-    ).toBeVisible({ timeout: 15000 });
+    ).toBeVisible({ timeout: E2E_TIMEOUT });
   });
 
   test('bottle feeding form shows validation when amount is missing', async ({
@@ -88,7 +89,7 @@ test.describe('Feedings', () => {
     await expect(page).toHaveURL(/\/children\/\d+\/feedings$/);
     await expect(
       page.getByText(/Bottle:.*3.*oz/).first()
-    ).toBeVisible({ timeout: 15000 });
+    ).toBeVisible({ timeout: E2E_TIMEOUT });
 
     await page.getByRole('button', { name: 'Delete feeding' }).first().click();
     await expect(page).toHaveURL(/\/children\/\d+\/feedings\/\d+\/delete/);
@@ -116,7 +117,7 @@ test.describe('Feedings', () => {
 
     await expect(
       page.getByRole('heading', { name: /Feedings for/ })
-    ).toBeVisible({ timeout: 15000 });
+    ).toBeVisible({ timeout: E2E_TIMEOUT });
 
     await expect(page.getByText('Page 1 of 2')).toBeVisible();
     await expect(

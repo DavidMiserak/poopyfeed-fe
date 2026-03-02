@@ -1,5 +1,6 @@
 import { test, expect } from './fixtures';
 import { createChildAndGoToDashboard } from './child-helpers';
+import { E2E_TIMEOUT } from './constants';
 
 /**
  * E2E: Notification bell, dropdown, and two-user notification delivery.
@@ -30,12 +31,12 @@ test.describe('Notifications', () => {
     // Click bell → dropdown shows list (empty or with notifications from other runs)
     await bell.click();
     const dialog = page.getByRole('dialog', { name: 'Notification list' });
-    await expect(dialog).toBeVisible();
+    await expect(dialog).toBeVisible({ timeout: E2E_TIMEOUT });
     await expect(
       dialog
         .getByText('No notifications yet.')
         .or(dialog.getByRole('list'))
-    ).toBeVisible({ timeout: 10000 });
+    ).toBeVisible({ timeout: E2E_TIMEOUT });
   });
 
   test('shared user logging an activity creates a notification for the owner', async ({
@@ -60,13 +61,13 @@ test.describe('Notifications', () => {
     await expect(page).toHaveURL(/\/children\/\d+\/sharing$/);
     await expect(
       page.getByRole('heading', { name: /Sharing Settings for/ })
-    ).toBeVisible({ timeout: 25000 });
+    ).toBeVisible({ timeout: E2E_TIMEOUT });
     await expect(
       page.getByRole('button', { name: 'Create Invite Link' })
-    ).toBeVisible({ timeout: 10000 });
+    ).toBeVisible({ timeout: E2E_TIMEOUT });
     await page.getByRole('button', { name: 'Create Invite Link' }).click();
     await expect(page.getByTestId('invite-item').first()).toBeVisible({
-      timeout: 10000,
+      timeout: E2E_TIMEOUT,
     });
     const token = await page
       .getByTestId('invite-item')
@@ -78,27 +79,27 @@ test.describe('Notifications', () => {
     await page.getByRole('button', { name: 'Log out' }).click();
     await expect(
       page.getByRole('link', { name: 'Log in' }).first()
-    ).toBeVisible({ timeout: 5000 });
+    ).toBeVisible({ timeout: E2E_TIMEOUT });
 
     const userBEmail = `e2e-notif-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@example.com`;
     const userBPassword = 'e2e-notif-password-123';
 
     await page.goto('/signup');
-    await expect(page.locator('#password')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('#password')).toBeVisible({ timeout: E2E_TIMEOUT });
     await page.locator('#name').fill('User B');
     await page.getByLabel('Email address').fill(userBEmail);
     await page.locator('#password').fill(userBPassword);
     await page.locator('#confirmPassword').fill(userBPassword);
     await expect(
       page.getByRole('button', { name: 'Create Account' })
-    ).toBeEnabled({ timeout: 5000 });
+    ).toBeEnabled({ timeout: E2E_TIMEOUT });
     await page.getByRole('button', { name: 'Create Account' }).click();
-    await expect(page).toHaveURL(/\/children/, { timeout: 15000 });
+    await expect(page).toHaveURL(/\/children/, { timeout: E2E_TIMEOUT });
 
     await page.goto(`/invites/accept/${token!.trim()}`);
     await expect(
       page.getByRole('heading', { name: 'Access Granted! 🎉' })
-    ).toBeVisible({ timeout: 25000 });
+    ).toBeVisible({ timeout: E2E_TIMEOUT });
 
     // ── Step 4: User B navigates to shared child and logs a feeding ──
     await page.getByRole('button', { name: 'View My Children' }).click();
@@ -106,11 +107,11 @@ test.describe('Notifications', () => {
 
     await expect(
       page.getByRole('heading', { name: 'My Children' })
-    ).toBeVisible({ timeout: 10000 });
+    ).toBeVisible({ timeout: E2E_TIMEOUT });
 
     await page.getByRole('heading', { name: childName }).click();
     await expect(page).toHaveURL(/\/children\/\d+\/dashboard/, {
-      timeout: 10000,
+      timeout: E2E_TIMEOUT,
     });
 
     await page.getByRole('button', { name: 'Add Feeding' }).click();
@@ -121,7 +122,7 @@ test.describe('Notifications', () => {
       .getByRole('button', { name: /Add Feeding|Save Feeding/ })
       .click();
     await expect(page).toHaveURL(/\/children\/\d+\/feedings$/, {
-      timeout: 15000,
+      timeout: E2E_TIMEOUT,
     });
 
     // ── Step 5: Restore User A with saved auth token (faster than full storage state) ──
@@ -138,7 +139,7 @@ test.describe('Notifications', () => {
     await page.goto('/children');
     await expect(
       page.getByRole('heading', { name: 'My Children' })
-    ).toBeVisible({ timeout: 10000 });
+    ).toBeVisible({ timeout: E2E_TIMEOUT });
 
     const bell = page.getByRole('button', { name: 'Notifications' }).first();
     await expect(bell).toBeVisible();
@@ -158,7 +159,7 @@ test.describe('Notifications', () => {
           }
           return hasNotification;
         },
-        { timeout: 25000, intervals: [2000] }
+        { timeout: E2E_TIMEOUT, intervals: [2000] }
       )
       .toBe(true);
   });
@@ -175,29 +176,29 @@ test.describe('Notifications', () => {
 
     async function openAdvancedAndWaitForToggles() {
       await page.goto(`/children/${childId}/edit`);
-      await expect(page.getByRole('heading', { name: 'Edit Baby' })).toBeVisible({ timeout: 15000 });
+      await expect(page.getByRole('heading', { name: 'Edit Baby' })).toBeVisible({ timeout: E2E_TIMEOUT });
       // Wait for child data to load (form populated), so loadNotificationPreference() is triggered.
-      await expect(page.getByLabel("Baby's Name")).toHaveValue(/\S/, { timeout: 15000 });
+      await expect(page.getByLabel("Baby's Name")).toHaveValue(/\S/, { timeout: E2E_TIMEOUT });
       await page.getByRole('button', { name: /Show advanced/ }).click();
       await expect(
         page.locator('#advanced-settings-panel')
-      ).toBeVisible({ timeout: 15000 });
+      ).toBeVisible({ timeout: E2E_TIMEOUT });
       const prefsGroup = page.getByRole('group', {
         name: /Notification Preferences/,
       });
-      await expect(prefsGroup).toBeVisible({ timeout: 15000 });
+      await expect(prefsGroup).toBeVisible({ timeout: E2E_TIMEOUT });
       await expect(
         prefsGroup.getByText('Choose which activities trigger notifications')
-      ).toBeVisible({ timeout: 5000 });
+      ).toBeVisible({ timeout: E2E_TIMEOUT });
       await expect(
         prefsGroup.getByText('Loading notification preferences...')
-      ).toBeHidden({ timeout: 25000 });
+      ).toBeHidden({ timeout: E2E_TIMEOUT });
       const hasError = await prefsGroup
         .locator('.border-red-500')
         .isVisible()
         .catch(() => false);
       if (hasError) throw new Error('Notification preferences API error');
-      await expect(prefsGroup.getByText('Feedings')).toBeVisible({ timeout: 10000 });
+      await expect(prefsGroup.getByText('Feedings')).toBeVisible({ timeout: E2E_TIMEOUT });
       return prefsGroup;
     }
 
@@ -209,7 +210,7 @@ test.describe('Notifications', () => {
       prefsGroup = await openAdvancedAndWaitForToggles();
     }
 
-    await expect(prefsGroup.getByText('Diaper changes')).toBeVisible({ timeout: 10000 });
-    await expect(prefsGroup.getByText('Naps')).toBeVisible({ timeout: 10000 });
+    await expect(prefsGroup.getByText('Diaper changes')).toBeVisible({ timeout: E2E_TIMEOUT });
+    await expect(prefsGroup.getByText('Naps')).toBeVisible({ timeout: E2E_TIMEOUT });
   });
 });

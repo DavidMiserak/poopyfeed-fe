@@ -1,5 +1,6 @@
 import { test, expect } from './fixtures';
 import { createChildAndGoToDashboard } from './child-helpers';
+import { E2E_TIMEOUT } from './constants';
 
 /**
  * E2E: Sharing / invite flow (owner only).
@@ -12,40 +13,33 @@ import { createChildAndGoToDashboard } from './child-helpers';
  * Handles transient backend failures (blank page on 500) by retrying with a reload.
  */
 async function navigateToSharingPage(page: import('@playwright/test').Page) {
-  const moreTools = page.getByRole('button', {
-    name: 'View advanced options for this child',
-  });
-  await expect(moreTools).toBeVisible({ timeout: 15000 });
+  const moreTools = page.getByText('More tools', { exact: true });
+  await expect(moreTools).toBeVisible({ timeout: E2E_TIMEOUT });
+  await moreTools.scrollIntoViewIfNeeded();
   await moreTools.click();
-  await expect(page).toHaveURL(/\/children\/\d+\/advanced$/, { timeout: 10000 });
-  // Advanced page uses AdvancedToolsGridComponent for tool links
+  await expect(page).toHaveURL(/\/children\/\d+\/advanced$/, { timeout: E2E_TIMEOUT });
   await expect(
     page.getByRole('link', { name: 'Manage Sharing' })
-  ).toBeVisible({ timeout: 10000 });
+  ).toBeVisible({ timeout: E2E_TIMEOUT });
   await page.getByRole('link', { name: 'Manage Sharing' }).click();
 
-  await expect(page).toHaveURL(/\/children\/\d+\/sharing$/, { timeout: 15000 });
-
-  // Wait for loading to finish first, then check for the heading.
-  // On transient 500s the page can go blank (error with empty message);
-  // detect that and reload once.
+  await expect(page).toHaveURL(/\/children\/\d+\/sharing$/, { timeout: E2E_TIMEOUT });
   await expect(
     page.getByText('Loading sharing settings...')
-  ).toBeHidden({ timeout: 20000 });
+  ).toBeHidden({ timeout: E2E_TIMEOUT });
 
   const heading = page.getByRole('heading', { name: /Sharing Settings for/ });
   const headingVisible = await heading
-    .waitFor({ state: 'visible', timeout: 5000 })
+    .waitFor({ state: 'visible', timeout: E2E_TIMEOUT })
     .then(() => true)
     .catch(() => false);
 
   if (!headingVisible) {
-    // Blank page (transient backend error) — reload and retry
-    await page.reload();
+    await page.reload({ timeout: E2E_TIMEOUT });
     await expect(
       page.getByText('Loading sharing settings...')
-    ).toBeHidden({ timeout: 20000 });
-    await expect(heading).toBeVisible({ timeout: 10000 });
+    ).toBeHidden({ timeout: E2E_TIMEOUT });
+    await expect(heading).toBeVisible({ timeout: E2E_TIMEOUT });
   }
 }
 
@@ -56,10 +50,10 @@ test.describe('Sharing', () => {
 
     await expect(
       page.getByRole('heading', { name: /Invite Links/ })
-    ).toBeVisible({ timeout: 10000 });
+    ).toBeVisible({ timeout: E2E_TIMEOUT });
     await expect(
       page.getByRole('button', { name: 'Create Invite Link' })
-    ).toBeVisible({ timeout: 10000 });
+    ).toBeVisible({ timeout: E2E_TIMEOUT });
 
     // Verify back arrow text and navigation
     await page.getByRole('button', { name: 'Back to advanced tools' }).click();
@@ -74,16 +68,23 @@ test.describe('Sharing', () => {
 
     await expect(
       page.getByRole('heading', { name: /Invite Links/ })
-    ).toBeVisible({ timeout: 5000 });
+    ).toBeVisible({ timeout: E2E_TIMEOUT });
     await expect(
       page.getByRole('button', { name: 'Create Invite Link' })
-    ).toBeVisible({ timeout: 5000 });
+    ).toBeVisible({ timeout: E2E_TIMEOUT });
 
     await page.getByRole('button', { name: 'Create Invite Link' }).click();
-    const firstInvite = page.getByTestId('invite-item').first();
-    await expect(firstInvite).toBeVisible({ timeout: 20000 });
-    await expect(firstInvite.getByText('Co-parent')).toBeVisible({ timeout: 10000 });
-    await expect(firstInvite.getByText('Active')).toBeVisible({ timeout: 10000 });
+    const coParentInvite = page
+      .getByTestId('invite-item')
+      .filter({ hasText: 'Co-parent' })
+      .first();
+    await expect
+      .poll(
+        async () => await coParentInvite.isVisible(),
+        { timeout: E2E_TIMEOUT, intervals: [800] }
+      )
+      .toBe(true);
+    await expect(coParentInvite.getByText('Active')).toBeVisible({ timeout: E2E_TIMEOUT });
   });
 
   test('owner can create a caregiver invite link and see it in the list', async ({
@@ -94,15 +95,20 @@ test.describe('Sharing', () => {
 
     await expect(
       page.getByRole('combobox').first()
-    ).toBeVisible({ timeout: 10000 });
+    ).toBeVisible({ timeout: E2E_TIMEOUT });
     await page.getByRole('combobox').first().selectOption('caregiver');
     await page.getByRole('button', { name: 'Create Invite Link' }).click();
 
-    await expect(page.getByText('Caregiver').first()).toBeVisible({
-      timeout: 15000,
-    });
-    await expect(page.getByText('Active').first()).toBeVisible({
-      timeout: 10000,
-    });
+    const caregiverInvite = page
+      .getByTestId('invite-item')
+      .filter({ hasText: 'Caregiver' })
+      .first();
+    await expect
+      .poll(
+        async () => await caregiverInvite.isVisible(),
+        { timeout: E2E_TIMEOUT, intervals: [800] }
+      )
+      .toBe(true);
+    await expect(caregiverInvite.getByText('Active')).toBeVisible({ timeout: E2E_TIMEOUT });
   });
 });

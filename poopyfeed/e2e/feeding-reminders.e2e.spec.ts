@@ -1,4 +1,5 @@
 import { test, expect } from './fixtures';
+import { E2E_TIMEOUT } from './constants';
 
 /**
  * E2E: Feeding reminder interval configuration on the child edit form.
@@ -26,7 +27,7 @@ test.describe('Feeding Reminders', () => {
     await page.getByRole('radio', { name: '♂️ Male' }).click({ force: true });
     await page.getByRole('button', { name: 'Add Baby' }).click();
 
-    await expect(page).toHaveURL(/\/children\/\d+\/dashboard/, { timeout: 15000 });
+    await expect(page).toHaveURL(/\/children\/\d+\/dashboard/, { timeout: E2E_TIMEOUT });
     const url = page.url();
     const childId = url.match(/\/children\/(\d+)\//)?.[1];
     if (!childId) throw new Error('Could not extract child ID from URL: ' + url);
@@ -37,21 +38,21 @@ test.describe('Feeding Reminders', () => {
     const childId = await createChildAndGetId(page, 'Visible');
 
     await page.goto(`/children/${childId}/edit`);
-    await expect(page.getByRole('heading', { name: 'Edit Baby' })).toBeVisible({ timeout: 15000 });
+    await expect(page.getByRole('heading', { name: 'Edit Baby' })).toBeVisible({ timeout: E2E_TIMEOUT });
 
     // Open advanced settings section and wait for panel to render
     await page.getByRole('button', { name: /Show advanced/i }).click();
     await expect(
       page.locator('#advanced-settings-panel')
-    ).toBeVisible({ timeout: 15000 });
+    ).toBeVisible({ timeout: E2E_TIMEOUT });
 
     // Fieldset should be rendered inside advanced settings
     const remindersGroup = page.getByRole('group', { name: /Feeding Reminders/ });
-    await expect(remindersGroup).toBeVisible({ timeout: 15000 });
+    await expect(remindersGroup).toBeVisible({ timeout: E2E_TIMEOUT });
 
     // Reminder Interval select defaults to Off (null value)
     const select = page.getByLabel('Reminder Interval');
-    await expect(select).toBeVisible({ timeout: 10000 });
+    await expect(select).toBeVisible({ timeout: E2E_TIMEOUT });
     // The "Off" option should be selected (value is either "" or "null" depending on rendering)
     const selectedOption = select.locator('option[selected], option:first-child');
     await expect(selectedOption).toHaveText('Off');
@@ -78,7 +79,7 @@ test.describe('Feeding Reminders', () => {
     await page.getByRole('button', { name: 'Update Baby' }).click();
 
     // Wait for navigation to children list (indicates successful submission)
-    await expect(page).toHaveURL(/\/children$/, { timeout: 15000 });
+    await expect(page).toHaveURL(/\/children$/, { timeout: E2E_TIMEOUT });
   });
 
   test('owner can clear reminder interval to Off and form submits successfully', async ({ page }) => {
@@ -103,7 +104,7 @@ test.describe('Feeding Reminders', () => {
     await page.getByRole('button', { name: 'Update Baby' }).click();
 
     // Wait for navigation to children list (indicates successful submission)
-    await expect(page).toHaveURL(/\/children$/, { timeout: 15000 });
+    await expect(page).toHaveURL(/\/children$/, { timeout: E2E_TIMEOUT });
   });
 
   test('feeding reminders section is NOT shown on the create form', async ({ page }) => {

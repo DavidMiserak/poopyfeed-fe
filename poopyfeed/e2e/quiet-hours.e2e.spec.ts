@@ -1,4 +1,5 @@
 import { test, expect } from './fixtures';
+import { E2E_TIMEOUT } from './constants';
 
 /**
  * E2E: Quiet Hours settings on the account settings page.
@@ -11,11 +12,11 @@ test.describe('Quiet Hours', () => {
 
     await expect(
       page.getByRole('heading', { name: 'Account Settings' })
-    ).toBeVisible({ timeout: 15_000 });
+    ).toBeVisible({ timeout: E2E_TIMEOUT });
 
     await expect(
       page.getByRole('heading', { name: 'Quiet Hours', level: 2 })
-    ).toBeVisible({ timeout: 15_000 });
+    ).toBeVisible({ timeout: E2E_TIMEOUT });
 
     await expect(
       page.getByLabel('Enable quiet hours', { exact: true })
@@ -30,12 +31,12 @@ test.describe('Quiet Hours', () => {
 
     await expect(
       page.getByRole('heading', { name: 'Quiet Hours', level: 2 })
-    ).toBeVisible({ timeout: 15_000 });
+    ).toBeVisible({ timeout: E2E_TIMEOUT });
 
     await page.getByRole('button', { name: 'Save Quiet Hours' }).click();
 
     await expect(
       page.getByText('Quiet hours saved').first()
-    ).toBeVisible({ timeout: 15_000 });
+    ).toBeVisible({ timeout: E2E_TIMEOUT });
   });
 });

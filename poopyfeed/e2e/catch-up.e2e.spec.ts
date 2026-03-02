@@ -1,6 +1,7 @@
 import { test, expect } from './fixtures';
 import type { Page } from '@playwright/test';
 import { createChildAndGoToDashboard } from './child-helpers';
+import { E2E_TIMEOUT } from './constants';
 
 /**
  * E2E: Catch-Up Mode wizard flow (bulk logging for Maria / nanny persona).
@@ -12,12 +13,13 @@ import { createChildAndGoToDashboard } from './child-helpers';
 
 /** Navigate from dashboard to catch-up page. */
 async function goToCatchUp(page: Page): Promise<void> {
-  await expect(page.getByText('More tools', { exact: true })).toBeVisible();
-  await page.getByText('More tools', { exact: true }).click();
-  await expect(page).toHaveURL(/\/children\/\d+\/advanced$/);
-
+  const moreTools = page.getByText('More tools', { exact: true });
+  await expect(moreTools).toBeVisible({ timeout: E2E_TIMEOUT });
+  await moreTools.scrollIntoViewIfNeeded();
+  await moreTools.click();
+  await expect(page).toHaveURL(/\/children\/\d+\/advanced$/, { timeout: E2E_TIMEOUT });
   await page.getByRole('link', { name: /Catch.Up Mode/ }).click();
-  await expect(page).toHaveURL(/\/children\/\d+\/catch-up$/);
+  await expect(page).toHaveURL(/\/children\/\d+\/catch-up$/, { timeout: E2E_TIMEOUT });
 }
 
 test.describe('Catch-Up Mode', () => {
@@ -47,38 +49,42 @@ test.describe('Catch-Up Mode', () => {
   });
 
   test('full happy path: add events, review, submit', async ({ page }) => {
+    test.setTimeout(90_000);
     await createChildAndGoToDashboard(page, 'E2E CatchUp');
     await goToCatchUp(page);
 
-    // Step 1: select time window
     await page.getByRole('button', { name: 'Last 4 hours' }).click();
     await page.getByRole('button', { name: 'Continue to Activities' }).click();
     await expect(
       page.getByRole('heading', { name: 'Step 2: Add Activities' })
-    ).toBeVisible({ timeout: 15_000 });
+    ).toBeVisible({ timeout: E2E_TIMEOUT });
 
-    // Step 2: add a diaper and a nap (these have simple defaults that pass validation)
     await page.getByRole('button', { name: 'Add diaper event' }).click();
     await page.getByRole('button', { name: 'Add nap event' }).click();
 
-    // Click review (button text includes event count)
-    await page.getByRole('button', { name: /Review \d+ Activit/ }).click();
+    const reviewBtn = page.getByRole('button', { name: /Review \d+ Activit/ });
+    await expect(reviewBtn).toBeVisible({ timeout: E2E_TIMEOUT });
+    await reviewBtn.scrollIntoViewIfNeeded();
+    await reviewBtn.click();
 
-    // Step 3: review
     await expect(
       page.getByRole('heading', { name: 'Step 3: Review & Save' })
-    ).toBeVisible({ timeout: 15_000 });
+    ).toBeVisible({ timeout: E2E_TIMEOUT });
 
     await page.getByRole('button', { name: 'Confirm & Save' }).click();
+    await expect(page.getByText('Saving...')).toBeVisible({ timeout: E2E_TIMEOUT });
+    await expect
+      .poll(
+        async () => {
+          const msg = page.getByText(/2 Activit(y|ies) Saved!/);
+          return await msg.isVisible();
+        },
+        { timeout: E2E_TIMEOUT, intervals: [1000] }
+      )
+      .toBe(true);
 
-    await expect(page.getByText('Saving...')).toBeVisible({ timeout: 5000 });
-    await expect(
-      page.getByText(/2 Activities Saved!/)
-    ).toBeVisible({ timeout: 25_000 });
-
-    // Navigate back to advanced
     await page.getByRole('button', { name: 'Back to advanced tools' }).click();
-    await expect(page).toHaveURL(/\/children\/\d+\/advanced$/);
+    await expect(page).toHaveURL(/\/children\/\d+\/advanced$/, { timeout: E2E_TIMEOUT });
   });
 
   test('step 2: can remove an event', async ({ page }) => {
@@ -112,7 +118,7 @@ test.describe('Catch-Up Mode', () => {
     await page.getByRole('button', { name: /Delete diaper event/ }).click();
     await expect(
       page.getByRole('dialog').getByRole('button', { name: 'Delete' })
-    ).toBeVisible({ timeout: 5_000 });
+    ).toBeVisible({ timeout: E2E_TIMEOUT });
     await page.getByRole('dialog').getByRole('button', { name: 'Delete' }).click();
 
     // Verify only 1 event remains

@@ -1,4 +1,5 @@
 import { test, expect } from './fixtures';
+import { E2E_TIMEOUT } from './constants';
 
 /**
  * E2E: Children flow (add child, list, validation) against Angular + Django.
@@ -40,14 +41,14 @@ test.describe('Children', () => {
     await page.getByRole('button', { name: 'Add Baby' }).click();
 
     await expect(page).toHaveURL(/\/children\/\d+\/dashboard/, {
-      timeout: 15000,
+      timeout: E2E_TIMEOUT,
     });
     await page.goto('/children');
     await expect(
       page.getByRole('heading', { name: 'My Children' })
-    ).toBeVisible({ timeout: 10000 });
+    ).toBeVisible({ timeout: E2E_TIMEOUT });
     await expect(
       page.getByRole('heading', { name: 'E2E Baby' }).first()
-    ).toBeVisible({ timeout: 15000 });
+    ).toBeVisible({ timeout: E2E_TIMEOUT });
   });
 });

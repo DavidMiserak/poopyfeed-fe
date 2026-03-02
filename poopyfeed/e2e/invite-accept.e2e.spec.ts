@@ -1,4 +1,5 @@
 import { test, expect } from './fixtures';
+import { E2E_TIMEOUT } from './constants';
 import { createChildAndGoToDashboard } from './child-helpers';
 
 /**
@@ -21,14 +22,14 @@ test.describe('Invite Accept', () => {
     await expect(page).toHaveURL(/\/children\/\d+\/advanced$/);
 
     await page.getByRole('link', { name: 'Manage Sharing' }).click();
-    await expect(page).toHaveURL(/\/children\/\d+\/sharing$/, { timeout: 15_000 });
+    await expect(page).toHaveURL(/\/children\/\d+\/sharing$/, { timeout: E2E_TIMEOUT });
     await expect(
       page.getByRole('button', { name: 'Create Invite Link' })
-    ).toBeVisible({ timeout: 15_000 });
+    ).toBeVisible({ timeout: E2E_TIMEOUT });
     await page.getByRole('button', { name: 'Create Invite Link' }).click();
 
     await expect(page.getByTestId('invite-item').first()).toBeVisible({
-      timeout: 20_000,
+      timeout: E2E_TIMEOUT,
     });
     const token = await page
       .getByTestId('invite-item')
@@ -39,35 +40,35 @@ test.describe('Invite Accept', () => {
     await page.getByRole('button', { name: 'Log out' }).click();
     await expect(
       page.getByRole('link', { name: 'Log in' }).first()
-    ).toBeVisible({ timeout: 10_000 });
+    ).toBeVisible({ timeout: E2E_TIMEOUT });
 
     const inviteUserEmail = `e2e-invite-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@example.com`;
     const inviteUserPassword = 'e2e-invite-password-123';
 
     await page.goto('/signup');
-    await expect(page.locator('#password')).toBeVisible({ timeout: 15_000 });
+    await expect(page.locator('#password')).toBeVisible({ timeout: E2E_TIMEOUT });
     await page.getByLabel('Full name').fill('E2E Invite User');
     await page.getByLabel('Email address').fill(inviteUserEmail);
     await page.locator('#password').fill(inviteUserPassword);
     await page.locator('#confirmPassword').fill(inviteUserPassword);
     await page.getByRole('button', { name: 'Create Account' }).click();
 
-    await expect(page).toHaveURL(/\/children/, { timeout: 20_000 });
+    await expect(page).toHaveURL(/\/children/, { timeout: E2E_TIMEOUT });
 
     await page.goto(`/invites/accept/${token!}`);
 
     await expect(
       page.getByRole('heading', { name: 'Access Granted! 🎉' })
-    ).toBeVisible({ timeout: 25_000 });
+    ).toBeVisible({ timeout: E2E_TIMEOUT });
     await expect(
       page.getByText(/You now have access to .+'s tracking data!/)
-    ).toBeVisible({ timeout: 10_000 });
+    ).toBeVisible({ timeout: E2E_TIMEOUT });
 
     await page.getByRole('button', { name: 'View My Children' }).click();
-    await expect(page).toHaveURL(/\/children$/, { timeout: 10_000 });
+    await expect(page).toHaveURL(/\/children$/, { timeout: E2E_TIMEOUT });
     await expect(
       page.getByRole('heading', { name: sharedChildName })
-    ).toBeVisible({ timeout: 15_000 });
+    ).toBeVisible({ timeout: E2E_TIMEOUT });
   });
 
   test('invalid invite token shows error', async ({ page }) => {
@@ -75,7 +76,7 @@ test.describe('Invite Accept', () => {
 
     await expect(
       page.getByRole('heading', { name: 'Invalid or Expired Invite' })
-    ).toBeVisible({ timeout: 10000 });
+    ).toBeVisible({ timeout: E2E_TIMEOUT });
     await expect(page.getByRole('button', { name: 'Go to My Children' })).toBeVisible();
   });
 });

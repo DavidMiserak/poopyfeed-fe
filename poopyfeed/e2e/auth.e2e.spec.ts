@@ -1,4 +1,5 @@
 import { test, expect } from './fixtures';
+import { E2E_TIMEOUT } from './constants';
 
 /**
  * E2E: Auth flows (signup, login) against Angular + Django.
@@ -71,7 +72,7 @@ test.describe('Auth', () => {
 
     await expect(page).toHaveURL(/\/login/);
     await expect(page.getByTestId('login-error')).toBeVisible({
-      timeout: 10_000,
+      timeout: E2E_TIMEOUT,
     });
   });
 

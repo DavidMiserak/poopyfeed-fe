@@ -1,4 +1,5 @@
 import { test, expect } from './fixtures';
+import { E2E_TIMEOUT } from './constants';
 import type { Page } from '@playwright/test';
 import { createChildAndGoToDashboard } from './child-helpers';
 
@@ -26,15 +27,15 @@ test.describe('Timeline view', () => {
     await expect(page).toHaveURL(/\/children\/\d+\/timeline$/);
     await expect(
       page.getByRole('link', { name: 'Back to advanced tools' })
-    ).toBeVisible({ timeout: 15_000 });
+    ).toBeVisible({ timeout: E2E_TIMEOUT });
 
     // Page shows timeline content: heading contains "Timeline" and either empty state or day section
     await expect(
       page.getByRole('heading', { name: /'s Timeline$/ })
-    ).toBeVisible({ timeout: 10_000 });
+    ).toBeVisible({ timeout: E2E_TIMEOUT });
     const noEvents = page.getByText('No events logged on this day.');
     const daySection = page.getByRole('heading', { level: 2 });
-    await expect(noEvents.or(daySection)).toBeVisible({ timeout: 5_000 });
+    await expect(noEvents.or(daySection)).toBeVisible({ timeout: E2E_TIMEOUT });
   });
 
   test('timeline shows day navigation (Previous and Next)', async ({ page }) => {
@@ -43,7 +44,7 @@ test.describe('Timeline view', () => {
 
     await expect(
       page.getByRole('heading', { name: /'s Timeline$/ })
-    ).toBeVisible({ timeout: 15_000 });
+    ).toBeVisible({ timeout: E2E_TIMEOUT });
 
     await expect(
       page.getByRole('button', { name: /View previous day|Cannot go before/ })
@@ -63,15 +64,15 @@ test.describe('Timeline view', () => {
       .click();
     await expect(
       page.getByText('Wet diaper recorded successfully')
-    ).toBeVisible({ timeout: 15_000 });
+    ).toBeVisible({ timeout: E2E_TIMEOUT });
 
     await goToTimeline(page);
 
     await expect(
       page.getByRole('heading', { name: /'s Timeline$/ })
-    ).toBeVisible({ timeout: 15_000 });
+    ).toBeVisible({ timeout: E2E_TIMEOUT });
     await expect(page.getByText('Wet', { exact: true }).first()).toBeVisible({
-      timeout: 10_000,
+      timeout: E2E_TIMEOUT,
     });
   });
 });

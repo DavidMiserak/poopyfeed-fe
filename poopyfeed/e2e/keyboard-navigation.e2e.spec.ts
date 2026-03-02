@@ -1,4 +1,5 @@
 import { test, expect } from './fixtures';
+import { E2E_TIMEOUT } from './constants';
 import { createChildAndGoToDashboard } from './child-helpers';
 
 /**
@@ -15,15 +16,15 @@ test.describe('Keyboard navigation (child list cards)', () => {
 
     await expect(
       page.getByRole('heading', { name: 'My Children' })
-    ).toBeVisible({ timeout: 10_000 });
+    ).toBeVisible({ timeout: E2E_TIMEOUT });
     const firstCard = page.getByRole('button').first();
-    await expect(firstCard).toBeVisible({ timeout: 5_000 });
+    await expect(firstCard).toBeVisible({ timeout: E2E_TIMEOUT });
 
     await firstCard.focus();
     await page.keyboard.press('Enter');
 
     await expect(page).toHaveURL(/\/children\/\d+\/dashboard/, {
-      timeout: 15_000,
+      timeout: E2E_TIMEOUT,
     });
   });
 
@@ -35,15 +36,15 @@ test.describe('Keyboard navigation (child list cards)', () => {
 
     await expect(
       page.getByRole('heading', { name: 'My Children' })
-    ).toBeVisible({ timeout: 10_000 });
+    ).toBeVisible({ timeout: E2E_TIMEOUT });
     const firstCard = page.getByRole('button').first();
-    await expect(firstCard).toBeVisible({ timeout: 5_000 });
+    await expect(firstCard).toBeVisible({ timeout: E2E_TIMEOUT });
 
     await firstCard.focus();
     await page.keyboard.press('Space');
 
     await expect(page).toHaveURL(/\/children\/\d+\/dashboard/, {
-      timeout: 15_000,
+      timeout: E2E_TIMEOUT,
     });
   });
 });

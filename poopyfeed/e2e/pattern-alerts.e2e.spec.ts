@@ -1,6 +1,7 @@
 import { test, expect } from './fixtures';
 import type { Page } from '@playwright/test';
 import { createChildAndGoToDashboard } from './child-helpers';
+import { E2E_TIMEOUT } from './constants';
 
 const baseURL = process.env.BASE_URL ?? 'http://localhost:4200';
 
@@ -115,7 +116,7 @@ test.describe('Pattern alerts', () => {
 
     await expect(
       page.getByRole('heading', { name: 'Quick Log', level: 2 })
-    ).toBeVisible({ timeout: 15_000 });
+    ).toBeVisible({ timeout: E2E_TIMEOUT });
 
     // No feeding/nap history → pattern alerts return all false → region not rendered
     await expect(page.getByRole('region', { name: 'Pattern alerts' })).toHaveCount(0);
@@ -132,14 +133,17 @@ test.describe('Pattern alerts', () => {
       })
       .click();
 
-    await expect(
-      page.getByText('Wet diaper recorded successfully')
-    ).toBeVisible({ timeout: 15_000 });
+    await expect
+      .poll(
+        async () =>
+          await page.getByText('Wet diaper recorded successfully').isVisible(),
+        { timeout: E2E_TIMEOUT, intervals: [500] }
+      )
+      .toBe(true);
 
-    // Dashboard refreshes; pattern alerts re-fetched (FR-PAL-016). Insufficient data = no alert cards
     await expect(
       page.getByRole('heading', { name: 'Quick Log', level: 2 })
-    ).toBeVisible({ timeout: 15_000 });
+    ).toBeVisible({ timeout: E2E_TIMEOUT });
     await expect(page.getByRole('region', { name: 'Pattern alerts' })).toHaveCount(0);
   });
 
@@ -153,14 +157,20 @@ test.describe('Pattern alerts', () => {
     await page.reload();
     await expect(
       page.getByRole('heading', { name: 'Quick Log', level: 2 })
-    ).toBeVisible({ timeout: 20_000 });
+    ).toBeVisible({ timeout: E2E_TIMEOUT });
 
     await expect(
       page.getByRole('region', { name: 'Pattern alerts' })
-    ).toBeVisible({ timeout: 25_000 });
-    await expect(
-      page.getByRole('alert').filter({ hasText: /usually feeds every|it's been/ })
-    ).toBeVisible({ timeout: 15_000 });
+    ).toBeVisible({ timeout: E2E_TIMEOUT });
+    await expect
+      .poll(
+        async () => {
+          const alert = page.getByRole('alert').filter({ hasText: /usually feeds every|it's been/ });
+          return await alert.isVisible();
+        },
+        { timeout: E2E_TIMEOUT, intervals: [1500] }
+      )
+      .toBe(true);
   });
 
   test('dashboard shows nap pattern alert when awake longer than usual', async ({
@@ -173,13 +183,19 @@ test.describe('Pattern alerts', () => {
     await page.reload();
     await expect(
       page.getByRole('heading', { name: 'Quick Log', level: 2 })
-    ).toBeVisible({ timeout: 20_000 });
+    ).toBeVisible({ timeout: E2E_TIMEOUT });
 
     await expect(
       page.getByRole('region', { name: 'Pattern alerts' })
-    ).toBeVisible({ timeout: 25_000 });
-    await expect(
-      page.getByRole('alert').filter({ hasText: /usually naps after|awake for/ })
-    ).toBeVisible({ timeout: 15_000 });
+    ).toBeVisible({ timeout: E2E_TIMEOUT });
+    await expect
+      .poll(
+        async () => {
+          const alert = page.getByRole('alert').filter({ hasText: /usually naps after|awake for/ });
+          return await alert.isVisible();
+        },
+        { timeout: E2E_TIMEOUT, intervals: [1500] }
+      )
+      .toBe(true);
   });
 });

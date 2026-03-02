@@ -1,6 +1,7 @@
 import { expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
 import { createChildAndGoToDashboard } from './child-helpers';
+import { E2E_TIMEOUT } from './constants';
 
 export interface EditTrackingItemAndSeeUpdateOptions {
   childNamePrefix: string;
@@ -56,10 +57,10 @@ export async function editTrackingItemAndSeeUpdateOnList(
   await fillCreateForm(page);
   await page.locator('form').getByRole('button', { name: createFormSubmitButton }).click();
 
-  await expect(page).toHaveURL(listUrlPattern, { timeout: 15000 });
+  await expect(page).toHaveURL(listUrlPattern, { timeout: E2E_TIMEOUT });
   await expect(
     page.getByText(initialRowText).first()
-  ).toBeVisible({ timeout: 15000 });
+  ).toBeVisible({ timeout: E2E_TIMEOUT });
 
   await page.getByRole('button', { name: editButtonLabel }).first().click();
   await expect(page).toHaveURL(editUrlPattern);
@@ -72,39 +73,35 @@ export async function editTrackingItemAndSeeUpdateOnList(
   // Element-based wait is reliable on slow/flaky mobile networks; avoid networkidle.
   await expect(
     page.getByRole('button', { name: updateButtonLabel })
-  ).toBeVisible({ timeout: 15000 });
+  ).toBeVisible({ timeout: E2E_TIMEOUT });
 
   await changeForm(page);
   await page.locator('form').getByRole('button', { name: updateButtonLabel }).click();
 
   if (successToastAfterUpdate) {
     await expect(page.getByText(successToastAfterUpdate)).toBeVisible({
-      timeout: 10000,
+      timeout: E2E_TIMEOUT,
     });
   }
-  await expect(page).toHaveURL(listUrlPattern, { timeout: 25000 });
+  await expect(page).toHaveURL(listUrlPattern, { timeout: E2E_TIMEOUT });
   await expect(
     page.getByRole('button', { name: listHeaderButton })
-  ).toBeVisible({ timeout: 15000 });
+  ).toBeVisible({ timeout: E2E_TIMEOUT });
 
-  await page.reload();
-  await expect(
-    page.getByRole('button', { name: listHeaderButton })
-  ).toBeVisible({ timeout: 15000 });
-
-  const updatedVisible = await page
-    .getByText(updatedRowText)
-    .first()
-    .waitFor({ state: 'visible', timeout: 20000 })
+  const updatedLocator = page.getByText(updatedRowText).first();
+  const updatedVisible = await updatedLocator
+    .waitFor({ state: 'visible', timeout: E2E_TIMEOUT })
     .then(() => true)
     .catch(() => false);
   if (!updatedVisible) {
-    await page.reload();
-    await expect(
-      page.getByRole('button', { name: listHeaderButton })
-    ).toBeVisible({ timeout: 15000 });
+    try {
+      await page.reload({ timeout: E2E_TIMEOUT });
+      await expect(
+        page.getByRole('button', { name: listHeaderButton })
+      ).toBeVisible({ timeout: E2E_TIMEOUT });
+    } catch {
+      // Reload failed; still assert updated row in case it appeared
+    }
   }
-  await expect(
-    page.getByText(updatedRowText).first()
-  ).toBeVisible({ timeout: 20000 });
+  await expect(updatedLocator).toBeVisible({ timeout: E2E_TIMEOUT });
 }

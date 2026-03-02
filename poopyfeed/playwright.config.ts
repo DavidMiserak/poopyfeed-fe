@@ -1,10 +1,15 @@
 import { defineConfig, devices } from '@playwright/test';
+import { E2E_TIMEOUT } from './e2e/constants';
 
 /**
  * End-to-end tests for PoopyFeed (Angular front-end + Django back-end).
  *
  * Prerequisites: Full stack must be running (e.g. `make run` from repo root).
  * Frontend at baseURL proxies /api to the backend; E2E runs against the app as a user would.
+ *
+ * Rate limiting: Backend must run with RELAX_E2E_THROTTLES=1 or DEBUG=True so E2E does not
+ * hit 429. Use `make run` (sets this in podman-compose) then make test-e2e-local. Any 429
+ * fails the test (see fixtures).
  *
  * Auth fixture: "setup" runs first (signup + save storageState). Projects that need a
  * logged-in user use storageState and depend on "setup"; auth tests run without state.
@@ -15,7 +20,6 @@ import { defineConfig, devices } from '@playwright/test';
  * instead of waitForLoadState('networkidle'), so they remain reliable on slow or flaky networks.
  *
  * Fail-fast: All specs use e2e/fixtures.ts. Any API 5xx or 429 fails the test immediately.
- * Backend must run with RELAX_E2E_THROTTLES=1 or DEBUG=True when running E2E (see podman-compose).
  *
  * Run from repo root: make test-e2e (container) or make test-e2e-local (host)
  * Run from front-end/poopyfeed: npm run test:e2e
@@ -65,5 +69,5 @@ export default defineConfig({
     },
   ],
   timeout: 60_000,
-  expect: { timeout: 15_000 },
+  expect: { timeout: E2E_TIMEOUT },
 });
