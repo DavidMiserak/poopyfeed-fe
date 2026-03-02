@@ -2,7 +2,7 @@ import { ComponentFixture, DeferBlockState, TestBed } from '@angular/core/testin
 import { provideRouter } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { of, throwError, EMPTY } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 import { ChildDashboard } from './child-dashboard';
 import { ChildrenService } from '../../services/children.service';

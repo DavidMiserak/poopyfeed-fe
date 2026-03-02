@@ -18,7 +18,7 @@ import { platformBrowserTesting } from '@angular/platform-browser/testing';
 class MockIntersectionObserver implements IntersectionObserver {
   readonly root: Element | Document | null = null;
   readonly rootMargin = '';
-  readonly thresholds: ReadonlyArray<number> = [0];
+  readonly thresholds: readonly number[] = [0];
 
   constructor(
     private callback: IntersectionObserverCallback,
@@ -35,9 +35,13 @@ class MockIntersectionObserver implements IntersectionObserver {
     });
   }
 
-  unobserve(_target: Element): void {}
+  unobserve(_target: Element): void {
+    // Mock: no-op (tests do not need to unobserve)
+  }
 
-  disconnect(): void {}
+  disconnect(): void {
+    // Mock: no-op (tests do not need to disconnect)
+  }
   takeRecords(): IntersectionObserverEntry[] {
     return [];
   }
