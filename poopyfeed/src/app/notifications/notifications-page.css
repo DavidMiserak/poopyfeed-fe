@@ -1,0 +1,5 @@
+/* Styling handled by Tailwind CSS */
+
+.notification-page-item:active {
+  background-color: rgb(241 245 249);
+}

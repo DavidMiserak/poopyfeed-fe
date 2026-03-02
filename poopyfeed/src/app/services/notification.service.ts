@@ -98,6 +98,22 @@ export class NotificationService {
   }
 
   /**
+   * Fetch a single page of notifications without updating the notifications signal.
+   * Use for the notifications page when loading more pages.
+   */
+  listPage(page: number): Observable<PaginatedResponse<Notification>> {
+    return this.http
+      .get<PaginatedResponse<Notification>>(`${NOTIFICATIONS_BASE}/`, {
+        params: { page },
+      })
+      .pipe(
+        catchError((err) =>
+          throwError(() => ErrorHandler.handle(err, 'List notifications'))
+        )
+      );
+  }
+
+  /**
    * Fetch unread count. Updates unreadCount signal.
    */
   getUnreadCount(): Observable<number> {

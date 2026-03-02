@@ -79,6 +79,13 @@ export class NotificationBellComponent implements OnInit {
     });
   }
 
+  /** Navigate to notification page and close dropdown (works when list is empty or populated). */
+  onViewAllNotifications(event: Event): void {
+    event.preventDefault();
+    this.router.navigate(['/notifications']);
+    this.dropdownOpen.set(false);
+  }
+
   onDocumentClick(event: MouseEvent): void {
     if (
       this.dropdownOpen() &&

@@ -3,12 +3,14 @@ import { createChildAndGoToDashboard } from './child-helpers';
 import { E2E_TIMEOUT } from './constants';
 
 /**
- * E2E: Notification bell, dropdown, and two-user notification delivery.
+ * E2E: Notification bell, dropdown, notification page, and two-user delivery.
  *
  * [Test] Covers:
  *  - Bell icon visible for authenticated users
- *  - Empty notification dropdown
- *  - Full two-user flow: User A shares child → User B logs feeding → User A sees notification
+ *  - Empty notification dropdown and "View all notifications" → notification page
+ *  - Notification page: empty state or list, URL /notifications
+ *  - Full two-user flow: User A shares child → User B logs feeding → User A sees notification on
+ *    notification page and can click through to child dashboard
  *  - Notification preferences visible on child edit page
  *
  * Prerequisites:
@@ -36,6 +38,19 @@ test.describe('Notifications', () => {
       dialog
         .getByText('No notifications yet.')
         .or(dialog.getByRole('list'))
+    ).toBeVisible({ timeout: E2E_TIMEOUT });
+
+    // View all notifications goes to notification page (button when dropdown open)
+    await page.getByRole('button', { name: 'View all notifications' }).click();
+    await expect(page).toHaveURL(/\/notifications$/, { timeout: E2E_TIMEOUT });
+    await expect(
+      page.getByRole('heading', { name: 'Notifications' })
+    ).toBeVisible({ timeout: E2E_TIMEOUT });
+    // Page shows empty state or list (same as dropdown)
+    await expect(
+      page
+        .getByText('No notifications yet')
+        .or(page.getByRole('list'))
     ).toBeVisible({ timeout: E2E_TIMEOUT });
   });
 
@@ -135,34 +150,32 @@ test.describe('Notifications', () => {
       savedToken
     );
 
-    // ── Step 6: User A (restored) opens bell and sees notification ──
-    // Notification is created async by Celery; poll by opening the dropdown until it appears.
-    await page.goto('/children');
+    // ── Step 6: User A (restored) goes to notification page and sees notification ──
+    // Notification is created async by Celery; poll the notification page until it appears.
+    await page.goto('/notifications');
     await expect(
-      page.getByRole('heading', { name: 'My Children' })
+      page.getByRole('heading', { name: 'Notifications' })
     ).toBeVisible({ timeout: E2E_TIMEOUT });
 
-    const bell = page.getByRole('button', { name: 'Notifications' }).first();
-    await expect(bell).toBeVisible();
     await expect
       .poll(
         async () => {
-          await bell.click();
-          const dialog = page.getByRole('dialog', { name: 'Notification list' });
-          const dialogVisible = await dialog.isVisible().catch(() => false);
-          if (!dialogVisible) return false;
+          await page.reload({ waitUntil: 'networkidle' });
           const hasNotification = await page
             .getByText(/logged a feeding/i)
             .first()
             .isVisible();
-          if (!hasNotification) {
-            await page.keyboard.press('Escape');
-          }
           return hasNotification;
         },
         { timeout: E2E_TIMEOUT, intervals: [2000] }
       )
       .toBe(true);
+
+    // Click notification navigates to child dashboard
+    await page.getByText(/logged a feeding/i).first().click();
+    await expect(page).toHaveURL(/\/children\/\d+\/dashboard/, {
+      timeout: E2E_TIMEOUT,
+    });
   });
 
   test('child edit page shows notification preference toggles', async ({

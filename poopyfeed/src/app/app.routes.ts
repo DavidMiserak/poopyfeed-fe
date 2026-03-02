@@ -30,6 +30,15 @@ export const routes: Routes = [
     title: 'Account Settings - PoopyFeed',
   },
   {
+    path: 'notifications',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./notifications/notifications-page').then(
+        (m) => m.NotificationsPage
+      ),
+    title: 'Notifications - PoopyFeed',
+  },
+  {
     path: 'children',
     canActivate: [authGuard],
     children: [

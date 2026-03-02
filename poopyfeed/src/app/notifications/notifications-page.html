@@ -1,0 +1,134 @@
+<div class="min-h-screen relative bg-gradient-to-br from-rose-50 via-amber-50 to-orange-50 px-6 py-8 overflow-hidden">
+  <div class="absolute inset-0 opacity-10 pointer-events-none">
+    <div class="absolute top-20 left-20 w-64 h-64 bg-gradient-to-br from-rose-400 to-amber-400 rounded-full blur-3xl"></div>
+    <div class="absolute bottom-20 right-20 w-96 h-96 bg-gradient-to-br from-orange-400 to-rose-500 rounded-full blur-3xl"></div>
+  </div>
+
+  <div class="max-w-2xl mx-auto relative z-10">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+      <div>
+        <h1 class="font-['Fredoka',sans-serif] text-3xl sm:text-4xl font-bold text-slate-900 mb-2">
+          Notifications
+        </h1>
+        <p class="font-['DM_Sans',sans-serif] text-slate-600">
+          Activity from shared children
+        </p>
+      </div>
+      @if (notifications().length > 0 && notificationService.unreadCount() > 0) {
+        <button
+          type="button"
+          (click)="onMarkAllRead()"
+          [disabled]="markingAllRead()"
+          class="min-h-[2.75rem] px-4 py-2 rounded-xl font-['DM_Sans',sans-serif] font-semibold text-rose-600 hover:text-rose-700 bg-white/80 border border-rose-200 hover:bg-rose-50 shadow-lg transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+        >
+          @if (markingAllRead()) {
+            <span class="inline-block w-4 h-4 border-2 border-rose-300 border-t-rose-600 rounded-full animate-spin align-middle mr-2"></span>
+          }
+          Mark all read
+        </button>
+      }
+    </div>
+
+    @if (isLoading()) {
+      <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 border-2 border-slate-200">
+        <div class="flex flex-col items-center justify-center py-12">
+          <div class="w-12 h-12 border-4 border-rose-200 border-t-rose-500 rounded-full animate-spin mb-4"></div>
+          <p class="font-['DM_Sans',sans-serif] text-slate-600">Loading notifications…</p>
+        </div>
+      </div>
+    }
+
+    @if (loadError() && !isLoading()) {
+      <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 border-2 border-red-200">
+        <div class="text-center">
+          <div class="text-6xl mb-4">😞</div>
+          <h2 class="font-['Fredoka',sans-serif] text-2xl font-bold text-slate-900 mb-2">
+            Couldn't load notifications
+          </h2>
+          <p class="font-['DM_Sans',sans-serif] text-slate-600 mb-6">
+            {{ loadError() }}
+          </p>
+          <button
+            type="button"
+            (click)="retry()"
+            class="group relative px-6 py-3 rounded-xl font-['DM_Sans',sans-serif] font-bold text-white shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden border-2 border-rose-400 bg-gradient-to-br from-rose-400 to-amber-400"
+          >
+            Try again
+          </button>
+        </div>
+      </div>
+    }
+
+    @if (!isLoading() && !loadError() && notifications().length === 0) {
+      <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl p-12 border-2 border-rose-200">
+        <div class="text-center">
+          <div class="text-8xl mb-6">🔔</div>
+          <h2 class="font-['Fredoka',sans-serif] text-3xl font-bold text-slate-900 mb-3">
+            No notifications yet
+          </h2>
+          <p class="font-['DM_Sans',sans-serif] text-slate-600 max-w-md mx-auto">
+            When someone logs a feeding, diaper change, or nap for a shared child, you'll see it here.
+          </p>
+          <a
+            routerLink="/children"
+            class="inline-flex mt-8 px-6 py-3 rounded-xl font-['DM_Sans',sans-serif] font-bold text-white shadow-lg hover:shadow-xl transition-all border-2 border-rose-400 bg-gradient-to-br from-rose-400 to-amber-400"
+          >
+            Back to My Children
+          </a>
+        </div>
+      </div>
+    }
+
+    @if (!isLoading() && !loadError() && notifications().length > 0) {
+      <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl border-2 border-slate-200 overflow-hidden">
+        <ul class="divide-y divide-slate-200" role="list">
+          @for (notif of notifications(); track notif.id) {
+            <li>
+              <button
+                type="button"
+                (click)="onNotificationClick(notif)"
+                class="notification-page-item w-full text-left px-4 py-4 sm:py-3 flex gap-3 rounded-none border-none bg-transparent cursor-pointer hover:bg-slate-50 active:bg-slate-100 transition-colors font-['DM_Sans',sans-serif]"
+                [class.opacity-75]="notif.is_read"
+              >
+                <span class="text-2xl flex-shrink-0 mt-0.5" aria-hidden="true">
+                  {{ getActivityIcon(notif.event_type) }}
+                </span>
+                <div class="flex-1 min-w-0">
+                  <p class="text-slate-800 text-base sm:text-sm">
+                    {{ notif.message }}
+                  </p>
+                  <p class="text-slate-500 text-sm mt-0.5">
+                    {{ formatActivityAge(notif.created_at) }}
+                  </p>
+                </div>
+              </button>
+            </li>
+          }
+        </ul>
+        @if (hasMore()) {
+          <div class="p-4 border-t border-slate-200">
+            <button
+              type="button"
+              (click)="loadMore()"
+              [disabled]="loadingMore()"
+              class="w-full py-3 rounded-xl font-['DM_Sans',sans-serif] font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 disabled:opacity-60 transition-colors"
+            >
+              @if (loadingMore()) {
+                <span class="inline-block w-4 h-4 border-2 border-slate-400 border-t-slate-700 rounded-full animate-spin align-middle mr-2"></span>
+              }
+              Load more
+            </button>
+          </div>
+        }
+      </div>
+      <p class="mt-6 text-center">
+        <a
+          routerLink="/children"
+          class="font-['DM_Sans',sans-serif] text-slate-600 hover:text-rose-600 underline"
+        >
+          ← Back to My Children
+        </a>
+      </p>
+    }
+  </div>
+</div>
