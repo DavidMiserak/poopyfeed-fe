@@ -1,7 +1,7 @@
 import { test, expect } from './fixtures';
 import { createChildAndGoToDashboard } from './child-helpers';
 import { createItemsForPagination } from './pagination-helpers';
-import { editTrackingItemAndSeeUpdateOnList } from './tracking-helpers';
+import { editTrackingItemAndSeeUpdateOnList, waitForTrackingList200 } from './tracking-helpers';
 import { E2E_TIMEOUT } from './constants';
 
 /**
@@ -21,7 +21,9 @@ test.describe('Naps', () => {
 
     await page.getByLabel('Date & Time').fill('2024-06-15T13:00');
     await page.getByLabel('End Time (optional)').fill('2024-06-15T14:30');
+    const list200Promise = waitForTrackingList200(page, 'naps');
     await page.getByRole('button', { name: 'Add Nap' }).click();
+    await list200Promise;
 
     await expect(page).toHaveURL(/\/children\/\d+\/naps$/, { timeout: E2E_TIMEOUT });
     await expect(page.getByText('Loading naps...')).toBeHidden({ timeout: E2E_TIMEOUT });
@@ -55,6 +57,7 @@ test.describe('Naps', () => {
       dashboardButton: 'Nap',
       createUrlPattern: /\/children\/\d+\/naps\/create/,
       listUrlPattern: /\/children\/\d+\/naps$/,
+      listApiSegment: 'naps',
       editUrlPattern: /\/children\/\d+\/naps\/\d+\/edit/,
       createFormSubmitButton: 'Add Nap',
       fillCreateForm: async (p) => {
@@ -81,7 +84,9 @@ test.describe('Naps', () => {
     await logWithDetails.getByRole('button', { name: 'Nap' }).click();
     await expect(page).toHaveURL(/\/children\/\d+\/naps\/create/, { timeout: E2E_TIMEOUT });
     await page.getByLabel('Date & Time').fill('2024-06-22T12:00');
+    const list200AfterAdd = waitForTrackingList200(page, 'naps');
     await page.locator('form').getByRole('button', { name: 'Add Nap' }).click();
+    await list200AfterAdd;
     await expect(page).toHaveURL(/\/children\/\d+\/naps$/, { timeout: E2E_TIMEOUT });
     await expect(page.getByText('Loading naps...')).toBeHidden({ timeout: E2E_TIMEOUT });
     await expect(
@@ -94,7 +99,9 @@ test.describe('Naps', () => {
       page.getByRole('heading', { name: 'Delete Nap?' })
     ).toBeVisible({ timeout: E2E_TIMEOUT });
 
+    const list200AfterDelete = waitForTrackingList200(page, 'naps');
     await page.getByRole('button', { name: 'Yes, Delete Forever' }).click();
+    await list200AfterDelete;
 
     await expect(page).toHaveURL(/\/children\/\d+\/naps$/, { timeout: E2E_TIMEOUT });
     await expect(page.getByText('Loading naps...')).toBeHidden({ timeout: E2E_TIMEOUT });

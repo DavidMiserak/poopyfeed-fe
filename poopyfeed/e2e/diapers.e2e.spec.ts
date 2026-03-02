@@ -2,7 +2,7 @@ import { test, expect } from './fixtures';
 import { E2E_TIMEOUT } from './constants';
 import { createChildAndGoToDashboard } from './child-helpers';
 import { createItemsForPagination } from './pagination-helpers';
-import { editTrackingItemAndSeeUpdateOnList } from './tracking-helpers';
+import { editTrackingItemAndSeeUpdateOnList, waitForTrackingList200 } from './tracking-helpers';
 
 /**
  * E2E: Diaper change tracking flow (P0 core workflow).
@@ -23,7 +23,9 @@ test.describe('Diapers', () => {
 
     await page.locator('form label').filter({ hasText: 'Both' }).click();
     await page.getByLabel('Date & Time').fill('2024-06-15T16:30');
+    const list200Promise = waitForTrackingList200(page, 'diapers');
     await page.locator('form').getByRole('button', { name: 'Add Diaper Change' }).click();
+    await list200Promise;
 
     await expect(page).toHaveURL(/\/children\/\d+\/diapers$/, { timeout: E2E_TIMEOUT });
     await expect(
@@ -61,6 +63,7 @@ test.describe('Diapers', () => {
       dashboardButton: 'Diaper',
       createUrlPattern: /\/children\/\d+\/diapers\/create/,
       listUrlPattern: /\/children\/\d+\/diapers$/,
+      listApiSegment: 'diapers',
       editUrlPattern: /\/children\/\d+\/diapers\/\d+\/edit/,
       createFormSubmitButton: 'Add Diaper Change',
       fillCreateForm: async (p) => {
@@ -92,9 +95,10 @@ test.describe('Diapers', () => {
     await expect(page).toHaveURL(/\/children\/\d+\/diapers\/create/, { timeout: E2E_TIMEOUT });
     await page.locator('form label').filter({ hasText: 'Both' }).click();
     await page.getByLabel('Date & Time').fill('2024-06-21T11:00');
+    const list200AfterAdd = waitForTrackingList200(page, 'diapers');
     await page.locator('form').getByRole('button', { name: 'Add Diaper Change' }).click();
+    await list200AfterAdd;
     await expect(page).toHaveURL(/\/children\/\d+\/diapers$/, { timeout: E2E_TIMEOUT });
-    // Wait for list to show the new row before clicking delete
     await expect(
       page.getByText('Wet & Dirty').first()
     ).toBeVisible({ timeout: E2E_TIMEOUT });
@@ -108,7 +112,9 @@ test.describe('Diapers', () => {
       page.getByRole('heading', { name: 'Delete Diaper Change?' })
     ).toBeVisible();
 
+    const list200AfterDelete = waitForTrackingList200(page, 'diapers');
     await page.getByRole('button', { name: 'Yes, Delete Forever' }).click();
+    await list200AfterDelete;
 
     await expect(page).toHaveURL(/\/children\/\d+\/diapers$/, { timeout: E2E_TIMEOUT });
     await expect(

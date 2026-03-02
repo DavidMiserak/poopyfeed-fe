@@ -2,7 +2,7 @@ import { test, expect } from './fixtures';
 import { E2E_TIMEOUT } from './constants';
 import { createChildAndGoToDashboard } from './child-helpers';
 import { createItemsForPagination } from './pagination-helpers';
-import { editTrackingItemAndSeeUpdateOnList } from './tracking-helpers';
+import { editTrackingItemAndSeeUpdateOnList, waitForTrackingList200 } from './tracking-helpers';
 
 /**
  * E2E: Feeding tracking flow (P0 core workflow).
@@ -24,7 +24,9 @@ test.describe('Feedings', () => {
     await page.getByRole('radio', { name: 'Bottle' }).click({ force: true });
     await page.getByLabel('Date & Time').fill('2024-06-15T14:00');
     await page.getByLabel('Amount (oz)').fill('4');
+    const list200Promise = waitForTrackingList200(page, 'feedings');
     await page.getByRole('button', { name: 'Add Feeding' }).click();
+    await list200Promise;
 
     await expect(page).toHaveURL(/\/children\/\d+\/feedings$/);
     await expect(
@@ -56,6 +58,7 @@ test.describe('Feedings', () => {
       dashboardButton: 'Feeding',
       createUrlPattern: /\/children\/\d+\/feedings\/create/,
       listUrlPattern: /\/children\/\d+\/feedings$/,
+      listApiSegment: 'feedings',
       editUrlPattern: /\/children\/\d+\/feedings\/\d+\/edit/,
       createFormSubmitButton: 'Add Feeding',
       fillCreateForm: async (p) => {
@@ -85,7 +88,9 @@ test.describe('Feedings', () => {
     await page.getByRole('radio', { name: 'Bottle' }).click({ force: true });
     await page.getByLabel('Date & Time').fill('2024-06-20T10:00');
     await page.getByLabel('Amount (oz)').fill('3');
+    const list200AfterAdd = waitForTrackingList200(page, 'feedings');
     await page.getByRole('button', { name: 'Add Feeding' }).click();
+    await list200AfterAdd;
 
     await expect(page).toHaveURL(/\/children\/\d+\/feedings$/, { timeout: E2E_TIMEOUT });
     await expect(
@@ -101,7 +106,9 @@ test.describe('Feedings', () => {
       page.getByRole('heading', { name: 'Delete Feeding?' })
     ).toBeVisible();
 
+    const list200AfterDelete = waitForTrackingList200(page, 'feedings');
     await page.getByRole('button', { name: 'Yes, Delete Forever' }).click();
+    await list200AfterDelete;
 
     await expect(page).toHaveURL(/\/children\/\d+\/feedings$/, { timeout: E2E_TIMEOUT });
     await expect(
