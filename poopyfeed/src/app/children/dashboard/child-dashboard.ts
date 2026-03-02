@@ -212,15 +212,11 @@ export class ChildDashboard implements OnInit {
   }
 
   /**
-   * Load all dashboard data in one round of API calls (same pattern as timeline).
+   * Load dashboard data in two tiers:
+   * - Tier 1 (critical): child profile + today's summary
+   * - Tier 2 (non-critical): timeline + pattern alerts
    *
-   * Uses a single forkJoin to load in parallel:
-   * 1. Child profile (name, age, role)
-   * 2. Timeline (merged feedings, diapers, naps — used for recent activity)
-   * 3. Today's summary
-   * 4. Pattern alerts (feeding/nap overdue; non-blocking on error)
-   *
-   * Recent activity is the first 10 timeline events (already newest-first).
+   * This keeps the hero + quick log responsive while heavier data loads later.
    *
    * @param childId Child to load data for
    * @param showLoading Whether to show loading spinner (false when refreshing after quick-log)
@@ -232,28 +228,48 @@ export class ChildDashboard implements OnInit {
     this.isDetailLoading.set(true);
     this.error.set(null);
 
+    // Tier 1: child profile + today's summary
     forkJoin({
       child: this.childrenService.get(childId),
-      timeline: this.analyticsService.getTimeline(childId, 1, 20),
       todaySummary: this.analyticsService.getTodaySummary(childId),
+    }).subscribe({
+      next: ({ child, todaySummary }) => {
+        this.child.set(child);
+        this.todaySummaryData.set(todaySummary);
+        this.isLoading.set(false);
+        // Start non-critical loads in the background
+        this.loadNonCriticalData(childId);
+      },
+      error: (err: Error) => {
+        this.error.set(err.message);
+        this.isLoading.set(false);
+        this.isDetailLoading.set(false);
+      },
+    });
+  }
+
+  /**
+   * Load non-critical timeline + pattern alerts data.
+   *
+   * Errors here should not block the main dashboard shell.
+   */
+  private loadNonCriticalData(childId: number): void {
+    forkJoin({
+      timeline: this.analyticsService.getTimeline(childId, 1, 20),
       patternAlerts: this.analyticsService.getPatternAlerts(childId).pipe(
         catchError(() => of(null))
       ),
     }).subscribe({
-      next: ({ child, timeline, todaySummary, patternAlerts }) => {
-        this.child.set(child);
-        this.todaySummaryData.set(todaySummary);
+      next: ({ timeline, patternAlerts }) => {
         this.patternAlerts.set(patternAlerts ?? null);
         const activities = timeline.results
           .slice(0, 10)
           .map((event) => this.timelineEventToActivityItem(event, childId));
         this.recentActivity.set(activities);
-        this.isLoading.set(false);
         this.isDetailLoading.set(false);
       },
-      error: (err: Error) => {
-        this.error.set(err.message);
-        this.isLoading.set(false);
+      error: () => {
+        // Non-critical failure: keep shell usable, just hide extras.
         this.isDetailLoading.set(false);
       },
     });
