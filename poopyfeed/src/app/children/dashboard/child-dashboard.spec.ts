@@ -1148,16 +1148,20 @@ describe('ChildDashboard', () => {
   });
 
   describe('pattern alerts', () => {
-    it('should not render alert cards when no alerts are active', () => {
+    it('should not render alert cards when no alerts are active', async () => {
       setupWithData();
       fixture.detectChanges();
+      const deferBlocks = await fixture.getDeferBlocks();
+      for (const block of deferBlocks) {
+        await block.render(DeferBlockState.Complete);
+      }
 
       const compiled = fixture.nativeElement as HTMLElement;
       const alertRegion = compiled.querySelector('[aria-label="Pattern alerts"]');
       expect(alertRegion).toBeFalsy();
     });
 
-    it('should render feeding alert card when feeding alert is active', () => {
+    it('should render feeding alert card when feeding alert is active', async () => {
       (analyticsService.getPatternAlerts as ReturnType<typeof vi.fn>).mockReturnValue(
         of(makePatternAlerts({
           feeding: {
@@ -1172,6 +1176,10 @@ describe('ChildDashboard', () => {
       );
       setupWithData();
       fixture.detectChanges();
+      const deferBlocks = await fixture.getDeferBlocks();
+      for (const block of deferBlocks) {
+        await block.render(DeferBlockState.Complete);
+      }
 
       const compiled = fixture.nativeElement as HTMLElement;
       const alertRegion = compiled.querySelector('[aria-label="Pattern alerts"]');
@@ -1181,7 +1189,7 @@ describe('ChildDashboard', () => {
       expect(alerts[0].textContent).toContain("Baby usually feeds every 3h");
     });
 
-    it('should render nap alert card when nap alert is active', () => {
+    it('should render nap alert card when nap alert is active', async () => {
       (analyticsService.getPatternAlerts as ReturnType<typeof vi.fn>).mockReturnValue(
         of(makePatternAlerts({
           nap: {
@@ -1196,6 +1204,10 @@ describe('ChildDashboard', () => {
       );
       setupWithData();
       fixture.detectChanges();
+      const deferBlocks = await fixture.getDeferBlocks();
+      for (const block of deferBlocks) {
+        await block.render(DeferBlockState.Complete);
+      }
 
       const compiled = fixture.nativeElement as HTMLElement;
       const alerts = compiled.querySelectorAll('[role="alert"]');
@@ -1203,7 +1215,7 @@ describe('ChildDashboard', () => {
       expect(alerts[0].textContent).toContain("Baby usually naps after");
     });
 
-    it('should render both alert cards when both are active', () => {
+    it('should render both alert cards when both are active', async () => {
       (analyticsService.getPatternAlerts as ReturnType<typeof vi.fn>).mockReturnValue(
         of(makePatternAlerts({
           feeding: {
@@ -1226,13 +1238,17 @@ describe('ChildDashboard', () => {
       );
       setupWithData();
       fixture.detectChanges();
+      const deferBlocks = await fixture.getDeferBlocks();
+      for (const block of deferBlocks) {
+        await block.render(DeferBlockState.Complete);
+      }
 
       const compiled = fixture.nativeElement as HTMLElement;
       const alerts = compiled.querySelectorAll('[role="alert"]');
       expect(alerts.length).toBe(2);
     });
 
-    it('should not render alerts when alert=true but message is null', () => {
+    it('should not render alerts when alert=true but message is null', async () => {
       (analyticsService.getPatternAlerts as ReturnType<typeof vi.fn>).mockReturnValue(
         of(makePatternAlerts({
           feeding: {
@@ -1247,6 +1263,10 @@ describe('ChildDashboard', () => {
       );
       setupWithData();
       fixture.detectChanges();
+      const deferBlocks = await fixture.getDeferBlocks();
+      for (const block of deferBlocks) {
+        await block.render(DeferBlockState.Complete);
+      }
 
       const compiled = fixture.nativeElement as HTMLElement;
       const alertRegion = compiled.querySelector('[aria-label="Pattern alerts"]');
