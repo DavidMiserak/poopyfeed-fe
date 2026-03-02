@@ -21,6 +21,22 @@ export const routes: Routes = [
     title: 'Sign Up - PoopyFeed',
   },
   {
+    path: 'forgot-password',
+    loadComponent: () =>
+      import('./auth/forgot-password/forgot-password').then(
+        (m) => m.ForgotPassword
+      ),
+    title: 'Forgot Password - PoopyFeed',
+  },
+  {
+    path: 'auth/reset-password/:key',
+    loadComponent: () =>
+      import('./auth/reset-password/reset-password').then(
+        (m) => m.ResetPassword
+      ),
+    title: 'Reset Password - PoopyFeed',
+  },
+  {
     path: 'account',
     canActivate: [authGuard],
     loadComponent: () =>

@@ -24,6 +24,15 @@ export interface SignupRequest {
   re_password?: string; // Optional, not used by allauth
 }
 
+export interface PasswordResetRequest {
+  key: string;
+  password: string;
+}
+
+export interface PasswordResetEmailRequest {
+  email: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -68,6 +77,62 @@ export class AuthService {
         }),
         catchError((error) => {
           return throwError(() => ErrorHandler.handle(error, 'Login'));
+        })
+      );
+  }
+
+  /**
+   * Request a password reset email via django-allauth headless API
+   */
+  requestPasswordReset(data: PasswordResetEmailRequest): Observable<void> {
+    return this.http
+      .post<void>(`${this.ALLAUTH_BASE}/password/request`, data, {
+        withCredentials: true,
+      })
+      .pipe(
+        catchError((error) => {
+          return throwError(() =>
+            ErrorHandler.handle(error, 'Request password reset')
+          );
+        })
+      );
+  }
+
+  /**
+   * Reset password using a password reset key from email
+   *
+   * After successfully setting the new password, this will fetch a new auth token
+   * so the user is logged in, matching the login/signup flow.
+   */
+  resetPassword(data: PasswordResetRequest): Observable<AuthResponse> {
+    return this.http
+      .post<{ status: number }>(
+        `${this.ALLAUTH_BASE}/password/reset`,
+        {
+          key: data.key,
+          password: data.password,
+        },
+        {
+          withCredentials: true,
+        }
+      )
+      .pipe(
+        switchMap(() =>
+          this.http.post<AuthResponse>(
+            `${this.ALLAUTH_BASE}/token/`,
+            {},
+            {
+              withCredentials: true,
+            }
+          )
+        ),
+        tap((response) => {
+          this.setToken(response.auth_token);
+        }),
+        catchError((error) => {
+          return throwError(() =>
+            ErrorHandler.handle(error, 'Reset password')
+          );
         })
       );
   }

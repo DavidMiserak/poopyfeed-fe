@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
-import { AuthService } from './auth.service';
+import { AuthService, AuthResponse } from './auth.service';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -23,7 +23,9 @@ describe('AuthService', () => {
   });
 
   afterEach(() => {
-    httpMock.verify();
+    if (httpMock) {
+      httpMock.verify();
+    }
     localStorage.clear();
   });
 
@@ -170,6 +172,104 @@ describe('AuthService', () => {
       // Second request fails
       const tokenReq = httpMock.expectOne('/api/v1/browser/v1/auth/token/');
       tokenReq.flush({}, { status: 500, statusText: 'Internal Server Error' });
+
+      expect(errorCaught).toBe(true);
+    });
+  });
+
+  describe('password reset via allauth headless', () => {
+    it('should request password reset email', () => {
+      let completed = false;
+
+      service.requestPasswordReset({ email: 'reset@example.com' }).subscribe({
+        next: () => {
+          completed = true;
+        },
+      });
+
+      const req = httpMock.expectOne(
+        '/api/v1/browser/v1/auth/password/request'
+      );
+      expect(req.request.method).toBe('POST');
+      expect(req.request.withCredentials).toBe(true);
+      expect(req.request.body).toEqual({ email: 'reset@example.com' });
+      req.flush({});
+
+      expect(completed).toBe(true);
+    });
+
+    it('should handle error when requesting password reset email', () => {
+      let errorCaught = false;
+
+      service.requestPasswordReset({ email: 'invalid' }).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toContain('Request password reset');
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne(
+        '/api/v1/browser/v1/auth/password/request'
+      );
+      req.flush(
+        { email: ['Enter a valid email address.'] },
+        { status: 400, statusText: 'Bad Request' }
+      );
+
+      expect(errorCaught).toBe(true);
+    });
+
+    it('should reset password and fetch new auth token', () => {
+      const resetData = { key: 'reset-key-123', password: 'NewSecurePass1!' };
+
+      let result: AuthResponse | null = null;
+
+      service.resetPassword(resetData).subscribe({
+        next: (response) => {
+          result = response;
+        },
+      });
+
+      const resetReq = httpMock.expectOne(
+        '/api/v1/browser/v1/auth/password/reset'
+      );
+      expect(resetReq.request.method).toBe('POST');
+      expect(resetReq.request.withCredentials).toBe(true);
+      expect(resetReq.request.body).toEqual({
+        key: resetData.key,
+        password: resetData.password,
+      });
+      resetReq.flush({ status: 200 });
+
+      const tokenReq = httpMock.expectOne(
+        '/api/v1/browser/v1/auth/token/'
+      );
+      const mockToken = { auth_token: 'reset-token-123' };
+      tokenReq.flush(mockToken);
+
+      expect(result).toEqual(mockToken);
+      expect(service.getToken()).toBe('reset-token-123');
+    });
+
+    it('should handle error when resetting password', () => {
+      let errorCaught = false;
+
+      service
+        .resetPassword({ key: 'bad-key', password: 'NewSecurePass1!' })
+        .subscribe({
+          error: (error: Error) => {
+            expect(error.message).toContain('Reset password');
+            errorCaught = true;
+          },
+        });
+
+      const resetReq = httpMock.expectOne(
+        '/api/v1/browser/v1/auth/password/reset'
+      );
+      resetReq.flush(
+        { key: ['Invalid or expired key'] },
+        { status: 400, statusText: 'Bad Request' }
+      );
 
       expect(errorCaught).toBe(true);
     });
