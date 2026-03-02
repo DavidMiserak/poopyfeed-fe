@@ -1,6 +1,6 @@
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { Router, ActivatedRoute } from '@angular/router';
-import { of, throwError } from 'rxjs';
+import { of, throwError, EMPTY } from 'rxjs';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { CatchUp } from './catch-up';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog';
@@ -75,6 +75,9 @@ describe('CatchUpComponent - Step Wizard', () => {
     };
     router = {
       navigate: vi.fn(),
+      events: EMPTY,
+      createUrlTree: vi.fn().mockReturnValue({}),
+      serializeUrl: vi.fn().mockReturnValue(''),
     };
     route = {
       snapshot: { paramMap: { get: vi.fn().mockReturnValue('1') } },

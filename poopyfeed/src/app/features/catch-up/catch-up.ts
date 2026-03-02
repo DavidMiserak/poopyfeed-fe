@@ -51,11 +51,13 @@ import { NapsService } from '../../services/naps.service';
 import { DateTimeService } from '../../services/datetime.service';
 import { ToastService } from '../../services/toast.service';
 import { ErrorHandler } from '../../services/error.utils';
-import { getActivityIcon } from '../../utils/date.utils';
+import { getActivityIcon, getGenderIcon } from '../../utils/date.utils';
 import { TimeWindowSelector } from './time-window-selector';
 import { EventTimeline } from './event-timeline';
 import { EventCard } from './event-card';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog';
+import { ErrorCardComponent } from '../../components/error-card/error-card.component';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-catch-up',
@@ -64,16 +66,14 @@ import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-
     EventTimeline,
     EventCard,
     ConfirmDialogComponent,
+    ErrorCardComponent,
+    RouterLink,
   ],
   templateUrl: './catch-up.html',
   styles: [
     `
       :host {
         display: block;
-      }
-
-      .catch-up-container {
-        min-height: 100vh;
       }
     `,
   ],
@@ -137,8 +137,27 @@ export class CatchUp implements OnInit {
     }
   });
 
+  // ✅ Static data
+  steps = [
+    { num: 1, key: 'time-range' as const },
+    { num: 2, key: 'events' as const },
+    { num: 3, key: 'review' as const },
+  ];
+
   // ✅ Helpers
   getActivityIcon = getActivityIcon;
+  getGenderIcon = getGenderIcon;
+
+  getActivityRowClasses(type: 'feeding' | 'diaper' | 'nap'): string {
+    switch (type) {
+      case 'feeding':
+        return 'border-l-rose-400 bg-rose-50/50';
+      case 'diaper':
+        return 'border-l-orange-400 bg-orange-50/50';
+      case 'nap':
+        return 'border-l-blue-400 bg-blue-50/50';
+    }
+  }
 
   /**
    * Get event by ID from event list.

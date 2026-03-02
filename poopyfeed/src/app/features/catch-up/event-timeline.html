@@ -1,12 +1,12 @@
 <div class="event-timeline space-y-6">
-  <!-- Quick-Add Buttons (Large, Maria-friendly) -->
+  <!-- Quick-Add Buttons (Large, Maria-friendly, color-coded) -->
   <div class="space-y-2">
-    <p class="text-sm font-semibold text-slate-900">Add Activity</p>
+    <p class="font-['DM_Sans',sans-serif] text-sm font-semibold text-slate-900">Add Activity</p>
     <div class="grid grid-cols-3 gap-3">
       <button
         (click)="addEventHandler('feeding')"
         [disabled]="!canAddEvent()"
-        class="h-14 bg-white border-2 border-slate-200 rounded-xl text-base font-semibold text-slate-900 hover:border-rose-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+        class="h-14 bg-gradient-to-br from-rose-50 to-rose-100 border-2 border-rose-200 rounded-xl text-base font-['DM_Sans',sans-serif] font-semibold text-slate-900 hover:border-rose-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
         [attr.aria-label]="canAddEvent() ? 'Add feeding event' : 'Cannot add more events (limit reached)'"
       >
         🍼 Feeding
@@ -14,7 +14,7 @@
       <button
         (click)="addEventHandler('diaper')"
         [disabled]="!canAddEvent()"
-        class="h-14 bg-white border-2 border-slate-200 rounded-xl text-base font-semibold text-slate-900 hover:border-rose-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+        class="h-14 bg-gradient-to-br from-orange-50 to-orange-100 border-2 border-orange-200 rounded-xl text-base font-['DM_Sans',sans-serif] font-semibold text-slate-900 hover:border-orange-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
         [attr.aria-label]="canAddEvent() ? 'Add diaper event' : 'Cannot add more events (limit reached)'"
       >
         💧 Diaper
@@ -22,7 +22,7 @@
       <button
         (click)="addEventHandler('nap')"
         [disabled]="!canAddEvent()"
-        class="h-14 bg-white border-2 border-slate-200 rounded-xl text-base font-semibold text-slate-900 hover:border-rose-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+        class="h-14 bg-gradient-to-br from-indigo-50 to-blue-100 border-2 border-blue-200 rounded-xl text-base font-['DM_Sans',sans-serif] font-semibold text-slate-900 hover:border-blue-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
         [attr.aria-label]="canAddEvent() ? 'Add nap event' : 'Cannot add more events (limit reached)'"
       >
         😴 Nap
@@ -87,7 +87,7 @@
           <!-- Event Card -->
           <div class="flex-1 min-w-0">
             <button
-              class="w-full text-left p-4 rounded-xl border-2 transition-all"
+              class="w-full text-left p-4 rounded-xl border-2 transition-all font-['DM_Sans',sans-serif]"
               [class.bg-white]="!event.isExisting"
               [class.border-rose-100]="!event.isExisting"
               [class.hover:border-rose-300]="!event.isExisting"
@@ -102,7 +102,7 @@
                 <span class="text-2xl">{{ getActivityIcon(event.type) }}</span>
                 <div class="flex-1 min-w-0">
                   <p class="font-semibold text-slate-900 capitalize text-base">{{ event.type }}</p>
-                  <p class="text-sm text-slate-600">
+                  <p class="text-sm text-slate-500">
                     @if (event.isExisting) {
                       {{ formatActivityAge(event.estimatedTime) }}
                     } @else {
@@ -123,10 +123,10 @@
     </div>
   } @else {
     <!-- Empty State -->
-    <div class="text-center py-12 bg-slate-50 rounded-xl border-2 border-dashed border-slate-300">
-      <p class="text-lg font-bold text-slate-900 mb-2">No activities yet</p>
-      <p class="text-slate-600 mb-4">Tap the buttons above to add activities</p>
-      <p class="text-sm text-slate-500">(Max {{ maxEvents }} activities per session)</p>
+    <div class="text-center py-12 bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl border-2 border-dashed border-amber-300">
+      <p class="font-['Fredoka',sans-serif] text-lg font-bold text-slate-900 mb-2">No activities yet</p>
+      <p class="font-['DM_Sans',sans-serif] text-slate-600 mb-4">Tap the buttons above to add activities</p>
+      <p class="font-['DM_Sans',sans-serif] text-sm text-slate-500">(Max {{ maxEvents }} activities per session)</p>
     </div>
   }
 </div>

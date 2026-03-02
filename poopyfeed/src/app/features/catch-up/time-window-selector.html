@@ -1,6 +1,6 @@
 <div class="time-window-selector space-y-4">
   <!-- Preset Buttons (Maria-friendly: Large, tap-friendly) -->
-  <p class="text-sm font-semibold text-slate-900">Choose Time Window</p>
+  <p class="font-['DM_Sans',sans-serif] text-sm font-semibold text-slate-900">Choose Time Window</p>
   <div class="grid grid-cols-3 gap-3">
     <button
       (click)="applyPreset('4h')"
@@ -9,7 +9,7 @@
       [class.bg-rose-50]="selectedPreset() === '4h'"
       [class.border-rose-300]="selectedPreset() === '4h'"
       [class.border-slate-200]="selectedPreset() !== '4h'"
-      class="h-14 bg-white border-2 rounded-xl font-semibold text-base text-slate-900 transition-all hover:border-rose-300"
+      class="h-14 bg-white border-2 rounded-xl font-['DM_Sans',sans-serif] font-semibold text-base text-slate-900 transition-all hover:border-rose-300"
       aria-label="Last 4 hours"
     >
       Last 4h
@@ -21,7 +21,7 @@
       [class.bg-rose-50]="selectedPreset() === '8h'"
       [class.border-rose-300]="selectedPreset() === '8h'"
       [class.border-slate-200]="selectedPreset() !== '8h'"
-      class="h-14 bg-white border-2 rounded-xl font-semibold text-base text-slate-900 transition-all hover:border-rose-300"
+      class="h-14 bg-white border-2 rounded-xl font-['DM_Sans',sans-serif] font-semibold text-base text-slate-900 transition-all hover:border-rose-300"
       aria-label="Last 8 hours"
     >
       Last 8h
@@ -33,7 +33,7 @@
       [class.bg-rose-50]="selectedPreset() === '24h'"
       [class.border-rose-300]="selectedPreset() === '24h'"
       [class.border-slate-200]="selectedPreset() !== '24h'"
-      class="h-14 bg-white border-2 rounded-xl font-semibold text-base text-slate-900 transition-all hover:border-rose-300"
+      class="h-14 bg-white border-2 rounded-xl font-['DM_Sans',sans-serif] font-semibold text-base text-slate-900 transition-all hover:border-rose-300"
       aria-label="Last 24 hours"
     >
       Last 24h
@@ -42,8 +42,8 @@
 
   <!-- Duration Display -->
   @if (selectedPreset()) {
-    <div class="bg-rose-50 rounded-xl p-4 border-2 border-rose-100">
-      <p class="text-center text-base font-semibold text-slate-900">
+    <div class="bg-gradient-to-br from-rose-50 to-orange-50 rounded-xl p-4 border-2 border-rose-200">
+      <p class="font-['DM_Sans',sans-serif] text-center text-base font-semibold text-slate-900">
         Window Duration: <span class="text-rose-600">{{ durationDisplay() }}</span>
       </p>
     </div>
@@ -55,14 +55,20 @@
       (click)="onApply()"
       [disabled]="isValidating()"
       [attr.aria-busy]="isValidating()"
-      class="w-full h-14 bg-rose-500 hover:bg-rose-600 text-white rounded-xl font-semibold text-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+      class="group relative w-full h-14 rounded-xl font-['DM_Sans',sans-serif] font-bold text-white text-lg overflow-hidden border-2 border-rose-400 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
     >
-      @if (isValidating()) {
-        <span class="inline-block animate-spin mr-2">⏳</span>
-        Validating...
-      } @else {
-        Continue to Activities
-      }
+      <span class="absolute inset-0 bg-gradient-to-br from-rose-400 to-orange-400 transition-transform duration-300 group-hover:scale-110 group-disabled:scale-100"></span>
+      <span class="relative z-10 flex items-center justify-center gap-2">
+        @if (isValidating()) {
+          <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          Validating...
+        } @else {
+          Continue to Activities
+        }
+      </span>
     </button>
   }
 </div>

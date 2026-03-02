@@ -1,223 +1,263 @@
-<div class="catch-up-container min-h-screen bg-amber-50/30 px-4 py-6">
-  <!-- Loading state -->
-  @if (isLoading()) {
-    <div class="flex justify-center items-center py-12">
-      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-rose-500"></div>
-    </div>
-  }
+<div class="min-h-screen relative bg-gradient-to-br from-rose-50 via-amber-50 to-orange-50 px-4 py-6 overflow-hidden">
+  <!-- Decorative background elements (static, Tailwind only) -->
+  <div class="absolute inset-0 opacity-10 pointer-events-none">
+    <div class="absolute top-20 left-20 w-64 h-64 bg-gradient-to-br from-rose-400 to-orange-400 rounded-full blur-3xl"></div>
+    <div class="absolute bottom-20 right-20 w-96 h-96 bg-gradient-to-br from-amber-400 to-orange-400 rounded-full blur-3xl"></div>
+  </div>
 
-  <!-- Error state -->
-  @if (error()) {
-    <div class="max-w-3xl mx-auto bg-red-50 border-2 border-red-200 rounded-2xl p-6 mb-6">
-      <h3 class="font-bold text-red-900 mb-2 text-lg">Error</h3>
-      <p class="text-red-700">{{ error() }}</p>
-    </div>
-  }
+  <div class="max-w-3xl mx-auto relative z-10">
+    <!-- Loading state -->
+    @if (isLoading()) {
+      <div class="flex justify-center items-center py-12">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-rose-400"></div>
+      </div>
+    }
 
-  <!-- Main content -->
-  @if (!isLoading() && !error()) {
-    <!-- Header -->
-    <div class="max-w-3xl mx-auto mb-8">
-      <h1 class="text-3xl font-bold text-slate-900 mb-2">
-        Catch-Up Mode: {{ child()?.name }}
-      </h1>
-      <p class="text-slate-600">
-        Quick log of {{ currentStepLabel() }}
-      </p>
-    </div>
+    <!-- Error state -->
+    @if (error()) {
+      <app-error-card
+        [errorMessage]="error()!"
+        [backRoute]="'/children'"
+        [backButtonText]="'Back to My Children'"
+        [gradientColor]="'rose'"
+      />
+    }
 
-    <!-- Step Indicator (hidden on success) -->
-    @if (currentStep() !== 'success') {
-      <div class="max-w-3xl mx-auto mb-8">
-        <div class="flex gap-2 justify-center">
-          <div
-            class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-white transition-all"
-            [class.bg-rose-500]="currentStep() === 'time-range'"
-            [class.bg-slate-200]="currentStep() !== 'time-range'"
+    <!-- Main content -->
+    @if (!isLoading() && !error()) {
+      <div class="space-y-6">
+        <!-- Back Navigation -->
+        <div class="flex items-center justify-between">
+          <a
+            [routerLink]="['/children', childId(), 'advanced']"
+            class="font-['DM_Sans',sans-serif] text-sm text-slate-600 hover:text-rose-400 transition-colors font-medium inline-flex items-center gap-2"
           >
-            1
-          </div>
-          <div class="w-px bg-slate-300"></div>
-          <div
-            class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-white transition-all"
-            [class.bg-rose-500]="currentStep() === 'events'"
-            [class.bg-slate-200]="currentStep() !== 'events'"
-          >
-            2
-          </div>
-          <div class="w-px bg-slate-300"></div>
-          <div
-            class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-white transition-all"
-            [class.bg-rose-500]="currentStep() === 'review'"
-            [class.bg-slate-200]="currentStep() !== 'review'"
-          >
-            3
-          </div>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to advanced tools
+          </a>
         </div>
-      </div>
-    }
 
-    <!-- Step 1: Time Range -->
-    @if (currentStep() === 'time-range') {
-      <div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-md p-8 border border-slate-100">
-        <h2 class="text-2xl font-bold text-slate-900 mb-6">Step 1: Choose Time Window</h2>
-        <app-time-window-selector
-          [timeWindow]="timeWindow()"
-          (timeWindowChange)="goToStep('events', $event)"
-        />
-        <button
-          (click)="onCancel()"
-          class="w-full mt-6 h-12 border-2 border-slate-300 text-slate-700 rounded-xl font-semibold hover:bg-slate-50"
-        >
-          Cancel
-        </button>
-      </div>
-    }
-
-    <!-- Step 2: Add Activities -->
-    @if (currentStep() === 'events') {
-      <div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-md p-8 border border-slate-100">
-        <h2 class="text-2xl font-bold text-slate-900 mb-6">Step 2: Add Activities</h2>
-        <app-event-timeline
-          [events]="eventList()"
-          (addEvent)="onAddEvent($event)"
-          (selectEvent)="selectedEventId.set($event)"
-          (reorderEvents)="onReorderEvents($event)"
-        />
-
-        <!-- Event Details (when selected) -->
-        @if (selectedEventId(); as eventId) {
-          @if (getEventById(eventId); as event) {
-            <div class="mt-6 pt-6 border-t-2 border-slate-100">
-              <h3 class="text-lg font-bold text-slate-900 mb-4">Edit Activity</h3>
-              <app-event-card
-                [event]="event"
-                (update)="onUpdateEvent(eventId, $event)"
-                (remove)="onRemoveEvent(eventId)"
-              />
-              <button
-                (click)="selectedEventId.set(null)"
-                class="w-full mt-4 h-12 border-2 border-slate-300 text-slate-700 rounded-xl font-semibold hover:bg-slate-50"
-              >
-                Close Editor
-              </button>
+        <!-- Hero Banner -->
+        @if (child(); as c) {
+          <div class="bg-gradient-to-r from-amber-400 via-orange-400 to-rose-400 rounded-3xl shadow-2xl p-6 sm:p-8">
+            <div class="flex items-center gap-4">
+              <div class="w-16 h-16 sm:w-20 sm:h-20 bg-white rounded-full flex items-center justify-center shadow-lg">
+                <span class="text-4xl sm:text-5xl">{{ getGenderIcon(c.gender) }}</span>
+              </div>
+              <div>
+                <h1 class="font-['Fredoka',sans-serif] text-2xl sm:text-4xl font-bold text-white mb-1">
+                  Catch-Up Mode
+                </h1>
+                <p class="font-['DM_Sans',sans-serif] text-white/90 text-lg">
+                  Quick log for {{ c.name }}
+                </p>
+              </div>
             </div>
-          }
+          </div>
         }
 
-        <!-- Navigation -->
-        <div class="flex gap-4 mt-6 pt-6 border-t-2 border-slate-100">
-          <button
-            (click)="goToStep('time-range')"
-            class="flex-1 h-12 border-2 border-slate-300 text-slate-700 rounded-xl font-semibold hover:bg-slate-50"
-          >
-            Back
-          </button>
-          <button
-            (click)="goToStep('review')"
-            [disabled]="!hasChanges()"
-            class="flex-1 h-12 bg-rose-500 hover:bg-rose-600 text-white rounded-xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Review {{ newEvents().length }} Activities
-          </button>
-        </div>
-      </div>
-    }
-
-    <!-- Step 3: Review & Save -->
-    @if (currentStep() === 'review') {
-      <div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-md p-8 border border-slate-100">
-        <h2 class="text-2xl font-bold text-slate-900 mb-6">Step 3: Review & Save</h2>
-        <p class="text-slate-700 mb-6">
-          Ready to save {{ newEvents().length }} activit{{ newEvents().length === 1 ? 'y' : 'ies' }}?
-        </p>
-
-        <!-- Summary List -->
-        <div class="space-y-3 mb-8">
-          @for (event of newEvents(); track event.id) {
-            <div class="bg-slate-50 rounded-xl p-4 border border-slate-200">
-              <div class="flex items-center gap-3">
-                <span class="text-2xl">{{ getActivityIcon(event.type) }}</span>
-                <div class="flex-1">
-                  <p class="font-semibold text-slate-900 capitalize">{{ event.type }}</p>
-                  <p class="text-sm text-slate-600">{{ formatTime(event.estimatedTime) }}</p>
-                </div>
+        <!-- Step Indicator (hidden on success) -->
+        @if (currentStep() !== 'success') {
+          <div class="flex items-center justify-center gap-3">
+            @for (step of steps; track step.num) {
+              <!-- Step Circle -->
+              <div
+                class="w-10 h-10 rounded-full flex items-center justify-center font-['DM_Sans',sans-serif] font-bold text-sm transition-all shadow-md"
+                [class.bg-gradient-to-br]="currentStep() === step.key"
+                [class.from-rose-400]="currentStep() === step.key"
+                [class.to-orange-400]="currentStep() === step.key"
+                [class.text-white]="currentStep() === step.key"
+                [class.bg-white]="currentStep() !== step.key"
+                [class.text-slate-400]="currentStep() !== step.key"
+                [class.border-2]="currentStep() !== step.key"
+                [class.border-slate-200]="currentStep() !== step.key"
+              >
+                {{ step.num }}
               </div>
-            </div>
-          }
-        </div>
-
-        <!-- Navigation -->
-        <div class="flex gap-4 pt-6 border-t-2 border-slate-100">
-          <button
-            (click)="goToStep('events')"
-            [disabled]="isSubmitting()"
-            class="flex-1 h-12 border-2 border-slate-300 text-slate-700 rounded-xl font-semibold hover:bg-slate-50 disabled:opacity-50"
-          >
-            Edit
-          </button>
-          <button
-            (click)="onSubmit()"
-            [disabled]="isSubmitting()"
-            [attr.aria-busy]="isSubmitting()"
-            class="flex-1 h-12 bg-rose-500 hover:bg-rose-600 text-white rounded-xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            @if (isSubmitting()) {
-              <span class="inline-block animate-spin mr-2">⏳</span>
-              Saving...
-            } @else {
-              Confirm & Save
-            }
-          </button>
-        </div>
-      </div>
-    }
-
-    <!-- Step 4: Success -->
-    @if (currentStep() === 'success') {
-      <div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-md p-8 border border-slate-100 text-center">
-        <div class="text-5xl mb-4">✅</div>
-        <h2 class="text-3xl font-bold text-slate-900 mb-2">
-          {{ newEvents().length }} Activit{{ newEvents().length === 1 ? 'y' : 'ies' }} Saved!
-        </h2>
-        <p class="text-lg text-slate-600 mb-8">
-          Great work logging for {{ child()?.name }}. Everything is saved.
-        </p>
-
-        <!-- Summary -->
-        <div class="bg-amber-50 rounded-xl p-6 border-2 border-amber-100 mb-8 text-left">
-          <p class="text-sm font-semibold text-slate-900 mb-4">What was saved:</p>
-          <div class="space-y-2">
-            @for (event of newEvents(); track event.id) {
-              <div class="flex items-center gap-2 text-slate-700">
-                <span>{{ getActivityIcon(event.type) }}</span>
-                <span class="capitalize">{{ event.type }}</span>
-                <span class="text-slate-500">{{ formatTime(event.estimatedTime) }}</span>
-              </div>
+              <!-- Connector Line (between steps) -->
+              @if (step.num < 3) {
+                <div class="w-12 h-0.5 bg-slate-200 rounded-full"></div>
+              }
             }
           </div>
-        </div>
+        }
 
-        <!-- Done Button -->
-        <button
-          (click)="goToAdvanced()"
-          class="w-full h-14 bg-rose-500 hover:bg-rose-600 text-white rounded-xl font-semibold text-lg"
-        >
-          Back to advanced tools
-        </button>
+        <!-- Step 1: Time Range -->
+        @if (currentStep() === 'time-range') {
+          <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-6 sm:p-8 border-2 border-amber-200">
+            <h2 class="font-['Fredoka',sans-serif] text-2xl font-bold text-slate-900 mb-6">Step 1: Choose Time Window</h2>
+            <app-time-window-selector
+              [timeWindow]="timeWindow()"
+              (timeWindowChange)="goToStep('events', $event)"
+            />
+            <button
+              (click)="onCancel()"
+              class="w-full mt-6 h-12 border-2 border-slate-300 text-slate-700 rounded-xl font-['DM_Sans',sans-serif] font-semibold hover:bg-slate-50 transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        }
+
+        <!-- Step 2: Add Activities -->
+        @if (currentStep() === 'events') {
+          <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-6 sm:p-8 border-2 border-amber-200">
+            <h2 class="font-['Fredoka',sans-serif] text-2xl font-bold text-slate-900 mb-6">Step 2: Add Activities</h2>
+            <app-event-timeline
+              [events]="eventList()"
+              (addEvent)="onAddEvent($event)"
+              (selectEvent)="selectedEventId.set($event)"
+              (reorderEvents)="onReorderEvents($event)"
+            />
+
+            <!-- Event Details (when selected) -->
+            @if (selectedEventId(); as eventId) {
+              @if (getEventById(eventId); as event) {
+                <div class="mt-6 pt-6 border-t-2 border-slate-200">
+                  <h3 class="font-['Fredoka',sans-serif] text-lg font-bold text-slate-900 mb-4">Edit Activity</h3>
+                  <app-event-card
+                    [event]="event"
+                    (update)="onUpdateEvent(eventId, $event)"
+                    (remove)="onRemoveEvent(eventId)"
+                  />
+                  <button
+                    (click)="selectedEventId.set(null)"
+                    class="w-full mt-4 h-12 border-2 border-slate-300 text-slate-700 rounded-xl font-['DM_Sans',sans-serif] font-semibold hover:bg-slate-50 transition-colors"
+                  >
+                    Close Editor
+                  </button>
+                </div>
+              }
+            }
+
+            <!-- Navigation -->
+            <div class="flex gap-4 mt-6 pt-6 border-t-2 border-slate-200">
+              <button
+                (click)="goToStep('time-range')"
+                class="flex-1 h-12 border-2 border-slate-300 text-slate-700 rounded-xl font-['DM_Sans',sans-serif] font-semibold hover:bg-slate-50 transition-colors"
+              >
+                Back
+              </button>
+              <button
+                (click)="goToStep('review')"
+                [disabled]="!hasChanges()"
+                class="group relative flex-1 h-12 rounded-xl font-['DM_Sans',sans-serif] font-bold text-white overflow-hidden border-2 border-rose-400 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              >
+                <span class="absolute inset-0 bg-gradient-to-br from-rose-400 to-orange-400 transition-transform duration-300 group-hover:scale-110 group-disabled:scale-100"></span>
+                <span class="relative z-10">
+                  Review {{ newEvents().length }} Activities
+                </span>
+              </button>
+            </div>
+          </div>
+        }
+
+        <!-- Step 3: Review & Save -->
+        @if (currentStep() === 'review') {
+          <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-6 sm:p-8 border-2 border-amber-200">
+            <h2 class="font-['Fredoka',sans-serif] text-2xl font-bold text-slate-900 mb-2">Step 3: Review & Save</h2>
+            <p class="font-['DM_Sans',sans-serif] text-slate-600 mb-6">
+              Ready to save {{ newEvents().length }} activit{{ newEvents().length === 1 ? 'y' : 'ies' }}?
+            </p>
+
+            <!-- Summary List (color-coded) -->
+            <div class="space-y-3 mb-8">
+              @for (event of newEvents(); track event.id) {
+                <div
+                  class="flex items-center gap-4 p-4 rounded-xl border-l-4"
+                  [class]="getActivityRowClasses(event.type)"
+                >
+                  <span class="text-2xl">{{ getActivityIcon(event.type) }}</span>
+                  <div class="flex-1">
+                    <p class="font-['DM_Sans',sans-serif] font-semibold text-slate-900 capitalize">{{ event.type }}</p>
+                    <p class="font-['DM_Sans',sans-serif] text-sm text-slate-500">{{ formatTime(event.estimatedTime) }}</p>
+                  </div>
+                </div>
+              }
+            </div>
+
+            <!-- Navigation -->
+            <div class="flex gap-4 pt-6 border-t-2 border-slate-200">
+              <button
+                (click)="goToStep('events')"
+                [disabled]="isSubmitting()"
+                class="flex-1 h-12 border-2 border-slate-300 text-slate-700 rounded-xl font-['DM_Sans',sans-serif] font-semibold hover:bg-slate-50 disabled:opacity-50 transition-colors"
+              >
+                Edit
+              </button>
+              <button
+                (click)="onSubmit()"
+                [disabled]="isSubmitting()"
+                [attr.aria-busy]="isSubmitting()"
+                class="group relative flex-1 h-12 rounded-xl font-['DM_Sans',sans-serif] font-bold text-white overflow-hidden border-2 border-rose-400 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              >
+                <span class="absolute inset-0 bg-gradient-to-br from-rose-400 to-orange-400 transition-transform duration-300 group-hover:scale-110 group-disabled:scale-100"></span>
+                <span class="relative z-10 flex items-center justify-center gap-2">
+                  @if (isSubmitting()) {
+                    <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Saving...
+                  } @else {
+                    Confirm & Save
+                  }
+                </span>
+              </button>
+            </div>
+          </div>
+        }
+
+        <!-- Step 4: Success -->
+        @if (currentStep() === 'success') {
+          <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-6 sm:p-8 border-2 border-green-200 text-center">
+            <div class="text-5xl mb-4">✅</div>
+            <h2 class="font-['Fredoka',sans-serif] text-3xl font-bold text-slate-900 mb-2">
+              {{ newEvents().length }} Activit{{ newEvents().length === 1 ? 'y' : 'ies' }} Saved!
+            </h2>
+            <p class="font-['DM_Sans',sans-serif] text-lg text-slate-600 mb-8">
+              Great work logging for {{ child()?.name }}. Everything is saved.
+            </p>
+
+            <!-- Summary (color-coded) -->
+            <div class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-6 border-2 border-amber-200 mb-8 text-left">
+              <p class="font-['DM_Sans',sans-serif] text-sm font-semibold text-slate-900 mb-4">What was saved:</p>
+              <div class="space-y-2">
+                @for (event of newEvents(); track event.id) {
+                  <div class="flex items-center gap-3 text-slate-700 font-['DM_Sans',sans-serif]">
+                    <span>{{ getActivityIcon(event.type) }}</span>
+                    <span class="capitalize font-medium">{{ event.type }}</span>
+                    <span class="text-slate-500">{{ formatTime(event.estimatedTime) }}</span>
+                  </div>
+                }
+              </div>
+            </div>
+
+            <!-- Done Button -->
+            <button
+              (click)="goToAdvanced()"
+              class="group relative w-full h-14 rounded-xl font-['DM_Sans',sans-serif] font-bold text-white text-lg overflow-hidden border-2 border-rose-400 cursor-pointer"
+            >
+              <span class="absolute inset-0 bg-gradient-to-br from-rose-400 to-orange-400 transition-transform duration-300 group-hover:scale-110"></span>
+              <span class="relative z-10">Back to advanced tools</span>
+            </button>
+          </div>
+        }
       </div>
     }
-  }
 
-  @if (showDiscardConfirm()) {
-    <app-confirm-dialog
-      title="Discard changes?"
-      [message]="'Discard ' + newEvents().length + ' unsaved ' + (newEvents().length === 1 ? 'activity' : 'activities') + '?'"
-      confirmLabel="Discard"
-      cancelLabel="Keep editing"
-      variant="danger"
-      (confirmed)="onDiscardConfirm()"
-      (cancelled)="onDiscardCancel()"
-    />
-  }
+    @if (showDiscardConfirm()) {
+      <app-confirm-dialog
+        title="Discard changes?"
+        [message]="'Discard ' + newEvents().length + ' unsaved ' + (newEvents().length === 1 ? 'activity' : 'activities') + '?'"
+        confirmLabel="Discard"
+        cancelLabel="Keep editing"
+        variant="danger"
+        (confirmed)="onDiscardConfirm()"
+        (cancelled)="onDiscardCancel()"
+      />
+    }
+  </div>
 </div>
