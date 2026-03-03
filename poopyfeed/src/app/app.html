@@ -1,3 +1,7 @@
+<a
+  href="#main-content"
+  class="skip-link"
+>Skip to main content</a>
 <app-toast />
 @defer (on idle) {
   <app-update-banner />
@@ -5,7 +9,7 @@
   <app-timezone-banner />
 }
 <app-header />
-<main class="app-main">
+<main id="main-content" class="app-main" tabindex="-1">
   <router-outlet />
 </main>
 @defer (on viewport) {

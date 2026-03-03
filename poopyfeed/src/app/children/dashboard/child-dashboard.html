@@ -165,39 +165,42 @@
             <button
               (click)="navigateToFeedings()"
               [disabled]="isNavigatingToFeeding()"
-              class="inline-flex items-center gap-2 bg-rose-100 text-rose-700 hover:bg-rose-200 px-4 py-2 rounded-full text-sm font-['DM_Sans',sans-serif] font-semibold transition-colors cursor-pointer disabled:opacity-75 disabled:cursor-wait"
+              class="inline-flex items-center gap-2 bg-rose-100 text-rose-700 hover:bg-rose-200 px-4 py-2 rounded-full text-sm font-['DM_Sans',sans-serif] font-semibold transition-colors cursor-pointer disabled:opacity-75 disabled:cursor-wait min-h-[48px] min-w-[48px]"
               [attr.aria-busy]="isNavigatingToFeeding()"
+              aria-label="Go to feedings list"
             >
               @if (isNavigatingToFeeding()) {
-                <span class="inline-block w-4 h-4 border-2 border-rose-400 border-t-transparent rounded-full animate-spin"></span>
+                <span class="inline-block w-4 h-4 border-2 border-rose-400 border-t-transparent rounded-full animate-spin" aria-hidden="true"></span>
               } @else {
-                <span>🍼</span>
+                <span aria-hidden="true">🍼</span>
               }
               Feeding
             </button>
             <button
               (click)="navigateToDiapers()"
               [disabled]="isNavigatingToDiaper()"
-              class="inline-flex items-center gap-2 bg-orange-100 text-orange-700 hover:bg-orange-200 px-4 py-2 rounded-full text-sm font-['DM_Sans',sans-serif] font-semibold transition-colors cursor-pointer disabled:opacity-75 disabled:cursor-wait"
+              class="inline-flex items-center gap-2 bg-orange-100 text-orange-700 hover:bg-orange-200 px-4 py-2 rounded-full text-sm font-['DM_Sans',sans-serif] font-semibold transition-colors cursor-pointer disabled:opacity-75 disabled:cursor-wait min-h-[48px] min-w-[48px]"
               [attr.aria-busy]="isNavigatingToDiaper()"
+              aria-label="Go to diapers list"
             >
               @if (isNavigatingToDiaper()) {
-                <span class="inline-block w-4 h-4 border-2 border-orange-400 border-t-transparent rounded-full animate-spin"></span>
+                <span class="inline-block w-4 h-4 border-2 border-orange-400 border-t-transparent rounded-full animate-spin" aria-hidden="true"></span>
               } @else {
-                <span>🧷</span>
+                <span aria-hidden="true">🧷</span>
               }
               Diaper
             </button>
             <button
               (click)="navigateToNaps()"
               [disabled]="isNavigatingToNap()"
-              class="inline-flex items-center gap-2 bg-blue-100 text-blue-700 hover:bg-blue-200 px-4 py-2 rounded-full text-sm font-['DM_Sans',sans-serif] font-semibold transition-colors cursor-pointer disabled:opacity-75 disabled:cursor-wait"
+              class="inline-flex items-center gap-2 bg-blue-100 text-blue-700 hover:bg-blue-200 px-4 py-2 rounded-full text-sm font-['DM_Sans',sans-serif] font-semibold transition-colors cursor-pointer disabled:opacity-75 disabled:cursor-wait min-h-[48px] min-w-[48px]"
               [attr.aria-busy]="isNavigatingToNap()"
+              aria-label="Go to naps list"
             >
               @if (isNavigatingToNap()) {
-                <span class="inline-block w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"></span>
+                <span class="inline-block w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin" aria-hidden="true"></span>
               } @else {
-                <span>😴</span>
+                <span aria-hidden="true">😴</span>
               }
               Nap
             </button>
