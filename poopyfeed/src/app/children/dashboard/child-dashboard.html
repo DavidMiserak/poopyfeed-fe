@@ -118,11 +118,37 @@
         @defer (on viewport) {
           <app-dashboard-section-card title="Today's Summary" borderColor="rose">
             @if (isDetailLoading() && !todaySummaryData()) {
-              <div class="flex items-center justify-center py-6">
-                <svg class="w-6 h-6 animate-spin text-rose-400" aria-hidden="true" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
+              <div
+                class="bg-white rounded-2xl border border-slate-100 shadow-sm min-h-[120px]"
+                aria-busy="true"
+                aria-label="Loading Today's Summary"
+              >
+                <div class="flex flex-col md:flex-row md:divide-x divide-slate-200">
+                  <div class="flex-1 px-6 py-4 flex items-center gap-4 border-b md:border-b-0 border-slate-200">
+                    <div class="w-8 h-8 rounded-full bg-gray-200 animate-pulse"></div>
+                    <div class="space-y-1">
+                      <div class="h-8 w-12 rounded bg-gray-200 animate-pulse"></div>
+                      <div class="h-3 w-20 rounded bg-gray-200 animate-pulse"></div>
+                      <div class="h-3 w-16 rounded bg-gray-200 animate-pulse"></div>
+                    </div>
+                  </div>
+                  <div class="flex-1 px-6 py-4 flex items-center gap-4 border-b md:border-b-0 border-slate-200">
+                    <div class="w-8 h-8 rounded-full bg-gray-200 animate-pulse"></div>
+                    <div class="space-y-1">
+                      <div class="h-8 w-12 rounded bg-gray-200 animate-pulse"></div>
+                      <div class="h-3 w-20 rounded bg-gray-200 animate-pulse"></div>
+                      <div class="h-3 w-24 rounded bg-gray-200 animate-pulse"></div>
+                    </div>
+                  </div>
+                  <div class="flex-1 px-6 py-4 flex items-center gap-4">
+                    <div class="w-8 h-8 rounded-full bg-gray-200 animate-pulse"></div>
+                    <div class="space-y-1">
+                      <div class="h-8 w-12 rounded bg-gray-200 animate-pulse"></div>
+                      <div class="h-3 w-20 rounded bg-gray-200 animate-pulse"></div>
+                      <div class="h-3 w-16 rounded bg-gray-200 animate-pulse"></div>
+                    </div>
+                  </div>
+                </div>
               </div>
             } @else {
               <app-today-summary-cards [summary]="todaySummaryData()" />
@@ -180,7 +206,25 @@
 
         <!-- Recent Activity (color-coded feed) -->
         @defer (on viewport) {
-          @if (recentActivity().length > 0) {
+          @if (isDetailLoading()) {
+            <app-dashboard-section-card title="Recent Activity" borderColor="amber">
+              <div
+                class="space-y-3"
+                aria-busy="true"
+                aria-label="Loading Recent Activity"
+              >
+                @for (row of [1,2,3,4,5]; track row) {
+                  <div class="h-14 rounded-xl border-l-4 border-l-slate-300 bg-gray-100 flex items-center gap-3 p-3">
+                    <div class="w-8 h-8 rounded-full bg-gray-200 animate-pulse"></div>
+                    <div class="flex-1 space-y-1">
+                      <div class="h-4 w-32 rounded bg-gray-200 animate-pulse"></div>
+                      <div class="h-3 w-20 rounded bg-gray-200 animate-pulse"></div>
+                    </div>
+                  </div>
+                }
+              </div>
+            </app-dashboard-section-card>
+          } @else if (recentActivity().length > 0) {
             <app-dashboard-section-card title="Recent Activity" borderColor="amber">
               <div class="space-y-3">
                 @for (item of recentActivity(); track item.id) {

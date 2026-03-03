@@ -45,6 +45,7 @@ import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { ChildrenService } from '../../services/children.service';
 import { AnalyticsService } from '../../services/analytics.service';
+import { NotificationService } from '../../services/notification.service';
 import { DateTimeService } from '../../services/datetime.service';
 import { Child } from '../../models/child.model';
 import { Feeding } from '../../models/feeding.model';
@@ -102,6 +103,7 @@ export class ChildDashboard implements OnInit {
   private route = inject(ActivatedRoute);
   private childrenService = inject(ChildrenService);
   private analyticsService = inject(AnalyticsService);
+  private notificationService = inject(NotificationService);
   private datetimeService = inject(DateTimeService);
 
   /** Child ID from URL (/children/123) */
@@ -254,14 +256,15 @@ export class ChildDashboard implements OnInit {
    */
   private loadDetailData(childId: number): void {
     forkJoin({
-      todaySummary: this.analyticsService.getTodaySummary(childId),
+      dashboardSummary: this.analyticsService.getDashboardSummary(childId),
       timeline: this.analyticsService.getTimeline(childId, 1, 20),
       patternAlerts: this.analyticsService.getPatternAlerts(childId).pipe(
         catchError(() => of(null))
       ),
     }).subscribe({
-      next: ({ todaySummary, timeline, patternAlerts }) => {
-        this.todaySummaryData.set(todaySummary);
+      next: ({ dashboardSummary, timeline, patternAlerts }) => {
+        this.todaySummaryData.set(dashboardSummary.today);
+        this.notificationService.setUnreadCountFromBatch(dashboardSummary.unread_count);
         this.patternAlerts.set(patternAlerts ?? null);
         const activities = timeline.results
           .slice(0, 10)

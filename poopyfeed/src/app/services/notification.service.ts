@@ -124,6 +124,13 @@ export class NotificationService {
   }
 
   /**
+   * Seed unread count from batch dashboard summary (avoids separate GET on first load).
+   */
+  setUnreadCountFromBatch(count: number): void {
+    this.unreadCount.set(count);
+  }
+
+  /**
    * Mark a single notification as read. Updates local state on success.
    */
   markAsRead(id: number): Observable<Notification> {

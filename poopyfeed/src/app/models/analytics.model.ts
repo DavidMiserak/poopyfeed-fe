@@ -251,6 +251,22 @@ export interface WeeklySummaryData {
 }
 
 /**
+ * Batch dashboard summary response (today + weekly + unread_count).
+ *
+ * Endpoint: GET /api/v1/children/{child_id}/dashboard-summary/
+ */
+export interface DashboardSummaryResponse {
+  /** Today's summary (same shape as today-summary endpoint) */
+  today: TodaySummaryData;
+
+  /** Weekly summary (same shape as weekly-summary endpoint) */
+  weekly: WeeklySummaryData;
+
+  /** Number of unread notifications for the authenticated user */
+  unread_count: number;
+}
+
+/**
  * Query parameters for analytics trend endpoints.
  *
  * Used to customize the date range for trend queries.

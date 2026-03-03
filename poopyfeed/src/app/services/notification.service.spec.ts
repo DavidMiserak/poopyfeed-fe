@@ -148,6 +148,16 @@ describe('NotificationService', () => {
     });
   });
 
+  describe('setUnreadCountFromBatch', () => {
+    it('should set unreadCount signal from batch dashboard summary', () => {
+      expect(service.unreadCount()).toBe(0);
+      service.setUnreadCountFromBatch(5);
+      expect(service.unreadCount()).toBe(5);
+      service.setUnreadCountFromBatch(0);
+      expect(service.unreadCount()).toBe(0);
+    });
+  });
+
   describe('markAsRead', () => {
     it('should PATCH notification and update local state', () => {
       service.notifications.set(mockNotifications);

@@ -334,6 +334,58 @@ describe('AnalyticsService', () => {
     });
   });
 
+  describe('getDashboardSummary', () => {
+    const mockDashboardSummary = {
+      today: mockTodaySummary,
+      weekly: mockWeeklySummary,
+      unread_count: 3,
+    };
+
+    it('should call children dashboard-summary URL and return combined data', () => {
+      service.getDashboardSummary(1).subscribe({
+        next: (data) => {
+          expect(data.today).toEqual(mockTodaySummary);
+          expect(data.weekly).toEqual(mockWeeklySummary);
+          expect(data.unread_count).toBe(3);
+        },
+      });
+
+      const req = httpMock.expectOne(
+        '/api/v1/children/1/dashboard-summary/'
+      );
+      expect(req.request.method).toBe('GET');
+      req.flush(mockDashboardSummary);
+    });
+
+    it('should update todaySummary and weeklySummary signals', () => {
+      service.getDashboardSummary(1).subscribe();
+
+      const req = httpMock.expectOne(
+        '/api/v1/children/1/dashboard-summary/'
+      );
+      req.flush(mockDashboardSummary);
+
+      expect(service.todaySummary()).toEqual(mockTodaySummary);
+      expect(service.weeklySummary()).toEqual(mockWeeklySummary);
+    });
+
+    it('should handle error and not update signals', () => {
+      let errorCaught = false;
+      service.getDashboardSummary(1).subscribe({
+        error: () => {
+          errorCaught = true;
+        },
+      });
+
+      const req = httpMock.expectOne(
+        '/api/v1/children/1/dashboard-summary/'
+      );
+      req.flush(null, { status: 404, statusText: 'Not Found' });
+
+      expect(errorCaught).toBe(true);
+    });
+  });
+
   describe('getTimeline', () => {
     const mockTimelineResponse = {
       count: 5,

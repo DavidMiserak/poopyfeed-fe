@@ -29,6 +29,7 @@ import {
   SleepSummary,
   TodaySummaryData,
   WeeklySummaryData,
+  DashboardSummaryResponse,
   ExportJobResponse,
   JobStatusResponse,
   TimelineResponse,
@@ -216,6 +217,31 @@ export class AnalyticsService {
         throwError(() => ErrorHandler.handle(error, "Get today's summary"))
       )
     );
+  }
+
+  /**
+   * Fetch batch dashboard summary (today + weekly + unread_count) in one request.
+   *
+   * Use this on the child dashboard to reduce API calls. Updates todaySummary and
+   * weeklySummary signals so other consumers stay consistent.
+   *
+   * Endpoint: GET /api/v1/children/{childId}/dashboard-summary/
+   *
+   * @param childId Child's unique identifier
+   * @returns Observable<DashboardSummaryResponse>
+   */
+  getDashboardSummary(childId: number): Observable<DashboardSummaryResponse> {
+    return this.http
+      .get<DashboardSummaryResponse>(`/api/v1/children/${childId}/dashboard-summary/`)
+      .pipe(
+        tap((data) => {
+          this.todaySummary.set(data.today);
+          this.weeklySummary.set(data.weekly);
+        }),
+        catchError((error) =>
+          throwError(() => ErrorHandler.handle(error, 'Get dashboard summary'))
+        )
+      );
   }
 
   /**
