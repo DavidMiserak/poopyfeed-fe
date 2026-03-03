@@ -29,7 +29,7 @@ test.describe('Children', () => {
       page.getByRole('heading', { name: 'My Children' })
     ).toBeVisible();
 
-    await page.getByRole('link', { name: 'Add Baby' }).first().click();
+    await page.getByRole('link', { name: 'Add a new baby' }).first().click();
     await expect(page).toHaveURL(/\/children\/create/);
     await expect(
       page.getByRole('heading', { name: 'Add New Baby' })

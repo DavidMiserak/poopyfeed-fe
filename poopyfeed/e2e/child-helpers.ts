@@ -34,7 +34,7 @@ export async function createChildAndGoToDashboard(
     ) {
       await page.getByRole('link', { name: 'Add Your First Baby' }).click();
     } else {
-      await page.getByRole('link', { name: 'Add Baby' }).first().click();
+      await page.getByRole('link', { name: 'Add a new baby' }).first().click();
     }
     await expect(page).toHaveURL(/\/children\/create/);
 
@@ -58,9 +58,9 @@ export async function createChildAndGoToDashboard(
       });
     }
 
-    // Dashboard URL reached — wait for "Log with details" section (Feeding, Diaper, Nap buttons)
+    // Dashboard URL reached — wait for "Log with details" section (feedings, diapers, naps buttons)
     const logWithDetails = page.getByText('Log with details', { exact: true }).locator('..');
-    const feedingButton = logWithDetails.getByRole('button', { name: 'Feeding' });
+    const feedingButton = logWithDetails.getByRole('button', { name: 'Go to feedings list' });
     const contentLoaded = await feedingButton
       .waitFor({ state: 'visible', timeout: E2E_TIMEOUT })
       .then(() => true)

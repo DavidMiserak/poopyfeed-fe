@@ -15,7 +15,7 @@ test.describe('Diapers', () => {
   }) => {
     await createChildAndGoToDashboard(page, 'E2E Diapers');
     const logWithDetails = page.getByText('Log with details', { exact: true }).locator('..');
-    await logWithDetails.getByRole('button', { name: 'Diaper' }).click();
+    await logWithDetails.getByRole('button', { name: 'Go to diapers list' }).click();
     await expect(page).toHaveURL(/\/children\/\d+\/diapers\/create/, { timeout: E2E_TIMEOUT });
     await expect(
       page.getByRole('heading', { name: /Add Diaper Change/ })
@@ -45,7 +45,7 @@ test.describe('Diapers', () => {
   }) => {
     await createChildAndGoToDashboard(page, 'E2E Diapers');
     const logWithDetails = page.getByText('Log with details', { exact: true }).locator('..');
-    await logWithDetails.getByRole('button', { name: 'Diaper' }).click();
+    await logWithDetails.getByRole('button', { name: 'Go to diapers list' }).click();
     await expect(page).toHaveURL(/\/children\/\d+\/diapers\/create/, { timeout: E2E_TIMEOUT });
     await page.locator('form label').filter({ hasText: 'Wet' }).click();
     await page.getByLabel('Date & Time').fill('');
@@ -60,7 +60,7 @@ test.describe('Diapers', () => {
   }) => {
     await editTrackingItemAndSeeUpdateOnList(page, {
       childNamePrefix: 'E2E Diapers',
-      dashboardButton: 'Diaper',
+      dashboardButton: 'Go to diapers list',
       createUrlPattern: /\/children\/\d+\/diapers\/create/,
       listUrlPattern: /\/children\/\d+\/diapers$/,
       listApiSegment: 'diapers',
@@ -93,7 +93,7 @@ test.describe('Diapers', () => {
   }) => {
     await createChildAndGoToDashboard(page, 'E2E Diapers');
     const logWithDetails = page.getByText('Log with details', { exact: true }).locator('..');
-    await logWithDetails.getByRole('button', { name: 'Diaper' }).click();
+    await logWithDetails.getByRole('button', { name: 'Go to diapers list' }).click();
     await expect(page).toHaveURL(/\/children\/\d+\/diapers\/create/, { timeout: E2E_TIMEOUT });
     await page.locator('form label').filter({ hasText: 'Both' }).click();
     await page.getByLabel('Date & Time').fill('2024-06-21T11:00');

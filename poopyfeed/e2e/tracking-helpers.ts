@@ -31,7 +31,7 @@ export function waitForTrackingList200(
 
 export interface EditTrackingItemAndSeeUpdateOptions {
   childNamePrefix: string;
-  /** Dashboard "Log with details" button: Feeding | Diaper | Nap — navigates directly to create form. */
+  /** Dashboard "Log with details" button aria-label: "Go to feedings list" | "Go to diapers list" | "Go to naps list". */
   dashboardButton: string;
   createUrlPattern: RegExp;
   listUrlPattern: RegExp;
