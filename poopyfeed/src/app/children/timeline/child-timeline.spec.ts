@@ -465,6 +465,36 @@ describe('ChildTimeline', () => {
       };
       expect(component.getActivityTitle(item)).toBe('Nap: 45m');
     });
+
+    it('should return "Nap" for ongoing nap (no ended_at)', () => {
+      const ongoingNap: Nap = {
+        id: 2,
+        child: 1,
+        napped_at: `${todayStr}T14:00:00Z`,
+        ended_at: null,
+        duration_minutes: null,
+        created_at: `${todayStr}T14:00:00Z`,
+        updated_at: `${todayStr}T14:00:00Z`,
+      };
+      const item: ActivityItem = {
+        id: 2,
+        type: 'nap' as const,
+        timestamp: ongoingNap.napped_at,
+        data: ongoingNap,
+      };
+      expect(component.getActivityTitle(item)).toBe('Nap');
+      expect(component.isOngoingNap(item)).toBe(true);
+    });
+
+    it('should return false from isOngoingNap for completed nap', () => {
+      const item: ActivityItem = {
+        id: 1,
+        type: 'nap' as const,
+        timestamp: mockNaps[0].napped_at,
+        data: mockNaps[0],
+      };
+      expect(component.isOngoingNap(item)).toBe(false);
+    });
   });
 
   describe('utility functions', () => {

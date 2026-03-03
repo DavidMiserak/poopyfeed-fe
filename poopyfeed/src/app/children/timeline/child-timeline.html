@@ -152,8 +152,11 @@
                 >
                   <div class="text-3xl flex-shrink-0 mt-1">{{ getActivityIcon(itemWithGap.activity.type) }}</div>
                   <div class="flex-1 min-w-0">
-                    <p class="font-['DM_Sans',sans-serif] font-semibold text-slate-900">
+                    <p class="font-['DM_Sans',sans-serif] font-semibold text-slate-900 flex items-center gap-2 flex-wrap">
                       {{ getActivityTitle(itemWithGap.activity) }}
+                      @if (isOngoingNap(itemWithGap.activity)) {
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-800">Ongoing</span>
+                      }
                     </p>
                     <p class="font-['DM_Sans',sans-serif] text-sm text-slate-500">
                       {{ formatTimeHHmm(itemWithGap.activity.timestamp) }} • {{ formatTimestamp(itemWithGap.activity.timestamp) }}

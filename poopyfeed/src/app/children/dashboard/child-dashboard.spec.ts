@@ -4,7 +4,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { of, throwError, NEVER } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
-import { ChildDashboard } from './child-dashboard';
+import { ChildDashboard, ActivityItem } from './child-dashboard';
 import { ChildrenService } from '../../services/children.service';
 import { AnalyticsService } from '../../services/analytics.service';
 import { NotificationService } from '../../services/notification.service';
@@ -444,6 +444,52 @@ vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(
     it('should round fractional minutes', () => {
       expect(component.formatMinutes(45.7)).toBe('46m');
       expect(component.formatMinutes(90.3)).toBe('1h 30m');
+    });
+  });
+
+  describe('getActivityTitle and isOngoingNap', () => {
+    beforeEach(() => {
+      setupWithData();
+    });
+
+    it('should return "Nap" for ongoing nap and true from isOngoingNap', () => {
+      const ongoingNap: Nap = {
+        id: 99,
+        child: 1,
+        napped_at: '2024-01-15T14:00:00Z',
+        ended_at: null,
+        duration_minutes: null,
+        created_at: '2024-01-15T14:00:00Z',
+        updated_at: '2024-01-15T14:00:00Z',
+      };
+      const item: ActivityItem = {
+        id: 99,
+        type: 'nap',
+        timestamp: ongoingNap.napped_at,
+        data: ongoingNap,
+      };
+      expect(component.getActivityTitle(item)).toBe('Nap');
+      expect(component.isOngoingNap(item)).toBe(true);
+    });
+
+    it('should return false from isOngoingNap for completed nap', () => {
+      const completedNap: Nap = {
+        id: 1,
+        child: 1,
+        napped_at: '2024-01-15T13:00:00Z',
+        ended_at: '2024-01-15T13:45:00Z',
+        duration_minutes: 45,
+        created_at: '2024-01-15T14:00:00Z',
+        updated_at: '2024-01-15T14:00:00Z',
+      };
+      const item: ActivityItem = {
+        id: 1,
+        type: 'nap',
+        timestamp: completedNap.napped_at,
+        data: completedNap,
+      };
+      expect(component.getActivityTitle(item)).toBe('Nap: 45m');
+      expect(component.isOngoingNap(item)).toBe(false);
     });
   });
 

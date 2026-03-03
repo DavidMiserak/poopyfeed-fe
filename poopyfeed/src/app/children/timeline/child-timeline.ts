@@ -428,9 +428,17 @@ export class ChildTimeline implements OnInit {
       }
       case 'nap': {
         const nap = item.data as Nap;
+        if (nap.ended_at == null) {
+          return 'Nap'; // Title only; template shows "Ongoing" pill
+        }
         return `Nap: ${this.formatMinutes(Math.round(nap.duration_minutes ?? 0))}`;
       }
     }
+  }
+
+  /** True when the activity is a nap that has no ended_at (still ongoing). */
+  isOngoingNap(item: ActivityItem): boolean {
+    return item.type === 'nap' && (item.data as Nap).ended_at == null;
   }
 
   /**
