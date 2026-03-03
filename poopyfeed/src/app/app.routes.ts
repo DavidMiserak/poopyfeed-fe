@@ -116,6 +116,14 @@ export const routes: Routes = [
         title: 'Pediatrician Summary - PoopyFeed',
       },
       {
+        path: ':childId/pediatrician-summary/print',
+        loadComponent: () =>
+          import(
+            './children/pediatrician-summary/pediatrician-summary-print/pediatrician-summary-print'
+          ).then((m) => m.PediatricianSummaryPrintComponent),
+        title: 'Print Summary - PoopyFeed',
+      },
+      {
         path: ':childId/analytics',
         children: [
           {

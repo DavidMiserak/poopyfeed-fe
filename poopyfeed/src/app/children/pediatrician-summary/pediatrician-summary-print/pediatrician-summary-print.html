@@ -1,0 +1,97 @@
+<div class="print-view">
+  <!-- Toolbar: hidden when printing -->
+  <div class="print-view__toolbar no-print">
+    <a
+      [routerLink]="['/children', childId(), 'pediatrician-summary']"
+      class="print-view__back"
+    >
+      ← Back to summary
+    </a>
+    <button type="button" class="print-view__print-btn" (click)="onPrint()">
+      Print
+    </button>
+  </div>
+
+  @if (isLoading()) {
+    <p class="print-view__loading">Loading…</p>
+  }
+
+  @if (error() && !isLoading()) {
+    <app-error-card
+      [errorMessage]="error()!"
+      [backRoute]="childId() !== null ? ['/children', childId()!, 'pediatrician-summary'] : '/children'"
+      [backButtonText]="'Back to summary'"
+      [gradientColor]="'rose'"
+    />
+  }
+
+  @if (child() && summary() && !isLoading() && !error()) {
+    <article class="print-view__doc">
+      <header class="print-view__header">
+        <span class="print-view__icon" aria-hidden="true">{{ getGenderIcon(child()!.gender) }}</span>
+        <div>
+          <h1 class="print-view__title">Pediatrician summary</h1>
+          <p class="print-view__child-name">{{ child()!.name }}</p>
+          <p class="print-view__period">{{ summary()!.period }}</p>
+        </div>
+      </header>
+
+      @if (isEmpty()) {
+        <p class="print-view__empty">No activity in the last 7 days.</p>
+      } @else {
+        <section class="print-view__section" aria-label="Feeding summary">
+          <h2>Feedings</h2>
+          <p class="print-view__per-day">
+            Per day: {{ feedingsPerDay() | number:'1.1-1' }} feedings, {{ ozPerDay() | number:'1.1-1' }} oz
+          </p>
+          <dl class="print-view__dl">
+            <dt>Total sessions</dt>
+            <dd>{{ summary()!.feedings.count }}</dd>
+            <dt>Total oz</dt>
+            <dd>{{ summary()!.feedings.total_oz | number:'1.1-1' }}</dd>
+            <dt>Bottle</dt>
+            <dd>{{ summary()!.feedings.bottle }}</dd>
+            <dt>Breast</dt>
+            <dd>{{ summary()!.feedings.breast }}</dd>
+            @if (summary()!.feedings.avg_duration !== null) {
+              <dt>Avg duration</dt>
+              <dd>{{ formatDuration(summary()!.feedings.avg_duration!) }}</dd>
+            }
+          </dl>
+        </section>
+
+        <section class="print-view__section" aria-label="Diaper summary">
+          <h2>Diapers</h2>
+          <p class="print-view__per-day">
+            Per day: {{ diapersPerDay() | number:'1.1-1' }} changes
+          </p>
+          <dl class="print-view__dl">
+            <dt>Total changes</dt>
+            <dd>{{ summary()!.diapers.count }}</dd>
+            <dt>Wet</dt>
+            <dd>{{ summary()!.diapers.wet }}</dd>
+            <dt>Dirty</dt>
+            <dd>{{ summary()!.diapers.dirty }}</dd>
+            <dt>Both</dt>
+            <dd>{{ summary()!.diapers.both }}</dd>
+          </dl>
+        </section>
+
+        <section class="print-view__section" aria-label="Sleep summary">
+          <h2>Sleep</h2>
+          <p class="print-view__per-day">
+            Per day: {{ napsPerDay() | number:'1.1-1' }} naps, {{ formatDuration(sleepMinutesPerDay()) }} sleep
+          </p>
+          <dl class="print-view__dl">
+            <dt>Naps</dt>
+            <dd>{{ summary()!.sleep.naps }}</dd>
+            <dt>Total sleep</dt>
+            <dd>{{ formatDuration(summary()!.sleep.total_minutes) }}</dd>
+            <dt>Avg nap</dt>
+            <dd>{{ formatDuration(summary()!.sleep.avg_duration) }}</dd>
+          </dl>
+        </section>
+      }
+    </article>
+  }
+</div>

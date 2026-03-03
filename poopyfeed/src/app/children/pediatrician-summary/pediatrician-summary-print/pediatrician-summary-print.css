@@ -1,0 +1,163 @@
+/* Print view: no clipping, flow layout for print */
+
+.print-view {
+  min-height: 100vh;
+  overflow: visible;
+  padding: 1rem;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.print-view__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.print-view__back {
+  color: #475569;
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.print-view__back:hover {
+  color: #f43f5e;
+}
+
+.print-view__print-btn {
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: white;
+  background: #f43f5e;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
+
+.print-view__print-btn:hover {
+  background: #e11d48;
+}
+
+.print-view__loading {
+  color: #64748b;
+}
+
+.print-view__doc {
+  overflow: visible;
+  height: auto;
+  min-height: 0;
+}
+
+.print-view__header {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.print-view__icon {
+  font-size: 2.5rem;
+  line-height: 1;
+}
+
+.print-view__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 0.25rem 0;
+}
+
+.print-view__child-name {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 0.25rem 0;
+}
+
+.print-view__period {
+  font-size: 0.875rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.print-view__empty {
+  color: #64748b;
+  margin: 0;
+}
+
+.print-view__section {
+  margin-bottom: 1.5rem;
+  overflow: visible;
+  page-break-inside: avoid;
+}
+
+.print-view__section h2 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 0.5rem 0;
+}
+
+.print-view__per-day {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #334155;
+  margin: 0 0 0.5rem 0;
+}
+
+.print-view__dl {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.25rem 2rem;
+  margin: 0;
+  font-size: 0.9375rem;
+}
+
+.print-view__dl dt {
+  color: #64748b;
+  margin: 0;
+}
+
+.print-view__dl dd {
+  margin: 0;
+  font-weight: 600;
+  text-align: right;
+}
+
+/* Print: hide toolbar, ensure nothing clips */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  .print-view {
+    padding: 0;
+    min-height: auto;
+    overflow: visible;
+    height: auto;
+  }
+
+  .print-view__doc,
+  .print-view__section {
+    overflow: visible;
+    height: auto;
+  }
+
+  body {
+    overflow: visible !important;
+  }
+
+  .print-view__header {
+    page-break-after: avoid;
+  }
+
+  .print-view__section {
+    page-break-inside: avoid;
+  }
+}
