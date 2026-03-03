@@ -117,6 +117,8 @@ async function main() {
         const slug = pathToSlug(route.path);
         const reportHtml = Array.isArray(report) ? report[0] : report;
         writeFileSync(join(OUT_DIR, `lighthouse-${ts}-${slug}.html`), reportHtml);
+        writeFileSync(join(OUT_DIR, `lighthouse-${ts}-${slug}.json`), JSON.stringify(lhr, null, 2));
+        const failedA11y = getFailedA11yAudits(lhr);
         results.push({
           name: route.name,
           path: route.path,
@@ -124,6 +126,7 @@ async function main() {
           accessibility: Math.round((lhr.categories.accessibility?.score ?? 0) * 100),
           bestPractices: Math.round((lhr.categories['best-practices']?.score ?? 0) * 100),
           seo: Math.round((lhr.categories.seo?.score ?? 0) * 100),
+          failedA11y,
         });
       } else {
         const page = await browser.newPage();
@@ -145,6 +148,8 @@ async function main() {
         const slug = pathToSlug(route.path);
         const reportHtml = Array.isArray(report) ? report[0] : report;
         writeFileSync(join(OUT_DIR, `lighthouse-${ts}-${slug}.html`), reportHtml);
+        writeFileSync(join(OUT_DIR, `lighthouse-${ts}-${slug}.json`), JSON.stringify(lhr, null, 2));
+        const failedA11y = getFailedA11yAudits(lhr);
         results.push({
           name: route.name,
           path: route.path,
@@ -152,6 +157,7 @@ async function main() {
           accessibility: Math.round((lhr.categories.accessibility?.score ?? 0) * 100),
           bestPractices: Math.round((lhr.categories['best-practices']?.score ?? 0) * 100),
           seo: Math.round((lhr.categories.seo?.score ?? 0) * 100),
+          failedA11y,
         });
       }
     }
@@ -167,7 +173,40 @@ async function main() {
     const row = `${r.name.slice(0, 23).padEnd(24)}${String(r.performance).padStart(4)}  ${String(r.accessibility).padStart(4)}  ${String(r.bestPractices).padStart(3)}  ${String(r.seo).padStart(3)}`;
     console.log(row);
   }
-  console.log('\nReports in:', OUT_DIR);
+
+  const withFailedA11y = results.filter((r) => r.accessibility < 100 && r.failedA11y?.length > 0);
+  if (withFailedA11y.length > 0) {
+    console.log('\n--- Failed a11y audits (routes with score < 100) ---\n');
+    for (const r of withFailedA11y) {
+      console.log(`${r.name} (${r.path}) — A11y ${r.accessibility}:`);
+      for (const a of r.failedA11y) {
+        console.log(`  - [${a.id}] ${a.title}`);
+        if (a.displayValue) console.log(`    ${a.displayValue}`);
+      }
+      console.log('');
+    }
+  }
+
+  console.log('Reports (HTML + JSON) in:', OUT_DIR);
+}
+
+function getFailedA11yAudits(lhr) {
+  const refs = lhr.categories?.accessibility?.auditRefs ?? [];
+  return refs
+    .filter((ref) => {
+      const a = lhr.audits?.[ref.id];
+      return a && a.score !== null && a.score < 1;
+    })
+    .map((ref) => {
+      const a = lhr.audits[ref.id];
+      return {
+        id: ref.id,
+        title: a.title,
+        description: a.description,
+        displayValue: a.displayValue,
+        details: a.details,
+      };
+    });
 }
 
 main().catch((err) => {
