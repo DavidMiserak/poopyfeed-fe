@@ -9,16 +9,22 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./landing/landing').then((m) => m.Landing),
     title: 'PoopyFeed - Simple Baby Care Tracking',
+    data: {
+      description:
+        'PoopyFeed helps families and caregivers track feedings, diapers, and naps in one simple app. Stay coordinated and reduce guesswork.',
+    },
   },
   {
     path: 'login',
     loadComponent: () => import('./auth/login/login').then((m) => m.Login),
     title: 'Login - PoopyFeed',
+    data: { description: 'Log in to PoopyFeed to track feedings, diapers, and naps for your baby.' },
   },
   {
     path: 'signup',
     loadComponent: () => import('./auth/signup/signup').then((m) => m.Signup),
     title: 'Sign Up - PoopyFeed',
+    data: { description: 'Create a free PoopyFeed account to start tracking your baby’s feedings, diapers, and naps.' },
   },
   {
     path: 'forgot-password',
@@ -27,6 +33,7 @@ export const routes: Routes = [
         (m) => m.ForgotPassword
       ),
     title: 'Forgot Password - PoopyFeed',
+    data: { description: 'Reset your PoopyFeed password.' },
   },
   {
     path: 'auth/reset-password/:key',
@@ -35,6 +42,7 @@ export const routes: Routes = [
         (m) => m.ResetPassword
       ),
     title: 'Reset Password - PoopyFeed',
+    data: { description: 'Set a new password for your PoopyFeed account.' },
   },
   {
     path: 'account',
@@ -44,6 +52,7 @@ export const routes: Routes = [
         (m) => m.AccountSettings
       ),
     title: 'Account Settings - PoopyFeed',
+    data: { description: 'Manage your PoopyFeed account, password, and notification preferences.' },
   },
   {
     path: 'notifications',
@@ -53,6 +62,7 @@ export const routes: Routes = [
         (m) => m.NotificationsPage
       ),
     title: 'Notifications - PoopyFeed',
+    data: { description: 'View and manage your PoopyFeed activity notifications.' },
   },
   {
     path: 'quick-log/:type',
@@ -72,6 +82,7 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./children/list/children-list').then((m) => m.ChildrenList),
         title: 'My Children - PoopyFeed',
+        data: { description: 'View and manage your baby profiles in PoopyFeed.' },
       },
       {
         path: 'create',
@@ -98,6 +109,7 @@ export const routes: Routes = [
             (m) => m.ChildDashboard
           ),
         title: 'Dashboard - PoopyFeed',
+        data: { description: 'Baby dashboard: today’s summary, quick log, and recent activity.' },
       },
       {
         path: ':childId/advanced',
@@ -289,6 +301,7 @@ export const routes: Routes = [
         (m) => m.PrivacyPolicy
       ),
     title: 'Privacy Policy - PoopyFeed',
+    data: { description: 'PoopyFeed privacy policy: how we collect, use, and protect your data.' },
   },
   {
     path: 'terms',
@@ -297,17 +310,20 @@ export const routes: Routes = [
         (m) => m.TermsOfService
       ),
     title: 'Terms of Service - PoopyFeed',
+    data: { description: 'PoopyFeed terms of service and acceptable use.' },
   },
   {
     path: 'contact',
     loadComponent: () =>
       import('./contact/contact').then((m) => m.Contact),
     title: 'Contact Us - PoopyFeed',
+    data: { description: 'Contact the PoopyFeed team with questions or feedback.' },
   },
   {
     path: '**',
     loadComponent: () =>
       import('./not-found/not-found').then((m) => m.NotFound),
     title: 'Page Not Found - PoopyFeed',
+    data: { description: 'This page could not be found.' },
   },
 ];

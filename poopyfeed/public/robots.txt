@@ -1,0 +1,6 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+
+# Sitemap (optional; add when you have a sitemap)
+# Sitemap: https://poopyfeed.miserak.com/sitemap.xml
