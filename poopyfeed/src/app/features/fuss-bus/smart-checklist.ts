@@ -21,6 +21,9 @@ export class SmartChecklistComponent {
   manualToggle = output<string>();
   logNow = output<'feeding' | 'diaper' | 'nap'>();
 
+  hasAutoItems = computed(() => this.items().some((i) => i.kind === 'auto'));
+  hasManualItems = computed(() => this.items().some((i) => i.kind === 'manual'));
+
   progressLabel = computed(() => {
     const list = this.items();
     const checkedSet = this.checkedSet();

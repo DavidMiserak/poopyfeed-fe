@@ -67,7 +67,7 @@
                   [disabled]="!canProceedFromStep1()"
                   class="min-h-[44px] px-6 py-2 rounded-xl font-['DM_Sans',sans-serif] font-bold bg-rose-500 text-white hover:bg-rose-600 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition-colors"
                 >
-                  Next
+                  Next<span class="hidden sm:inline">: Quick Checklist</span>
                 </button>
               </div>
             </section>
@@ -93,7 +93,7 @@
                   (click)="onNext()"
                   class="min-h-[44px] px-6 py-2 rounded-xl font-['DM_Sans',sans-serif] font-bold bg-rose-500 text-white hover:bg-rose-600 cursor-pointer transition-colors"
                 >
-                  Next
+                  Next<span class="hidden sm:inline">: Suggestions</span>
                 </button>
               </div>
             </section>
@@ -114,13 +114,21 @@
                 >
                   Back
                 </button>
-                <button
-                  type="button"
-                  (click)="onStartOver()"
-                  class="min-h-[44px] px-4 py-2 rounded-xl font-['DM_Sans',sans-serif] font-semibold text-rose-700 bg-rose-100 hover:bg-rose-200 cursor-pointer transition-colors"
-                >
-                  Start Over
-                </button>
+                <div class="flex flex-wrap gap-3">
+                  <button
+                    type="button"
+                    (click)="onStartOver()"
+                    class="min-h-[44px] px-4 py-2 rounded-xl font-['DM_Sans',sans-serif] font-semibold text-rose-700 bg-rose-100 hover:bg-rose-200 cursor-pointer transition-colors"
+                  >
+                    Start Over
+                  </button>
+                  <a
+                    [routerLink]="['/children', child()!.id, 'dashboard']"
+                    class="min-h-[44px] px-6 py-2 rounded-xl font-['DM_Sans',sans-serif] font-bold bg-rose-500 text-white hover:bg-rose-600 cursor-pointer transition-colors inline-flex items-center no-underline"
+                  >
+                    Back to Dashboard
+                  </a>
+                </div>
               </div>
             </section>
           }

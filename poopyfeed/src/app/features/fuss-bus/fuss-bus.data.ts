@@ -15,15 +15,17 @@ export interface SymptomType {
   id: FussBusSymptomId;
   label: string;
   description: string;
+  /** Contextual emoji shown as a visual anchor in the symptom card. */
+  icon: string;
   /** Minimum age in months to show this option (e.g. 12 for Refusing food). */
   minAgeMonths?: number;
 }
 
 export const SYMPTOM_TYPES: SymptomType[] = [
-  { id: 'crying', label: 'Crying', description: 'General distress, inconsolable' },
-  { id: 'refusing_food', label: 'Refusing food', description: 'Fussy eating, not interested', minAgeMonths: 12 },
-  { id: 'wont_sleep', label: "Won't sleep", description: 'Fighting naps, restless' },
-  { id: 'general_fussiness', label: 'General fussiness', description: 'Irritable, clingy, unsettled' },
+  { id: 'crying', label: 'Crying', description: 'General distress, inconsolable', icon: '😢' },
+  { id: 'refusing_food', label: 'Refusing food', description: 'Fussy eating, not interested', icon: '🍼', minAgeMonths: 12 },
+  { id: 'wont_sleep', label: "Won't sleep", description: 'Fighting naps, restless', icon: '😴' },
+  { id: 'general_fussiness', label: 'General fussiness', description: 'Irritable, clingy, unsettled', icon: '😣' },
 ];
 
 /** Auto-check item keys used to derive state from API data. */

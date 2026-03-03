@@ -2,86 +2,114 @@
   <p class="font-['DM_Sans',sans-serif] text-sm font-semibold text-slate-600" aria-live="polite">
     {{ progressLabel() }}
   </p>
-  <ul class="space-y-3 list-none pl-0">
-    @for (item of items(); track item.id) {
-      <li>
-        @if (item.kind === 'auto') {
-          <div
-            class="flex items-start gap-3 p-3 rounded-xl min-h-[44px]"
-            [attr.aria-label]="item.label + (item.detail ? ': ' + item.detail : '')"
-          >
-            @switch (item.autoStatus) {
-              @case ('ok') {
-                <span class="flex-shrink-0 text-green-600" aria-hidden="true">✓</span>
-                <div class="flex-1 min-w-0">
-                  <span class="font-['DM_Sans',sans-serif] font-medium text-slate-800">{{ item.label }}</span>
-                  @if (item.detail) {
-                    <span class="text-slate-600 text-sm ml-1">— {{ item.detail }}</span>
+
+  <!-- Auto-checked items section -->
+  @if (hasAutoItems()) {
+    <div class="space-y-2">
+      <h4 class="font-['DM_Sans',sans-serif] text-xs font-semibold uppercase tracking-wide text-slate-500">
+        Checked automatically
+      </h4>
+      <ul class="space-y-2 list-none pl-0">
+        @for (item of items(); track item.id) {
+          @if (item.kind === 'auto') {
+            <li>
+              <div
+                class="flex items-start gap-3 p-3 rounded-xl min-h-[44px]"
+                [class.bg-green-50]="item.autoStatus === 'ok'"
+                [class.bg-amber-50]="item.autoStatus === 'warning'"
+                [class.bg-slate-50]="item.autoStatus === 'missing' || item.autoStatus === undefined"
+                [attr.aria-label]="item.label + (item.detail ? ': ' + item.detail : '')"
+              >
+                @switch (item.autoStatus) {
+                  @case ('ok') {
+                    <span class="flex-shrink-0 text-green-600" aria-hidden="true">✓</span>
+                    <div class="flex-1 min-w-0">
+                      <span class="font-['DM_Sans',sans-serif] font-medium text-slate-800">{{ item.label }}</span>
+                      @if (item.detail) {
+                        <span class="text-slate-600 text-sm ml-1">— {{ item.detail }}</span>
+                      }
+                    </div>
                   }
-                </div>
-              }
-              @case ('warning') {
-                <span class="flex-shrink-0 text-amber-500" aria-hidden="true">⚠</span>
-                <div class="flex-1 min-w-0">
-                  <span class="font-['DM_Sans',sans-serif] font-medium text-slate-800">{{ item.label }}</span>
-                  @if (item.detail) {
-                    <span class="text-amber-700 text-sm ml-1">— {{ item.detail }}</span>
+                  @case ('warning') {
+                    <span class="flex-shrink-0 text-amber-500" aria-hidden="true">⚠</span>
+                    <div class="flex-1 min-w-0">
+                      <span class="font-['DM_Sans',sans-serif] font-medium text-slate-800">{{ item.label }}</span>
+                      @if (item.detail) {
+                        <span class="text-amber-700 text-sm ml-1">— {{ item.detail }}</span>
+                      }
+                    </div>
+                    @if (item.id === 'fed') {
+                      <button type="button" (click)="onLogNow('feeding')" class="text-sm font-semibold text-rose-600 hover:underline cursor-pointer">Log now</button>
+                    }
+                    @if (item.id === 'nap') {
+                      <button type="button" (click)="onLogNow('nap')" class="text-sm font-semibold text-rose-600 hover:underline cursor-pointer">Log now</button>
+                    }
                   }
-                </div>
-                @if (item.id === 'fed') {
-                  <button type="button" (click)="onLogNow('feeding')" class="text-sm font-semibold text-rose-600 hover:underline cursor-pointer">Log now</button>
-                }
-                @if (item.id === 'nap') {
-                  <button type="button" (click)="onLogNow('nap')" class="text-sm font-semibold text-rose-600 hover:underline cursor-pointer">Log now</button>
-                }
-              }
-              @case ('missing') {
-                <span class="flex-shrink-0 text-slate-400" aria-hidden="true">○</span>
-                <div class="flex-1 min-w-0">
-                  <span class="font-['DM_Sans',sans-serif] font-medium text-slate-800">{{ item.label }}</span>
-                  @if (item.detail) {
-                    <span class="text-slate-500 text-sm ml-1">— {{ item.detail }}</span>
+                  @case ('missing') {
+                    <span class="flex-shrink-0 text-slate-400" aria-hidden="true">○</span>
+                    <div class="flex-1 min-w-0">
+                      <span class="font-['DM_Sans',sans-serif] font-medium text-slate-800">{{ item.label }}</span>
+                      @if (item.detail) {
+                        <span class="text-slate-500 text-sm ml-1">— {{ item.detail }}</span>
+                      }
+                    </div>
+                    @if (item.id === 'fed') {
+                      <button type="button" (click)="onLogNow('feeding')" class="text-sm font-semibold text-rose-600 hover:underline cursor-pointer min-w-[60px] min-h-[44px]">Log now</button>
+                    }
+                    @if (item.id === 'diaper') {
+                      <button type="button" (click)="onLogNow('diaper')" class="text-sm font-semibold text-rose-600 hover:underline cursor-pointer min-w-[60px] min-h-[44px]">Log now</button>
+                    }
+                    @if (item.id === 'nap') {
+                      <button type="button" (click)="onLogNow('nap')" class="text-sm font-semibold text-rose-600 hover:underline cursor-pointer min-w-[60px] min-h-[44px]">Log now</button>
+                    }
                   }
-                </div>
-                @if (item.id === 'fed') {
-                  <button type="button" (click)="onLogNow('feeding')" class="text-sm font-semibold text-rose-600 hover:underline cursor-pointer min-w-[60px] min-h-[44px]">Log now</button>
-                }
-                @if (item.id === 'diaper') {
-                  <button type="button" (click)="onLogNow('diaper')" class="text-sm font-semibold text-rose-600 hover:underline cursor-pointer min-w-[60px] min-h-[44px]">Log now</button>
-                }
-                @if (item.id === 'nap') {
-                  <button type="button" (click)="onLogNow('nap')" class="text-sm font-semibold text-rose-600 hover:underline cursor-pointer min-w-[60px] min-h-[44px]">Log now</button>
-                }
-              }
-              @default {
-                <span class="flex-shrink-0 text-slate-400" aria-hidden="true">○</span>
-                <div class="flex-1 min-w-0">
-                  <span class="font-['DM_Sans',sans-serif] font-medium text-slate-800">{{ item.label }}</span>
-                  @if (item.detail) {
-                    <span class="text-slate-500 text-sm ml-1">— {{ item.detail }}</span>
+                  @default {
+                    <span class="flex-shrink-0 text-slate-400" aria-hidden="true">○</span>
+                    <div class="flex-1 min-w-0">
+                      <span class="font-['DM_Sans',sans-serif] font-medium text-slate-800">{{ item.label }}</span>
+                      @if (item.detail) {
+                        <span class="text-slate-500 text-sm ml-1">— {{ item.detail }}</span>
+                      }
+                    </div>
                   }
-                </div>
-              }
-            }
-          </div>
-        } @else {
-          <button
-            type="button"
-            (click)="onToggle(item.id)"
-            class="w-full flex items-center gap-3 p-3 rounded-xl min-h-[44px] text-left font-['DM_Sans',sans-serif] border-2 border-slate-200 bg-white hover:border-rose-200 hover:bg-rose-50/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:ring-offset-2 cursor-pointer transition-colors"
-            [attr.aria-checked]="isManualChecked(item.id)"
-            [class.border-rose-300]="isManualChecked(item.id)"
-            [class.bg-rose-50]="isManualChecked(item.id)"
-          >
-            @if (isManualChecked(item.id)) {
-              <span class="flex-shrink-0 text-green-600" aria-hidden="true">✓</span>
-            } @else {
-              <span class="flex-shrink-0 w-5 h-5 rounded border-2 border-slate-300" aria-hidden="true"></span>
-            }
-            <span class="font-medium text-slate-800">{{ item.label }}</span>
-          </button>
+                }
+              </div>
+            </li>
+          }
         }
-      </li>
-    }
-  </ul>
+      </ul>
+    </div>
+  }
+
+  <!-- Manual check items section -->
+  @if (hasManualItems()) {
+    <div class="space-y-2">
+      <h4 class="font-['DM_Sans',sans-serif] text-xs font-semibold uppercase tracking-wide text-slate-500">
+        Check these yourself
+      </h4>
+      <ul class="space-y-3 list-none pl-0">
+        @for (item of items(); track item.id) {
+          @if (item.kind === 'manual') {
+            <li>
+              <button
+                type="button"
+                (click)="onToggle(item.id)"
+                class="w-full flex items-center gap-3 p-3 rounded-xl min-h-[44px] text-left font-['DM_Sans',sans-serif] border-2 border-slate-200 bg-white hover:border-rose-200 hover:bg-rose-50/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:ring-offset-2 cursor-pointer transition-colors"
+                [attr.aria-checked]="isManualChecked(item.id)"
+                [class.border-rose-300]="isManualChecked(item.id)"
+                [class.bg-rose-50]="isManualChecked(item.id)"
+              >
+                @if (isManualChecked(item.id)) {
+                  <span class="flex-shrink-0 text-green-600" aria-hidden="true">✓</span>
+                } @else {
+                  <span class="flex-shrink-0 w-5 h-5 rounded border-2 border-slate-300" aria-hidden="true"></span>
+                }
+                <span class="font-medium text-slate-800">{{ item.label }}</span>
+              </button>
+            </li>
+          }
+        }
+      </ul>
+    </div>
+  }
 </div>

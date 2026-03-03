@@ -13,10 +13,15 @@
       [class.border-rose-300]="isSelected(symptom.id)"
       class="min-h-[44px] p-4 rounded-2xl border-2 text-left font-['DM_Sans',sans-serif] transition-colors cursor-pointer border-slate-200 bg-white hover:border-rose-200 hover:bg-rose-50/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:ring-offset-2"
     >
-      <span class="font-['Fredoka',sans-serif] text-lg font-bold text-slate-900 block">
-        {{ symptom.label }}
-      </span>
-      <span class="text-sm text-slate-600">{{ symptom.description }}</span>
+      <div class="flex items-start gap-3">
+        <span class="text-2xl flex-shrink-0" aria-hidden="true">{{ symptom.icon }}</span>
+        <div>
+          <span class="font-['Fredoka',sans-serif] text-lg font-bold text-slate-900 block">
+            {{ symptom.label }}
+          </span>
+          <span class="text-sm text-slate-600">{{ symptom.description }}</span>
+        </div>
+      </div>
     </button>
   }
 </div>
