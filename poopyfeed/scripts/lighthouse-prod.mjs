@@ -11,8 +11,13 @@ import { writeFileSync, mkdirSync } from 'fs';
 import { join } from 'path';
 
 const BASE = 'https://poopyfeed.miserak.com';
-const AUTH_TOKEN = process.env.AUTH_TOKEN || 'your-token-here';
+const AUTH_TOKEN = process.env.AUTH_TOKEN;
 const OUT_DIR = join(process.cwd(), 'dist', 'lighthouse');
+
+if (!AUTH_TOKEN) {
+  console.error('AUTH_TOKEN environment variable is required for authenticated routes.');
+  process.exit(1);
+}
 const CHILD_ID = '1';
 
 const ROUTES = [
