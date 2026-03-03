@@ -47,6 +47,22 @@
     </div>
   </a>
 
+  <!-- The Fuss Bus -->
+  <a
+    [routerLink]="['/children', childId(), 'fuss-bus']"
+    class="group p-6 rounded-2xl bg-gradient-to-br from-amber-50 to-amber-100/60 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 border-2 border-amber-200 text-left no-underline cursor-pointer block"
+  >
+    <div class="flex items-center gap-4 mb-2">
+      <span class="text-4xl">🚌</span>
+      <h3 class="font-['Fredoka',sans-serif] text-xl font-bold text-slate-900">
+        The Fuss Bus
+      </h3>
+    </div>
+    <p class="font-['DM_Sans',sans-serif] text-slate-600 text-sm">
+      Guided checklist and soothing ideas when baby is fussy.
+    </p>
+  </a>
+
   <!-- Trends & Analytics -->
   <a
     [routerLink]="['/children', childId(), 'analytics']"

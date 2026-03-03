@@ -1,0 +1,127 @@
+<div class="space-y-6" role="region" aria-label="Suggestions and support">
+  <!-- Prioritized suggestions -->
+  @if (suggestions().length > 0) {
+    <section aria-label="Suggestions">
+      <h3 class="font-['Fredoka',sans-serif] text-xl font-bold text-slate-900 mb-3">Suggestions</h3>
+      <ul class="space-y-2 list-none pl-0">
+        @for (s of suggestions(); track s.text) {
+          <li
+            class="p-3 rounded-xl font-['DM_Sans',sans-serif] text-slate-800"
+            [class.bg-amber-50]="s.priority === 'high'"
+            [class.border-l-4]="s.priority === 'high'"
+            [class.border-amber-400]="s.priority === 'high'"
+            [class.bg-slate-50]="s.priority !== 'high'"
+          >
+            {{ s.text }}
+          </li>
+        }
+      </ul>
+    </section>
+  }
+
+  <!-- Developmental context -->
+  @if (developmentalContexts().length > 0) {
+    <section aria-label="Developmental context">
+      <h3 class="font-['Fredoka',sans-serif] text-xl font-bold text-slate-900 mb-3">Developmental context</h3>
+      <ul class="list-disc pl-5 space-y-1 font-['DM_Sans',sans-serif] text-slate-700">
+        @for (ctx of developmentalContexts(); track ctx) {
+          <li>{{ ctx }}</li>
+        }
+      </ul>
+    </section>
+  }
+
+  <!-- Soothing toolkit -->
+  <section aria-label="Soothing toolkit">
+    <h3 class="font-['Fredoka',sans-serif] text-xl font-bold text-slate-900 mb-3">Soothing toolkit</h3>
+    <div class="space-y-4">
+      @for (cat of soothingToolkit; track cat.title) {
+        <div>
+          <h4 class="font-['DM_Sans',sans-serif] font-semibold text-slate-800 mb-1">{{ cat.title }}</h4>
+          <p class="font-['DM_Sans',sans-serif] text-slate-600 text-sm">
+            @for (item of cat.items; track item; let last = $last) {
+              @if (hasDefinition(item)) {
+                <button
+                  type="button"
+                  (click)="openDefinition(item)"
+                  [attr.aria-label]="'What is ' + item + '?'"
+                  class="text-rose-600 underline cursor-pointer hover:text-rose-700 bg-transparent border-0 p-0 font-inherit"
+                >
+                  {{ item }}
+                </button>
+              } @else {
+                <span>{{ item }}</span>
+              }
+              @if (!last) {
+                <span>, </span>
+              }
+            }
+          </p>
+          @if (cat.title === 'Calming Sounds' && singingSongs.length > 0) {
+            <div class="mt-3 ml-2 pl-3 border-l-2 border-rose-200" aria-label="Singing">
+              <h5 class="font-['DM_Sans',sans-serif] font-semibold text-slate-800 text-sm mb-1.5">Singing</h5>
+              <ul class="list-none pl-0 space-y-1 font-['DM_Sans',sans-serif] text-slate-600 text-sm">
+                @for (song of singingSongs; track song.title) {
+                  <li>
+                    <button
+                      type="button"
+                      (click)="openSongLyrics(song)"
+                      [attr.aria-label]="'Lyrics for ' + song.title"
+                      class="text-rose-600 underline cursor-pointer hover:text-rose-700 bg-transparent border-0 p-0 font-inherit text-left"
+                    >
+                      {{ song.title }}
+                    </button>
+                  </li>
+                }
+              </ul>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- Colic (optional) -->
+  @if (showColicSection()) {
+    <section aria-label="About colic" class="p-4 rounded-2xl bg-amber-50 border-2 border-amber-200">
+      <h3 class="font-['Fredoka',sans-serif] text-lg font-bold text-slate-900 mb-2">{{ colicSection.title }}</h3>
+      <p class="font-['DM_Sans',sans-serif] text-slate-700 text-sm">{{ colicSection.body }}</p>
+    </section>
+  }
+
+  <!-- When to call the doctor -->
+  <section aria-label="When to call the doctor" class="p-4 rounded-2xl bg-rose-50 border-2 border-rose-200">
+    <h3 class="font-['Fredoka',sans-serif] text-lg font-bold text-slate-900 mb-2">When to call the doctor</h3>
+    <ul class="list-disc pl-5 space-y-1 font-['DM_Sans',sans-serif] text-slate-700 text-sm">
+      @for (bullet of doctorBullets; track bullet) {
+        <li>{{ bullet }}</li>
+      }
+    </ul>
+  </section>
+
+  <!-- Self-care (elevated when selfCareElevated) -->
+  <section
+    aria-label="Take care of yourself"
+    class="p-4 rounded-2xl border-2 font-['DM_Sans',sans-serif]"
+    [class.bg-rose-100]="selfCareElevated()"
+    [class.border-rose-400]="selfCareElevated()"
+    [class.ring-2]="selfCareElevated()"
+    [class.ring-rose-300]="selfCareElevated()"
+    [class.bg-rose-50]="!selfCareElevated()"
+    [class.border-rose-200]="!selfCareElevated()"
+  >
+    <h3 class="font-['Fredoka',sans-serif] text-lg font-bold text-slate-900 mb-2">Take care of yourself</h3>
+    <ul class="list-disc pl-5 space-y-1 text-slate-700 text-sm">
+      @for (item of selfCareItems; track item) {
+        <li>{{ item }}</li>
+      }
+    </ul>
+  </section>
+
+  <app-definition-overlay
+    [visible]="glossaryEntry() !== null"
+    [title]="glossaryEntry()?.title ?? ''"
+    [body]="glossaryEntry()?.body ?? ''"
+    (dismiss)="onDismiss()"
+  />
+</div>

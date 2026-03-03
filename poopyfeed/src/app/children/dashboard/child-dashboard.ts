@@ -151,6 +151,7 @@ export class ChildDashboard implements OnInit {
   isNavigatingToAnalytics = signal(false);
   isNavigatingToCatchUp = signal(false);
   isNavigatingToTimeline = signal(false);
+  isNavigatingToFussBus = signal(false);
 
   /**
    * Computed permission: Can current user add tracking records?
@@ -402,6 +403,20 @@ export class ChildDashboard implements OnInit {
     if (childId) {
       this.isNavigatingToCatchUp.set(true);
       this.router.navigate(['/children', childId, 'catch-up']);
+    }
+  }
+
+  /**
+   * Navigate to The Fuss Bus (troubleshooting wizard).
+   *
+   * Sets loading spinner on button and navigates to:
+   * /children/:childId/fuss-bus
+   */
+  navigateToFussBus(): void {
+    const childId = this.child()?.id;
+    if (childId) {
+      this.isNavigatingToFussBus.set(true);
+      this.router.navigate(['/children', childId, 'fuss-bus']);
     }
   }
 

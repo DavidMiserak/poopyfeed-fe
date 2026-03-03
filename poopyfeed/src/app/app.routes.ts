@@ -165,6 +165,14 @@ export const routes: Routes = [
         title: 'Catch-Up Mode - PoopyFeed',
       },
       {
+        path: ':childId/fuss-bus',
+        loadComponent: () =>
+          import('./features/fuss-bus/fuss-bus').then(
+            (m) => m.FussBusComponent
+          ),
+        title: 'The Fuss Bus - PoopyFeed',
+      },
+      {
         path: ':childId/timeline',
         loadComponent: () =>
           import('./children/timeline/child-timeline').then(

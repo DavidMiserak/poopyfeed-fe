@@ -36,6 +36,7 @@ const ROUTES = [
   { path: `/children/${CHILD_ID}/catch-up`, auth: true, name: 'Catch-up' },
   { path: `/children/${CHILD_ID}/advanced`, auth: true, name: 'Advanced' },
   { path: `/children/${CHILD_ID}/pediatrician-summary`, auth: true, name: 'Pediatrician summary' },
+  { path: `/children/${CHILD_ID}/fuss-bus`, auth: true, name: 'Fuss Bus' },
   { path: '/account', auth: true, name: 'Account settings' },
   { path: '/notifications', auth: true, name: 'Notifications' },
 ];

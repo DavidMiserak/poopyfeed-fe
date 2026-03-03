@@ -67,17 +67,37 @@
                   </span>
                 </a>
               }
-              <button
-                type="button"
-                class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl font-['DM_Sans',sans-serif] text-sm font-semibold text-white border-2 border-white/40 hover:bg-white/20 transition-colors cursor-pointer"
-                (click)="navigateToAdvanced()"
-                aria-label="View advanced options for this child"
-              >
-                More tools
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
+              <div class="flex items-center gap-2">
+                <button
+                  type="button"
+                  class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl font-['DM_Sans',sans-serif] text-sm font-semibold text-white border-2 border-white/40 hover:bg-white/20 transition-colors cursor-pointer"
+                  (click)="navigateToAdvanced()"
+                  aria-label="View advanced options for this child"
+                >
+                  More tools
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+                <button
+                  type="button"
+                  (click)="navigateToFussBus()"
+                  [disabled]="isNavigatingToFussBus()"
+                  class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl font-['DM_Sans',sans-serif] text-sm font-semibold text-rose-900 bg-white/90 border-2 border-amber-200 hover:bg-amber-50 transition-colors cursor-pointer disabled:opacity-75 disabled:cursor-wait"
+                  [attr.aria-busy]="isNavigatingToFussBus()"
+                  aria-label="Open The Fuss Bus troubleshooting guide"
+                >
+                  @if (isNavigatingToFussBus()) {
+                    <span
+                      class="inline-block w-4 h-4 border-2 border-amber-400 border-t-transparent rounded-full animate-spin"
+                      aria-hidden="true"
+                    ></span>
+                  } @else {
+                    <span aria-hidden="true">🚌</span>
+                  }
+                  Fuss Bus
+                </button>
+              </div>
             </div>
           </div>
         </div>

@@ -1,0 +1,44 @@
+@if (visible()) {
+  <div
+    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="definition-overlay-title"
+    aria-describedby="definition-overlay-body"
+    data-backdrop="true"
+    (click)="onBackdropClick($event)"
+    (keydown)="onBackdropKeydown($event)"
+    tabindex="-1"
+  >
+    <div
+      class="w-full max-w-md max-h-[85vh] flex flex-col bg-white rounded-3xl shadow-2xl border-2 border-rose-200 relative"
+      (click)="$event.stopPropagation()"
+      (keydown)="$event.stopPropagation()"
+      tabindex="0"
+    >
+      <div class="p-6 overflow-y-auto flex-1 min-h-0">
+        <h2
+          id="definition-overlay-title"
+          class="font-['Fredoka',sans-serif] text-xl font-bold text-slate-900 mb-2"
+        >
+          {{ title() }}
+        </h2>
+        <p
+          id="definition-overlay-body"
+          class="font-['DM_Sans',sans-serif] text-slate-600 whitespace-pre-line"
+        >
+          {{ body() }}
+        </p>
+      </div>
+      <div class="p-6 pt-0 flex justify-end flex-shrink-0">
+        <button
+          type="button"
+          (click)="dismiss.emit()"
+          class="px-4 py-2.5 rounded-xl font-['DM_Sans',sans-serif] font-bold text-white bg-rose-500 hover:bg-rose-600 border-2 border-rose-400 transition-colors"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+}

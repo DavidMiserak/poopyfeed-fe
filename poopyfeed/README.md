@@ -54,14 +54,32 @@ ng test
 
 ## Running end-to-end tests
 
-For end-to-end (e2e) testing, run:
+E2E tests use **Playwright** and require the full stack to be running.
+
+**From repo root (recommended):**
 
 ```bash
-ng e2e
+make run                  # Start frontend + backend
+make test-e2e-install     # One-time: install Playwright + Firefox
+make test-e2e-local       # Run E2E on host (Firefox)
 ```
 
-Angular CLI does not come with an end-to-end testing framework by
-default. You can choose one that suits your needs.
+**Or run E2E in a container (no host install):**
+
+```bash
+make run
+make test-e2e             # Runs Playwright inside container
+```
+
+**From this directory:**
+
+```bash
+npm run test:e2e              # Firefox (default)
+npm run test:e2e -- --project=chromium
+npm run test:e2e:ui           # With Playwright UI
+```
+
+See **docs/E2E_SETUP.md** (in repo root) for full setup and troubleshooting.
 
 ## Additional Resources
 
