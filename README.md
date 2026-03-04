@@ -134,7 +134,6 @@ npm run serve:ssr:poopyfeed    # Run SSR Node server on :4000
 ├── Containerfile                # Multi-stage Docker build
 ├── podman-compose.yaml          # Local development environment
 ├── Makefile                     # Development commands
-├── CLAUDE.md                    # Project documentation for Claude Code
 └── docs/
     ├── API.md                   # Backend API documentation
     └── STYLE.md                 # Frontend styling guide
@@ -349,8 +348,6 @@ All components must meet accessibility standards:
 
 ## Development Guidelines
 
-See `CLAUDE.md` and `poopyfeed/.claude/CLAUDE.md` for comprehensive coding guidelines.
-
 Key principles:
 
 - Use modern Angular APIs (`input()`, `output()`, `inject()`)
@@ -382,5 +379,3 @@ Key principles:
 - **Backend API**: [poopyfeed-be](https://github.com/DavidMiserak/poopyfeed-be) - Django backend setup and API
 - **API Reference**: `docs/API.md` - Comprehensive API documentation
 - **Style Guide**: `docs/STYLE.md` - Frontend styling guide and design tokens
-- **Coding Guidelines**: `CLAUDE.md` - Project-wide coding standards
-- **Angular Guidelines**: `poopyfeed/.claude/CLAUDE.md` - Angular-specific patterns
