@@ -17,6 +17,7 @@
 </p>
 
 A modern baby care tracking web application built with Angular 21, TypeScript, and Tailwind CSS. Track feedings, diaper changes, naps, and share access with co-parents and caregivers.
+All Angular application source code lives under the `poopyfeed/` directory (see `poopyfeed/README.md` for app-level details).
 
 ## Features
 
