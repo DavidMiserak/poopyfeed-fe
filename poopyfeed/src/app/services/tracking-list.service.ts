@@ -19,48 +19,71 @@ import { Observable } from 'rxjs';
 import { FilterCriteria } from './filter.service';
 import { Child } from '../models/child.model';
 
+/**
+ * Configuration for TrackingListService (per resource type).
+ *
+ * @template T - Item type (e.g. Feeding, DiaperChange, Nap)
+ * @interface TrackingListConfig
+ */
 export interface TrackingListConfig<T> {
+  /** Property name for timestamp (e.g. 'fed_at', 'changed_at') */
   timestampField: keyof T;
+  /** Property name for type (e.g. 'feeding_type', 'change_type'); optional */
   typeField?: keyof T;
+  /** Human-readable name for confirm messages (e.g. 'feedings') */
   resourceName: string;
+  /** Function to build bulk-delete confirmation message */
   deleteConfirmMessage: (count: number) => string;
 }
 
+/**
+ * Generic service for tracking list state and operations.
+ *
+ * @template T - Item type with at least { id: number }
+ */
 @Injectable({ providedIn: 'root' })
 export class TrackingListService<T extends { id: number }> {
-  // Signals - mutable state
+  /** Current items (filtered); set by list components. */
   items = signal<T[]>([]);
+  /** All items from API; used for filtering. */
   allItems = signal<T[]>([]);
+  /** Current filter criteria. */
   filters = signal<FilterCriteria>({});
+  /** Set of selected item IDs for bulk actions. */
   selectedIds = signal<Set<number>>(new Set());
+  /** True while loading list. */
   isLoading = signal(false);
+  /** Error message to display; null when none. */
   error = signal<string | null>(null);
+  /** True while bulk delete in progress. */
   isBulkDeleting = signal(false);
+  /** Current child (for permission checks). */
   child = signal<Child | null>(null);
 
-  // Configuration (set during initialize())
   private config!: TrackingListConfig<T>;
 
-  // Computed - derived state
-  // Backend already returns filtered results via query params,
-  // so no need to re-filter client-side.
+  /** Filtered items (currently same as allItems; backend does filtering). */
   filteredItems = computed(() => this.allItems());
 
+  /** True if at least one item is selected. */
   hasSelectedItems = computed(() => this.selectedIds().size > 0);
 
+  /** True if all visible items are selected. */
   isAllSelected = computed(() => {
     const items = this.filteredItems();
     return items.length > 0 && this.selectedIds().size === items.length;
   });
 
+  /** True if user can edit/delete (owner or co-parent). */
   canEdit = computed(() => {
     const role = this.child()?.user_role;
     return role === 'owner' || role === 'co-parent';
   });
 
   /**
-   * Initialize service with component-specific configuration.
-   * Must be called before using the service.
+   * Initialize with component-specific configuration. Call before use.
+   *
+   * @param config - Timestamp/type fields, resource name, delete message
    */
   initialize(config: TrackingListConfig<T>): void {
     this.config = config;
@@ -68,7 +91,8 @@ export class TrackingListService<T extends { id: number }> {
 
   /**
    * Toggle selection of a single item by ID.
-   * Adds ID if not selected, removes if already selected.
+   *
+   * @param id - Item ID to toggle
    */
   toggleSelection(id: number): void {
     const current = new Set(this.selectedIds());

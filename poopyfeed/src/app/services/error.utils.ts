@@ -1,10 +1,30 @@
 import { HttpErrorResponse } from '@angular/common/http';
 
 /**
- * Custom error class for API-related errors
- * Contains both user-friendly message and detailed error information
+ * Custom error class for API-related errors.
+ *
+ * Contains a user-friendly message, optional HTTP status, and the original
+ * error for logging. Use isAuthError(), isValidationError(), etc. for branching.
+ *
+ * @example
+ * ```typescript
+ * this.service.list().subscribe({
+ *   error: (err: Error) => {
+ *     const apiErr = ErrorHandler.handle(err, 'List children');
+ *     if (apiErr.isAuthError()) this.router.navigate(['/login']);
+ *     else this.toast.error(apiErr.message);
+ *   }
+ * });
+ * ```
  */
 export class ApiError extends Error {
+  /**
+   * Create an ApiError.
+   *
+   * @param message - User-friendly error message
+   * @param status - HTTP status code if from HTTP response (optional)
+   * @param originalError - Original error or response body (optional)
+   */
   constructor(
     message: string,
     readonly status?: number,
@@ -15,35 +35,45 @@ export class ApiError extends Error {
   }
 
   /**
-   * Check if error is due to authentication failure
+   * Check if error is due to authentication failure (401 or 403).
+   *
+   * @returns True if status is 401 or 403
    */
   isAuthError(): boolean {
     return this.status === 401 || this.status === 403;
   }
 
   /**
-   * Check if error is due to not found
+   * Check if error is due to not found (404).
+   *
+   * @returns True if status is 404
    */
   isNotFoundError(): boolean {
     return this.status === 404;
   }
 
   /**
-   * Check if error is due to validation failure
+   * Check if error is due to validation failure (400).
+   *
+   * @returns True if status is 400
    */
   isValidationError(): boolean {
     return this.status === 400;
   }
 
   /**
-   * Check if error is due to conflict (e.g., duplicate entry)
+   * Check if error is due to conflict (409, e.g. duplicate entry).
+   *
+   * @returns True if status is 409
    */
   isConflictError(): boolean {
     return this.status === 409;
   }
 
   /**
-   * Check if error is due to server error
+   * Check if error is due to server error (5xx).
+   *
+   * @returns True if status is 500 or higher
    */
   isServerError(): boolean {
     return this.status ? this.status >= 500 : false;
@@ -51,13 +81,27 @@ export class ApiError extends Error {
 }
 
 /**
- * Error handler utility for standardizing error handling across all services
- * Converts HTTP errors and other errors into user-friendly messages
+ * Error handler utility for standardizing error handling across all services.
+ *
+ * Converts HTTP errors (including Django non_field_errors, detail, and
+ * field-specific formats) and other errors into user-friendly ApiError instances.
  */
 export class ErrorHandler {
   /**
-   * Handle HTTP error responses and return a user-friendly ApiError
-   * Supports various Django error response formats
+   * Handle any error and return a user-friendly ApiError.
+   *
+   * Supports HttpErrorResponse (Django detail, non_field_errors, field errors),
+   * Error, string, and generic objects. Use the returned ApiError's message
+   * for toasts and status for branching.
+   *
+   * @param error - Caught error (HTTP response, Error, string, or object)
+   * @param operation - Optional context (e.g. 'List children') prepended to message
+   * @returns ApiError with user-friendly message and optional status
+   *
+   * @example
+   * ```typescript
+   * catchError(err => throwError(() => ErrorHandler.handle(err, 'Create feeding')))
+   * ```
    */
   static handle(error: unknown, operation?: string): ApiError {
     const operationText = operation ? `${operation}: ` : '';
@@ -86,7 +130,11 @@ export class ErrorHandler {
   }
 
   /**
-   * Handle HTTP error responses with support for Django error formats
+   * Handle HTTP error responses with support for Django error formats.
+   *
+   * @param error - Angular HttpErrorResponse
+   * @param operation - Optional context prepended to message
+   * @returns ApiError with parsed message and status
    */
   private static handleHttpError(error: HttpErrorResponse, operation?: string): ApiError {
     const operationText = operation ? `${operation}: ` : '';
@@ -109,8 +157,12 @@ export class ErrorHandler {
   }
 
   /**
-   * Extract field-specific error message from Django error response
-   * Handles format: {"fieldname": ["error message 1", "error message 2"]}
+   * Extract field-specific error message from Django error response.
+   *
+   * Handles format: {"fieldname": ["error message 1", "error message 2"]}.
+   *
+   * @param response - Parsed error body (object or null)
+   * @returns First field error string, or null if none
    */
   private static extractFieldError(response: unknown): string | null {
     if (!response || typeof response !== 'object') {
@@ -139,7 +191,10 @@ export class ErrorHandler {
   }
 
   /**
-   * Extract non_field_errors or detail from Django error response
+   * Extract non_field_errors or detail from Django error response.
+   *
+   * @param response - Parsed error body (object or null)
+   * @returns Combined non_field_errors or detail string, or null
    */
   private static extractDetailError(response: unknown): string | null {
     if (!response || typeof response !== 'object') {
@@ -167,7 +222,10 @@ export class ErrorHandler {
   }
 
   /**
-   * Get user-friendly message for HTTP status codes
+   * Get user-friendly message for HTTP status codes.
+   *
+   * @param status - HTTP status code
+   * @returns User-friendly message for known codes, or generic fallback
    */
   private static getStatusMessage(status: number): string {
     const messages: Record<number, string> = {

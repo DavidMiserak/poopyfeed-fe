@@ -1,5 +1,9 @@
 /**
- * Service for managing child sharing and invites via the PoopyFeed API
+ * Service for managing child sharing and invites via the PoopyFeed API.
+ *
+ * Endpoints: GET/POST/DELETE /api/v1/children/{id}/shares/, GET/POST/PATCH/DELETE
+ * /api/v1/children/{id}/invites/, POST /api/v1/invites/accept/. Caches shares
+ * and invites in signals after list calls.
  */
 
 import { Injectable, inject, signal } from '@angular/core';
@@ -21,12 +25,17 @@ export class SharingService {
   private readonly API_BASE = '/api/v1/children';
   private readonly INVITES_BASE = '/api/v1/invites';
 
-  // Reactive state
+  /** Cached shares from last listShares() call. */
   shares = signal<ChildShare[]>([]);
+  /** Cached invites from last listInvites() call. */
   invites = signal<ShareInvite[]>([]);
 
   /**
-   * List all shares for a child (existing access grants)
+   * List all shares for a child (existing access grants). Updates shares signal.
+   *
+   * @param childId - Child ID
+   * @returns Observable of shares array
+   * @throws ApiError on failure
    */
   listShares(childId: number): Observable<ChildShare[]> {
     return this.http
@@ -42,7 +51,12 @@ export class SharingService {
   }
 
   /**
-   * Revoke a user's access to a child
+   * Revoke a user's access to a child. Updates shares signal (removes revoked).
+   *
+   * @param childId - Child ID
+   * @param shareId - Share ID to revoke
+   * @returns Observable that completes on success
+   * @throws ApiError on failure
    */
   revokeShare(childId: number, shareId: number): Observable<void> {
     return this.http
@@ -60,7 +74,11 @@ export class SharingService {
   }
 
   /**
-   * List all invites for a child (pending invitations)
+   * List all invites for a child (pending invitations). Updates invites signal.
+   *
+   * @param childId - Child ID
+   * @returns Observable of invites array
+   * @throws ApiError on failure
    */
   listInvites(childId: number): Observable<ShareInvite[]> {
     return this.http
@@ -76,7 +94,12 @@ export class SharingService {
   }
 
   /**
-   * Create a new invite link for a child
+   * Create a new invite link for a child. Appends to invites signal.
+   *
+   * @param childId - Child ID
+   * @param data - Role (co-parent or caregiver)
+   * @returns Observable of created invite (with token)
+   * @throws ApiError on failure
    */
   createInvite(
     childId: number,
@@ -97,7 +120,13 @@ export class SharingService {
   }
 
   /**
-   * Toggle an invite's active status
+   * Toggle an invite's active status. Updates invites signal.
+   *
+   * @param childId - Child ID
+   * @param inviteId - Invite ID to update
+   * @param isActive - New active state
+   * @returns Observable of updated invite
+   * @throws ApiError on failure
    */
   toggleInvite(
     childId: number,
@@ -126,7 +155,12 @@ export class SharingService {
   }
 
   /**
-   * Delete an invite
+   * Delete an invite. Updates invites signal (removes deleted).
+   *
+   * @param childId - Child ID
+   * @param inviteId - Invite ID to delete
+   * @returns Observable that completes on success
+   * @throws ApiError on failure
    */
   deleteInvite(childId: number, inviteId: number): Observable<void> {
     return this.http
@@ -144,7 +178,11 @@ export class SharingService {
   }
 
   /**
-   * Accept an invite using the token
+   * Accept an invite using the token from the invite link.
+   *
+   * @param token - Invite token (from URL /invites/accept/:token)
+   * @returns Observable of response with child id and name
+   * @throws ApiError on invalid/expired token
    */
   acceptInvite(token: string): Observable<InviteAcceptResponse> {
     return this.http
@@ -159,7 +197,10 @@ export class SharingService {
   }
 
   /**
-   * Generate full invite URL for sharing
+   * Generate full invite URL for sharing (client: origin + path; SSR: path only).
+   *
+   * @param token - Invite token
+   * @returns Full URL (e.g. https://app.example.com/invites/accept/uuid) or path
    */
   getInviteUrl(token: string): string {
     // Get the current origin (protocol + domain + port)

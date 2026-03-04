@@ -375,6 +375,17 @@ Key principles:
 - 83 test spec files with ~89% coverage
 - 10 Playwright E2E test suites
 
+## Code Documentation
+
+Public APIs are documented with **JSDoc** (reference style):
+
+- **@param** / **@returns** / **@throws** on all public service methods and utils
+- **@template** on generic types and interfaces
+- **@example** where helpful (e.g. ErrorHandler, TrackingFormBase)
+- **@interface** on model and DTO types
+
+Coverage: `models/`, `services/`, `utils/`, `guards/`, `interceptors/`. Spec files and generated code are excluded.
+
 ## Related Documentation
 
 - **Backend API**: [poopyfeed-be](https://github.com/DavidMiserak/poopyfeed-be) - Django backend setup and API

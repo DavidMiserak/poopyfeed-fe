@@ -3,6 +3,12 @@ import { DestroyRef, inject, Injectable, PLATFORM_ID, signal } from '@angular/co
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { fromEvent, map, merge } from 'rxjs';
 
+/**
+ * Service that tracks browser online/offline status.
+ *
+ * Listens to window 'online' and 'offline' events. SSR-safe: does not
+ * subscribe on server; isOnline defaults to true until client hydrates.
+ */
 @Injectable({
   providedIn: 'root',
 })
@@ -11,6 +17,7 @@ export class NetworkStatusService {
   private destroyRef = inject(DestroyRef);
   private online = signal(true);
 
+  /** Readonly signal: true when browser reports online. */
   readonly isOnline = this.online.asReadonly();
 
   constructor() {

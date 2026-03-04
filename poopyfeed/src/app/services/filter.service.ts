@@ -9,16 +9,24 @@ import { inject, Injectable } from '@angular/core';
 import { DateTimeService } from './datetime.service';
 
 /**
- * Generic filter criteria that all tracking types support
+ * Generic filter criteria for tracking lists.
+ *
+ * @interface FilterCriteria
  */
 export interface FilterCriteria {
-  dateFrom?: string; // ISO string (YYYY-MM-DD)
-  dateTo?: string; // ISO string (YYYY-MM-DD)
-  type?: string; // Activity type (feeding_type, change_type, etc.)
+  /** Start of date range (YYYY-MM-DD in user timezone) */
+  dateFrom?: string;
+  /** End of date range (YYYY-MM-DD in user timezone) */
+  dateTo?: string;
+  /** Activity type (e.g. feeding_type, change_type) */
+  type?: string;
 }
 
 /**
- * Item with timestamp property - generic type for flexible filtering
+ * Item with string-keyed properties for flexible filtering.
+ *
+ * Used as constraint for filter() generic; timestamp and type field names
+ * are passed as parameters.
  */
 export type TimestampedItem = Record<string, unknown>;
 

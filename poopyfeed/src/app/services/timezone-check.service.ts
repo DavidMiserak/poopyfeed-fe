@@ -58,6 +58,11 @@ export class TimezoneCheckService {
       .subscribe(() => this.refreshBrowserTimezone());
   }
 
+  /**
+   * Dismiss the timezone mismatch banner for this session.
+   *
+   * Persists to sessionStorage so the banner does not reappear until next session.
+   */
   dismiss(): void {
     this.dismissed.set(true);
     try {
@@ -69,7 +74,8 @@ export class TimezoneCheckService {
 
   /**
    * Clear the session dismissal so the banner can reappear.
-   * Called when the user manually changes their timezone in account settings.
+   *
+   * Call when the user manually changes their timezone in account settings.
    */
   clearDismissal(): void {
     this.dismissed.set(false);
@@ -82,7 +88,11 @@ export class TimezoneCheckService {
 
   /**
    * Update the user's profile timezone to match the browser.
-   * Returns an observable the caller can subscribe to for toast feedback.
+   *
+   * Sets updating flag; caller should subscribe and call finishUpdate() in
+   * finalize (next/error/complete) for toast feedback.
+   *
+   * @returns Observable from AccountService.updateProfile, or undefined if no browser TZ
    */
   updateToDetectedTimezone() {
     const browserTz = this.browserTimezone();
@@ -92,7 +102,11 @@ export class TimezoneCheckService {
     return this.accountService.updateProfile({ timezone: browserTz });
   }
 
-  /** Mark updating as complete (called after subscribe completes). */
+  /**
+   * Mark timezone update as complete (call after subscribe completes).
+   *
+   * Resets updating flag so showBanner can reflect new state.
+   */
   finishUpdate(): void {
     this.updating.set(false);
   }

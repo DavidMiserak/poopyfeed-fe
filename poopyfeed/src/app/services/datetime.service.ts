@@ -1,7 +1,10 @@
 /**
- * DateTime utility service for timezone conversions
- * Handles conversion between local time and UTC for API interactions,
- * using the user's configured timezone preference.
+ * DateTime utility service for timezone conversions.
+ *
+ * Handles conversion between local time and UTC for API interactions using
+ * the user's configured timezone (from AccountService profile). All API
+ * timestamps are ISO 8601 UTC; this service formats for display and
+ * parses datetime-local input in the user's timezone.
  */
 
 import { inject, Injectable } from '@angular/core';
@@ -14,7 +17,9 @@ export class DateTimeService {
   private accountService = inject(AccountService);
 
   /**
-   * User's configured timezone, defaults to UTC if profile not loaded.
+   * User's configured timezone (IANA, e.g. America/New_York).
+   *
+   * @returns Timezone string; defaults to 'UTC' if profile not loaded
    */
   get userTimezone(): string {
     return this.accountService.profile()?.timezone || 'UTC';

@@ -74,7 +74,10 @@ export class NotificationService {
 
   /**
    * List notifications (paginated). Updates notifications signal.
-   * @param page Page number (1-based)
+   *
+   * @param page - Page number (1-based, default 1)
+   * @returns Observable of notifications array for the page
+   * @throws ApiError on failure
    */
   list(page = 1): Observable<Notification[]> {
     return this.http
@@ -92,7 +95,12 @@ export class NotificationService {
 
   /**
    * Fetch a single page of notifications without updating the notifications signal.
+   *
    * Use for the notifications page when loading more pages.
+   *
+   * @param page - Page number (1-based)
+   * @returns Observable of paginated response (count, next, previous, results)
+   * @throws ApiError on failure
    */
   listPage(page: number): Observable<PaginatedResponse<Notification>> {
     return this.http
@@ -108,6 +116,9 @@ export class NotificationService {
 
   /**
    * Fetch unread count. Updates unreadCount signal.
+   *
+   * @returns Observable of unread count number
+   * @throws ApiError on failure
    */
   getUnreadCount(): Observable<number> {
     return this.http

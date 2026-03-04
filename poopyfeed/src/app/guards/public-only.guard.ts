@@ -1,5 +1,7 @@
 /**
- * Public-only guard to redirect authenticated users away from public routes
+ * Public-only guard to redirect authenticated users away from public routes.
+ *
+ * Used for /login, /signup, and landing so logged-in users go to /children.
  */
 
 import { inject } from '@angular/core';
@@ -7,11 +9,18 @@ import { CanActivateFn, Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 
 /**
- * Function-based route guard that redirects authenticated users away from public routes.
- * Unauthenticated users can access the route normally.
- * Authenticated users are redirected to /children.
+ * Function-based route guard for public-only routes.
  *
- * Note: Checks localStorage directly to handle SSR hydration correctly.
+ * Unauthenticated users can access the route. Authenticated users
+ * (via AuthService or localStorage) are redirected to /children.
+ * On the server (SSR), always allows access.
+ *
+ * @returns True to allow access, or UrlTree to redirect to /children
+ *
+ * @example
+ * ```typescript
+ * { path: 'login', component: Login, canActivate: [publicOnlyGuard] }
+ * ```
  */
 export const publicOnlyGuard: CanActivateFn = () => {
   const authService = inject(AuthService);

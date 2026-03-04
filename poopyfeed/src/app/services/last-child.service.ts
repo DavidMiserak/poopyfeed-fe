@@ -6,6 +6,13 @@ import { filter } from 'rxjs';
 
 const STORAGE_KEY = 'last-child-id';
 
+/**
+ * Service that tracks the last visited child ID from the URL.
+ *
+ * Persists to localStorage so quick-log and redirects can open the most
+ * recently viewed child. Listens to Router NavigationEnd and updates when
+ * URL matches /children/:id/.
+ */
 @Injectable({
   providedIn: 'root',
 })
@@ -38,10 +45,20 @@ export class LastChildService {
       });
   }
 
+  /**
+   * Get the last visited child ID (from URL + localStorage).
+   *
+   * @returns Child ID or null if none stored
+   */
   getLastChildId(): number | null {
     return this.lastChildId();
   }
 
+  /**
+   * Set the last child ID (e.g. after navigation); persists to localStorage.
+   *
+   * @param childId - Child ID to remember
+   */
   setLastChildId(childId: number): void {
     this.lastChildId.set(childId);
     try {
@@ -51,6 +68,9 @@ export class LastChildService {
     }
   }
 
+  /**
+   * Clear the stored last child ID (memory and localStorage).
+   */
   clear(): void {
     this.lastChildId.set(null);
     try {

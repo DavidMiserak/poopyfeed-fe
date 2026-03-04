@@ -346,10 +346,12 @@ export interface ExportOptions {
 }
 
 /**
- * Timeline API: payload shapes returned per event type.
+ * Feeding payload in timeline API response.
  *
  * Backend returns a subset of fields (no child, created_at, updated_at).
  * Endpoint: GET /api/v1/analytics/children/{child_id}/timeline/
+ *
+ * @interface TimelineFeedingPayload
  */
 export interface TimelineFeedingPayload {
   id: number;
@@ -360,12 +362,22 @@ export interface TimelineFeedingPayload {
   side?: 'left' | 'right' | 'both';
 }
 
+/**
+ * Diaper payload in timeline API response.
+ *
+ * @interface TimelineDiaperPayload
+ */
 export interface TimelineDiaperPayload {
   id: number;
   changed_at: string;
   change_type: 'wet' | 'dirty' | 'both';
 }
 
+/**
+ * Nap payload in timeline API response.
+ *
+ * @interface TimelineNapPayload
+ */
 export interface TimelineNapPayload {
   id: number;
   napped_at: string;
@@ -400,26 +412,56 @@ export interface TimelineResponse {
 
 // --- Pattern Alerts ---
 
+/**
+ * Feeding pattern alert from pattern-alerts endpoint.
+ *
+ * @interface FeedingPatternAlert
+ */
 export interface FeedingPatternAlert {
+  /** Whether an alert should be shown (e.g. feeding overdue) */
   alert: boolean;
+  /** Human-readable message; null if no alert */
   message: string | null;
+  /** Average interval between feedings in minutes */
   avg_interval_minutes: number;
+  /** Minutes since last feeding */
   minutes_since_last: number;
+  /** Timestamp of last feeding (ISO 8601) */
   last_fed_at: string;
+  /** Number of data points used for calculation */
   data_points: number;
 }
 
+/**
+ * Nap pattern alert from pattern-alerts endpoint.
+ *
+ * @interface NapPatternAlert
+ */
 export interface NapPatternAlert {
+  /** Whether an alert should be shown (e.g. wake window exceeded) */
   alert: boolean;
+  /** Human-readable message; null if no alert */
   message: string | null;
+  /** Average wake window in minutes; null if insufficient data */
   avg_wake_window_minutes: number | null;
+  /** Minutes child has been awake; null if N/A */
   minutes_awake: number | null;
+  /** When last nap ended (ISO 8601); null if none */
   last_nap_ended_at: string | null;
+  /** Number of data points used for calculation */
   data_points: number;
 }
 
+/**
+ * Combined pattern alerts response (feeding + nap).
+ *
+ * @interface PatternAlertsResponse
+ */
 export interface PatternAlertsResponse {
+  /** Child these alerts apply to */
   child_id: number;
+  /** Feeding interval / overdue alert data */
   feeding: FeedingPatternAlert;
+  /** Nap wake-window alert data */
   nap: NapPatternAlert;
 }

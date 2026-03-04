@@ -1,6 +1,13 @@
 import { isPlatformBrowser } from '@angular/common';
 import { Injectable, inject, PLATFORM_ID } from '@angular/core';
 
+/**
+ * Service worker cache eviction for API list responses.
+ *
+ * Evicts Cache API entries for child-scoped list endpoints so that after
+ * creating/updating/deleting tracking data, the next list fetch gets fresh data.
+ * No-op during SSR or when Cache API is unavailable.
+ */
 @Injectable({
   providedIn: 'root',
 })
@@ -8,7 +15,12 @@ export class SwCacheService {
   private platformId = inject(PLATFORM_ID);
 
   /**
-   * Evict readonly list caches for a specific child so new logs refresh immediately.
+   * Evict readonly list caches for a child so new logs refresh immediately.
+   *
+   * Clears cache entries for children list, feedings, diapers, naps, and
+   * timeline for the given child.
+   *
+   * @param childId - Child ID whose list caches to evict
    */
   evictReadonlyListCaches(childId: number): void {
     if (!isPlatformBrowser(this.platformId) || !('caches' in window)) {

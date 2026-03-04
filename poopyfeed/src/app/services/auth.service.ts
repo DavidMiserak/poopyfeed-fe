@@ -4,35 +4,49 @@ import { ErrorHandler } from './error.utils';
 import { Router } from '@angular/router';
 import { Observable, tap, catchError, throwError, switchMap } from 'rxjs';
 
+/** Response from token/login endpoint; contains auth token. */
 export interface AuthResponse {
   auth_token: string;
 }
 
+/** User data returned after signup. */
 export interface UserResponse {
   id: number;
   email: string;
 }
 
+/** Payload for login request. */
 export interface LoginRequest {
   email: string;
   password: string;
 }
 
+/** Payload for signup request. */
 export interface SignupRequest {
   email: string;
   password: string;
-  re_password?: string; // Optional, not used by allauth
+  /** Optional; not used by django-allauth headless API */
+  re_password?: string;
 }
 
+/** Payload for password reset (key from email link + new password). */
 export interface PasswordResetRequest {
   key: string;
   password: string;
 }
 
+/** Payload for requesting a password reset email. */
 export interface PasswordResetEmailRequest {
   email: string;
 }
 
+/**
+ * Authentication service for login, signup, logout, and token management.
+ *
+ * Uses django-allauth headless API at /api/v1/browser/v1/auth. Token is stored
+ * in memory (signal) and localStorage; auth state is exposed via isAuthenticated.
+ * SSR-safe: token is read from localStorage only after client hydration.
+ */
 @Injectable({
   providedIn: 'root',
 })
@@ -43,7 +57,7 @@ export class AuthService {
   private readonly ALLAUTH_BASE = '/api/v1/browser/v1/auth';
   private readonly TOKEN_KEY = 'auth_token';
 
-  // Reactive state
+  /** Reactive: true if auth token is present. */
   private authToken = signal<string | null>(this.getStoredToken());
   isAuthenticated = computed(() => !!this.authToken());
 
@@ -58,7 +72,11 @@ export class AuthService {
   }
 
   /**
-   * Login with email and password
+   * Login with email and password; stores token on success.
+   *
+   * @param credentials - Email and password
+   * @returns Observable of auth response (auth_token)
+   * @throws ApiError via throwError on failure (e.g. invalid credentials)
    */
   login(credentials: LoginRequest): Observable<AuthResponse> {
     return this.http
@@ -82,7 +100,11 @@ export class AuthService {
   }
 
   /**
-   * Request a password reset email via django-allauth headless API
+   * Request a password reset email (django-allauth headless API).
+   *
+   * @param data - Object with user email
+   * @returns Observable that completes on success
+   * @throws ApiError on failure (e.g. email not found)
    */
   requestPasswordReset(data: PasswordResetEmailRequest): Observable<void> {
     return this.http
@@ -99,10 +121,11 @@ export class AuthService {
   }
 
   /**
-   * Reset password using a password reset key from email
+   * Reset password using key from email link; fetches new token so user is logged in.
    *
-   * After successfully setting the new password, this will fetch a new auth token
-   * so the user is logged in, matching the login/signup flow.
+   * @param data - Key (from email) and new password
+   * @returns Observable of auth response (auth_token); token is stored
+   * @throws ApiError on invalid key or validation failure
    */
   resetPassword(data: PasswordResetRequest): Observable<AuthResponse> {
     return this.http
@@ -138,7 +161,11 @@ export class AuthService {
   }
 
   /**
-   * Register a new user
+   * Register a new user; stores token and returns user data.
+   *
+   * @param data - Email and password
+   * @returns Observable of user data (id, email); token is stored
+   * @throws ApiError on validation failure or duplicate email
    */
   signup(data: SignupRequest): Observable<UserResponse> {
     // Remove re_password for allauth (it doesn't require confirmation)
@@ -168,7 +195,10 @@ export class AuthService {
   }
 
   /**
-   * Logout the current user
+   * Logout: clear token, invalidate session, redirect to /login.
+   *
+   * @returns Observable that completes on success; token is always cleared
+   * @throws ApiError if server request fails (token still cleared)
    */
   logout(): Observable<void> {
     return this.http.delete<void>(`${this.ALLAUTH_BASE}/session`, {
@@ -188,21 +218,27 @@ export class AuthService {
   }
 
   /**
-   * Get the current auth token
+   * Get the current auth token from memory.
+   *
+   * @returns Token string or null if not authenticated
    */
   getToken(): string | null {
     return this.authToken();
   }
 
   /**
-   * Replace the stored token (e.g. after password change rotates the token)
+   * Replace the stored token (e.g. after password change).
+   *
+   * @param newToken - New auth token to store
    */
   updateToken(newToken: string): void {
     this.setToken(newToken);
   }
 
   /**
-   * Clear auth state and redirect (e.g. after account deletion)
+   * Clear auth state and navigate to the given path (e.g. after account deletion).
+   *
+   * @param path - Route path to navigate to (e.g. '/login')
    */
   clearAuthAndRedirect(path: string): void {
     this.clearToken();

@@ -1,11 +1,28 @@
 /**
- * Form utility functions for common form operations
+ * Form utility functions for common form operations.
+ *
+ * Used by tracking forms and shared components for validation display,
+ * reset, and error message formatting.
  */
 
 import { FormGroup } from '@angular/forms';
 
 /**
- * Mark all form controls as touched to trigger validation display
+ * Mark all form controls as touched to trigger validation display.
+ *
+ * Call before submit so validation errors appear for invalid fields.
+ *
+ * @param form - The form group to mark as touched
+ * @returns void
+ *
+ * @example
+ * ```typescript
+ * onSubmit() {
+ *   markAllAsTouched(this.form);
+ *   if (this.form.invalid) return;
+ *   // ...
+ * }
+ * ```
  */
 export function markAllAsTouched(form: FormGroup): void {
   Object.keys(form.controls).forEach((key) => {
@@ -15,7 +32,12 @@ export function markAllAsTouched(form: FormGroup): void {
 }
 
 /**
- * Reset form to pristine state
+ * Reset form to pristine and untouched state.
+ *
+ * Clears values and resets pristine/touched so validation messages are hidden.
+ *
+ * @param form - The form group to reset
+ * @returns void
  */
 export function resetFormCompletely(form: FormGroup): void {
   form.reset();
@@ -26,7 +48,18 @@ export function resetFormCompletely(form: FormGroup): void {
 }
 
 /**
- * Check if a form control has a specific error
+ * Check if a form control has a validation error.
+ *
+ * @param form - The form group containing the control
+ * @param controlName - Name of the control
+ * @param errorType - Optional specific error key (e.g. 'required', 'min')
+ * @returns True if control has any error, or the specified error type
+ *
+ * @example
+ * ```typescript
+ * hasError(this.form, 'amount_oz', 'required')
+ * hasError(this.form, 'name') // any error
+ * ```
  */
 export function hasError(
   form: FormGroup,
@@ -50,7 +83,20 @@ export function hasError(
 }
 
 /**
- * Get user-friendly error message for a form control
+ * Get user-friendly error message for a form control.
+ *
+ * Maps common validators (required, minlength, maxlength, min, max) to
+ * readable messages. Falls back to "{fieldLabel} is invalid".
+ *
+ * @param form - The form group containing the control
+ * @param controlName - Name of the control
+ * @param fieldLabel - Label for the field (e.g. 'Amount') used in message
+ * @returns Error message string, or empty string if no errors
+ *
+ * @example
+ * ```typescript
+ * getErrorMessage(this.form, 'amount_oz', 'Amount')
+ * ```
  */
 export function getErrorMessage(
   form: FormGroup,

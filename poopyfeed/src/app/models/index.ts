@@ -1,5 +1,8 @@
 /**
- * Barrel export for all model interfaces
+ * Barrel export for all model interfaces.
+ *
+ * Re-exports child, feeding, diaper, nap, sharing, catch-up, notification,
+ * pagination, user, and analytics models. Use this for a single import path.
  */
 
 export * from './child.model';
