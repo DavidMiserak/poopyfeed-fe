@@ -21,7 +21,6 @@ setup('authenticate', async ({ page }) => {
   await page.goto('/signup');
   await expect(page.locator('#password')).toBeVisible();
 
-  await page.getByLabel('Full name').fill('E2E Fixture User');
   await page.getByLabel('Email address').fill(email);
   await page.locator('#password').fill(password);
   await page.locator('#confirmPassword').fill(password);

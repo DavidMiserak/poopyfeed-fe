@@ -47,7 +47,6 @@ test.describe('Invite Accept', () => {
 
     await page.goto('/signup');
     await expect(page.locator('#password')).toBeVisible({ timeout: E2E_TIMEOUT });
-    await page.getByLabel('Full name').fill('E2E Invite User');
     await page.getByLabel('Email address').fill(inviteUserEmail);
     await page.locator('#password').fill(inviteUserPassword);
     await page.locator('#confirmPassword').fill(inviteUserPassword);

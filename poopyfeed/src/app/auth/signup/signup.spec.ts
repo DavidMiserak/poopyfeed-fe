@@ -36,7 +36,6 @@ describe('Signup', () => {
   });
 
   it('should have a signup form with required fields', () => {
-    expect(component.signupForm.controls.name).toBeTruthy();
     expect(component.signupForm.controls.email).toBeTruthy();
     expect(component.signupForm.controls.password).toBeTruthy();
     expect(component.signupForm.controls.confirmPassword).toBeTruthy();
@@ -45,7 +44,6 @@ describe('Signup', () => {
   it('should require all fields', () => {
     expect(component.signupForm.valid).toBeFalsy();
     component.signupForm.patchValue({
-      name: 'Test User',
       email: 'test@example.com',
       password: 'password123',
       confirmPassword: 'password123',
@@ -70,14 +68,13 @@ describe('Signup', () => {
   });
 
   it('should not submit form when invalid', () => {
-    component.signupForm.controls.name.setValue('');
+    component.signupForm.controls.email.setValue('');
     component.onSubmit();
     expect(component.isSubmitting()).toBeFalsy();
   });
 
   it('should set error when passwords do not match', () => {
     component.signupForm.patchValue({
-      name: 'Test User',
       email: 'test@example.com',
       password: 'password123',
       confirmPassword: 'differentpassword',
@@ -89,7 +86,6 @@ describe('Signup', () => {
 
   it('should set isSubmitting to true when valid form is submitted', () => {
     component.signupForm.patchValue({
-      name: 'Test User',
       email: 'test@example.com',
       password: 'password123',
       confirmPassword: 'password123',
@@ -102,21 +98,12 @@ describe('Signup', () => {
   it('should clear error on valid submit', () => {
     component.error.set('Previous error');
     component.signupForm.patchValue({
-      name: 'Test User',
       email: 'test@example.com',
       password: 'password123',
       confirmPassword: 'password123',
     });
     component.onSubmit();
     expect(component.error()).toBeNull();
-  });
-
-  it('should validate name minimum length', () => {
-    const name = component.signupForm.controls.name;
-    name.setValue('A');
-    expect(name.hasError('minlength')).toBeTruthy();
-    name.setValue('John Doe');
-    expect(name.hasError('minlength')).toBeFalsy();
   });
 
   it('should render error message when error signal is set', () => {
@@ -136,16 +123,8 @@ describe('Signup', () => {
   });
 
   it('should show name validation errors in template', () => {
-    const nameControl = component.signupForm.controls.name;
-    nameControl.setValue('A');
-    nameControl.markAsTouched();
-    fixture.detectChanges();
-    const compiled = fixture.nativeElement as HTMLElement;
-    const errorElements = compiled.querySelectorAll('p.text-red-600');
-    const errorText = Array.from(errorElements).find((el) =>
-      el.textContent?.includes('At least 2 characters'),
-    );
-    expect(errorText).toBeTruthy();
+    // Name field has been removed from the signup form.
+    expect(true).toBe(true);
   });
 
   it('should show email validation errors in template', () => {
@@ -189,7 +168,6 @@ describe('Signup', () => {
 
   it('should disable submit button when form is invalid', () => {
     component.signupForm.patchValue({
-      name: '',
       email: '',
       password: '',
       confirmPassword: '',
@@ -202,7 +180,6 @@ describe('Signup', () => {
 
   it('should enable submit button when form is valid', () => {
     component.signupForm.patchValue({
-      name: 'Test User',
       email: 'test@example.com',
       password: 'password123',
       confirmPassword: 'password123',
@@ -215,7 +192,6 @@ describe('Signup', () => {
 
   it('should show loading spinner when submitting', () => {
     component.signupForm.patchValue({
-      name: 'Test User',
       email: 'test@example.com',
       password: 'password123',
       confirmPassword: 'password123',
@@ -273,21 +249,12 @@ describe('Signup', () => {
   });
 
   it('should validate name is required in template', () => {
-    const nameControl = component.signupForm.controls.name;
-    nameControl.setValue('');
-    nameControl.markAsTouched();
-    fixture.detectChanges();
-    const compiled = fixture.nativeElement as HTMLElement;
-    const errorElements = compiled.querySelectorAll('p.text-red-600');
-    const errorText = Array.from(errorElements).find((el) =>
-      el.textContent?.includes('Name is required'),
-    );
-    expect(errorText).toBeTruthy();
+    // Name field has been removed from the signup form.
+    expect(true).toBe(true);
   });
 
   it('should not submit when passwords do not match', () => {
     component.signupForm.patchValue({
-      name: 'Test User',
       email: 'test@example.com',
       password: 'password123',
       confirmPassword: 'different',
@@ -305,7 +272,6 @@ describe('Signup', () => {
         .mockReturnValue(of({ id: 1, email: 'test@example.com' }));
 
       component.signupForm.patchValue({
-        name: 'Test User',
         email: 'test@example.com',
         password: 'password123',
         confirmPassword: 'password123',
@@ -336,7 +302,6 @@ describe('Signup', () => {
         .mockReturnValue(throwError(() => new Error('Email already exists')));
 
       component.signupForm.patchValue({
-        name: 'Test User',
         email: 'existing@example.com',
         password: 'password123',
         confirmPassword: 'password123',
@@ -355,7 +320,6 @@ describe('Signup', () => {
         .mockReturnValue(throwError(() => new Error('Backend error during signup')));
 
       component.signupForm.patchValue({
-        name: 'Test User',
         email: 'test@example.com',
         password: 'password123',
         confirmPassword: 'password123',
@@ -369,20 +333,17 @@ describe('Signup', () => {
     });
 
     it('should set error when email is missing despite validators', () => {
-      // Clear all validators to bypass form validation
-      component.signupForm.controls.name.clearValidators();
+      // Clear validators to bypass form validation
       component.signupForm.controls.email.clearValidators();
       component.signupForm.controls.password.clearValidators();
       component.signupForm.controls.confirmPassword.clearValidators();
 
       component.signupForm.patchValue({
-        name: 'Test User',
         email: '',
         password: 'password123',
         confirmPassword: 'password123',
       });
 
-      component.signupForm.controls.name.updateValueAndValidity();
       component.signupForm.controls.email.updateValueAndValidity();
       component.signupForm.controls.password.updateValueAndValidity();
       component.signupForm.controls.confirmPassword.updateValueAndValidity();

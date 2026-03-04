@@ -19,7 +19,6 @@ test.describe('Auth', () => {
     ).toBeVisible();
     await expect(page.locator('#password')).toBeVisible();
 
-    await page.getByLabel('Full name').fill('E2E User');
     await page.getByLabel('Email address').fill(uniqueEmail());
     await page.locator('#password').fill(password);
     await page.locator('#confirmPassword').fill(password);
@@ -40,7 +39,6 @@ test.describe('Auth', () => {
     const email = uniqueEmail();
     await page.goto('/signup');
     await expect(page.locator('#password')).toBeVisible();
-    await page.getByLabel('Full name').fill('E2E Login User');
     await page.getByLabel('Email address').fill(email);
     await page.locator('#password').fill(password);
     await page.locator('#confirmPassword').fill(password);
@@ -81,7 +79,6 @@ test.describe('Auth', () => {
   }) => {
     await page.goto('/signup');
     await expect(page.locator('#password')).toBeVisible();
-    await page.getByLabel('Full name').fill('E2E User');
     await page.getByLabel('Email address').fill(uniqueEmail());
     await page.locator('#password').fill(password);
     await page.locator('#confirmPassword').fill('different-password');

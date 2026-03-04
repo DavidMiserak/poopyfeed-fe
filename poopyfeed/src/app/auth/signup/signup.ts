@@ -19,7 +19,6 @@ export class Signup {
   private toast = inject(ToastService);
 
   signupForm = new FormGroup({
-    name: new FormControl('', [Validators.required, Validators.minLength(2)]),
     email: new FormControl('', [Validators.required, Validators.email]),
     password: new FormControl('', [Validators.required, Validators.minLength(8)]),
     confirmPassword: new FormControl('', [Validators.required]),
