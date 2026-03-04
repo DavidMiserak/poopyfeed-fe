@@ -164,6 +164,18 @@ describe('ChildrenService', () => {
       req.flush(mockChild);
     });
 
+    it('should return cached child without HTTP when selectedChild is already that child', () => {
+      service.selectedChild.set(mockChild);
+
+      service.get(1).subscribe({
+        next: (child) => {
+          expect(child).toEqual(mockChild);
+        },
+      });
+
+      httpMock.expectNone('/api/v1/children/1/');
+    });
+
     it('should handle 404 not found error', () => {
       let errorCaught = false;
 
@@ -1211,10 +1223,10 @@ describe('ChildrenService', () => {
     });
 
     it('should maintain selectedChild during failed get retry', () => {
-      const existingChild = mockChildren[1];
+      const existingChild = mockChild;
       service.selectedChild.set(existingChild);
 
-      // Failed request
+      // Request for a different child fails; selectedChild should remain unchanged
       service.get(2).subscribe({
         error: () => {
           // Error expected
@@ -1224,7 +1236,6 @@ describe('ChildrenService', () => {
       const req = httpMock.expectOne('/api/v1/children/2/');
       req.flush(null, { status: 500, statusText: 'Internal Server Error' });
 
-      // Verify selectedChild unchanged
       expect(service.selectedChild()).toEqual(existingChild);
     });
   });

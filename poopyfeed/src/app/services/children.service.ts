@@ -19,7 +19,7 @@
 
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap, catchError, throwError, map } from 'rxjs';
+import { Observable, of, tap, catchError, throwError, map } from 'rxjs';
 import { Child, ChildCreate, ChildUpdate } from '../models/child.model';
 import { ErrorHandler } from './error.utils';
 
@@ -115,14 +115,18 @@ export class ChildrenService {
   /**
    * Get a single child by ID.
    *
+   * Returns the cached child from `selectedChild` when the requested id already
+   * matches, avoiding a duplicate request when navigating between child-scoped
+   * views (dashboard, timeline, pediatrician summary, etc.). Otherwise fetches
+   * from the API and updates `selectedChild`.
+   *
    * Fetches detailed child profile including last activity timestamps
    * (last_diaper_change, last_nap, last_feeding).
-   * Also updates the `selectedChild` signal for use in detail views.
    *
    * @param id Child's unique identifier
-   * @returns Observable<Child> Single child object
+   * @returns Observable<Child> Single child object (cached or from API)
    *
-   * @throws ApiError if child not found or user lacks access
+   * @throws ApiError if child not found or user lacks access (when fetching)
    *
    * @example
    * this.childrenService.get(childId).subscribe({
@@ -133,6 +137,10 @@ export class ChildrenService {
    * });
    */
   get(id: number): Observable<Child> {
+    const cached = this.selectedChild();
+    if (cached?.id === id) {
+      return of(cached);
+    }
     return this.http.get<Child>(`${this.API_BASE}/${id}/`).pipe(
       tap((child) => {
         this.selectedChild.set(child);
