@@ -30,6 +30,7 @@ All Angular application source code lives under the `poopyfeed/` directory (see 
 - **Timeline View** - 7-day activity history with timezone-aware display
 - **Push Notifications** - Feeding reminders and activity alerts with quiet hours support
 - **Catch-Up Mode** - Bulk logging for catching up on missed entries
+- **Fuss Bus** - Symptom checklist and suggestions for fussiness/crying
 - **Pediatrician Summary** - "For the Doctor" view with daily averages for appointments
 - **SSR Support** - Server-side rendering with Angular Universal + Express for fast initial loads
 - **Modern Angular Architecture** - Built with Angular 21 standalone components and signals
@@ -81,6 +82,8 @@ make run              # Start Angular dev server in container (:4200)
 make stop             # Stop containers
 make test             # Run tests with Vitest in container
 make test-local       # Run tests locally (npm test)
+make test-coverage    # Run tests with coverage in container
+make test-coverage-local  # Run tests with coverage locally
 make build            # Build production app
 make format           # Format code with Prettier
 make install          # Install dependencies in container
@@ -122,7 +125,8 @@ npm run serve:ssr:poopyfeed    # Run SSR Node server on :4000
 │   │   │   └── pediatrician-summary/  # "For the Doctor" view
 │   │   ├── features/
 │   │   │   ├── analytics/       # Chart.js dashboards and export
-│   │   │   └── catch-up/        # Bulk logging
+│   │   │   ├── catch-up/        # Bulk logging
+│   │   │   └── fuss-bus/        # Fussiness symptom checklist and suggestions
 │   │   ├── models/              # TypeScript interfaces for API resources
 │   │   ├── services/            # API services with signal-based state
 │   │   ├── utils/               # Shared utilities (dates, forms, etc.)
@@ -160,8 +164,8 @@ npm run serve:ssr:poopyfeed    # Run SSR Node server on :4000
 
 ### Testing
 
-- **Vitest** 4.0.8 - Fast unit test framework (83 spec files)
-- **Playwright** - E2E browser testing (10 spec files, Firefox + Chromium)
+- **Vitest** 4.0.8 - Fast unit test framework (100+ spec files)
+- **Playwright** - E2E browser testing (18 spec files, Firefox + Chromium)
 - **JSDOM** 27.1.0 - DOM implementation for unit tests
 
 ### Visualization
@@ -370,10 +374,11 @@ Key principles:
 - Sharing and invite system with role-based access
 - Timeline/activity history with timezone-aware display
 - Catch-up mode for bulk logging
+- Fuss Bus symptom checklist and suggestions
 - Pediatrician summary with daily averages
 - Contact page with FormSpree integration
-- 83 test spec files with ~89% coverage
-- 10 Playwright E2E test suites
+- 100+ unit test spec files with high coverage
+- 18 Playwright E2E test suites
 
 ## Code Documentation
 
