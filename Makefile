@@ -26,7 +26,7 @@ stop:
 	$(RUNTIME) compose down
 
 .PHONY: run
-run: podman-compose.yaml image-build
+run: podman-compose.yaml image-build-dev
 	$(RUNTIME) compose down || true
 	$(RUNTIME) compose -f $< up -d
 
