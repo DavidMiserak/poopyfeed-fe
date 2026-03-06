@@ -1,52 +1,58 @@
-# Version control
-.git
-.gitattributes
-.gitignore
-
-# Node
-node_modules
+# Node modules (rebuilt in container)
+node_modules/
 npm-debug.log
 yarn-error.log
+pnpm-debug.log
 
-# Build outputs
-dist
-.angular
+# Build artifacts
+dist/
+build/
 
-# Testing and coverage
-coverage
-.nyc_output
-TEST*.xml
+# Coverage
+coverage/
+.nyc_output/
 
 # IDE
-.idea
-.vscode
-
-# Container and deployment
-.containerignore
-Containerfile
-podman-compose.yaml
-
-# CI/CD and docs
-.github
-CLAUDE.md
-CHANGELOG.md
-README.md
-docs
-
-# Linting and config
-.pre-commit-config.yaml
-.editorconfig
-.markdownlint.yaml
-.codespellignore
-
-# OS files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
 .DS_Store
-Thumbs.db
 
-# Environment files
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Documentation
+docs/
+*.md
+README*
+
+# Tests
+e2e/
+cypress/
+test/
+*.spec.ts
+
+# Environment
 .env
 .env.local
 .env.*.local
 
-# Keys
-*.pem
+# Angular
+.angular/
+angular.json.bak
+
+# Development
+.prettierignore
+.eslintignore
+tsconfig.json.bak
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Misc
+.editorconfig
