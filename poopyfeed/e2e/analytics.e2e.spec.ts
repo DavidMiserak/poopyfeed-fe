@@ -8,8 +8,6 @@ import { createChildAndGoToDashboard } from './child-helpers';
  * so empty-state assertion is deterministic (no dependency on other tests' data).
  */
 test.describe('Analytics', () => {
-  const TRACK_CHILD_NAME = 'E2E Track Baby';
-
   test('user can open analytics dashboard from advanced tools', async ({ page }) => {
     await createChildAndGoToDashboard(page, 'E2E Analytics');
     await expect(page).toHaveURL(/\/children\/\d+\/dashboard/);
@@ -31,26 +29,9 @@ test.describe('Analytics', () => {
   });
 
   test('user can export CSV and get a download', async ({ page }) => {
-    await page.goto('/children');
-    await expect(
-      page.getByRole('heading', { name: 'My Children' })
-    ).toBeVisible();
+    await createChildAndGoToDashboard(page, 'E2E Export CSV');
 
-    if (await page.getByRole('heading', { name: 'No children yet!' }).isVisible()) {
-      await page.getByRole('link', { name: 'Add Your First Baby' }).click();
-      await page.getByLabel("Baby's Name").fill(TRACK_CHILD_NAME);
-      await page.getByLabel('Date of Birth').fill('2024-06-01');
-      await page.getByRole('radio', { name: 'Female' }).click({ force: true });
-      await page.getByRole('button', { name: 'Add Baby' }).click();
-      await expect(page).toHaveURL(/\/children\/\d+\/dashboard/, { timeout: E2E_TIMEOUT });
-    } else {
-      const firstChildHeading = page.getByRole('heading', { level: 3 }).first();
-      await firstChildHeading.click();
-      await expect(page).toHaveURL(/\/children\/(\d+)\/dashboard/, { timeout: E2E_TIMEOUT });
-    }
-
-    const url = page.url();
-    const childIdMatch = url.match(/\/children\/(\d+)\//);
+    const childIdMatch = page.url().match(/\/children\/(\d+)\//);
     expect(childIdMatch).toBeTruthy();
     const childId = childIdMatch![1];
 
@@ -80,32 +61,9 @@ test.describe('Analytics', () => {
   test('user can export PDF and see job complete with download', async ({
     page,
   }) => {
-    await page.goto('/children');
-    await expect(
-      page.getByRole('heading', { name: 'My Children' })
-    ).toBeVisible();
+    await createChildAndGoToDashboard(page, 'E2E Export PDF');
 
-    if (
-      await page.getByRole('heading', { name: 'No children yet!' }).isVisible()
-    ) {
-      await page.getByRole('link', { name: 'Add Your First Baby' }).click();
-      await page.getByLabel("Baby's Name").fill(TRACK_CHILD_NAME);
-      await page.getByLabel('Date of Birth').fill('2024-06-01');
-      await page.getByRole('radio', { name: 'Female' }).click({ force: true });
-      await page.getByRole('button', { name: 'Add Baby' }).click();
-      await expect(page).toHaveURL(/\/children\/\d+\/dashboard/, {
-        timeout: E2E_TIMEOUT,
-      });
-    } else {
-      const firstChildHeading = page.getByRole('heading', { level: 3 }).first();
-      await firstChildHeading.click();
-      await expect(page).toHaveURL(/\/children\/(\d+)\/dashboard/, {
-        timeout: E2E_TIMEOUT,
-      });
-    }
-
-    const url = page.url();
-    const childIdMatch = url.match(/\/children\/(\d+)\//);
+    const childIdMatch = page.url().match(/\/children\/(\d+)\//);
     expect(childIdMatch).toBeTruthy();
     const childId = childIdMatch![1];
 
