@@ -185,7 +185,7 @@ export class FussBusComponent implements OnInit, OnDestroy {
       }).subscribe({
         next: ({ dashboard, patternAlerts, timeline }) => {
           if (!dashboard || !patternAlerts) {
-            this.trackingDataError.set('Couldn\'t load tracking data — check items manually.');
+            this.trackingDataError.set('Couldn\'t load tracking data — you can still work through the list below.');
           }
           this.dashboardSummary.set(dashboard ?? null);
           this.patternAlerts.set(patternAlerts ?? null);
@@ -198,7 +198,7 @@ export class FussBusComponent implements OnInit, OnDestroy {
           this.isLoading.set(false);
         },
         error: () => {
-          this.trackingDataError.set('Couldn\'t load tracking data — check items manually.');
+          this.trackingDataError.set('Couldn\'t load tracking data — you can still work through the list below.');
           this.dashboardSummary.set(null);
           this.patternAlerts.set(null);
           this.timelineResults.set([]);

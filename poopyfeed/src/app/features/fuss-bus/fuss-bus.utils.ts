@@ -231,7 +231,7 @@ export function buildChecklistItems(
     label: 'Fed recently',
     kind: 'auto',
     autoStatus: autoCheckState.fed,
-    detail: autoCheckState.fedDetail ?? (autoCheckState.fed === 'missing' ? 'No feedings logged today — check if hungry' : undefined),
+    detail: autoCheckState.fedDetail ?? (autoCheckState.fed === 'missing' ? 'No feedings logged today — consider whether baby might be hungry' : undefined),
     interactive: false,
   });
   items.push({
@@ -239,7 +239,7 @@ export function buildChecklistItems(
     label: 'Clean diaper',
     kind: 'auto',
     autoStatus: autoCheckState.diaper,
-    detail: autoCheckState.diaperDetail ?? (autoCheckState.diaper === 'missing' ? 'No diaper changes logged recently' : undefined),
+    detail: autoCheckState.diaperDetail ?? (autoCheckState.diaper === 'missing' ? 'No diaper changes logged recently — consider a change if needed' : undefined),
     interactive: false,
   });
   items.push({
@@ -300,7 +300,7 @@ export function prioritizeSuggestions(
   }
   if (uncheckedAutoIds.includes('diaper')) {
     suggestions.push({
-      text: 'Check if baby needs a diaper change.',
+      text: 'Consider whether baby might need a diaper change.',
       priority: 'high',
     });
   }

@@ -144,16 +144,16 @@ describe('fuss-bus.utils', () => {
     it('includes common manual items for any symptom', () => {
       const items = buildChecklistItems('crying', 2, autoState);
       const labels = items.filter((i) => i.kind === 'manual').map((i) => i.label);
-      expect(labels).toContain('Comfortable temperature (not too hot/cold)');
-      expect(labels).toContain('Not overstimulated (calm environment)');
-      expect(labels).toContain('Held/comforted recently');
+      expect(labels).toContain('Room or clothing feels comfortable (not too hot or cold)');
+      expect(labels).toContain('Environment feels calm; not overstimulated');
+      expect(labels).toContain('Baby has been held or comforted recently');
     });
 
     it('includes crying-specific items for crying symptom at 2 months', () => {
       const items = buildChecklistItems('crying', 2, autoState);
       const labels = items.map((i) => i.label);
-      expect(labels).toContain('Gas/burping needed');
-      expect(labels).toContain('Witching hour (late afternoon, 0–4 months)');
+      expect(labels).toContain('Burping or gas relief offered');
+      expect(labels).toContain('Could be the witching hour (late afternoon fussiness, 0–4 months)');
     });
 
     it('hides Refusing-food-only items when symptom is crying', () => {
@@ -167,8 +167,8 @@ describe('fuss-bus.utils', () => {
       const itemsOld = buildChecklistItems('crying', 24, autoState);
       const labelsYoung = itemsYoung.map((i) => i.label);
       const labelsOld = itemsOld.map((i) => i.label);
-      expect(labelsYoung).not.toContain('No teething signs');
-      expect(labelsOld).toContain('No teething signs');
+      expect(labelsYoung).not.toContain('No signs of teething discomfort');
+      expect(labelsOld).toContain('No signs of teething discomfort');
     });
   });
 

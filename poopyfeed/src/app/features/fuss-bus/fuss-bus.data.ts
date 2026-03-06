@@ -22,10 +22,10 @@ export interface SymptomType {
 }
 
 export const SYMPTOM_TYPES: SymptomType[] = [
-  { id: 'crying', label: 'Crying', description: 'General distress, inconsolable', icon: '😢' },
-  { id: 'refusing_food', label: 'Refusing food', description: 'Fussy eating, not interested', icon: '🍼', minAgeMonths: 12 },
-  { id: 'wont_sleep', label: "Won't sleep", description: 'Fighting naps, restless', icon: '😴' },
-  { id: 'general_fussiness', label: 'General fussiness', description: 'Irritable, clingy, unsettled', icon: '😣' },
+  { id: 'crying', label: 'Crying', description: 'Upset or hard to soothe', icon: '😢' },
+  { id: 'refusing_food', label: 'Refusing food', description: 'Less interested in eating, picky', icon: '🍼', minAgeMonths: 12 },
+  { id: 'wont_sleep', label: "Won't sleep", description: 'Difficulty settling for naps, or restless', icon: '😴' },
+  { id: 'general_fussiness', label: 'General fussiness', description: 'Irritable, clingy, or unsettled', icon: '😣' },
 ];
 
 /** Auto-check item keys used to derive state from API data. */
@@ -48,29 +48,29 @@ export interface ChecklistItemDef {
 
 /** Manual items common to all symptom types. */
 const COMMON_MANUAL_ITEMS: ChecklistItemDef[] = [
-  { id: 'comfortable_temperature', label: 'Comfortable temperature (not too hot/cold)', symptomIds: [] },
-  { id: 'not_overstimulated', label: 'Not overstimulated (calm environment)', symptomIds: [] },
-  { id: 'held_comforted', label: 'Held/comforted recently', symptomIds: [] },
+  { id: 'comfortable_temperature', label: 'Room or clothing feels comfortable (not too hot or cold)', symptomIds: [] },
+  { id: 'not_overstimulated', label: 'Environment feels calm; not overstimulated', symptomIds: [] },
+  { id: 'held_comforted', label: 'Baby has been held or comforted recently', symptomIds: [] },
 ];
 
 /** Age-filtered manual items (symptomIds empty = all). */
 const AGE_FILTERED_ITEMS: ChecklistItemDef[] = [
-  { id: 'no_teething', label: 'No teething signs', symptomIds: [], ageRange: { minMonths: 4, maxMonths: 24 } },
-  { id: 'no_illness', label: 'No illness symptoms (fever, rash, vomiting)', symptomIds: [] },
-  { id: 'not_growth_spurt', label: 'Not in a growth spurt (common at 2–3 weeks, 6 weeks, 3 months)', symptomIds: [] },
-  { id: 'no_separation_anxiety', label: 'Not experiencing separation anxiety', symptomIds: [], ageRange: { minMonths: 6 } },
+  { id: 'no_teething', label: 'No signs of teething discomfort', symptomIds: [], ageRange: { minMonths: 4, maxMonths: 24 } },
+  { id: 'no_illness', label: 'No signs of illness (e.g. fever, rash, vomiting)', symptomIds: [] },
+  { id: 'not_growth_spurt', label: 'Not in a growth spurt (common around 2–3 weeks, 6 weeks, 3 months)', symptomIds: [] },
+  { id: 'no_separation_anxiety', label: 'No signs of separation anxiety', symptomIds: [], ageRange: { minMonths: 6 } },
 ];
 
 /** Symptom-specific manual items. */
 const SYMPTOM_SPECIFIC_ITEMS: ChecklistItemDef[] = [
-  { id: 'gas_burping', label: 'Gas/burping needed', symptomIds: ['crying'] },
-  { id: 'witching_hour', label: 'Witching hour (late afternoon, 0–4 months)', symptomIds: ['crying'], ageRange: { maxMonths: 4 } },
+  { id: 'gas_burping', label: 'Burping or gas relief offered', symptomIds: ['crying'] },
+  { id: 'witching_hour', label: 'Could be the witching hour (late afternoon fussiness, 0–4 months)', symptomIds: ['crying'], ageRange: { maxMonths: 4 } },
   { id: 'offering_variety', label: 'Offering variety without pressure', symptomIds: ['refusing_food'] },
-  { id: 'mealtime_relaxed', label: 'Mealtime is relaxed', symptomIds: ['refusing_food'] },
-  { id: 'milk_intake', label: 'Milk intake under 400ml/day (12+ months)', symptomIds: ['refusing_food'], ageRange: { minMonths: 12 } },
-  { id: 'sleep_routine', label: 'Consistent sleep routine', symptomIds: ['wont_sleep'] },
-  { id: 'dark_quiet_room', label: 'Dark/quiet room', symptomIds: ['wont_sleep'] },
-  { id: 'not_overtired', label: 'Not overtired (missed sleep window)', symptomIds: ['wont_sleep'] },
+  { id: 'mealtime_relaxed', label: 'Mealtime feels relaxed', symptomIds: ['refusing_food'] },
+  { id: 'milk_intake', label: 'Milk intake is moderate (under ~400ml/day for 12+ months)', symptomIds: ['refusing_food'], ageRange: { minMonths: 12 } },
+  { id: 'sleep_routine', label: 'Sleep routine is consistent', symptomIds: ['wont_sleep'] },
+  { id: 'dark_quiet_room', label: 'Sleep space is dark and quiet', symptomIds: ['wont_sleep'] },
+  { id: 'not_overtired', label: 'Not overtired; within a good sleep window', symptomIds: ['wont_sleep'] },
 ];
 
 /** All manual checklist definitions (order preserved for display). */
@@ -131,7 +131,7 @@ export const DEVELOPMENTAL_CONTEXTS: DevelopmentalContext[] = [
 /** Step labels for the progress indicator. */
 export const STEP_LABELS: Record<1 | 2 | 3, string> = {
   1: "What's happening?",
-  2: 'Quick checklist',
+  2: 'Things to consider',
   3: 'Suggestions & support',
 };
 

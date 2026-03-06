@@ -27,7 +27,7 @@ describe('StepIndicatorComponent', () => {
     fixture.detectChanges();
     const el = fixture.nativeElement as HTMLElement;
     expect(el.textContent).toContain('Step 2 of 3');
-    expect(el.textContent).toContain('Quick checklist');
+    expect(el.textContent).toContain('Things to consider');
   });
 
   it('has accessible status role', () => {

@@ -1,4 +1,4 @@
-<div role="region" aria-label="Quick checklist" class="space-y-4">
+<div role="region" aria-label="Things to consider" class="space-y-4">
   <p class="font-['DM_Sans',sans-serif] text-sm font-semibold text-slate-600" aria-live="polite">
     {{ progressLabel() }}
   </p>
@@ -85,7 +85,7 @@
   @if (hasManualItems()) {
     <div class="space-y-2">
       <h4 class="font-['DM_Sans',sans-serif] text-xs font-semibold uppercase tracking-wide text-slate-500">
-        Check these yourself
+        Things you can check
       </h4>
       <ul class="space-y-3 list-none pl-0">
         @for (item of items(); track item.id) {
