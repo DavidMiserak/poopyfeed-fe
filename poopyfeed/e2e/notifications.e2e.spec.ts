@@ -111,7 +111,6 @@ test.describe('Notifications', () => {
 
     await page.goto('/signup');
     await expect(page.locator('#password')).toBeVisible({ timeout: E2E_TIMEOUT });
-    await page.locator('#name').fill('User B');
     await page.getByLabel('Email address').fill(userBEmail);
     await page.locator('#password').fill(userBPassword);
     await page.locator('#confirmPassword').fill(userBPassword);
