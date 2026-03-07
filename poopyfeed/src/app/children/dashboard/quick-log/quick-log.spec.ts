@@ -19,6 +19,10 @@ describe('QuickLog', () => {
   let toastService: ToastService;
 
   beforeEach(async () => {
+    // Mock system time to 2024-02-10 for deterministic age-based calculations
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2024-02-10T10:30:00Z'));
+
     const mockNapsService = {
       create: vi.fn(),
     };
@@ -54,6 +58,10 @@ describe('QuickLog', () => {
     feedingsService = TestBed.inject(FeedingsService);
     dateTimeService = TestBed.inject(DateTimeService);
     toastService = TestBed.inject(ToastService);
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   it('should create', () => {
@@ -390,7 +398,7 @@ describe('QuickLog', () => {
       const mockChild: Child = {
         id: 1,
         name: 'Baby',
-        date_of_birth: '2025-11-15', // ~12 weeks -> 5 oz recommended
+        date_of_birth: '2023-11-15', // ~12 weeks -> 5 oz recommended
         gender: 'M',
         user_role: 'owner',
         created_at: mockDate.toISOString(),
@@ -519,7 +527,7 @@ describe('QuickLog', () => {
       const mockChild: Child = {
         id: 1,
         name: 'Baby',
-        date_of_birth: '2025-11-15', // ~12 weeks -> 5 oz recommended
+        date_of_birth: '2023-11-15', // ~12 weeks -> 5 oz recommended
         gender: 'M',
         user_role: 'owner',
         created_at: mockDate.toISOString(),
@@ -622,7 +630,7 @@ describe('QuickLog', () => {
       const mockChild: Child = {
         id: 1,
         name: 'Baby',
-        date_of_birth: '2025-11-15', // ~12 weeks -> 5 oz recommended
+        date_of_birth: '2023-11-15', // ~12 weeks -> 5 oz recommended
         gender: 'M',
         user_role: 'owner',
         created_at: mockDate.toISOString(),
@@ -811,7 +819,7 @@ describe('QuickLog', () => {
         const mockChild: Child = {
           id: 1,
           name: 'Baby',
-          date_of_birth: '2025-11-15',
+          date_of_birth: '2023-11-15',
           gender: 'M',
           user_role: 'owner',
           created_at: new Date().toISOString(),
@@ -865,7 +873,7 @@ describe('QuickLog', () => {
         const mockChild: Child = {
           id: 1,
           name: 'Baby',
-          date_of_birth: '2025-11-15',
+          date_of_birth: '2023-11-15',
           gender: 'M',
           user_role: 'owner',
           created_at: new Date().toISOString(),
@@ -939,7 +947,7 @@ describe('QuickLog', () => {
         const mockChild: Child = {
           id: 1,
           name: 'Baby',
-          date_of_birth: '2025-11-15',
+          date_of_birth: '2023-11-15',
           gender: 'M',
           user_role: 'owner',
           created_at: new Date().toISOString(),
@@ -1109,7 +1117,7 @@ describe('QuickLog', () => {
       const mockChild: Child = {
         id: 1,
         name: 'Baby',
-        date_of_birth: '2025-11-15', // ~3 months -> 5 oz
+        date_of_birth: '2023-11-15', // ~3 months -> 5 oz
         gender: 'M',
         user_role: 'owner',
         created_at: new Date().toISOString(),
