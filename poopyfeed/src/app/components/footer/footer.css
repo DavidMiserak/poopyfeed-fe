@@ -38,8 +38,9 @@
 }
 
 .logo-icon {
-  font-size: 2rem;
-  line-height: 1;
+  width: 2rem;
+  height: 2rem;
+  flex-shrink: 0;
 }
 
 .logo-text {
