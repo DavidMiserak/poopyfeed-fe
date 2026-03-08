@@ -21,7 +21,8 @@ const DEVICES_URL = '/api/v1/notifications/devices/';
  * VAPID key from Firebase Console > Project Settings > Cloud Messaging > Web Push certificates.
  * This is a public key and safe to include in client code.
  */
-const VAPID_KEY = '';
+const VAPID_KEY =
+  'BKCzoRDSmOjk4Rc3pZw6n8MkhkMsyE8HKCeCVP099X6ZA2e-oL1TVdQUNctitwX5hyUGwvd-IZs6hPjU_Jg_G8I';
 
 @Injectable({
   providedIn: 'root',
