@@ -37,7 +37,7 @@ repos:
 
     # Search for problematic terms in the text
     - repo: https://github.com/codespell-project/codespell
-      rev: v2.4.1
+      rev: v2.4.2
       hooks:
           - id: codespell
             args: ["--ignore-words=.codespellignore"]
@@ -45,7 +45,7 @@ repos:
 
     # Lint Markdown files
     - repo: https://github.com/igorshubovych/markdownlint-cli
-      rev: v0.47.0
+      rev: v0.48.0
       hooks:
           - id: markdownlint
             args: ["--config", ".markdownlint.yaml"]
