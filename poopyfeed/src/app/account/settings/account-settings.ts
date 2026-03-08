@@ -15,6 +15,7 @@ import { Router, RouterLink } from '@angular/router';
 import { AccountService } from '../../services/account.service';
 import { AuthService } from '../../services/auth.service';
 import { NotificationService } from '../../services/notification.service';
+import { PushNotificationService } from '../../services/push-notification.service';
 import { TimezoneCheckService } from '../../services/timezone-check.service';
 import { ToastService } from '../../services/toast.service';
 import { TIMEZONES } from '../timezones';
@@ -32,8 +33,12 @@ export class AccountSettings implements OnInit {
   private toast = inject(ToastService);
   private tzCheck = inject(TimezoneCheckService);
   private notificationService = inject(NotificationService);
+  pushService = inject(PushNotificationService);
 
   timezones = TIMEZONES;
+
+  // Push notification state
+  pushToggling = signal(false);
   isLoading = signal(true);
   loadError = signal<string | null>(null);
 
@@ -252,6 +257,29 @@ export class AccountSettings implements OnInit {
           this.toast.error(err.message);
         },
       });
+  }
+
+  async togglePush() {
+    this.pushToggling.set(true);
+    try {
+      if (this.pushService.pushEnabled()) {
+        await this.pushService.unregisterDevice();
+        this.toast.success('Push notifications disabled');
+      } else {
+        const success = await this.pushService.requestPermission();
+        if (success) {
+          this.toast.success('Push notifications enabled');
+        } else {
+          this.toast.error(
+            'Could not enable push notifications. Check browser permissions.'
+          );
+        }
+      }
+    } catch {
+      this.toast.error('Failed to update push notification settings');
+    } finally {
+      this.pushToggling.set(false);
+    }
   }
 
   onDeleteSubmit() {

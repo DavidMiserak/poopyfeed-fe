@@ -246,6 +246,55 @@
           </form>
         </div>
 
+        <!-- Push Notifications Card -->
+        @if (pushService.isSupported) {
+          <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-8 border-2 border-rose-200">
+            <h2 class="font-['Fredoka',sans-serif] text-2xl font-bold text-slate-900 mb-1">Push Notifications</h2>
+            <p class="font-['DM_Sans',sans-serif] text-slate-500 text-sm mb-6">
+              Receive browser notifications when caregivers log activities for your children
+            </p>
+
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-rose-400 to-amber-400 flex items-center justify-center">
+                  <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                  </svg>
+                </div>
+                <span class="font-['DM_Sans',sans-serif] text-sm font-bold text-slate-900">
+                  @if (pushService.pushEnabled()) {
+                    Notifications are enabled
+                  } @else {
+                    Notifications are disabled
+                  }
+                </span>
+              </div>
+
+              <button
+                type="button"
+                (click)="togglePush()"
+                [disabled]="pushToggling()"
+                class="group relative px-6 py-3 rounded-xl font-['DM_Sans',sans-serif] font-bold text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 overflow-hidden border-2 border-rose-400"
+              >
+                <span class="absolute inset-0 bg-gradient-to-br from-rose-400 via-orange-400 to-amber-400 transition-transform duration-300 group-hover:scale-110 group-disabled:scale-100"></span>
+                @if (pushToggling()) {
+                  <span class="relative z-10 flex items-center gap-2">
+                    <svg class="w-5 h-5 animate-spin" aria-hidden="true" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Updating...
+                  </span>
+                } @else if (pushService.pushEnabled()) {
+                  <span class="relative z-10">Disable</span>
+                } @else {
+                  <span class="relative z-10">Enable</span>
+                }
+              </button>
+            </div>
+          </div>
+        }
+
         <!-- Password Card -->
         <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-8 border-2 border-rose-200">
           <h2 class="font-['Fredoka',sans-serif] text-2xl font-bold text-slate-900 mb-1">Change Password</h2>

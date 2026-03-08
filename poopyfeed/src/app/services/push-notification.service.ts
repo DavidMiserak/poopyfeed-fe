@@ -131,11 +131,24 @@ export class PushNotificationService {
       const messaging = await this.getMessagingInstance();
       if (!messaging) return null;
 
-      // Register the Firebase messaging SW at its own scope
+      // Register the Firebase messaging SW at its own scope and wait for it to activate
       const swRegistration = await navigator.serviceWorker.register(
         '/firebase-messaging-sw.js',
         { scope: '/firebase-cloud-messaging-push-scope' }
       );
+
+      if (swRegistration.installing || swRegistration.waiting) {
+        const sw = swRegistration.installing || swRegistration.waiting;
+        await new Promise<void>((resolve) => {
+          sw!.addEventListener('statechange', function listener() {
+            if (sw!.state === 'activated') {
+              sw!.removeEventListener('statechange', listener);
+              resolve();
+            }
+          });
+          if (sw!.state === 'activated') resolve();
+        });
+      }
 
       const token = await getToken(messaging as Parameters<typeof getToken>[0], {
         vapidKey: VAPID_KEY || undefined,
