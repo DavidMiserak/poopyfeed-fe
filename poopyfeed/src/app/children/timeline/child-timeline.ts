@@ -74,14 +74,18 @@ import type { TimelineEvent } from '../../models/analytics.model';
  * Unified activity item for timeline display.
  *
  * Combines feeding, diaper, and nap data into a single interface for sorting
- * and display by day. Contains discriminator (type) and timestamp field for
- * unified sorting across activity types.
+ * and display by day. Contains discriminator (type), timestamp field for
+ * unified sorting, and gap metadata from the API.
  */
 export interface ActivityItem {
   id: number;
   type: 'feeding' | 'diaper' | 'nap';
   timestamp: string;
   data: Feeding | DiaperChange | Nap;
+  gapAfterMinutes: number | null;
+  gapAfterStart: string | null;
+  gapAfterEnd: string | null;
+  isNapEligible: boolean | null;
 }
 
 @Component({
@@ -138,7 +142,7 @@ export class ChildTimeline implements OnInit {
    * Activities filtered for the currently selected day
    *
    * Filters allActivities() to only those occurring on selectedDateString(),
-   * sorted reverse chronologically (newest first), with gap information calculated.
+   * sorted reverse chronologically (newest first), with gap information from API.
    *
    * @returns Activities for the selected day with gap times in reverse chronological order (newest first)
    */
@@ -158,55 +162,25 @@ export class ChildTimeline implements OnInit {
           this.datetimeService.toLocal(a.timestamp).getTime()
       );
 
-    // Calculate gaps between consecutive activities (reverse chronological)
-    return activities.map((activity, index) => {
-      let gapMinutes: number | null = null;
-      let gapStartTime: string | null = null;
-      let gapEndTime: string | null = null;
-      let gapStartTimestamp: string | null = null;
-      let gapEndTimestamp: string | null = null;
-
-      // In reverse chronological order, the previous activity in time is at index + 1
-      if (index < activities.length - 1) {
-        const prevActivity = activities[index + 1];
-
-        // For naps, use the end time; for others, use the timestamp
-        let prevTimestamp: string;
-        if (prevActivity.type === 'nap') {
-          const nap = prevActivity.data as Nap;
-          prevTimestamp = nap.ended_at || prevActivity.timestamp;
-        } else {
-          prevTimestamp = prevActivity.timestamp;
-        }
-
-        const currentTimestamp = activity.timestamp;
-        const prevTime = new Date(prevTimestamp).getTime();
-        const currentTime = new Date(currentTimestamp).getTime();
-        const diffMs = currentTime - prevTime;
-        const diffMinutes = Math.round(diffMs / (1000 * 60));
-
-        // Only show gap if it's at least 5 minutes
-        if (diffMinutes >= 5) {
-          gapMinutes = diffMinutes;
-
-          // Format times as HH:mm for display
-          gapStartTime = this.datetimeService.formatTimeHHmm(prevTimestamp);
-
-          gapEndTime = this.datetimeService.formatTimeHHmm(currentTimestamp);
-
-          // Store actual UTC timestamps for creating nap
-          gapStartTimestamp = prevTimestamp;
-          gapEndTimestamp = currentTimestamp;
-        }
-      }
+    // Use gap metadata from API response
+    return activities.map((activity) => {
+      const gapMinutes = activity.gapAfterMinutes;
+      const gapStartTime =
+        gapMinutes !== null && activity.gapAfterStart
+          ? this.datetimeService.formatTimeHHmm(activity.gapAfterStart)
+          : null;
+      const gapEndTime =
+        gapMinutes !== null && activity.gapAfterEnd
+          ? this.datetimeService.formatTimeHHmm(activity.gapAfterEnd)
+          : null;
 
       return {
         activity,
         gapMinutes,
         gapStartTime,
         gapEndTime,
-        gapStartTimestamp,
-        gapEndTimestamp,
+        gapStartTimestamp: activity.gapAfterStart,
+        gapEndTimestamp: activity.gapAfterEnd,
       };
     });
   });
@@ -327,6 +301,13 @@ export class ChildTimeline implements OnInit {
     childId: number
   ): ActivityItem {
     const at = event.at;
+    const gapFields = {
+      gapAfterMinutes: event.gap_after_minutes,
+      gapAfterStart: event.gap_after_start,
+      gapAfterEnd: event.gap_after_end,
+      isNapEligible: event.is_nap_eligible,
+    };
+
     if (event.type === 'feeding' && event.feeding) {
       const f = event.feeding;
       return {
@@ -339,6 +320,7 @@ export class ChildTimeline implements OnInit {
           created_at: at,
           updated_at: at,
         },
+        ...gapFields,
       };
     }
     if (event.type === 'diaper' && event.diaper) {
@@ -353,6 +335,7 @@ export class ChildTimeline implements OnInit {
           created_at: at,
           updated_at: at,
         },
+        ...gapFields,
       };
     }
     if (event.type === 'nap' && event.nap) {
@@ -367,6 +350,7 @@ export class ChildTimeline implements OnInit {
           created_at: at,
           updated_at: at,
         },
+        ...gapFields,
       };
     }
     throw new Error(`Invalid timeline event: ${JSON.stringify(event)}`);
@@ -527,6 +511,10 @@ export class ChildTimeline implements OnInit {
             type: 'nap' as const,
             timestamp: adjustedStartTime,
             data: { ...newNap, napped_at: adjustedStartTime, ended_at: adjustedEndTime },
+            gapAfterMinutes: null,
+            gapAfterStart: null,
+            gapAfterEnd: null,
+            isNapEligible: null,
           };
 
           this.allActivities.update((activities) => [...activities, activity]);

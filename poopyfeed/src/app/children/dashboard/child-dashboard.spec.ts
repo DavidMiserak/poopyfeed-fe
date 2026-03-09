@@ -194,11 +194,19 @@ function makeTimelineResponse(
         duration_minutes: f.duration_minutes,
         side: f.side,
       },
+      gap_after_minutes: null,
+      gap_after_start: null,
+      gap_after_end: null,
+      is_nap_eligible: null,
     })),
     ...diapers.map((d) => ({
       type: 'diaper' as const,
       at: d.changed_at,
       diaper: { id: d.id, changed_at: d.changed_at, change_type: d.change_type },
+      gap_after_minutes: null,
+      gap_after_start: null,
+      gap_after_end: null,
+      is_nap_eligible: null,
     })),
     ...naps.map((n) => ({
       type: 'nap' as const,
@@ -209,6 +217,10 @@ function makeTimelineResponse(
         ended_at: n.ended_at,
         duration_minutes: n.duration_minutes,
       },
+      gap_after_minutes: null,
+      gap_after_start: null,
+      gap_after_end: null,
+      is_nap_eligible: null,
     })),
   ];
   events.sort(

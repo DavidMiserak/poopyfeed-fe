@@ -100,17 +100,17 @@ describe('ChildTimeline', () => {
     },
   ];
 
-  /** Timeline API response: same logical data as mockFeedings/mockDiapers/mockNaps, newest first */
+  /** Timeline API response: same logical data as mockFeedings/mockDiapers/mockNaps, newest first (descending)
+   *  with gap metadata computed on backend (gap_after_minutes, gap_after_start, gap_after_end, is_nap_eligible)
+   *
+   *  Chronological order (ascending): yesterday 10:00 < today 08:00 < today 10:30 < today 13:00
+   *  API order (descending): today 13:00, today 10:30, today 08:00, yesterday 10:00
+   */
   const mockTimelineResponse = {
     count: 4,
     next: null as string | null,
     previous: null as string | null,
     results: [
-      {
-        type: 'diaper' as const,
-        at: `${todayStr}T10:30:00Z`,
-        diaper: { id: 1, changed_at: `${todayStr}T10:30:00Z`, change_type: 'wet' as const },
-      },
       {
         type: 'nap' as const,
         at: `${todayStr}T13:00:00Z`,
@@ -120,6 +120,19 @@ describe('ChildTimeline', () => {
           ended_at: `${todayStr}T13:45:00Z`,
           duration_minutes: 45,
         },
+        gap_after_minutes: null, // Last event in ascending order, no gap
+        gap_after_start: null,
+        gap_after_end: null,
+        is_nap_eligible: null,
+      },
+      {
+        type: 'diaper' as const,
+        at: `${todayStr}T10:30:00Z`,
+        diaper: { id: 1, changed_at: `${todayStr}T10:30:00Z`, change_type: 'wet' as const },
+        gap_after_minutes: 150, // 2h 30m to nap at 13:00
+        gap_after_start: `${todayStr}T10:30:00Z`,
+        gap_after_end: `${todayStr}T13:00:00Z`,
+        is_nap_eligible: true,
       },
       {
         type: 'feeding' as const,
@@ -130,6 +143,10 @@ describe('ChildTimeline', () => {
           feeding_type: 'bottle' as const,
           amount_oz: 5,
         },
+        gap_after_minutes: 150, // 2h 30m to diaper at 10:30
+        gap_after_start: `${todayStr}T08:00:00Z`,
+        gap_after_end: `${todayStr}T10:30:00Z`,
+        is_nap_eligible: true,
       },
       {
         type: 'feeding' as const,
@@ -140,6 +157,10 @@ describe('ChildTimeline', () => {
           feeding_type: 'bottle' as const,
           amount_oz: 4,
         },
+        gap_after_minutes: null, // Oldest event
+        gap_after_start: null,
+        gap_after_end: null,
+        is_nap_eligible: null,
       },
     ],
   };
@@ -403,6 +424,10 @@ describe('ChildTimeline', () => {
         type: 'feeding' as const,
         timestamp: mockFeedings[0].fed_at,
         data: mockFeedings[0],
+        gapAfterMinutes: null,
+        gapAfterStart: null,
+        gapAfterEnd: null,
+        isNapEligible: null,
       };
       expect(component.getActivityTitle(item)).toBe('Bottle: 5 oz');
     });
@@ -424,6 +449,10 @@ describe('ChildTimeline', () => {
         type: 'feeding' as const,
         timestamp: breastFeeding.fed_at,
         data: breastFeeding,
+        gapAfterMinutes: null,
+        gapAfterStart: null,
+        gapAfterEnd: null,
+        isNapEligible: null,
       };
       expect(component.getActivityTitle(item)).toBe('Breast: 7m (left)');
     });
@@ -434,6 +463,10 @@ describe('ChildTimeline', () => {
         type: 'diaper' as const,
         timestamp: mockDiapers[0].changed_at,
         data: mockDiapers[0],
+        gapAfterMinutes: null,
+        gapAfterStart: null,
+        gapAfterEnd: null,
+        isNapEligible: null,
       };
       expect(component.getActivityTitle(item)).toBe('Wet');
     });
@@ -452,6 +485,10 @@ describe('ChildTimeline', () => {
         type: 'diaper' as const,
         timestamp: dirtyDiaper.changed_at,
         data: dirtyDiaper,
+        gapAfterMinutes: null,
+        gapAfterStart: null,
+        gapAfterEnd: null,
+        isNapEligible: null,
       };
       expect(component.getActivityTitle(item)).toBe('Dirty');
     });
@@ -462,6 +499,10 @@ describe('ChildTimeline', () => {
         type: 'nap' as const,
         timestamp: mockNaps[0].napped_at,
         data: mockNaps[0],
+        gapAfterMinutes: null,
+        gapAfterStart: null,
+        gapAfterEnd: null,
+        isNapEligible: null,
       };
       expect(component.getActivityTitle(item)).toBe('Nap: 45m');
     });
@@ -481,6 +522,10 @@ describe('ChildTimeline', () => {
         type: 'nap' as const,
         timestamp: ongoingNap.napped_at,
         data: ongoingNap,
+        gapAfterMinutes: null,
+        gapAfterStart: null,
+        gapAfterEnd: null,
+        isNapEligible: null,
       };
       expect(component.getActivityTitle(item)).toBe('Nap');
       expect(component.isOngoingNap(item)).toBe(true);
@@ -492,6 +537,10 @@ describe('ChildTimeline', () => {
         type: 'nap' as const,
         timestamp: mockNaps[0].napped_at,
         data: mockNaps[0],
+        gapAfterMinutes: null,
+        gapAfterStart: null,
+        gapAfterEnd: null,
+        isNapEligible: null,
       };
       expect(component.isOngoingNap(item)).toBe(false);
     });
@@ -536,19 +585,20 @@ describe('ChildTimeline', () => {
       component.dayOffset.set(0);
       const activitiesWithGap = component.dayActivities();
 
-      // Last activity in reverse chronological order is the oldest (08:00 feeding) with no gap
-      expect(activitiesWithGap[2].gapMinutes).toBeNull();
+      // Last activity in reverse chronological order is the oldest (08:00 feeding)
+      // API provides gap from 08:00 to 10:30 = 150 minutes
+      expect(activitiesWithGap[2].gapMinutes).toBe(150);
     });
 
     it('should detect gap between feeding at 08:00 and diaper at 10:30', () => {
       component.dayOffset.set(0);
       const activitiesWithGap = component.dayActivities();
 
-      // In reverse chronological order: diaper at 10:30 is at index 1
-      // Gap = 10:30 - 08:00 = 150 minutes = 2h 30m
+      // In reverse chronological order: [nap 13:00, diaper 10:30, feeding 08:00]
+      // Diaper at index 1, has gap of 150 minutes to nap at 13:00
       expect(activitiesWithGap[1].gapMinutes).toBe(150);
-      expect(activitiesWithGap[1].gapStartTime).toBe('08:00');
-      expect(activitiesWithGap[1].gapEndTime).toBe('10:30');
+      expect(activitiesWithGap[1].gapStartTime).toBe('10:30');
+      expect(activitiesWithGap[1].gapEndTime).toBe('13:00');
     });
 
     it('should not show gap if less than 5 minutes', () => {
@@ -570,6 +620,10 @@ describe('ChildTimeline', () => {
           type: 'feeding',
           timestamp: newFeeding.fed_at,
           data: newFeeding,
+          gapAfterMinutes: null,
+          gapAfterStart: null,
+          gapAfterEnd: null,
+          isNapEligible: null,
         },
       ]);
 
@@ -622,6 +676,10 @@ describe('ChildTimeline', () => {
           type: 'feeding',
           timestamp: napWithFeeding.fed_at,
           data: napWithFeeding,
+          gapAfterMinutes: 45, // Gap from nap end (13:45) to feeding (14:30) = 45 minutes
+          gapAfterStart: `${todayStr}T13:45:00Z`,
+          gapAfterEnd: `${todayStr}T14:30:00Z`,
+          isNapEligible: false,
         },
       ]);
 
@@ -633,7 +691,7 @@ describe('ChildTimeline', () => {
         (a) => a.activity.id === 100
       );
 
-      // Gap from nap end (13:45) to feeding (14:30) = 45 minutes
+      // Gap from nap end (13:45) to feeding (14:30) = 45 minutes (provided by API)
       expect(feedingAfterNap?.gapMinutes).toBe(45);
       expect(feedingAfterNap?.gapStartTime).toBe('13:45');
       expect(feedingAfterNap?.gapEndTime).toBe('14:30');
@@ -668,27 +726,35 @@ describe('ChildTimeline', () => {
           type: 'nap',
           timestamp: napWithoutEndTime.napped_at,
           data: napWithoutEndTime,
+          gapAfterMinutes: 60, // nap end (napped_at) to feeding = 60 minutes
+          gapAfterStart: `${todayStr}T11:30:00Z`,
+          gapAfterEnd: `${todayStr}T12:30:00Z`,
+          isNapEligible: true,
         },
         {
           id: 102,
           type: 'feeding',
           timestamp: feedingAfterNap.fed_at,
           data: feedingAfterNap,
+          gapAfterMinutes: null,
+          gapAfterStart: null,
+          gapAfterEnd: null,
+          isNapEligible: null,
         },
       ]);
 
       component.dayOffset.set(0);
       const activitiesWithGap = component.dayActivities();
 
-      // Find the feeding that comes after the nap
-      const feedingActivity = activitiesWithGap.find(
-        (a) => a.activity.id === 102
+      // Find the nap that comes before the feeding
+      const napActivity = activitiesWithGap.find(
+        (a) => a.activity.id === 101
       );
 
-      // Should fall back to nap start time (11:30 - 12:30 = 60 minutes)
-      expect(feedingActivity?.gapMinutes).toBe(60);
-      expect(feedingActivity?.gapStartTime).toBe('11:30');
-      expect(feedingActivity?.gapEndTime).toBe('12:30');
+      // Should use nap napped_at as end time (11:30 - 12:30 = 60 minutes)
+      expect(napActivity?.gapMinutes).toBe(60);
+      expect(napActivity?.gapStartTime).toBe('11:30');
+      expect(napActivity?.gapEndTime).toBe('12:30');
     });
   });
 
@@ -712,16 +778,18 @@ describe('ChildTimeline', () => {
       component.dayOffset.set(0);
 
       const activitiesWithGap = component.dayActivities();
-      // First activity (nap): has gap from previous activity in time (diaper)
-      expect(activitiesWithGap[0].gapMinutes).toBe(150);
-      expect(activitiesWithGap[0].gapStartTime).toBe('10:30');
-      expect(activitiesWithGap[0].gapEndTime).toBe('13:00');
-      // Second activity (diaper): should have gap from feeding
+      // First activity (nap 13:00): last event in ascending order, no gap after
+      expect(activitiesWithGap[0].gapMinutes).toBeNull();
+      expect(activitiesWithGap[0].gapStartTime).toBeNull();
+      expect(activitiesWithGap[0].gapEndTime).toBeNull();
+      // Second activity (diaper 10:30): gap to nap = 150 minutes
       expect(activitiesWithGap[1].gapMinutes).toBe(150);
-      expect(activitiesWithGap[1].gapStartTime).toBe('08:00');
-      expect(activitiesWithGap[1].gapEndTime).toBe('10:30');
-      // Third activity (feeding): no gap (last/oldest)
-      expect(activitiesWithGap[2].gapMinutes).toBeNull();
+      expect(activitiesWithGap[1].gapStartTime).toBe('10:30');
+      expect(activitiesWithGap[1].gapEndTime).toBe('13:00');
+      // Third activity (feeding 08:00): gap to diaper = 150 minutes
+      expect(activitiesWithGap[2].gapMinutes).toBe(150);
+      expect(activitiesWithGap[2].gapStartTime).toBe('08:00');
+      expect(activitiesWithGap[2].gapEndTime).toBe('10:30');
     });
   });
 
@@ -828,6 +896,10 @@ describe('ChildTimeline', () => {
           created_at: `${todayStr}T15:35:00Z`,
           updated_at: `${todayStr}T15:35:00Z`,
         } as Nap,
+        gapAfterMinutes: null,
+        gapAfterStart: null,
+        gapAfterEnd: null,
+        isNapEligible: null,
       };
       component.allActivities.set([quickLoggedNap]);
 
@@ -873,6 +945,10 @@ describe('ChildTimeline', () => {
           created_at: `${todayStr}T00:35:00Z`,
           updated_at: `${todayStr}T00:35:00Z`,
         } as Nap,
+        gapAfterMinutes: null,
+        gapAfterStart: null,
+        gapAfterEnd: null,
+        isNapEligible: null,
       };
       component.allActivities.set([napOnPreviousDay]);
 
@@ -920,6 +996,10 @@ describe('ChildTimeline', () => {
             created_at: '2024-01-16T04:30:00Z',
             updated_at: '2024-01-16T04:30:00Z',
           } as Feeding,
+          gapAfterMinutes: null,
+          gapAfterStart: null,
+          gapAfterEnd: null,
+          isNapEligible: null,
         },
       ]);
 
@@ -960,6 +1040,10 @@ describe('ChildTimeline', () => {
             created_at: '2024-01-16T05:01:00Z',
             updated_at: '2024-01-16T05:01:00Z',
           } as DiaperChange,
+          gapAfterMinutes: null,
+          gapAfterStart: null,
+          gapAfterEnd: null,
+          isNapEligible: null,
         },
       ]);
 
@@ -998,6 +1082,10 @@ describe('ChildTimeline', () => {
             created_at: '2024-01-16T04:00:00Z',
             updated_at: '2024-01-16T04:00:00Z',
           } as Feeding,
+          gapAfterMinutes: 60, // 1 hour gap
+          gapAfterStart: '2024-01-16T04:00:00Z',
+          gapAfterEnd: '2024-01-16T05:00:00Z',
+          isNapEligible: true,
         },
         {
           id: 61,
@@ -1009,6 +1097,10 @@ describe('ChildTimeline', () => {
             created_at: '2024-01-16T05:00:00Z',
             updated_at: '2024-01-16T05:00:00Z',
           } as DiaperChange,
+          gapAfterMinutes: null,
+          gapAfterStart: null,
+          gapAfterEnd: null,
+          isNapEligible: null,
         },
       ]);
 
@@ -1060,6 +1152,10 @@ describe('ChildTimeline', () => {
             created_at: '2024-01-15T23:00:00Z',
             updated_at: '2024-01-15T23:00:00Z',
           } as Nap,
+          gapAfterMinutes: null,
+          gapAfterStart: null,
+          gapAfterEnd: null,
+          isNapEligible: null,
         },
       ]);
 

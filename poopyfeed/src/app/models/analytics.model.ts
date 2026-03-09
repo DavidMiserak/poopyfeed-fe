@@ -388,7 +388,7 @@ export interface TimelineNapPayload {
 /**
  * Single event in the timeline API response.
  *
- * Each event has type, at (ISO datetime), and one type-keyed payload.
+ * Each event has type, at (ISO datetime), one type-keyed payload, and optional gap metadata.
  */
 export interface TimelineEvent {
   type: 'feeding' | 'diaper' | 'nap';
@@ -396,6 +396,10 @@ export interface TimelineEvent {
   feeding?: TimelineFeedingPayload;
   diaper?: TimelineDiaperPayload;
   nap?: TimelineNapPayload;
+  gap_after_minutes: number | null;
+  gap_after_start: string | null;
+  gap_after_end: string | null;
+  is_nap_eligible: boolean | null;
 }
 
 /**

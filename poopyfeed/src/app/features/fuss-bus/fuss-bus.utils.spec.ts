@@ -64,8 +64,8 @@ describe('fuss-bus.utils', () => {
         },
       };
       const timeline: TimelineEvent[] = [
-        { type: 'diaper', at: '2026-03-01T11:50:00Z', diaper: { id: 1, changed_at: '2026-03-01T11:50:00Z', change_type: 'wet' } },
-        { type: 'feeding', at: '2026-03-01T10:30:00Z', feeding: { id: 1, fed_at: '2026-03-01T10:30:00Z', feeding_type: 'bottle', amount_oz: 4 } },
+        { type: 'diaper', at: '2026-03-01T11:50:00Z', diaper: { id: 1, changed_at: '2026-03-01T11:50:00Z', change_type: 'wet' }, gap_after_minutes: null, gap_after_start: null, gap_after_end: null, is_nap_eligible: null },
+        { type: 'feeding', at: '2026-03-01T10:30:00Z', feeding: { id: 1, fed_at: '2026-03-01T10:30:00Z', feeding_type: 'bottle', amount_oz: 4 }, gap_after_minutes: null, gap_after_start: null, gap_after_end: null, is_nap_eligible: null },
       ];
       const state = getAutoCheckState(null, patternAlerts, timeline, fixedNow, 6);
       expect(state.fed).toBe('ok');
