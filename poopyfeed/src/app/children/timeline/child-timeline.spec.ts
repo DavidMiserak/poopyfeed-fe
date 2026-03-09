@@ -586,8 +586,8 @@ describe('ChildTimeline', () => {
       const activitiesWithGap = component.dayActivities();
 
       // Last activity in reverse chronological order is the oldest (08:00 feeding)
-      // API provides gap from 08:00 to 10:30 = 150 minutes
-      expect(activitiesWithGap[2].gapMinutes).toBe(150);
+      // No activity comes after it (in reverse order), so no gap to display
+      expect(activitiesWithGap[2].gapMinutes).toBeNull();
     });
 
     it('should detect gap between feeding at 08:00 and diaper at 10:30', () => {
@@ -595,14 +595,27 @@ describe('ChildTimeline', () => {
       const activitiesWithGap = component.dayActivities();
 
       // In reverse chronological order: [nap 13:00, diaper 10:30, feeding 08:00]
-      // Diaper at index 1, has gap of 150 minutes to nap at 13:00
-      expect(activitiesWithGap[1].gapMinutes).toBe(150);
-      expect(activitiesWithGap[1].gapStartTime).toBe('10:30');
-      expect(activitiesWithGap[1].gapEndTime).toBe('13:00');
+      // Nap at index 0 shows the gap from diaper (next in reverse order)
+      // which is the gap from diaper 10:30 to nap 13:00 = 150 minutes
+      expect(activitiesWithGap[0].gapMinutes).toBe(150);
+      expect(activitiesWithGap[0].gapStartTime).toBe('10:30');
+      expect(activitiesWithGap[0].gapEndTime).toBe('13:00');
     });
 
     it('should not show gap if less than 5 minutes', () => {
-      // Add a feeding 3 minutes after another
+      // Replace the original 08:00 feeding with one that has a 3-minute gap to a new 08:03 feeding
+      const originalFeeding: Feeding = {
+        id: 1,
+        child: 1,
+        feeding_type: 'bottle',
+        amount_oz: 5,
+        duration_minutes: undefined,
+        side: undefined,
+        fed_at: `${todayStr}T08:00:00Z`,
+        created_at: `${todayStr}T08:05:00Z`,
+        updated_at: `${todayStr}T08:05:00Z`,
+      };
+
       const newFeeding: Feeding = {
         id: 99,
         child: 1,
@@ -613,30 +626,46 @@ describe('ChildTimeline', () => {
         updated_at: `${todayStr}T08:03:00Z`,
       };
 
+      // Create all activities with correct gap fields for this scenario
+      const activities = component.allActivities().map((a) => {
+        if (a.id === 1) {
+          // Original feeding has 3-minute gap to new feeding (suppressed, < 5 min)
+          return {
+            ...a,
+            gapAfterMinutes: null,
+            gapAfterStart: null,
+            gapAfterEnd: null,
+            isNapEligible: null,
+          };
+        }
+        return a;
+      });
+
       component.allActivities.set([
-        ...component.allActivities(),
+        ...activities,
         {
           id: 99,
           type: 'feeding',
           timestamp: newFeeding.fed_at,
           data: newFeeding,
-          gapAfterMinutes: null,
-          gapAfterStart: null,
-          gapAfterEnd: null,
-          isNapEligible: null,
+          // New feeding has 150+ minute gap to diaper at 10:30
+          gapAfterMinutes: 147,
+          gapAfterStart: `${todayStr}T08:03:00Z`,
+          gapAfterEnd: `${todayStr}T10:30:00Z`,
+          isNapEligible: true,
         },
       ]);
 
       component.dayOffset.set(0);
       const activitiesWithGap = component.dayActivities();
 
-      // Find the new feeding (should be second after 08:00 feeding)
-      const newFeedingActivity = activitiesWithGap.find(
-        (a) => a.activity.id === 99
+      // Find the original 08:00 feeding - it shows the gap from 08:03 feeding (3 min, suppressed)
+      const originalFeedingActivity = activitiesWithGap.find(
+        (a) => a.activity.id === 1
       );
-      expect(newFeedingActivity?.gapMinutes).toBeNull();
-      expect(newFeedingActivity?.gapStartTime).toBeNull();
-      expect(newFeedingActivity?.gapEndTime).toBeNull();
+      expect(originalFeedingActivity?.gapMinutes).toBeNull();
+      expect(originalFeedingActivity?.gapStartTime).toBeNull();
+      expect(originalFeedingActivity?.gapEndTime).toBeNull();
     });
 
     it('should format gap time in minutes only', () => {
@@ -669,29 +698,44 @@ describe('ChildTimeline', () => {
         updated_at: `${todayStr}T14:30:00Z`,
       };
 
+      // Update the existing nap (id: 1) with the gap to the feeding
+      const activities = component.allActivities().map((a) => {
+        if (a.id === 1 && a.type === 'nap') {
+          // Nap has gap to the feeding: 13:45 to 14:30 = 45 minutes
+          return {
+            ...a,
+            gapAfterMinutes: 45,
+            gapAfterStart: `${todayStr}T13:45:00Z`,
+            gapAfterEnd: `${todayStr}T14:30:00Z`,
+            isNapEligible: false,
+          };
+        }
+        return a;
+      });
+
       component.allActivities.set([
-        ...component.allActivities(),
+        ...activities,
         {
           id: 100,
           type: 'feeding',
           timestamp: napWithFeeding.fed_at,
           data: napWithFeeding,
-          gapAfterMinutes: 45, // Gap from nap end (13:45) to feeding (14:30) = 45 minutes
-          gapAfterStart: `${todayStr}T13:45:00Z`,
-          gapAfterEnd: `${todayStr}T14:30:00Z`,
-          isNapEligible: false,
+          gapAfterMinutes: null,
+          gapAfterStart: null,
+          gapAfterEnd: null,
+          isNapEligible: null,
         },
       ]);
 
       component.dayOffset.set(0);
       const activitiesWithGap = component.dayActivities();
 
-      // Find the feeding that comes after the nap
+      // Find the feeding - it should display the gap from the nap
       const feedingAfterNap = activitiesWithGap.find(
         (a) => a.activity.id === 100
       );
 
-      // Gap from nap end (13:45) to feeding (14:30) = 45 minutes (provided by API)
+      // After gap shifting, feeding (14:30) shows gap from nap (13:45 to 14:30) = 45 minutes
       expect(feedingAfterNap?.gapMinutes).toBe(45);
       expect(feedingAfterNap?.gapStartTime).toBe('13:45');
       expect(feedingAfterNap?.gapEndTime).toBe('14:30');
@@ -746,15 +790,16 @@ describe('ChildTimeline', () => {
       component.dayOffset.set(0);
       const activitiesWithGap = component.dayActivities();
 
-      // Find the nap that comes before the feeding
-      const napActivity = activitiesWithGap.find(
-        (a) => a.activity.id === 101
+      // Find the feeding that comes after the nap
+      const feedingActivity = activitiesWithGap.find(
+        (a) => a.activity.id === 102
       );
 
+      // After gap shifting, feeding (12:30) displays the gap from nap (11:30 to 12:30)
       // Should use nap napped_at as end time (11:30 - 12:30 = 60 minutes)
-      expect(napActivity?.gapMinutes).toBe(60);
-      expect(napActivity?.gapStartTime).toBe('11:30');
-      expect(napActivity?.gapEndTime).toBe('12:30');
+      expect(feedingActivity?.gapMinutes).toBe(60);
+      expect(feedingActivity?.gapStartTime).toBe('11:30');
+      expect(feedingActivity?.gapEndTime).toBe('12:30');
     });
   });
 
@@ -778,18 +823,19 @@ describe('ChildTimeline', () => {
       component.dayOffset.set(0);
 
       const activitiesWithGap = component.dayActivities();
-      // First activity (nap 13:00): last event in ascending order, no gap after
-      expect(activitiesWithGap[0].gapMinutes).toBeNull();
-      expect(activitiesWithGap[0].gapStartTime).toBeNull();
-      expect(activitiesWithGap[0].gapEndTime).toBeNull();
-      // Second activity (diaper 10:30): gap to nap = 150 minutes
+      // Gaps are shifted to display between events in reverse chronological order
+      // First activity (nap 13:00): shows gap from diaper 10:30 to 13:00 = 150 minutes
+      expect(activitiesWithGap[0].gapMinutes).toBe(150);
+      expect(activitiesWithGap[0].gapStartTime).toBe('10:30');
+      expect(activitiesWithGap[0].gapEndTime).toBe('13:00');
+      // Second activity (diaper 10:30): shows gap from feeding 08:00 to 10:30 = 150 minutes
       expect(activitiesWithGap[1].gapMinutes).toBe(150);
-      expect(activitiesWithGap[1].gapStartTime).toBe('10:30');
-      expect(activitiesWithGap[1].gapEndTime).toBe('13:00');
-      // Third activity (feeding 08:00): gap to diaper = 150 minutes
-      expect(activitiesWithGap[2].gapMinutes).toBe(150);
-      expect(activitiesWithGap[2].gapStartTime).toBe('08:00');
-      expect(activitiesWithGap[2].gapEndTime).toBe('10:30');
+      expect(activitiesWithGap[1].gapStartTime).toBe('08:00');
+      expect(activitiesWithGap[1].gapEndTime).toBe('10:30');
+      // Third activity (feeding 08:00): no gap (last activity, no next to shift from)
+      expect(activitiesWithGap[2].gapMinutes).toBeNull();
+      expect(activitiesWithGap[2].gapStartTime).toBeNull();
+      expect(activitiesWithGap[2].gapEndTime).toBeNull();
     });
   });
 

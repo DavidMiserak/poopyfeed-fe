@@ -162,16 +162,20 @@ export class ChildTimeline implements OnInit {
           this.datetimeService.toLocal(a.timestamp).getTime()
       );
 
-    // Use gap metadata from API response
-    return activities.map((activity) => {
-      const gapMinutes = activity.gapAfterMinutes;
+    // Use gap metadata from API response, shifted to display gaps between events.
+    // In reverse chronological order, each event shows the gap from the next (earlier-in-time) event.
+    // This makes gaps appear visually between the two events they connect.
+    return activities.map((activity, index) => {
+      // Get gap from the previous event in the array (which is earlier in time)
+      const nextActivity = index < activities.length - 1 ? activities[index + 1] : null;
+      const gapMinutes = nextActivity?.gapAfterMinutes ?? null;
       const gapStartTime =
-        gapMinutes !== null && activity.gapAfterStart
-          ? this.datetimeService.formatTimeHHmm(activity.gapAfterStart)
+        gapMinutes !== null && nextActivity?.gapAfterStart
+          ? this.datetimeService.formatTimeHHmm(nextActivity.gapAfterStart)
           : null;
       const gapEndTime =
-        gapMinutes !== null && activity.gapAfterEnd
-          ? this.datetimeService.formatTimeHHmm(activity.gapAfterEnd)
+        gapMinutes !== null && nextActivity?.gapAfterEnd
+          ? this.datetimeService.formatTimeHHmm(nextActivity.gapAfterEnd)
           : null;
 
       return {
@@ -179,8 +183,8 @@ export class ChildTimeline implements OnInit {
         gapMinutes,
         gapStartTime,
         gapEndTime,
-        gapStartTimestamp: activity.gapAfterStart,
-        gapEndTimestamp: activity.gapAfterEnd,
+        gapStartTimestamp: nextActivity?.gapAfterStart ?? null,
+        gapEndTimestamp: nextActivity?.gapAfterEnd ?? null,
       };
     });
   });
