@@ -16,6 +16,13 @@ test.describe('Feedings', () => {
     await createChildAndGoToDashboard(page, 'E2E Feedings');
     const logWithDetails = page.getByText('Log with details', { exact: true }).locator('..');
     await logWithDetails.getByRole('button', { name: 'Go to feedings list' }).click();
+    // Button now navigates to list, not create form
+    await expect(page).toHaveURL(/\/children\/\d+\/feedings$/, { timeout: E2E_TIMEOUT });
+    await expect(
+      page.getByRole('button', { name: 'Add Feeding' })
+    ).toBeVisible();
+    // Navigate to create form from list
+    await page.getByRole('button', { name: 'Add Feeding' }).click();
     await expect(page).toHaveURL(/\/children\/\d+\/feedings\/create/, { timeout: E2E_TIMEOUT });
     await expect(
       page.getByRole('heading', { name: /Add Feeding/ })
@@ -40,6 +47,8 @@ test.describe('Feedings', () => {
     await createChildAndGoToDashboard(page, 'E2E Feedings');
     const logWithDetails = page.getByText('Log with details', { exact: true }).locator('..');
     await logWithDetails.getByRole('button', { name: 'Go to feedings list' }).click();
+    await expect(page).toHaveURL(/\/children\/\d+\/feedings$/, { timeout: E2E_TIMEOUT });
+    await page.getByRole('button', { name: 'Add Feeding' }).click();
     await expect(page).toHaveURL(/\/children\/\d+\/feedings\/create/, { timeout: E2E_TIMEOUT });
     await page.getByRole('radio', { name: 'Bottle' }).click({ force: true });
     await page.getByLabel('Date & Time').fill('2024-06-15T14:00');
@@ -87,6 +96,8 @@ test.describe('Feedings', () => {
     await createChildAndGoToDashboard(page, 'E2E Feedings');
     const logWithDetails = page.getByText('Log with details', { exact: true }).locator('..');
     await logWithDetails.getByRole('button', { name: 'Go to feedings list' }).click();
+    await expect(page).toHaveURL(/\/children\/\d+\/feedings$/, { timeout: E2E_TIMEOUT });
+    await page.getByRole('button', { name: 'Add Feeding' }).click();
     await expect(page).toHaveURL(/\/children\/\d+\/feedings\/create/, { timeout: E2E_TIMEOUT });
     await page.getByRole('radio', { name: 'Bottle' }).click({ force: true });
     await page.getByLabel('Date & Time').fill('2024-06-20T10:00');

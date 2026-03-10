@@ -14,6 +14,13 @@ test.describe('Naps', () => {
     await createChildAndGoToDashboard(page, 'E2E Naps');
     const logWithDetails = page.getByText('Log with details', { exact: true }).locator('..');
     await logWithDetails.getByRole('button', { name: 'Go to naps list' }).click();
+    // Button now navigates to list, not create form
+    await expect(page).toHaveURL(/\/children\/\d+\/naps$/, { timeout: E2E_TIMEOUT });
+    await expect(
+      page.getByRole('button', { name: 'Add Nap' })
+    ).toBeVisible();
+    // Navigate to create form from list
+    await page.getByRole('button', { name: 'Add Nap' }).click();
     await expect(page).toHaveURL(/\/children\/\d+\/naps\/create/, { timeout: E2E_TIMEOUT });
     await expect(
       page.getByRole('heading', { name: /Add Nap/ })
@@ -41,6 +48,8 @@ test.describe('Naps', () => {
     await createChildAndGoToDashboard(page, 'E2E Naps');
     const logWithDetails = page.getByText('Log with details', { exact: true }).locator('..');
     await logWithDetails.getByRole('button', { name: 'Go to naps list' }).click();
+    await expect(page).toHaveURL(/\/children\/\d+\/naps$/, { timeout: E2E_TIMEOUT });
+    await page.getByRole('button', { name: 'Add Nap' }).click();
     await expect(page).toHaveURL(/\/children\/\d+\/naps\/create/, { timeout: E2E_TIMEOUT });
     await page.getByLabel('Date & Time').fill('');
     await page.getByLabel('Date & Time').blur();
@@ -82,6 +91,8 @@ test.describe('Naps', () => {
     await createChildAndGoToDashboard(page, 'E2E Naps');
     const logWithDetails = page.getByText('Log with details', { exact: true }).locator('..');
     await logWithDetails.getByRole('button', { name: 'Go to naps list' }).click();
+    await expect(page).toHaveURL(/\/children\/\d+\/naps$/, { timeout: E2E_TIMEOUT });
+    await page.getByRole('button', { name: 'Add Nap' }).click();
     await expect(page).toHaveURL(/\/children\/\d+\/naps\/create/, { timeout: E2E_TIMEOUT });
     await page.getByLabel('Date & Time').fill('2024-06-22T12:00');
     const list200AfterAdd = waitForTrackingList200(page, 'naps');

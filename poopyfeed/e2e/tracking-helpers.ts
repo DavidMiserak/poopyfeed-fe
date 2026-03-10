@@ -84,6 +84,13 @@ export async function editTrackingItemAndSeeUpdateOnList(
   await createChildAndGoToDashboard(page, childNamePrefix);
   const logWithDetails = page.getByText('Log with details', { exact: true }).locator('..');
   await logWithDetails.getByRole('button', { name: dashboardButton }).click();
+  // Dashboard button now navigates to list, not create form
+  await expect(page).toHaveURL(listUrlPattern, { timeout: E2E_TIMEOUT });
+  // Navigate to create form from list
+  await expect(
+    page.getByRole('button', { name: listHeaderButton })
+  ).toBeVisible({ timeout: E2E_TIMEOUT });
+  await page.getByRole('button', { name: listHeaderButton }).click();
   await expect(page).toHaveURL(createUrlPattern, { timeout: E2E_TIMEOUT });
 
   await fillCreateForm(page);

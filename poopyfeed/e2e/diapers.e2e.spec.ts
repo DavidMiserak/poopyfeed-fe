@@ -16,6 +16,13 @@ test.describe('Diapers', () => {
     await createChildAndGoToDashboard(page, 'E2E Diapers');
     const logWithDetails = page.getByText('Log with details', { exact: true }).locator('..');
     await logWithDetails.getByRole('button', { name: 'Go to diapers list' }).click();
+    // Button now navigates to list, not create form
+    await expect(page).toHaveURL(/\/children\/\d+\/diapers$/, { timeout: E2E_TIMEOUT });
+    await expect(
+      page.getByRole('button', { name: 'Add Diaper Change' })
+    ).toBeVisible();
+    // Navigate to create form from list
+    await page.getByRole('button', { name: 'Add Diaper Change' }).click();
     await expect(page).toHaveURL(/\/children\/\d+\/diapers\/create/, { timeout: E2E_TIMEOUT });
     await expect(
       page.getByRole('heading', { name: /Add Diaper Change/ })
@@ -46,6 +53,8 @@ test.describe('Diapers', () => {
     await createChildAndGoToDashboard(page, 'E2E Diapers');
     const logWithDetails = page.getByText('Log with details', { exact: true }).locator('..');
     await logWithDetails.getByRole('button', { name: 'Go to diapers list' }).click();
+    await expect(page).toHaveURL(/\/children\/\d+\/diapers$/, { timeout: E2E_TIMEOUT });
+    await page.getByRole('button', { name: 'Add Diaper Change' }).click();
     await expect(page).toHaveURL(/\/children\/\d+\/diapers\/create/, { timeout: E2E_TIMEOUT });
     await page.locator('form label').filter({ hasText: 'Wet' }).click();
     await page.getByLabel('Date & Time').fill('');
@@ -94,6 +103,8 @@ test.describe('Diapers', () => {
     await createChildAndGoToDashboard(page, 'E2E Diapers');
     const logWithDetails = page.getByText('Log with details', { exact: true }).locator('..');
     await logWithDetails.getByRole('button', { name: 'Go to diapers list' }).click();
+    await expect(page).toHaveURL(/\/children\/\d+\/diapers$/, { timeout: E2E_TIMEOUT });
+    await page.getByRole('button', { name: 'Add Diaper Change' }).click();
     await expect(page).toHaveURL(/\/children\/\d+\/diapers\/create/, { timeout: E2E_TIMEOUT });
     await page.locator('form label').filter({ hasText: 'Both' }).click();
     await page.getByLabel('Date & Time').fill('2024-06-21T11:00');
