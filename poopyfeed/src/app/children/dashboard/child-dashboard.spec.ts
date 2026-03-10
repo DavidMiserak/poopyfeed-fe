@@ -427,7 +427,7 @@ vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(
 
       const compiled = fixture.nativeElement as HTMLElement;
       const activitySkeleton = compiled.querySelector(
-        '[aria-label="Loading Recent Activity"]'
+        '[aria-label="Loading Activity History"]'
       );
       expect(activitySkeleton).toBeTruthy();
       expect(activitySkeleton?.getAttribute('aria-busy')).toBe('true');
@@ -647,15 +647,16 @@ vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(
         expect(timestamps).toEqual(sortedTimestamps);
       });
 
-      it('should limit recent activity to 10 items when more available', () => {
+      it('should limit visible activity to 10 items when more available', () => {
         const feedings = Array.from({ length: 15 }, (_, i) =>
           makeFeeding({ id: i, fed_at: makeTodayTimestamp(i * 100) })
         );
 
         setupWithData(feedings);
 
-        // Should take only first 10 feedings, then limit to top 10 overall
-        expect(component.recentActivity().length).toBeLessThanOrEqual(10);
+        // recentActivity stores all items, visibleActivities limits to 10 for the active tab
+        expect(component.recentActivity().length).toBe(15);
+        expect(component.visibleActivities().length).toBeLessThanOrEqual(10);
       });
     });
   });
