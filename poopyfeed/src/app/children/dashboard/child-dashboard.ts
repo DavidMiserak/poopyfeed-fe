@@ -452,36 +452,12 @@ export class ChildDashboard implements OnInit {
    * ```
    */
 
-  /**
-   * Format child's age for display (e.g., "3 years old").
-   *
-   * Uses getChildAgeLong() utility for verbose format.
-   * Called from template to display child's age on dashboard header.
-   */
   getChildAge = (dateOfBirth: string) => getChildAgeLong(dateOfBirth);
 
-  /**
-   * Get gender-specific emoji for child.
-   *
-   * Uses getGenderIconDetailed() to return 👦 (boy), 👧 (girl), or 👶 (other).
-   * Called from template for child avatar/icon.
-   */
   getGenderIcon = (gender: 'M' | 'F' | 'O') => getGenderIconDetailed(gender);
 
-  /**
-   * Format activity timestamp (e.g., "2 hours ago").
-   *
-   * Uses formatActivityAge() which omits "just now" for activity feeds.
-   * Called from template for each activity in recent activity list.
-   */
   formatTimestamp = (timestamp: string) => formatActivityAge(timestamp);
 
-  /**
-   * Get activity type emoji (🍼 🧷 😴).
-   *
-   * Uses getActivityIcon() utility.
-   * Called from template for activity type icons in feed.
-   */
   getActivityIcon = (type: 'feeding' | 'diaper' | 'nap') => getActivityIcon(type);
 
   /**
@@ -547,5 +523,21 @@ export class ChildDashboard implements OnInit {
    */
   formatMinutes(minutes: number): string {
     return formatMinutesUtil(Math.round(minutes));
+  }
+
+  /**
+   * True when the child has feeding reminders enabled and time since last
+   * feeding is greater than or equal to the reminder interval. Mirrors the
+   * logic used on the children list cards to determine when to show the
+   * "Overdue" pill for feeding.
+   */
+  isFeedingOverdueForChild(child: Child | null): boolean {
+    if (!child) return false;
+    const interval = child.feeding_reminder_interval;
+    const lastFeeding = child.last_feeding;
+    if (interval == null || lastFeeding == null) return false;
+    const hoursSince =
+      (Date.now() - new Date(lastFeeding).getTime()) / (1000 * 60 * 60);
+    return hoursSince >= interval;
   }
 }
