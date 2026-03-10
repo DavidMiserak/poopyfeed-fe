@@ -125,35 +125,72 @@
             <div class="bg-white rounded-2xl border border-slate-100 shadow-sm px-4 py-3">
               <div class="space-y-3">
                 <!-- Diaper -->
-                <div class="flex items-center justify-between">
+                <button
+                  type="button"
+                  class="group flex w-full items-center justify-between text-left cursor-pointer hover:bg-slate-50 rounded-xl px-1 py-1 transition-colors"
+                  (click)="navigateToDiapers()"
+                  aria-label="View diaper list"
+                >
                   <div class="flex items-center gap-2 min-w-[84px]">
                     <span class="text-xl">🧷</span>
                     <span class="font-['DM_Sans',sans-serif] text-sm text-slate-700">Diaper</span>
                   </div>
-                  <span class="font-['DM_Sans',sans-serif] text-xs text-slate-500">
-                    @if (child()!.last_diaper_change) {
-                      {{ formatTimestamp(child()!.last_diaper_change!) }}
-                    } @else {
-                      <span class="italic">None yet</span>
-                    }
-                  </span>
-                </div>
+                  <div class="flex items-center gap-2">
+                    <span class="font-['DM_Sans',sans-serif] text-xs text-slate-500">
+                      @if (child()!.last_diaper_change) {
+                        {{ formatTimestamp(child()!.last_diaper_change!) }}
+                      } @else {
+                        <span class="italic">None yet</span>
+                      }
+                    </span>
+                    <svg
+                      class="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-500 transition-colors"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                    >
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                  </div>
+                </button>
                 <!-- Nap -->
-                <div class="flex items-center justify-between">
+                <button
+                  type="button"
+                  class="group flex w-full items-center justify-between text-left cursor-pointer hover:bg-slate-50 rounded-xl px-1 py-1 transition-colors"
+                  (click)="navigateToNaps()"
+                  aria-label="View nap list"
+                >
                   <div class="flex items-center gap-2 min-w-[84px]">
                     <span class="text-xl">😴</span>
                     <span class="font-['DM_Sans',sans-serif] text-sm text-slate-700">Nap</span>
                   </div>
-                  <span class="font-['DM_Sans',sans-serif] text-xs text-slate-500">
-                    @if (child()!.last_nap) {
-                      {{ formatTimestamp(child()!.last_nap!) }}
-                    } @else {
-                      <span class="italic">None yet</span>
-                    }
-                  </span>
-                </div>
+                  <div class="flex items-center gap-2">
+                    <span class="font-['DM_Sans',sans-serif] text-xs text-slate-500">
+                      @if (child()!.last_nap) {
+                        {{ formatTimestamp(child()!.last_nap!) }}
+                      } @else {
+                        <span class="italic">None yet</span>
+                      }
+                    </span>
+                    <svg
+                      class="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-500 transition-colors"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                    >
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                  </div>
+                </button>
                 <!-- Feeding -->
-                <div class="flex items-center justify-between">
+                <button
+                  type="button"
+                  class="group flex w-full items-center justify-between text-left cursor-pointer hover:bg-slate-50 rounded-xl px-1 py-1 transition-colors"
+                  (click)="navigateToFeedings()"
+                  aria-label="View feeding list"
+                >
                   <div class="flex items-center gap-1.5 min-w-[84px]">
                     <span class="text-xl">🍼</span>
                     <span class="font-['DM_Sans',sans-serif] text-sm text-slate-700">Feeding</span>
@@ -166,14 +203,25 @@
                       </span>
                     }
                   </div>
-                  <span class="font-['DM_Sans',sans-serif] text-xs text-slate-500">
-                    @if (child()!.last_feeding) {
-                      {{ formatTimestamp(child()!.last_feeding!) }}
-                    } @else {
-                      <span class="italic">None yet</span>
-                    }
-                  </span>
-                </div>
+                  <div class="flex items-center gap-2">
+                    <span class="font-['DM_Sans',sans-serif] text-xs text-slate-500">
+                      @if (child()!.last_feeding) {
+                        {{ formatTimestamp(child()!.last_feeding!) }}
+                      } @else {
+                        <span class="italic">None yet</span>
+                      }
+                    </span>
+                    <svg
+                      class="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-500 transition-colors"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                    >
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                  </div>
+                </button>
               </div>
             </div>
           </app-dashboard-section-card>

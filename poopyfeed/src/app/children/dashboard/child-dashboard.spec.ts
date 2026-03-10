@@ -851,34 +851,34 @@ vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(
       setupWithData();
     });
 
-    it('should set isNavigatingToFeeding signal and navigate when navigateToFeedings called', () => {
+    it('should set isNavigatingToFeeding signal and navigate to feedings list when navigateToFeedings called', () => {
       const routerSpy = vi.spyOn(component['router'], 'navigate');
       expect(component.isNavigatingToFeeding()).toBe(false);
 
       component.navigateToFeedings();
 
       expect(component.isNavigatingToFeeding()).toBe(true);
-      expect(routerSpy).toHaveBeenCalledWith(['/children', 1, 'feedings', 'create']);
+      expect(routerSpy).toHaveBeenCalledWith(['/children', 1, 'feedings']);
     });
 
-    it('should set isNavigatingToDiaper signal and navigate when navigateToDiapers called', () => {
+    it('should set isNavigatingToDiaper signal and navigate to diapers list when navigateToDiapers called', () => {
       const routerSpy = vi.spyOn(component['router'], 'navigate');
       expect(component.isNavigatingToDiaper()).toBe(false);
 
       component.navigateToDiapers();
 
       expect(component.isNavigatingToDiaper()).toBe(true);
-      expect(routerSpy).toHaveBeenCalledWith(['/children', 1, 'diapers', 'create']);
+      expect(routerSpy).toHaveBeenCalledWith(['/children', 1, 'diapers']);
     });
 
-    it('should set isNavigatingToNap signal and navigate when navigateToNaps called', () => {
+    it('should set isNavigatingToNap signal and navigate to naps list when navigateToNaps called', () => {
       const routerSpy = vi.spyOn(component['router'], 'navigate');
       expect(component.isNavigatingToNap()).toBe(false);
 
       component.navigateToNaps();
 
       expect(component.isNavigatingToNap()).toBe(true);
-      expect(routerSpy).toHaveBeenCalledWith(['/children', 1, 'naps', 'create']);
+      expect(routerSpy).toHaveBeenCalledWith(['/children', 1, 'naps']);
     });
 
     it('should set isNavigatingToAnalytics signal and navigate when navigateToAnalytics called', () => {

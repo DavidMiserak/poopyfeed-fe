@@ -333,44 +333,44 @@ export class ChildDashboard implements OnInit {
   }
 
   /**
-   * Navigate to create new feeding form.
+   * Navigate to feedings list for this child.
    *
    * Sets loading spinner on button and navigates to:
-   * /children/:childId/feedings/create
+   * /children/:childId/feedings
    */
   navigateToFeedings(): void {
     const childId = this.child()?.id;
     if (childId) {
       this.isNavigatingToFeeding.set(true);
-      this.router.navigate(['/children', childId, 'feedings', 'create']);
+      this.router.navigate(['/children', childId, 'feedings']);
     }
   }
 
   /**
-   * Navigate to create new diaper change form.
+   * Navigate to diapers list for this child.
    *
    * Sets loading spinner on button and navigates to:
-   * /children/:childId/diapers/create
+   * /children/:childId/diapers
    */
   navigateToDiapers(): void {
     const childId = this.child()?.id;
     if (childId) {
       this.isNavigatingToDiaper.set(true);
-      this.router.navigate(['/children', childId, 'diapers', 'create']);
+      this.router.navigate(['/children', childId, 'diapers']);
     }
   }
 
   /**
-   * Navigate to create new nap form.
+   * Navigate to naps list for this child.
    *
    * Sets loading spinner on button and navigates to:
-   * /children/:childId/naps/create
+   * /children/:childId/naps
    */
   navigateToNaps(): void {
     const childId = this.child()?.id;
     if (childId) {
       this.isNavigatingToNap.set(true);
-      this.router.navigate(['/children', childId, 'naps', 'create']);
+      this.router.navigate(['/children', childId, 'naps']);
     }
   }
 
