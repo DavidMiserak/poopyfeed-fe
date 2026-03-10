@@ -115,6 +115,17 @@ export class ChildDashboard implements OnInit {
   /** Merged and sorted recent activity (last 10 from timeline API) */
   recentActivity = signal<ActivityItem[]>([]);
 
+  /** Currently selected activity type tab for Activity History section */
+  activeActivityTab = signal<'feeding' | 'diaper' | 'nap'>('feeding');
+
+  /** Activities visible for the currently selected tab, limited to 10 items */
+  visibleActivities = computed(() => {
+    const tab = this.activeActivityTab();
+    return this.recentActivity()
+      .filter((item) => item.type === tab)
+      .slice(0, 10);
+  });
+
   /** Today's summary data from analytics API */
   todaySummaryData = signal<TodaySummaryData | null>(null);
 
@@ -267,9 +278,9 @@ export class ChildDashboard implements OnInit {
         this.todaySummaryData.set(dashboardSummary.today);
         this.notificationService.setUnreadCountFromBatch(dashboardSummary.unread_count);
         this.patternAlerts.set(patternAlerts ?? null);
-        const activities = timeline.results
-          .slice(0, 10)
-          .map((event) => this.timelineEventToActivityItem(event, childId));
+        const activities = timeline.results.map((event) =>
+          this.timelineEventToActivityItem(event, childId)
+        );
         this.recentActivity.set(activities);
         this.isDetailLoading.set(false);
       },
@@ -523,6 +534,21 @@ export class ChildDashboard implements OnInit {
    */
   formatMinutes(minutes: number): string {
     return formatMinutesUtil(Math.round(minutes));
+  }
+
+  /**
+   * Returns an empty-state message for the Activity History section
+   * based on the currently selected activity tab.
+   */
+  getEmptyStateMessage(tab: 'feeding' | 'diaper' | 'nap'): string {
+    switch (tab) {
+      case 'feeding':
+        return 'No feedings logged yet. Use Quick Log to add the first one.';
+      case 'diaper':
+        return 'No diaper changes logged yet.';
+      case 'nap':
+        return 'No naps logged yet.';
+    }
   }
 
   /**

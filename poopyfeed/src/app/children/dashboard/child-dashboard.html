@@ -331,14 +331,14 @@
           </div>
         </div>
 
-        <!-- Recent Activity (color-coded feed) -->
+        <!-- Activity History (tabbed, type-specific feed) -->
         @defer (on viewport) {
-          @if (isDetailLoading()) {
-            <app-dashboard-section-card title="Recent Activity" borderColor="amber">
+          <app-dashboard-section-card title="Activity History" borderColor="amber">
+            @if (isDetailLoading()) {
               <div
                 class="space-y-3"
                 aria-busy="true"
-                aria-label="Loading Recent Activity"
+                aria-label="Loading Activity History"
               >
                 @for (row of [1,2,3,4,5]; track row) {
                   <div class="h-14 rounded-xl border-l-4 border-l-slate-300 bg-gray-100 flex items-center gap-3 p-3">
@@ -350,32 +350,96 @@
                   </div>
                 }
               </div>
-            </app-dashboard-section-card>
-          } @else if (recentActivity().length > 0) {
-            <app-dashboard-section-card title="Recent Activity" borderColor="amber">
-              <div class="space-y-3">
-                @for (item of recentActivity(); track item.id) {
-                  <div
-                    class="flex items-center gap-3 p-3 rounded-xl border-l-4"
-                    [class]="getActivityRowClasses(item.type)"
+            } @else {
+              <div class="space-y-4">
+                <!-- Tabs -->
+                <div
+                  class="inline-flex rounded-2xl bg-slate-50 p-1 border border-slate-200"
+                  role="tablist"
+                  aria-label="Activity type"
+                >
+                  <button
+                    type="button"
+                    class="px-3.5 py-1.5 text-xs sm:text-sm font-['DM_Sans',sans-serif] font-semibold rounded-xl transition-all cursor-pointer"
+                    [class.bg-rose-600]="activeActivityTab() === 'feeding'"
+                    [class.text-white]="activeActivityTab() === 'feeding'"
+                    [class.shadow-sm]="activeActivityTab() === 'feeding'"
+                    [class.text-slate-600]="activeActivityTab() !== 'feeding'"
+                    [class.hover:bg-slate-100]="activeActivityTab() !== 'feeding'"
+                    role="tab"
+                    [attr.aria-selected]="activeActivityTab() === 'feeding'"
+                    aria-label="Show recent feedings"
+                    (click)="activeActivityTab.set('feeding')"
                   >
-                    <span class="text-2xl" [attr.aria-hidden]="true">{{ getActivityIcon(item.type) }}</span>
-                    <div class="flex-1 min-w-0">
-                      <p class="font-['DM_Sans',sans-serif] text-sm font-semibold text-slate-800 flex items-center gap-2 flex-wrap">
-                        {{ getActivityTitle(item) }}
-                        @if (isOngoingNap(item)) {
-                          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-800">Ongoing</span>
-                        }
-                      </p>
-                      <p class="font-['DM_Sans',sans-serif] text-xs text-slate-500">
-                        {{ formatTimestamp(item.timestamp) }}
-                      </p>
-                    </div>
-                  </div>
-                }
+                    Feedings
+                  </button>
+                  <button
+                    type="button"
+                    class="px-3.5 py-1.5 text-xs sm:text-sm font-['DM_Sans',sans-serif] font-semibold rounded-xl transition-all cursor-pointer"
+                    [class.bg-orange-500]="activeActivityTab() === 'diaper'"
+                    [class.text-white]="activeActivityTab() === 'diaper'"
+                    [class.shadow-sm]="activeActivityTab() === 'diaper'"
+                    [class.text-slate-600]="activeActivityTab() !== 'diaper'"
+                    [class.hover:bg-slate-100]="activeActivityTab() !== 'diaper'"
+                    role="tab"
+                    [attr.aria-selected]="activeActivityTab() === 'diaper'"
+                    aria-label="Show recent diaper changes"
+                    (click)="activeActivityTab.set('diaper')"
+                  >
+                    Diapers
+                  </button>
+                  <button
+                    type="button"
+                    class="px-3.5 py-1.5 text-xs sm:text-sm font-['DM_Sans',sans-serif] font-semibold rounded-xl transition-all cursor-pointer"
+                    [class.bg-blue-500]="activeActivityTab() === 'nap'"
+                    [class.text-white]="activeActivityTab() === 'nap'"
+                    [class.shadow-sm]="activeActivityTab() === 'nap'"
+                    [class.text-slate-600]="activeActivityTab() !== 'nap'"
+                    [class.hover:bg-slate-100]="activeActivityTab() !== 'nap'"
+                    role="tab"
+                    [attr.aria-selected]="activeActivityTab() === 'nap'"
+                    aria-label="Show recent naps"
+                    (click)="activeActivityTab.set('nap')"
+                  >
+                    Naps
+                  </button>
+                </div>
+
+                <!-- Tab content -->
+                <div
+                  class="space-y-3"
+                  role="tabpanel"
+                  aria-label="Recent activity for selected type"
+                >
+                  @if (visibleActivities().length > 0) {
+                    @for (item of visibleActivities(); track item.id) {
+                      <div
+                        class="flex items-center gap-3 p-3 rounded-xl border-l-4"
+                        [class]="getActivityRowClasses(item.type)"
+                      >
+                        <span class="text-2xl" [attr.aria-hidden]="true">{{ getActivityIcon(item.type) }}</span>
+                        <div class="flex-1 min-w-0">
+                          <p class="font-['DM_Sans',sans-serif] text-sm font-semibold text-slate-800 flex items-center gap-2 flex-wrap">
+                            {{ getActivityTitle(item) }}
+                            @if (isOngoingNap(item)) {
+                              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-800">Ongoing</span>
+                            }
+                          </p>
+                          <p class="font-['DM_Sans',sans-serif] text-xs text-slate-500">
+                            {{ formatTimestamp(item.timestamp) }}
+                          </p>
+                        </div>
+                      </div>
+                    }
+                  } @else {
+                    <p class="font-['DM_Sans',sans-serif] text-xs sm:text-sm text-slate-500">
+                      {{ getEmptyStateMessage(activeActivityTab()) }}
+                    </p>
+                  }
+                </div>
               </div>
-            </app-dashboard-section-card>
-          }
+            }
+          </app-dashboard-section-card>
         } @placeholder {
           <div style="min-height: 100px"></div>
         }
