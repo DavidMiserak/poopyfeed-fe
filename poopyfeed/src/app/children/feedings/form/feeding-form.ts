@@ -58,6 +58,7 @@ import {
   FEEDING_VALIDATION,
 } from '../../../models/feeding.model';
 import { TrackingFormBase } from '../../../utils/form-base';
+import { GaTrackingService, GaEventName } from '../../../services/ga-tracking.service';
 import { ActionButtonGroupComponent } from '../../../components/action-button-group/action-button-group.component';
 
 @Component({
@@ -78,6 +79,8 @@ export class FeedingForm
   protected childrenService = inject(ChildrenService);
   protected datetimeService = inject(DateTimeService);
   protected toast = inject(ToastService);
+  protected override gaTracking = inject(GaTrackingService);
+  protected override gaCreateEvent: GaEventName = 'log_feeding';
 
   /** Expose validation constants to template for dynamic min/max/placeholder */
   VALIDATION = FEEDING_VALIDATION;

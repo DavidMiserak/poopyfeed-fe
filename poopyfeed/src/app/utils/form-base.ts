@@ -83,6 +83,7 @@ import { DateTimeService } from '../services/datetime.service';
 import { ToastService } from '../services/toast.service';
 import { ChildrenService } from '../services/children.service';
 import { markAllAsTouched } from './form-helpers';
+import { GaTrackingService, GaEventName } from '../services/ga-tracking.service';
 
 /**
  * Service interface for tracking API operations (CRUD).
@@ -206,6 +207,12 @@ export abstract class TrackingFormBase<
    * Displayed in toast notification after successful update
    */
   protected abstract successMessageUpdate: string;
+
+  /** Optional GA tracking service — subclasses inject to enable event tracking. */
+  protected gaTracking?: GaTrackingService;
+
+  /** GA event name for create operations (e.g., 'log_feeding'). Override in subclass. */
+  protected gaCreateEvent?: GaEventName;
 
   /**
    * Child ID from URL (e.g., /children/123/feedings/create → 123)
@@ -393,6 +400,9 @@ export abstract class TrackingFormBase<
       next: () => {
         this.isSubmitting.set(false);
         this.toast.success(this.successMessageCreate);
+        if (this.gaTracking && this.gaCreateEvent) {
+          this.gaTracking.trackEvent(this.gaCreateEvent);
+        }
         this.navigateToList(childId);
       },
       error: (err: Error) => {
@@ -419,6 +429,9 @@ export abstract class TrackingFormBase<
       next: () => {
         this.isSubmitting.set(false);
         this.toast.success(this.successMessageUpdate);
+        if (this.gaTracking) {
+          this.gaTracking.trackEvent('edit_entry', { resource_type: this.resourceName });
+        }
         this.navigateToList(childId);
       },
       error: (err: Error) => {

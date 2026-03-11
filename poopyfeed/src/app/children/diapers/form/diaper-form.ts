@@ -51,6 +51,7 @@ import {
 import {
   TrackingFormBase,
 } from '../../../utils/form-base';
+import { GaTrackingService, GaEventName } from '../../../services/ga-tracking.service';
 import { ActionButtonGroupComponent } from '../../../components/action-button-group/action-button-group.component';
 
 @Component({
@@ -71,6 +72,8 @@ export class DiaperForm
   protected childrenService = inject(ChildrenService);
   protected datetimeService = inject(DateTimeService);
   protected toast = inject(ToastService);
+  protected override gaTracking = inject(GaTrackingService);
+  protected override gaCreateEvent: GaEventName = 'log_diaper';
 
   /**
    * Validation constants exposed to template for UI hints.

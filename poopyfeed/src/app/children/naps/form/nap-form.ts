@@ -44,6 +44,7 @@ import { DateTimeService } from '../../../services/datetime.service';
 import { ToastService } from '../../../services/toast.service';
 import { Nap, NapCreate, NAP_VALIDATION } from '../../../models/nap.model';
 import { TrackingFormBase } from '../../../utils/form-base';
+import { GaTrackingService, GaEventName } from '../../../services/ga-tracking.service';
 import { ActionButtonGroupComponent } from '../../../components/action-button-group/action-button-group.component';
 
 @Component({
@@ -64,6 +65,8 @@ export class NapForm
   protected childrenService = inject(ChildrenService);
   protected datetimeService = inject(DateTimeService);
   protected toast = inject(ToastService);
+  protected override gaTracking = inject(GaTrackingService);
+  protected override gaCreateEvent: GaEventName = 'log_nap';
 
   /**
    * Validation constants exposed to template for UI hints.
