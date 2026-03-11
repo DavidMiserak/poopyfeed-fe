@@ -4,6 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { AccountService } from '../../services/account.service';
 import { ToastService } from '../../services/toast.service';
+import { GaTrackingService } from '../../services/ga-tracking.service';
 
 @Component({
   selector: 'app-signup',
@@ -17,6 +18,7 @@ export class Signup {
   private authService = inject(AuthService);
   private accountService = inject(AccountService);
   private toast = inject(ToastService);
+  private gaTracking = inject(GaTrackingService);
 
   signupForm = new FormGroup({
     email: new FormControl('', [Validators.required, Validators.email]),
@@ -55,6 +57,7 @@ export class Signup {
         next: () => {
           this.isSubmitting.set(false);
           this.toast.success('Account created successfully');
+          this.gaTracking.trackEvent('sign_up');
           // Load profile (timezone) so timeline and other views show times in user's timezone
           this.accountService.getProfile().subscribe({
             next: () => this.router.navigate(['/children']),
