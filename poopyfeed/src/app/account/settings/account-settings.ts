@@ -19,6 +19,7 @@ import { PushNotificationService } from '../../services/push-notification.servic
 import { TimezoneCheckService } from '../../services/timezone-check.service';
 import { ToastService } from '../../services/toast.service';
 import { TIMEZONES } from '../timezones';
+import { GaTrackingService } from '../../services/ga-tracking.service';
 
 @Component({
   selector: 'app-account-settings',
@@ -28,6 +29,7 @@ import { TIMEZONES } from '../timezones';
 })
 export class AccountSettings implements OnInit {
   private accountService = inject(AccountService);
+  private gaTracking = inject(GaTrackingService);
   private authService = inject(AuthService);
   private router = inject(Router);
   private toast = inject(ToastService);
@@ -269,6 +271,7 @@ export class AccountSettings implements OnInit {
         const success = await this.pushService.requestPermission();
         if (success) {
           this.toast.success('Push notifications enabled');
+          this.gaTracking.trackEvent('enable_notifications');
         } else {
           this.toast.error(
             'Could not enable push notifications. Check browser permissions.'
