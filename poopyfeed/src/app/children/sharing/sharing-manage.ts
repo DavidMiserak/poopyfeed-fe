@@ -26,6 +26,7 @@ import {
 import { Child } from '../../models/child.model';
 import { getGenderIcon } from '../../utils/date.utils';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog';
+import { GaTrackingService } from '../../services/ga-tracking.service';
 
 @Component({
   selector: 'app-sharing-manage',
@@ -41,6 +42,7 @@ export class SharingManage implements OnInit {
   private childrenService = inject(ChildrenService);
   private toast = inject(ToastService);
   private document = inject(DOCUMENT);
+  private gaTracking = inject(GaTrackingService);
 
   childId = signal<number | null>(null);
   child = signal<Child | null>(null);
@@ -120,6 +122,7 @@ export class SharingManage implements OnInit {
       .subscribe({
         next: (invite) => {
           this.isCreatingInvite.set(false);
+          this.gaTracking.trackEvent('share_child');
           // Prepend new invite to list
           this.invites.update((invites) => [invite, ...invites]);
         },
@@ -151,6 +154,7 @@ export class SharingManage implements OnInit {
     this.sharingService.revokeShare(childId, shareId).subscribe({
       next: () => {
         this.toast.success('Access revoked');
+        this.gaTracking.trackEvent('remove_member');
         this.shares.update((shares) =>
           shares.filter((s) => s.id !== shareId)
         );

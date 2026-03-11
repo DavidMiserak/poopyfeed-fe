@@ -61,6 +61,7 @@ import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { ChildrenService } from '../../services/children.service';
 import { NotificationService } from '../../services/notification.service';
 import { ToastService } from '../../services/toast.service';
+import { GaTrackingService } from '../../services/ga-tracking.service';
 import { Child, ChildCreate, ChildUpdate } from '../../models/child.model';
 import type { NotificationPreference, NotificationPreferenceUpdate } from '../../models/notification.model';
 
@@ -129,6 +130,7 @@ export class ChildForm implements OnInit {
   private childrenService = inject(ChildrenService);
   private notificationService = inject(NotificationService);
   private toast = inject(ToastService);
+  private gaTracking = inject(GaTrackingService);
 
   /**
    * Child ID from route parameter (:id).
@@ -387,6 +389,7 @@ export class ChildForm implements OnInit {
         this.isSubmitting.set(false);
         const actionName = this.isEdit() ? 'updated' : 'created';
         this.toast.success(`Child ${actionName} successfully`);
+        this.gaTracking.trackEvent(this.isEdit() ? 'edit_child' : 'add_child');
         if (this.isEdit()) {
           this.router.navigate(['/children']);
         } else {

@@ -28,6 +28,7 @@ import { ExportJobStatusComponent } from './export-job-status';
 import { AnalyticsService } from '../../services/analytics.service';
 import { ToastService } from '../../services/toast.service';
 import { ExportOptions } from '../../models/analytics.model';
+import { GaTrackingService } from '../../services/ga-tracking.service';
 
 @Component({
   selector: 'app-export-page',
@@ -40,6 +41,7 @@ export class ExportPage implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private analyticsService = inject(AnalyticsService);
   private toast = inject(ToastService);
+  private gaTracking = inject(GaTrackingService);
 
   private destroy$ = new Subject<void>();
 
@@ -114,6 +116,7 @@ export class ExportPage implements OnInit, OnDestroy {
       .subscribe({
         next: () => {
           this.toast.success('CSV downloaded successfully');
+          this.gaTracking.trackEvent('export_csv');
           this.goBack();
         },
         error: (err: Error) => {
@@ -142,6 +145,7 @@ export class ExportPage implements OnInit, OnDestroy {
         next: (response) => {
           this.jobTaskId.set(response.task_id);
           this.showJobStatus.set(true);
+          this.gaTracking.trackEvent('export_pdf');
         },
         error: (err: Error) => {
           this.toast.error(err.message);

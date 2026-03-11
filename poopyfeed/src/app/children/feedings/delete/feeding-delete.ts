@@ -13,6 +13,7 @@ import { Child } from '../../../models/child.model';
 import { ErrorCardComponent } from '../../../components/error-card/error-card.component';
 import { DeleteConfirmationComponent } from '../../../components/delete-confirmation/delete-confirmation.component';
 import { DateTimeService } from '../../../services/datetime.service';
+import { GaTrackingService } from '../../../services/ga-tracking.service';
 
 @Component({
   selector: 'app-feeding-delete',
@@ -27,6 +28,7 @@ export class FeedingDelete implements OnInit {
   private feedingsService = inject(FeedingsService);
   private childrenService = inject(ChildrenService);
   private datetimeService = inject(DateTimeService);
+  private gaTracking = inject(GaTrackingService);
 
   childId = signal<number | null>(null);
   child = signal<Child | null>(null);
@@ -78,6 +80,7 @@ export class FeedingDelete implements OnInit {
     this.feedingsService.delete(childId, feedingId).subscribe({
       next: () => {
         this.isDeleting.set(false);
+        this.gaTracking.trackEvent('delete_entry', { resource_type: 'feeding' });
         this.router.navigate(['/children', childId, 'feedings']);
       },
       error: (err: Error) => {

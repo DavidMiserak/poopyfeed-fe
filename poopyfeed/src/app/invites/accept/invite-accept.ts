@@ -7,6 +7,7 @@ import {
 } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { SharingService } from '../../services/sharing.service';
+import { GaTrackingService } from '../../services/ga-tracking.service';
 
 interface ChildInfo {
   id: number;
@@ -23,6 +24,7 @@ export class InviteAccept implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private sharingService = inject(SharingService);
+  private gaTracking = inject(GaTrackingService);
 
   token = signal<string | null>(null);
   child = signal<ChildInfo | null>(null);
@@ -53,6 +55,7 @@ export class InviteAccept implements OnInit {
           };
         this.child.set(childInfo);
         this.isProcessing.set(false);
+        this.gaTracking.trackEvent('accept_invite');
 
         // Auto-redirect after 3 seconds
         setTimeout(() => {

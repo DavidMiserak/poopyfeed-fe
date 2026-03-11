@@ -37,6 +37,7 @@ import { DiaperPatternsChart } from './diaper-patterns-chart';
 import { SleepSummaryChart } from './sleep-summary-chart';
 import { TodaySummaryCards } from '../../components/today-summary-cards';
 import { ChartFactoryService } from './chart-factory.service';
+import { GaTrackingService } from '../../services/ga-tracking.service';
 
 @Component({
   selector: 'app-analytics-dashboard',
@@ -66,6 +67,7 @@ export class AnalyticsDashboard implements OnInit {
   private analyticsService = inject(AnalyticsService);
   private toast = inject(ToastService);
   private chartFactory = inject(ChartFactoryService);
+  private gaTracking = inject(GaTrackingService);
 
   childId = signal<number | null>(null);
   isLoading = signal(true);
@@ -110,6 +112,7 @@ export class AnalyticsDashboard implements OnInit {
     }
 
     this.childId.set(id);
+    this.gaTracking.trackEvent('view_analytics_dashboard');
 
     // Lazy-load Chart.js before rendering charts
     try {

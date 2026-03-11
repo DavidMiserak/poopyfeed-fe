@@ -10,6 +10,7 @@ import { ChildrenService } from '../../services/children.service';
 import { Child } from '../../models/child.model';
 import { ErrorCardComponent } from '../../components/error-card/error-card.component';
 import { DeleteConfirmationComponent } from '../../components/delete-confirmation/delete-confirmation.component';
+import { GaTrackingService } from '../../services/ga-tracking.service';
 
 @Component({
   selector: 'app-child-delete',
@@ -22,6 +23,7 @@ export class ChildDelete implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private childrenService = inject(ChildrenService);
+  private gaTracking = inject(GaTrackingService);
 
   child = signal<Child | null>(null);
   isDeleting = signal(false);
@@ -57,6 +59,7 @@ export class ChildDelete implements OnInit {
     this.childrenService.delete(childId).subscribe({
       next: () => {
         this.isDeleting.set(false);
+        this.gaTracking.trackEvent('delete_child');
         this.router.navigate(['/children']);
       },
       error: (err: Error) => {
