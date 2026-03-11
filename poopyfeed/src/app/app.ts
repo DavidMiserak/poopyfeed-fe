@@ -6,11 +6,12 @@ import { Toast } from './components/toast/toast';
 import { TimezoneBanner } from './components/timezone-banner/timezone-banner';
 import { UpdateBanner } from './components/update-banner/update-banner';
 import { NetworkBanner } from './components/network-banner/network-banner';
+import { CookieConsentBanner } from './components/cookie-consent-banner/cookie-consent-banner';
 import { LastChildService } from './services/last-child.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, Header, Footer, Toast, TimezoneBanner, UpdateBanner, NetworkBanner],
+  imports: [RouterOutlet, Header, Footer, Toast, TimezoneBanner, UpdateBanner, NetworkBanner, CookieConsentBanner],
   templateUrl: './app.html',
   styleUrl: './app.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

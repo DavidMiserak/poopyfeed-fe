@@ -8,6 +8,9 @@
   <app-network-banner />
   <app-timezone-banner />
 }
+@defer (on idle) {
+  <app-cookie-consent-banner />
+}
 <app-header />
 <main id="main-content" class="app-main" tabindex="-1">
   <router-outlet />
