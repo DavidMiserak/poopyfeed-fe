@@ -50,7 +50,7 @@ describe('GaTrackingService', () => {
 
   describe('setUserProperties', () => {
     it('should no-op when not initialized', () => {
-      service.setUserProperties({ role: 'owner', child_count: 1, account_age_days: 30 });
+      service.setUserProperties({ role: 'owner', child_count: 1 });
       expect(window.gtag).not.toHaveBeenCalled();
     });
   });

@@ -68,6 +68,7 @@ import {
   getActivityIcon,
   formatMinutes as formatMinutesUtil,
 } from '../../utils/date.utils';
+import { GaTrackingService } from '../../services/ga-tracking.service';
 
 
 /**
@@ -105,6 +106,7 @@ export class ChildDashboard implements OnInit {
   private analyticsService = inject(AnalyticsService);
   private notificationService = inject(NotificationService);
   private datetimeService = inject(DateTimeService);
+  private gaTracking = inject(GaTrackingService);
 
   /** Child ID from URL (/children/123) */
   childId = signal<number | null>(null);
@@ -249,6 +251,7 @@ export class ChildDashboard implements OnInit {
       next: (child) => {
         this.child.set(child);
         this.isLoading.set(false);
+        this.gaTracking.setUserProperties({ role: child.user_role });
 
         // Tier 2/3: load summary + non-critical data in background
         this.loadDetailData(childId);

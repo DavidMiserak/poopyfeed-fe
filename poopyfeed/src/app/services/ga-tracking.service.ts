@@ -23,9 +23,8 @@ export type GaEventName =
   | 'enable_notifications';
 
 export interface GaUserProperties {
-  role: string;
-  child_count: number;
-  account_age_days: number;
+  role?: string;
+  child_count?: number;
 }
 
 declare global {

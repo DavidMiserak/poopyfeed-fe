@@ -48,6 +48,7 @@ import { ChildrenService } from '../../services/children.service';
 import { Child, GENDER_LABELS, ROLE_LABELS } from '../../models/child.model';
 import { getChildAge, formatTimestamp, getGenderIcon, getRoleBadgeColor } from '../../utils/date.utils';
 import { ChildrenListSsr } from './children-list-ssr';
+import { GaTrackingService } from '../../services/ga-tracking.service';
 
 @Component({
   selector: 'app-children-list',
@@ -61,6 +62,7 @@ export class ChildrenList implements OnInit {
   private destroyRef = inject(DestroyRef);
   private childrenService = inject(ChildrenService);
   private platformId = inject(PLATFORM_ID);
+  private gaTracking = inject(GaTrackingService);
 
   /**
    * List of children with user's access role.
@@ -149,6 +151,7 @@ export class ChildrenList implements OnInit {
       next: (children) => {
         this.children.set(children);
         this.isLoading.set(false);
+        this.gaTracking.setUserProperties({ child_count: children.length });
       },
       error: (err: Error) => {
         this.error.set(err.message);
