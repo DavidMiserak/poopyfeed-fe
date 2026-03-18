@@ -106,11 +106,11 @@ export class PushNotificationService {
     if (this.foregroundListenerActive) return;
 
     try {
-      const { getMessaging, onMessage: fbOnMessage } = await import('firebase/messaging');
+      const { onMessage: fbOnMessage } = await import('firebase/messaging');
       const messaging = await this.getMessagingInstance();
       if (!messaging) return;
 
-      fbOnMessage(messaging as ReturnType<typeof getMessaging>, (payload) => {
+      fbOnMessage(messaging as Parameters<typeof fbOnMessage>[0], (payload) => {
         const title = payload.data?.['title'] || payload.notification?.title || '';
         const body = payload.data?.['body'] || payload.notification?.body || '';
         onMessage({

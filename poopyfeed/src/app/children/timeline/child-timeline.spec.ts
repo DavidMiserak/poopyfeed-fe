@@ -604,7 +604,7 @@ describe('ChildTimeline', () => {
 
     it('should not show gap if less than 5 minutes', () => {
       // Replace the original 08:00 feeding with one that has a 3-minute gap to a new 08:03 feeding
-      const originalFeeding: Feeding = {
+      const _originalFeeding: Feeding = {
         id: 1,
         child: 1,
         feeding_type: 'bottle',

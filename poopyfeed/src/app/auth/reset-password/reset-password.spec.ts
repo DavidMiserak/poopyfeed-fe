@@ -76,7 +76,7 @@ describe('ResetPassword', () => {
         first_name: '',
         last_name: '',
         timezone: 'UTC',
-      }) as any);
+      }));
     const navigateSpy = vi.spyOn(router, 'navigate');
 
     component.form.patchValue({

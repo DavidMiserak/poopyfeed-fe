@@ -20,19 +20,10 @@ import { catchError } from 'rxjs/operators';
 import { Title } from '@angular/platform-browser';
 import { ChildrenService } from '../../services/children.service';
 import { AnalyticsService } from '../../services/analytics.service';
-import { NapsService } from '../../services/naps.service';
-import { DiapersService } from '../../services/diapers.service';
-import { FeedingsService } from '../../services/feedings.service';
-import { DateTimeService } from '../../services/datetime.service';
-import { ToastService } from '../../services/toast.service';
 import { Child } from '../../models/child.model';
-import type { NapCreate } from '../../models/nap.model';
-import type { DiaperChangeCreate } from '../../models/diaper.model';
-import type { FeedingCreate } from '../../models/feeding.model';
 import type { DashboardSummaryResponse, PatternAlertsResponse } from '../../models/analytics.model';
 import { ErrorCardComponent } from '../../components/error-card/error-card.component';
-import { getGenderIconDetailed, getAgeInWeeks } from '../../utils/date.utils';
-import { getRecommendedBottleAmount } from '../../utils/bottle-feeding.utils';
+import { getGenderIconDetailed } from '../../utils/date.utils';
 import type { FussBusSymptomId } from './fuss-bus.data';
 import {
   getChildAgeInMonths,
