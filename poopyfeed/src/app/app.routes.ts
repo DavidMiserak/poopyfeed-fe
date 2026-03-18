@@ -52,7 +52,7 @@ export const routes: Routes = [
         (m) => m.AccountSettings
       ),
     title: 'Account Settings - PoopyFeed',
-    data: { description: 'Manage your PoopyFeed account, password, and notification preferences.' },
+    data: { description: 'Manage your PoopyFeed account, password, and notification preferences.', showAds: true },
   },
   {
     path: 'notifications',
@@ -62,7 +62,7 @@ export const routes: Routes = [
         (m) => m.NotificationsPage
       ),
     title: 'Notifications - PoopyFeed',
-    data: { description: 'View and manage your PoopyFeed activity notifications.' },
+    data: { description: 'View and manage your PoopyFeed activity notifications.', showAds: true },
   },
   {
     path: 'quick-log/:type',
@@ -76,6 +76,7 @@ export const routes: Routes = [
   {
     path: 'children',
     canActivate: [authGuard],
+    data: { showAds: true },
     children: [
       {
         path: '',
@@ -309,7 +310,7 @@ export const routes: Routes = [
         (m) => m.PrivacyPolicy
       ),
     title: 'Privacy Policy - PoopyFeed',
-    data: { description: 'PoopyFeed privacy policy: how we collect, use, and protect your data.' },
+    data: { description: 'PoopyFeed privacy policy: how we collect, use, and protect your data.', showAds: true },
   },
   {
     path: 'terms',
@@ -318,14 +319,14 @@ export const routes: Routes = [
         (m) => m.TermsOfService
       ),
     title: 'Terms of Service - PoopyFeed',
-    data: { description: 'PoopyFeed terms of service and acceptable use.' },
+    data: { description: 'PoopyFeed terms of service and acceptable use.', showAds: true },
   },
   {
     path: 'contact',
     loadComponent: () =>
       import('./contact/contact').then((m) => m.Contact),
     title: 'Contact Us - PoopyFeed',
-    data: { description: 'Contact the PoopyFeed team with questions or feedback.' },
+    data: { description: 'Contact the PoopyFeed team with questions or feedback.', showAds: true },
   },
   {
     path: '**',
