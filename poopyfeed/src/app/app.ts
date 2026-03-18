@@ -9,6 +9,7 @@ import { NetworkBanner } from './components/network-banner/network-banner';
 import { CookieConsentBanner } from './components/cookie-consent-banner/cookie-consent-banner';
 import { LastChildService } from './services/last-child.service';
 import { GaTrackingService } from './services/ga-tracking.service';
+import { AdSenseService } from './services/adsense.service';
 
 @Component({
   selector: 'app-root',
@@ -20,9 +21,11 @@ import { GaTrackingService } from './services/ga-tracking.service';
 export class App {
   private lastChildService = inject(LastChildService);
   private gaTracking = inject(GaTrackingService);
+  private adSenseService = inject(AdSenseService);
   protected readonly title = signal('poopyfeed');
 
   constructor() {
     this.gaTracking.initialize();
+    this.adSenseService.initialize();
   }
 }
