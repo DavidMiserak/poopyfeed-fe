@@ -44,6 +44,7 @@ import { DateTimeService } from '../../../services/datetime.service';
 import { ToastService } from '../../../services/toast.service';
 import { Nap, NapCreate, NAP_VALIDATION } from '../../../models/nap.model';
 import { TrackingFormBase } from '../../../utils/form-base';
+import { noFutureDateTime } from '../../../utils/date-validators';
 import { GaTrackingService, GaEventName } from '../../../services/ga-tracking.service';
 import { ActionButtonGroupComponent } from '../../../components/action-button-group/action-button-group.component';
 
@@ -75,6 +76,7 @@ export class NapForm
    * Used in template for character counters and form hints.
    */
   VALIDATION = NAP_VALIDATION;
+  maxDateTime = this.datetimeService.nowAsInputFormat();
 
   /**
    * Form definition with nap tracking fields.
@@ -89,8 +91,8 @@ export class NapForm
    * - Straightforward one-to-one field mapping to API
    */
   protected form = new FormGroup({
-    napped_at: new FormControl('', [Validators.required]),
-    ended_at: new FormControl(''),
+    napped_at: new FormControl('', [Validators.required, noFutureDateTime(this.datetimeService)]),
+    ended_at: new FormControl('', [noFutureDateTime(this.datetimeService)]),
     notes: new FormControl('', [
       Validators.maxLength(NAP_VALIDATION.MAX_NOTES_LENGTH),
     ]),

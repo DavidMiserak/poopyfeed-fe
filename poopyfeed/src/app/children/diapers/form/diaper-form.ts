@@ -51,6 +51,7 @@ import {
 import {
   TrackingFormBase,
 } from '../../../utils/form-base';
+import { noFutureDateTime } from '../../../utils/date-validators';
 import { GaTrackingService, GaEventName } from '../../../services/ga-tracking.service';
 import { ActionButtonGroupComponent } from '../../../components/action-button-group/action-button-group.component';
 
@@ -82,6 +83,7 @@ export class DiaperForm
    * Used in template for character counters and form hints.
    */
   VALIDATION = DIAPER_VALIDATION;
+  maxDateTime = this.datetimeService.nowAsInputFormat();
 
   /**
    * Form definition with all diaper change fields.
@@ -98,7 +100,7 @@ export class DiaperForm
     change_type: new FormControl<'wet' | 'dirty' | 'both'>('wet', [
       Validators.required,
     ]),
-    changed_at: new FormControl('', [Validators.required]),
+    changed_at: new FormControl('', [Validators.required, noFutureDateTime(this.datetimeService)]),
     notes: new FormControl('', [
       Validators.maxLength(DIAPER_VALIDATION.MAX_NOTES_LENGTH),
     ]),

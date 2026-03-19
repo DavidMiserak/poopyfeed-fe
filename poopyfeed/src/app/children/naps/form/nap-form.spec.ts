@@ -74,6 +74,8 @@ describe('NapForm', () => {
       toUTC: vi.fn(),
       toLocal: vi.fn(),
       fromInputFormat: vi.fn(),
+      nowAsInputFormat: vi.fn().mockReturnValue('2024-12-31T23:59'),
+      getTodayInUserTimezone: vi.fn().mockReturnValue('2024-12-31'),
     };
 
     const mockToastService = {

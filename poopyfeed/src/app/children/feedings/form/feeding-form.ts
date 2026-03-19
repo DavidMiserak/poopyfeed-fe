@@ -58,6 +58,7 @@ import {
   FEEDING_VALIDATION,
 } from '../../../models/feeding.model';
 import { TrackingFormBase } from '../../../utils/form-base';
+import { noFutureDateTime } from '../../../utils/date-validators';
 import { GaTrackingService, GaEventName } from '../../../services/ga-tracking.service';
 import { ActionButtonGroupComponent } from '../../../components/action-button-group/action-button-group.component';
 
@@ -84,6 +85,7 @@ export class FeedingForm
 
   /** Expose validation constants to template for dynamic min/max/placeholder */
   VALIDATION = FEEDING_VALIDATION;
+  maxDateTime = this.datetimeService.nowAsInputFormat();
 
   /**
    * Form definition with all feeding fields.
@@ -102,7 +104,7 @@ export class FeedingForm
     feeding_type: new FormControl<'bottle' | 'breast'>('bottle', [
       Validators.required,
     ]),
-    fed_at: new FormControl('', [Validators.required]),
+    fed_at: new FormControl('', [Validators.required, noFutureDateTime(this.datetimeService)]),
     amount_oz: new FormControl<number | null>(null),
     duration_minutes: new FormControl<number | null>(null),
     side: new FormControl<'left' | 'right' | 'both' | null>(null),
