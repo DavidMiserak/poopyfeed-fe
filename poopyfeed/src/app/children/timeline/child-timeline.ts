@@ -504,31 +504,39 @@ export class ChildTimeline implements OnInit {
         notes: undefined,
       })
       .subscribe({
-        next: (newNap) => {
+        next: () => {
           this.toastService.success('Nap recorded');
 
-          // Use the timestamp we sent so the day filter includes this nap. The API may
-          // return a slightly different string (e.g. without "Z"), which can make
-          // getDateInUserTimezone() resolve to a different calendar day and hide the nap.
-          const activity = {
-            id: newNap.id,
-            type: 'nap' as const,
-            timestamp: adjustedStartTime,
-            data: { ...newNap, napped_at: adjustedStartTime, ended_at: adjustedEndTime },
-            gapAfterMinutes: null,
-            gapAfterStart: null,
-            gapAfterEnd: null,
-            isNapEligible: null,
-          };
-
-          this.allActivities.update((activities) => [...activities, activity]);
-          this.isAddingNap.set(false);
+          // Reload timeline so the backend recalculates all gap metadata.
+          // Local optimistic update can't recompute gaps correctly.
+          this.reloadTimeline(childId);
         },
         error: (err: Error) => {
           this.toastService.error(err.message || 'Failed to record nap');
           this.isAddingNap.set(false);
         },
       });
+  }
+
+  /**
+   * Reload timeline data without showing the loading skeleton.
+   *
+   * Used after adding a nap so the backend recalculates gap metadata.
+   */
+  private reloadTimeline(childId: number): void {
+    this.analyticsService.getTimeline(childId, 1, 100).subscribe({
+      next: (timeline) => {
+        const activities = timeline.results.map((event) =>
+          this.timelineEventToActivityItem(event, childId)
+        );
+        this.allActivities.set(activities);
+        this.isAddingNap.set(false);
+      },
+      error: () => {
+        // Timeline will be stale but nap was created; reset button state
+        this.isAddingNap.set(false);
+      },
+    });
   }
 
   /**

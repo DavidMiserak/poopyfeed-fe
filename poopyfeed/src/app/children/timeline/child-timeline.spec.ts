@@ -864,9 +864,10 @@ describe('ChildTimeline', () => {
       expect(component.canAddNap()).toBeTruthy();
     });
 
-    it('should create nap with gap timestamps adjusted by ±1 minute', () => {
+    it('should create nap with gap timestamps adjusted by ±1 minute and reload timeline', () => {
       const napsServiceMock = TestBed.inject(NapsService);
       const toastServiceMock = TestBed.inject(ToastService);
+      const analyticsServiceMock = TestBed.inject(AnalyticsService);
 
       const newNap = {
         ...mockNaps[0],
@@ -876,6 +877,7 @@ describe('ChildTimeline', () => {
       };
 
       vi.mocked(napsServiceMock.create).mockReturnValue(of(newNap));
+      vi.mocked(analyticsServiceMock.getTimeline).mockReturnValue(of(mockTimelineResponse));
 
       component.childId.set(1);
       component.dayOffset.set(0);
@@ -892,11 +894,10 @@ describe('ChildTimeline', () => {
 
       expect(vi.mocked(toastServiceMock.success)).toHaveBeenCalledWith('Nap recorded');
 
-      // Verify nap was added to timeline
-      const activities = component.allActivities();
-      const addedNap = activities.find((a) => a.id === 99);
-      expect(addedNap).toBeTruthy();
-      expect(addedNap?.type).toBe('nap');
+      // Verify timeline was reloaded from API (not just local update)
+      const timelineCalls = vi.mocked(analyticsServiceMock.getTimeline).mock.calls;
+      expect(timelineCalls.length).toBeGreaterThanOrEqual(2);
+      expect(component.isAddingNap()).toBe(false);
     });
   });
 
