@@ -9,6 +9,7 @@ export class AdSenseService {
   private scriptElement: HTMLScriptElement | null = null;
   private isPremium = signal(false);
   private lastShowAds = false;
+  private initialized = false;
 
   setPremium(value: boolean): void {
     this.isPremium.set(value);
@@ -21,7 +22,8 @@ export class AdSenseService {
   }
 
   initialize(): void {
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined' || this.initialized) return;
+    this.initialized = true;
 
     this.router.events
       .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
