@@ -22,6 +22,11 @@ describe('LastChildService', () => {
       setItem: vi.fn((key: string, value: string) => {
         localStorageStore[key] = value;
       }),
+      clear: vi.fn(() => {
+        // Keep behavior compatible with the Web Storage API so other spec files
+        // calling `localStorage.clear()` don't crash when this stub leaks.
+        localStorageStore = {};
+      }),
       removeItem: vi.fn((key: string) => {
         delete localStorageStore[key];
       }),
