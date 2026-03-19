@@ -84,4 +84,33 @@ describe('AdSenseService', () => {
     routerEvents$.next(new NavigationEnd(1, '/children/1/dashboard', '/children/1/dashboard'));
     expect(document.querySelector(scriptSelector)).not.toBeNull();
   });
+
+  it('should not inject script when premium is true even if showAds is true', () => {
+    mockRouterState.snapshot.root.firstChild = { data: { showAds: true }, firstChild: null };
+    service.initialize();
+    service.setPremium(true);
+    routerEvents$.next(new NavigationEnd(1, '/children', '/children'));
+    expect(document.querySelector(scriptSelector)).toBeNull();
+  });
+
+  it('should remove script when setPremium is called with true', () => {
+    mockRouterState.snapshot.root.firstChild = { data: { showAds: true }, firstChild: null };
+    service.initialize();
+    routerEvents$.next(new NavigationEnd(1, '/children', '/children'));
+    expect(document.querySelector(scriptSelector)).not.toBeNull();
+
+    service.setPremium(true);
+    expect(document.querySelector(scriptSelector)).toBeNull();
+  });
+
+  it('should re-inject script when setPremium is called with false on ad route', () => {
+    mockRouterState.snapshot.root.firstChild = { data: { showAds: true }, firstChild: null };
+    service.initialize();
+    routerEvents$.next(new NavigationEnd(1, '/children', '/children'));
+    service.setPremium(true);
+    expect(document.querySelector(scriptSelector)).toBeNull();
+
+    service.setPremium(false);
+    expect(document.querySelector(scriptSelector)).not.toBeNull();
+  });
 });
