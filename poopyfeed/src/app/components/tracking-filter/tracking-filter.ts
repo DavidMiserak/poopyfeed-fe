@@ -35,7 +35,9 @@ export class TrackingFilterComponent {
   private filterService = inject(FilterService);
   private datetimeService = inject(DateTimeService);
 
-  maxDate = this.datetimeService.getTodayInUserTimezone();
+  get maxDate() {
+    return this.datetimeService.getTodayInUserTimezone();
+  }
 
   // Inputs
   typeOptions = input<{ value: string; label: string }[]>([]);

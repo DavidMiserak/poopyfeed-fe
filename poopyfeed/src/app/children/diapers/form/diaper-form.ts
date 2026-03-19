@@ -84,7 +84,9 @@ export class DiaperForm
    * Used in template for character counters and form hints.
    */
   VALIDATION = DIAPER_VALIDATION;
-  maxDateTime = this.datetimeService.toInputFormat(new Date());
+  get maxDateTime() {
+    return this.datetimeService.toInputFormat(new Date());
+  }
 
   /**
    * Form definition with all diaper change fields.

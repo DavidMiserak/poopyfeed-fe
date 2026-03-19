@@ -21,9 +21,6 @@ import {
   FormGroup,
   FormControl,
   Validators,
-  type ValidatorFn,
-  type ValidationErrors,
-  type AbstractControl,
 } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { debounceTime } from 'rxjs/operators';
@@ -34,6 +31,7 @@ import type {
   NapCreate,
 } from '../../models';
 import { DateTimeService } from '../../services/datetime.service';
+import { noFutureDateTime } from '../../utils/date-validators';
 import { getActivityIcon, formatTimestamp, formatActivityAge } from '../../utils/date.utils';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog';
 
@@ -68,20 +66,8 @@ export class EventCard implements OnInit, AfterViewInit {
   private dateTimeService = inject(DateTimeService);
   private destroyRef = inject(DestroyRef);
 
-  // Note: keep this independent from DateTimeService so unit tests (which mock
-  // DateTimeService with only `toInputFormat`) aren't impacted by additional calls.
-  maxDateTime = (() => {
-    const d = new Date();
-    const pad2 = (n: number) => n.toString().padStart(2, '0');
-    return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}T${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
-  })();
-
-  private noFutureDateTimeFromMax(max: string): ValidatorFn {
-    return (control: AbstractControl): ValidationErrors | null => {
-      const value = control.value as string | null | undefined;
-      if (!value) return null;
-      return value > max ? { futureDate: true } : null;
-    };
+  get maxDateTime() {
+    return this.dateTimeService.toInputFormat(new Date());
   }
 
   // Input/Output
@@ -108,9 +94,9 @@ export class EventCard implements OnInit, AfterViewInit {
     change_type: new FormControl('wet'),
     napped_at: new FormControl('', [
       Validators.required,
-      this.noFutureDateTimeFromMax(this.maxDateTime),
+      noFutureDateTime(this.dateTimeService),
     ]),
-    ended_at: new FormControl('', [this.noFutureDateTimeFromMax(this.maxDateTime)]),
+    ended_at: new FormControl('', [noFutureDateTime(this.dateTimeService)]),
     notes: new FormControl(''),
   });
 

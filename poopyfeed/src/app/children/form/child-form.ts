@@ -245,7 +245,9 @@ export class ChildForm implements OnInit {
     { validators: bottleAmountsValidator }
   );
 
-  maxDate = this.datetimeService.getTodayInUserTimezone();
+  get maxDate() {
+    return this.datetimeService.getTodayInUserTimezone();
+  }
 
   /**
    * Initialize component - detect create vs edit mode.

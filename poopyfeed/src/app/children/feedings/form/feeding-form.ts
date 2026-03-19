@@ -86,7 +86,9 @@ export class FeedingForm
 
   /** Expose validation constants to template for dynamic min/max/placeholder */
   VALIDATION = FEEDING_VALIDATION;
-  maxDateTime = this.datetimeService.toInputFormat(new Date());
+  get maxDateTime() {
+    return this.datetimeService.toInputFormat(new Date());
+  }
 
   /**
    * Form definition with all feeding fields.

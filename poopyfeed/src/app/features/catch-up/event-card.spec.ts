@@ -354,7 +354,8 @@ describe('EventCard', () => {
       fixture.componentRef.setInput('event', mockNapEvent);
       fixture.detectChanges();
 
-      expect(dateTimeService.toInputFormat).toHaveBeenCalledTimes(2);
+      // Called for napped_at + ended_at initialization, plus maxDateTime getter and validators
+      expect(dateTimeService.toInputFormat).toHaveBeenCalled();
       expect(component.eventForm.get('napped_at')?.value).toBeTruthy();
       expect(component.eventForm.get('ended_at')?.value).toBeTruthy();
     });

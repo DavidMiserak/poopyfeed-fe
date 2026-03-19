@@ -77,7 +77,9 @@ export class NapForm
    * Used in template for character counters and form hints.
    */
   VALIDATION = NAP_VALIDATION;
-  maxDateTime = this.datetimeService.toInputFormat(new Date());
+  get maxDateTime() {
+    return this.datetimeService.toInputFormat(new Date());
+  }
 
   /**
    * Form definition with nap tracking fields.
