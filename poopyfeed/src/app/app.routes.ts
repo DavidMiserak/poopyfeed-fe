@@ -12,19 +12,20 @@ export const routes: Routes = [
     data: {
       description:
         'PoopyFeed helps families and caregivers track feedings, diapers, and naps in one simple app. Stay coordinated and reduce guesswork.',
+      showAds: true,
     },
   },
   {
     path: 'login',
     loadComponent: () => import('./auth/login/login').then((m) => m.Login),
     title: 'Login - PoopyFeed',
-    data: { description: 'Log in to PoopyFeed to track feedings, diapers, and naps for your baby.' },
+    data: { description: 'Log in to PoopyFeed to track feedings, diapers, and naps for your baby.', showAds: true },
   },
   {
     path: 'signup',
     loadComponent: () => import('./auth/signup/signup').then((m) => m.Signup),
     title: 'Sign Up - PoopyFeed',
-    data: { description: 'Create a free PoopyFeed account to start tracking your baby’s feedings, diapers, and naps.' },
+    data: { description: ‘Create a free PoopyFeed account to start tracking your baby’s feedings, diapers, and naps.’, showAds: true },
   },
   {
     path: 'forgot-password',
@@ -33,7 +34,7 @@ export const routes: Routes = [
         (m) => m.ForgotPassword
       ),
     title: 'Forgot Password - PoopyFeed',
-    data: { description: 'Reset your PoopyFeed password.' },
+    data: { description: 'Reset your PoopyFeed password.', showAds: true },
   },
   {
     path: 'auth/reset-password/:key',
@@ -42,7 +43,7 @@ export const routes: Routes = [
         (m) => m.ResetPassword
       ),
     title: 'Reset Password - PoopyFeed',
-    data: { description: 'Set a new password for your PoopyFeed account.' },
+    data: { description: 'Set a new password for your PoopyFeed account.', showAds: true },
   },
   {
     path: 'account',
