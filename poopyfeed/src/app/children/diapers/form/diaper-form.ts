@@ -38,7 +38,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { Router, RouterLink, ActivatedRoute } from '@angular/router';
+import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { DiapersService } from '../../../services/diapers.service';
 import { ChildrenService } from '../../../services/children.service';
 import { DateTimeService } from '../../../services/datetime.service';
@@ -57,7 +57,8 @@ import { ActionButtonGroupComponent } from '../../../components/action-button-gr
 
 @Component({
   selector: 'app-diaper-form',
-  imports: [ReactiveFormsModule, RouterLink, ActionButtonGroupComponent],
+  standalone: true,
+  imports: [ReactiveFormsModule, RouterModule, ActionButtonGroupComponent],
   templateUrl: './diaper-form.html',
   styleUrl: './diaper-form.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -83,7 +84,7 @@ export class DiaperForm
    * Used in template for character counters and form hints.
    */
   VALIDATION = DIAPER_VALIDATION;
-  maxDateTime = this.datetimeService.nowAsInputFormat();
+  maxDateTime = this.datetimeService.toInputFormat(new Date());
 
   /**
    * Form definition with all diaper change fields.

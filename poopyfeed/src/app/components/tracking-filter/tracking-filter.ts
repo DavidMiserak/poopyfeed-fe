@@ -7,7 +7,9 @@ import {
   computed,
   inject,
 } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FilterService, FilterCriteria } from '../../services/filter.service';
+import { DateTimeService } from '../../services/datetime.service';
 
 /**
  * Reusable filter controls component for tracking lists.
@@ -24,11 +26,16 @@ import { FilterService, FilterCriteria } from '../../services/filter.service';
  */
 @Component({
   selector: 'app-tracking-filter',
+  standalone: true,
+  imports: [CommonModule],
   templateUrl: './tracking-filter.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TrackingFilterComponent {
   private filterService = inject(FilterService);
+  private datetimeService = inject(DateTimeService);
+
+  maxDate = this.datetimeService.getTodayInUserTimezone();
 
   // Inputs
   typeOptions = input<{ value: string; label: string }[]>([]);

@@ -210,8 +210,12 @@
               [id]="'napStart-' + evt.id"
               type="datetime-local"
               formControlName="napped_at"
+              [max]="maxDateTime"
               class="h-12 px-4 border-2 border-slate-200 rounded-xl font-['DM_Sans',sans-serif] text-base focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400"
             />
+            @if (eventForm.get('napped_at')?.errors?.['futureDate'] && eventForm.get('napped_at')?.touched) {
+              <p class="text-sm text-red-600 mt-1">Nap start cannot be in the future</p>
+            }
           </div>
 
           <div class="flex flex-col">
@@ -225,8 +229,12 @@
               [id]="'napEnd-' + evt.id"
               type="datetime-local"
               formControlName="ended_at"
+              [max]="maxDateTime"
               class="h-12 px-4 border-2 border-slate-200 rounded-xl font-['DM_Sans',sans-serif] text-base focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400"
             />
+            @if (eventForm.get('ended_at')?.errors?.['futureDate'] && eventForm.get('ended_at')?.touched) {
+              <p class="text-sm text-red-600 mt-1">Nap end cannot be in the future</p>
+            }
           </div>
         </div>
       }

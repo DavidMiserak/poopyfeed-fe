@@ -47,7 +47,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { Router, RouterLink, ActivatedRoute } from '@angular/router';
+import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { FeedingsService } from '../../../services/feedings.service';
 import { ChildrenService } from '../../../services/children.service';
 import { DateTimeService } from '../../../services/datetime.service';
@@ -64,7 +64,8 @@ import { ActionButtonGroupComponent } from '../../../components/action-button-gr
 
 @Component({
   selector: 'app-feeding-form',
-  imports: [ReactiveFormsModule, RouterLink, ActionButtonGroupComponent],
+  standalone: true,
+  imports: [ReactiveFormsModule, RouterModule, ActionButtonGroupComponent],
   templateUrl: './feeding-form.html',
   styleUrl: './feeding-form.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -85,7 +86,7 @@ export class FeedingForm
 
   /** Expose validation constants to template for dynamic min/max/placeholder */
   VALIDATION = FEEDING_VALIDATION;
-  maxDateTime = this.datetimeService.nowAsInputFormat();
+  maxDateTime = this.datetimeService.toInputFormat(new Date());
 
   /**
    * Form definition with all feeding fields.

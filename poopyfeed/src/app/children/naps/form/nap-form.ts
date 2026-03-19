@@ -37,7 +37,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { Router, RouterLink, ActivatedRoute } from '@angular/router';
+import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { NapsService } from '../../../services/naps.service';
 import { ChildrenService } from '../../../services/children.service';
 import { DateTimeService } from '../../../services/datetime.service';
@@ -50,7 +50,8 @@ import { ActionButtonGroupComponent } from '../../../components/action-button-gr
 
 @Component({
   selector: 'app-nap-form',
-  imports: [ReactiveFormsModule, RouterLink, ActionButtonGroupComponent],
+  standalone: true,
+  imports: [ReactiveFormsModule, RouterModule, ActionButtonGroupComponent],
   templateUrl: './nap-form.html',
   styleUrl: './nap-form.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -76,7 +77,7 @@ export class NapForm
    * Used in template for character counters and form hints.
    */
   VALIDATION = NAP_VALIDATION;
-  maxDateTime = this.datetimeService.nowAsInputFormat();
+  maxDateTime = this.datetimeService.toInputFormat(new Date());
 
   /**
    * Form definition with nap tracking fields.

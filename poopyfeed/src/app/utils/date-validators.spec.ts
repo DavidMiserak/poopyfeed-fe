@@ -5,7 +5,7 @@ import { DateTimeService } from '../services/datetime.service';
 
 const mockDateTimeService = {
   getTodayInUserTimezone: vi.fn().mockReturnValue('2026-03-19'),
-  nowAsInputFormat: vi.fn().mockReturnValue('2026-03-19T14:30'),
+  toInputFormat: vi.fn().mockReturnValue('2026-03-19T14:30'),
 } as unknown as DateTimeService;
 
 describe('Date Validators', () => {

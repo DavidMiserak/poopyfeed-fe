@@ -36,7 +36,8 @@ export function noFutureDateTime(
     if (!value) {
       return null;
     }
-    const now = datetimeService.nowAsInputFormat();
+    // Use `toInputFormat(new Date())` so test mocks only need `toInputFormat()`.
+    const now = datetimeService.toInputFormat(new Date());
     return value > now ? { futureDate: true } : null;
   };
 }

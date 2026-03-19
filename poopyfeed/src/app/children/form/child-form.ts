@@ -57,13 +57,15 @@ import {
   AbstractControl,
   ValidationErrors,
 } from '@angular/forms';
-import { Router, RouterLink, ActivatedRoute } from '@angular/router';
+import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { ChildrenService } from '../../services/children.service';
 import { NotificationService } from '../../services/notification.service';
 import { ToastService } from '../../services/toast.service';
 import { GaTrackingService } from '../../services/ga-tracking.service';
+import { DateTimeService } from '../../services/datetime.service';
 import { Child, ChildCreate, ChildUpdate } from '../../models/child.model';
 import type { NotificationPreference, NotificationPreferenceUpdate } from '../../models/notification.model';
+import { noFutureDate } from '../../utils/date-validators';
 
 /**
  * Validator: Ensures custom bottle amounts are either all set or all null.
@@ -119,7 +121,8 @@ function bottleAmountsValidator(control: AbstractControl): ValidationErrors | nu
 
 @Component({
   selector: 'app-child-form',
-  imports: [ReactiveFormsModule, RouterLink],
+  standalone: true,
+  imports: [ReactiveFormsModule, RouterModule],
   templateUrl: './child-form.html',
   styleUrl: './child-form.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -128,6 +131,7 @@ export class ChildForm implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private childrenService = inject(ChildrenService);
+  private datetimeService = inject(DateTimeService);
   private notificationService = inject(NotificationService);
   private toast = inject(ToastService);
   private gaTracking = inject(GaTrackingService);
@@ -219,7 +223,10 @@ export class ChildForm implements OnInit {
   childForm = new FormGroup(
     {
       name: new FormControl('', [Validators.required, Validators.maxLength(100)]),
-      date_of_birth: new FormControl('', [Validators.required]),
+      date_of_birth: new FormControl('', [
+        Validators.required,
+        noFutureDate(this.datetimeService),
+      ]),
       gender: new FormControl<'M' | 'F' | 'O'>('M', [Validators.required]),
       custom_bottle_low_oz: new FormControl<number | null>(null, [
         Validators.min(0.1),
@@ -237,6 +244,8 @@ export class ChildForm implements OnInit {
     },
     { validators: bottleAmountsValidator }
   );
+
+  maxDate = this.datetimeService.getTodayInUserTimezone();
 
   /**
    * Initialize component - detect create vs edit mode.
