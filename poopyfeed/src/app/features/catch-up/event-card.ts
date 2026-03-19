@@ -16,20 +16,10 @@ import {
   AfterViewInit,
   DestroyRef,
 } from '@angular/core';
-import {
-  ReactiveFormsModule,
-  FormGroup,
-  FormControl,
-  Validators,
-} from '@angular/forms';
+import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { debounceTime } from 'rxjs/operators';
-import type {
-  CatchUpEvent,
-  FeedingCreate,
-  DiaperChangeCreate,
-  NapCreate,
-} from '../../models';
+import type { CatchUpEvent, FeedingCreate, DiaperChangeCreate, NapCreate } from '../../models';
 import { DateTimeService } from '../../services/datetime.service';
 import { noFutureDateTime } from '../../utils/date-validators';
 import { getActivityIcon, formatTimestamp, formatActivityAge } from '../../utils/date.utils';
@@ -92,10 +82,7 @@ export class EventCard implements OnInit, AfterViewInit {
     duration_minutes: new FormControl<number | null>(null),
     side: new FormControl(''),
     change_type: new FormControl('wet'),
-    napped_at: new FormControl('', [
-      Validators.required,
-      noFutureDateTime(this.dateTimeService),
-    ]),
+    napped_at: new FormControl('', [Validators.required, noFutureDateTime(this.dateTimeService)]),
     ended_at: new FormControl('', [noFutureDateTime(this.dateTimeService)]),
     notes: new FormControl(''),
   });
@@ -112,10 +99,7 @@ export class EventCard implements OnInit, AfterViewInit {
     // Subscribe to form changes and emit updates for new events
     if (!this.evt.isExisting) {
       this.eventForm.valueChanges
-        .pipe(
-          debounceTime(200),
-          takeUntilDestroyed(this.destroyRef),
-        )
+        .pipe(debounceTime(200), takeUntilDestroyed(this.destroyRef))
         .subscribe(() => {
           this.emitUpdate();
         });

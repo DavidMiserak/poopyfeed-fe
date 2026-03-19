@@ -29,11 +29,10 @@ describe('NapsList - Batch Operations', () => {
     last_diaper_change: '2024-01-15T14:30:00Z',
     last_nap: '2024-01-15T13:00:00Z',
     last_feeding: '2024-01-15T12:00:00Z',
-        custom_bottle_low_oz: null,
-        custom_bottle_mid_oz: null,
-        custom_bottle_high_oz: null,
-        feeding_reminder_interval: null,
-
+    custom_bottle_low_oz: null,
+    custom_bottle_mid_oz: null,
+    custom_bottle_high_oz: null,
+    feeding_reminder_interval: null,
   };
 
   const mockNaps: Nap[] = [
@@ -164,7 +163,7 @@ describe('NapsList - Batch Operations', () => {
 
     component.bulkDelete();
 
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise((resolve) => setTimeout(resolve, 100));
     expect(napsService.delete).toHaveBeenCalledWith(1, 1);
     expect(napsService.delete).toHaveBeenCalledWith(1, 3);
     expect(component.selectedIds()).toEqual(new Set());
@@ -195,7 +194,7 @@ describe('NapsList - Batch Operations', () => {
     component.bulkDelete();
 
     // Wait for deletion to complete and check flag is cleared
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise((resolve) => setTimeout(resolve, 100));
     expect(component.isBulkDeleting()).toBeFalsy();
     confirmSpy.mockRestore();
   });
@@ -210,7 +209,7 @@ describe('NapsList - Batch Operations', () => {
 
     component.bulkDelete();
 
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise((resolve) => setTimeout(resolve, 100));
     expect(component.isBulkDeleting()).toBeFalsy();
     confirmSpy.mockRestore();
   });
@@ -268,11 +267,10 @@ describe('NapsList - Core Functionality Tests', () => {
     last_diaper_change: '2024-02-10T14:30:00Z',
     last_nap: '2024-02-10T13:00:00Z',
     last_feeding: '2024-02-10T12:00:00Z',
-        custom_bottle_low_oz: null,
-        custom_bottle_mid_oz: null,
-        custom_bottle_high_oz: null,
-        feeding_reminder_interval: null,
-
+    custom_bottle_low_oz: null,
+    custom_bottle_mid_oz: null,
+    custom_bottle_high_oz: null,
+    feeding_reminder_interval: null,
   };
 
   const mockCoParentChild: Child = {
@@ -373,7 +371,6 @@ describe('NapsList - Core Functionality Tests', () => {
       expect(component.allItems()).toEqual([]);
     });
 
-
     it('should initialize empty selection', () => {
       expect(component.selectedIds()).toEqual(new Set());
     });
@@ -388,14 +385,14 @@ describe('NapsList - Core Functionality Tests', () => {
 
     it('should populate allNaps after load', async () => {
       component.ngOnInit();
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
 
       expect(component.allItems()).toHaveLength(3);
     });
 
     it('should set isLoading=false after load', async () => {
       component.ngOnInit();
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
 
       expect(component.isLoading()).toBe(false);
     });
@@ -608,15 +605,11 @@ describe('NapsList - Core Functionality Tests', () => {
 
       const mockRoute = TestBed.inject(ActivatedRoute);
       const originalGet = mockRoute.snapshot.paramMap.get;
-      mockRoute.snapshot.paramMap.get = vi.fn((key: string) =>
-        key === 'childId' ? '2' : null
-      );
-      vi.mocked(childrenService.get).mockReturnValue(
-        of({ ...mockChild, id: 2, name: 'Baby Bob' })
-      );
+      mockRoute.snapshot.paramMap.get = vi.fn((key: string) => (key === 'childId' ? '2' : null));
+      vi.mocked(childrenService.get).mockReturnValue(of({ ...mockChild, id: 2, name: 'Baby Bob' }));
 
       component.ngOnInit();
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
 
       expect(component.childId()).toBe(2);
       expect(component.child()?.id).toBe(2);
@@ -634,7 +627,7 @@ describe('NapsList - Core Functionality Tests', () => {
       vi.mocked(napsService.list).mockReturnValue(of([]));
 
       component.ngOnInit();
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
 
       expect(component.allItems()).toEqual([]);
 
@@ -648,7 +641,7 @@ describe('NapsList - Core Functionality Tests', () => {
       vi.mocked(napsService.list).mockReturnValue(of(mockNaps));
 
       component.loadData(1);
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
 
       expect(component.filters().dateFrom).toBe('2024-02-10');
     });
@@ -667,7 +660,7 @@ describe('NapsList - Core Functionality Tests', () => {
     it('should handle filter changes during data load', async () => {
       let loadComplete = false;
       vi.mocked(napsService.list).mockImplementation(() => {
-        return new Observable(subscriber => {
+        return new Observable((subscriber) => {
           setTimeout(() => {
             loadComplete = true;
             subscriber.next(mockNaps);
@@ -682,7 +675,7 @@ describe('NapsList - Core Functionality Tests', () => {
       expect(loadComplete).toBe(false);
       expect(component.filters().dateFrom).toBe('2024-02-10');
 
-      await new Promise(resolve => setTimeout(resolve, 60));
+      await new Promise((resolve) => setTimeout(resolve, 60));
       expect(loadComplete).toBe(true);
     });
   });
@@ -771,7 +764,9 @@ describe('NapsList - Core Functionality Tests', () => {
 
     it('should handle ngOnInit with no childId in route', () => {
       const activatedRoute = TestBed.inject(ActivatedRoute);
-      activatedRoute.snapshot.paramMap.get = vi.fn().mockReturnValue(null) as typeof activatedRoute.snapshot.paramMap.get;
+      activatedRoute.snapshot.paramMap.get = vi
+        .fn()
+        .mockReturnValue(null) as typeof activatedRoute.snapshot.paramMap.get;
       (childrenService.get as ReturnType<typeof vi.fn>).mockClear();
 
       component.ngOnInit();

@@ -59,11 +59,7 @@ export class PediatricianSummaryComponent implements OnInit {
   isEmpty = computed(() => {
     const s = this.summary();
     if (!s) return false;
-    return (
-      s.feedings.count === 0 &&
-      s.diapers.count === 0 &&
-      s.sleep.naps === 0
-    );
+    return s.feedings.count === 0 && s.diapers.count === 0 && s.sleep.naps === 0;
   });
 
   /** Daily averages for doctor-friendly "how many per day" answers. */

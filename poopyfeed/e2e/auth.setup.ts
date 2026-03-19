@@ -27,9 +27,7 @@ setup('authenticate', async ({ page }) => {
   await page.getByRole('button', { name: 'Create Account' }).click();
 
   await expect(page).toHaveURL(/\/children/);
-  await expect(
-    page.getByRole('heading', { name: 'My Children' })
-  ).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'My Children' })).toBeVisible();
 
   fs.mkdirSync(AUTH_DIR, { recursive: true });
   await page.context().storageState({ path: AUTH_FILE });

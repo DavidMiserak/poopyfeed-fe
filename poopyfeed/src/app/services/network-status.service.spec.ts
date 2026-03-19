@@ -20,10 +20,7 @@ describe('NetworkStatusService', () => {
         configurable: true,
       });
       TestBed.configureTestingModule({
-        providers: [
-          NetworkStatusService,
-          { provide: PLATFORM_ID, useValue: 'browser' },
-        ],
+        providers: [NetworkStatusService, { provide: PLATFORM_ID, useValue: 'browser' }],
       });
     });
 
@@ -45,10 +42,7 @@ describe('NetworkStatusService', () => {
         configurable: true,
       });
       TestBed.configureTestingModule({
-        providers: [
-          NetworkStatusService,
-          { provide: PLATFORM_ID, useValue: 'browser' },
-        ],
+        providers: [NetworkStatusService, { provide: PLATFORM_ID, useValue: 'browser' }],
       });
     });
 
@@ -61,10 +55,7 @@ describe('NetworkStatusService', () => {
   describe('server platform', () => {
     beforeEach(() => {
       TestBed.configureTestingModule({
-        providers: [
-          NetworkStatusService,
-          { provide: PLATFORM_ID, useValue: 'server' },
-        ],
+        providers: [NetworkStatusService, { provide: PLATFORM_ID, useValue: 'server' }],
       });
     });
 

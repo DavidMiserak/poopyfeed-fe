@@ -3,10 +3,7 @@
  */
 
 import { TestBed } from '@angular/core/testing';
-import {
-  HttpTestingController,
-  provideHttpClientTesting,
-} from '@angular/common/http/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { ChildrenService } from './children.service';
 import { Child, ChildCreate, ChildUpdate } from '../models/child.model';
@@ -26,11 +23,10 @@ describe('ChildrenService', () => {
     last_diaper_change: '2024-01-15T14:30:00Z',
     last_nap: '2024-01-15T13:00:00Z',
     last_feeding: '2024-01-15T12:00:00Z',
-        custom_bottle_low_oz: null,
-        custom_bottle_mid_oz: null,
-        custom_bottle_high_oz: null,
-        feeding_reminder_interval: null,
-
+    custom_bottle_low_oz: null,
+    custom_bottle_mid_oz: null,
+    custom_bottle_high_oz: null,
+    feeding_reminder_interval: null,
   };
 
   const mockChildren: Child[] = [
@@ -46,11 +42,10 @@ describe('ChildrenService', () => {
       last_diaper_change: null,
       last_nap: null,
       last_feeding: null,
-          custom_bottle_low_oz: null,
-          custom_bottle_mid_oz: null,
-          custom_bottle_high_oz: null,
-        feeding_reminder_interval: null,
-
+      custom_bottle_low_oz: null,
+      custom_bottle_mid_oz: null,
+      custom_bottle_high_oz: null,
+      feeding_reminder_interval: null,
     },
   ];
 
@@ -225,11 +220,10 @@ describe('ChildrenService', () => {
       last_diaper_change: null,
       last_nap: null,
       last_feeding: null,
-          custom_bottle_low_oz: null,
-          custom_bottle_mid_oz: null,
-          custom_bottle_high_oz: null,
-        feeding_reminder_interval: null,
-
+      custom_bottle_low_oz: null,
+      custom_bottle_mid_oz: null,
+      custom_bottle_high_oz: null,
+      feeding_reminder_interval: null,
     };
 
     it('should create a new child', () => {
@@ -273,10 +267,7 @@ describe('ChildrenService', () => {
       });
 
       const req = httpMock.expectOne('/api/v1/children/');
-      req.flush(
-        { name: ['This field is required'] },
-        { status: 400, statusText: 'Bad Request' }
-      );
+      req.flush({ name: ['This field is required'] }, { status: 400, statusText: 'Bad Request' });
 
       expect(errorCaught).toBe(true);
     });
@@ -294,7 +285,7 @@ describe('ChildrenService', () => {
       const req = httpMock.expectOne('/api/v1/children/');
       req.flush(
         { non_field_errors: ['Invalid data provided'] },
-        { status: 400, statusText: 'Bad Request' }
+        { status: 400, statusText: 'Bad Request' },
       );
 
       expect(errorCaught).toBe(true);
@@ -480,10 +471,7 @@ describe('ChildrenService', () => {
       });
 
       const req = httpMock.expectOne('/api/v1/children/1/');
-      req.flush(
-        { detail: 'Custom error detail' },
-        { status: 400, statusText: 'Bad Request' }
-      );
+      req.flush({ detail: 'Custom error detail' }, { status: 400, statusText: 'Bad Request' });
 
       expect(errorCaught).toBe(true);
     });
@@ -862,7 +850,7 @@ describe('ChildrenService', () => {
           name: ['This field is required'],
           date_of_birth: ['Invalid date format'],
         },
-        { status: 400, statusText: 'Bad Request' }
+        { status: 400, statusText: 'Bad Request' },
       );
 
       expect(errorCaught).toBe(true);
@@ -891,7 +879,7 @@ describe('ChildrenService', () => {
           name: ['Child with this name already exists'],
           non_field_errors: ['Duplicate child detected'],
         },
-        { status: 400, statusText: 'Bad Request' }
+        { status: 400, statusText: 'Bad Request' },
       );
 
       expect(errorCaught).toBe(true);
@@ -918,7 +906,7 @@ describe('ChildrenService', () => {
         {
           name: ['Ensure this field has at least 2 characters', 'Another validation error'],
         },
-        { status: 400, statusText: 'Bad Request' }
+        { status: 400, statusText: 'Bad Request' },
       );
 
       expect(errorCaught).toBe(true);
@@ -943,10 +931,7 @@ describe('ChildrenService', () => {
       });
 
       const req = httpMock.expectOne('/api/v1/children/');
-      req.flush(
-        { name: ['This field is required'] },
-        { status: 400, statusText: 'Bad Request' }
-      );
+      req.flush({ name: ['This field is required'] }, { status: 400, statusText: 'Bad Request' });
 
       expect(service.children()).toEqual(initialChildren);
     });
@@ -981,10 +966,7 @@ describe('ChildrenService', () => {
       });
 
       const req = httpMock.expectOne('/api/v1/children/1/');
-      req.flush(
-        { name: ['This field is required'] },
-        { status: 400, statusText: 'Bad Request' }
-      );
+      req.flush({ name: ['This field is required'] }, { status: 400, statusText: 'Bad Request' });
 
       expect(service.children()).toEqual(mockChildren);
     });

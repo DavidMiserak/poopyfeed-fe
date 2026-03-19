@@ -231,7 +231,7 @@ describe('TrackingListService<T>', () => {
       expect(deleteFunc).toHaveBeenCalledWith(2);
 
       // Wait for async operations
-      await new Promise(resolve => setTimeout(resolve, 50));
+      await new Promise((resolve) => setTimeout(resolve, 50));
       expect(service.allItems()).toEqual([mockItems[2]]);
       expect(service.selectedIds()).toEqual(new Set());
       expect(service.isBulkDeleting()).toBe(false);

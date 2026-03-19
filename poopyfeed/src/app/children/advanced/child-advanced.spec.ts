@@ -126,9 +126,7 @@ describe('ChildAdvanced', () => {
       }).compileComponents();
 
       const errService = TestBed.inject(ChildrenService);
-      vi.spyOn(errService, 'get').mockReturnValue(
-        throwError(() => new Error('Network error'))
-      );
+      vi.spyOn(errService, 'get').mockReturnValue(throwError(() => new Error('Network error')));
 
       fixture = TestBed.createComponent(ChildAdvanced);
       fixture.detectChanges();

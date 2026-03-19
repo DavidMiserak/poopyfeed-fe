@@ -19,13 +19,9 @@ test.describe('Analytics', () => {
     await page.getByRole('link', { name: 'Trends & Analytics' }).click();
 
     await expect(page).toHaveURL(/\/children\/\d+\/analytics$/);
-    await expect(
-      page.getByRole('heading', { name: 'Analytics Dashboard' })
-    ).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Analytics Dashboard' })).toBeVisible();
 
-    await expect(
-      page.getByText('No Activity Data Yet')
-    ).toBeVisible({ timeout: E2E_TIMEOUT });
+    await expect(page.getByText('No Activity Data Yet')).toBeVisible({ timeout: E2E_TIMEOUT });
   });
 
   test('user can export CSV and get a download', async ({ page }) => {
@@ -37,18 +33,12 @@ test.describe('Analytics', () => {
 
     await page.goto(`/children/${childId}/analytics/export`);
 
-    await expect(
-      page.getByRole('heading', { name: 'Export Analytics' })
-    ).toBeVisible();
-    await expect(
-      page.getByRole('radio', { name: /Export as CSV/ })
-    ).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Export Analytics' })).toBeVisible();
+    await expect(page.getByRole('radio', { name: /Export as CSV/ })).toBeVisible();
     await page.getByRole('radio', { name: /Export as CSV/ }).check();
 
     const downloadPromise = page.waitForEvent('download', { timeout: E2E_TIMEOUT });
-    await page
-      .getByRole('button', { name: 'Confirm and start export' })
-      .click();
+    await page.getByRole('button', { name: 'Confirm and start export' }).click();
 
     const download = await downloadPromise;
     expect(download.suggestedFilename()).toMatch(/\.csv$/i);
@@ -58,9 +48,7 @@ test.describe('Analytics', () => {
     });
   });
 
-  test('user can export PDF and see job complete with download', async ({
-    page,
-  }) => {
+  test('user can export PDF and see job complete with download', async ({ page }) => {
     await createChildAndGoToDashboard(page, 'E2E Export PDF');
 
     const childIdMatch = page.url().match(/\/children\/(\d+)\//);
@@ -69,25 +57,17 @@ test.describe('Analytics', () => {
 
     await page.goto(`/children/${childId}/analytics/export`);
 
-    await expect(
-      page.getByRole('heading', { name: 'Export Analytics' })
-    ).toBeVisible();
-    await expect(
-      page.getByRole('radio', { name: /Export as PDF/ })
-    ).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Export Analytics' })).toBeVisible();
+    await expect(page.getByRole('radio', { name: /Export as PDF/ })).toBeVisible();
     await page.getByRole('radio', { name: /Export as PDF/ }).check();
 
-    await page
-      .getByRole('button', { name: 'Confirm and start export' })
-      .click();
+    await page.getByRole('button', { name: 'Confirm and start export' }).click();
 
     // Job status card shows "PDF ready for download!"; toast may say "PDF export ready for download!"
-    await expect(
-      page.getByText(/PDF.*ready for download/).first()
-    ).toBeVisible({ timeout: E2E_TIMEOUT });
+    await expect(page.getByText(/PDF.*ready for download/).first()).toBeVisible({
+      timeout: E2E_TIMEOUT,
+    });
 
-    await expect(
-      page.getByRole('button', { name: 'Download PDF' })
-    ).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Download PDF' })).toBeVisible();
   });
 });

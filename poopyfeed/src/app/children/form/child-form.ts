@@ -64,7 +64,10 @@ import { ToastService } from '../../services/toast.service';
 import { GaTrackingService } from '../../services/ga-tracking.service';
 import { DateTimeService } from '../../services/datetime.service';
 import { Child, ChildCreate, ChildUpdate } from '../../models/child.model';
-import type { NotificationPreference, NotificationPreferenceUpdate } from '../../models/notification.model';
+import type {
+  NotificationPreference,
+  NotificationPreferenceUpdate,
+} from '../../models/notification.model';
 import { noFutureDate } from '../../utils/date-validators';
 
 /**
@@ -166,7 +169,9 @@ export class ChildForm implements OnInit {
    */
   canManageReminders = computed(() => {
     const child = this.loadedChild();
-    return this.isEdit() && child && (child.user_role === 'owner' || child.user_role === 'co-parent');
+    return (
+      this.isEdit() && child && (child.user_role === 'owner' || child.user_role === 'co-parent')
+    );
   });
 
   /** Form submission state - shows spinner on submit button */
@@ -223,10 +228,7 @@ export class ChildForm implements OnInit {
   childForm = new FormGroup(
     {
       name: new FormControl('', [Validators.required, Validators.maxLength(100)]),
-      date_of_birth: new FormControl('', [
-        Validators.required,
-        noFutureDate(this.datetimeService),
-      ]),
+      date_of_birth: new FormControl('', [Validators.required, noFutureDate(this.datetimeService)]),
       gender: new FormControl<'M' | 'F' | 'O'>('M', [Validators.required]),
       custom_bottle_low_oz: new FormControl<number | null>(null, [
         Validators.min(0.1),
@@ -242,7 +244,7 @@ export class ChildForm implements OnInit {
       ]),
       feeding_reminder_interval: new FormControl<2 | 3 | 4 | 6 | null>(null),
     },
-    { validators: bottleAmountsValidator }
+    { validators: bottleAmountsValidator },
   );
 
   get maxDate() {
@@ -391,9 +393,7 @@ export class ChildForm implements OnInit {
     this.isSubmitting.set(true);
     this.error.set(null);
 
-    const operation = this.isEdit()
-      ? this.submitUpdate(formData)
-      : this.submitCreate(formData);
+    const operation = this.isEdit() ? this.submitUpdate(formData) : this.submitCreate(formData);
 
     operation.subscribe({
       next: (child) => {
@@ -436,7 +436,9 @@ export class ChildForm implements OnInit {
    * Submit for updating an existing child.
    * Builds ChildUpdate DTO (includes optional feeding_reminder_interval).
    */
-  private submitUpdate(formData: typeof this.childForm.value): ReturnType<ChildrenService['update']> {
+  private submitUpdate(
+    formData: typeof this.childForm.value,
+  ): ReturnType<ChildrenService['update']> {
     const childData: ChildUpdate = {
       name: formData.name ?? undefined,
       date_of_birth: formData.date_of_birth ?? undefined,
@@ -447,7 +449,7 @@ export class ChildForm implements OnInit {
       // Convert feeding_reminder_interval: string numbers to actual numbers, empty string to null
       // HTML select always returns strings, so "2", "3", "4", "6" need to be converted to numbers
       feeding_reminder_interval: this.convertReminderIntervalValue(
-        formData.feeding_reminder_interval
+        formData.feeding_reminder_interval,
       ),
     };
     return this.childrenService.update(this.childId()!, childData);
@@ -457,9 +459,7 @@ export class ChildForm implements OnInit {
    * Convert feeding_reminder_interval value from select (string) to API value (number | null).
    * HTML selects return strings, so "2" needs to be converted to 2.
    */
-  private convertReminderIntervalValue(
-    value: unknown
-  ): 2 | 3 | 4 | 6 | null {
+  private convertReminderIntervalValue(value: unknown): 2 | 3 | 4 | 6 | null {
     if (typeof value === 'number') {
       // Validate that number is one of the allowed values
       if ([2, 3, 4, 6].includes(value)) {

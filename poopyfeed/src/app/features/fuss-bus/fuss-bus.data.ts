@@ -23,9 +23,25 @@ export interface SymptomType {
 
 export const SYMPTOM_TYPES: SymptomType[] = [
   { id: 'crying', label: 'Crying', description: 'Upset or hard to soothe', icon: '😢' },
-  { id: 'refusing_food', label: 'Refusing food', description: 'Less interested in eating, picky', icon: '🍼', minAgeMonths: 12 },
-  { id: 'wont_sleep', label: "Won't sleep", description: 'Difficulty settling for naps, or restless', icon: '😴' },
-  { id: 'general_fussiness', label: 'General fussiness', description: 'Irritable, clingy, or unsettled', icon: '😣' },
+  {
+    id: 'refusing_food',
+    label: 'Refusing food',
+    description: 'Less interested in eating, picky',
+    icon: '🍼',
+    minAgeMonths: 12,
+  },
+  {
+    id: 'wont_sleep',
+    label: "Won't sleep",
+    description: 'Difficulty settling for naps, or restless',
+    icon: '😴',
+  },
+  {
+    id: 'general_fussiness',
+    label: 'General fussiness',
+    description: 'Irritable, clingy, or unsettled',
+    icon: '😣',
+  },
 ];
 
 /** Auto-check item keys used to derive state from API data. */
@@ -48,29 +64,65 @@ export interface ChecklistItemDef {
 
 /** Manual items common to all symptom types. */
 const COMMON_MANUAL_ITEMS: ChecklistItemDef[] = [
-  { id: 'comfortable_temperature', label: 'Room or clothing feels comfortable (not too hot or cold)', symptomIds: [] },
+  {
+    id: 'comfortable_temperature',
+    label: 'Room or clothing feels comfortable (not too hot or cold)',
+    symptomIds: [],
+  },
   { id: 'not_overstimulated', label: 'Environment feels calm; not overstimulated', symptomIds: [] },
   { id: 'held_comforted', label: 'Baby has been held or comforted recently', symptomIds: [] },
 ];
 
 /** Age-filtered manual items (symptomIds empty = all). */
 const AGE_FILTERED_ITEMS: ChecklistItemDef[] = [
-  { id: 'no_teething', label: 'No signs of teething discomfort', symptomIds: [], ageRange: { minMonths: 4, maxMonths: 24 } },
+  {
+    id: 'no_teething',
+    label: 'No signs of teething discomfort',
+    symptomIds: [],
+    ageRange: { minMonths: 4, maxMonths: 24 },
+  },
   { id: 'no_illness', label: 'No signs of illness (e.g. fever, rash, vomiting)', symptomIds: [] },
-  { id: 'not_growth_spurt', label: 'Not in a growth spurt (common around 2–3 weeks, 6 weeks, 3 months)', symptomIds: [] },
-  { id: 'no_separation_anxiety', label: 'No signs of separation anxiety', symptomIds: [], ageRange: { minMonths: 6 } },
+  {
+    id: 'not_growth_spurt',
+    label: 'Not in a growth spurt (common around 2–3 weeks, 6 weeks, 3 months)',
+    symptomIds: [],
+  },
+  {
+    id: 'no_separation_anxiety',
+    label: 'No signs of separation anxiety',
+    symptomIds: [],
+    ageRange: { minMonths: 6 },
+  },
 ];
 
 /** Symptom-specific manual items. */
 const SYMPTOM_SPECIFIC_ITEMS: ChecklistItemDef[] = [
   { id: 'gas_burping', label: 'Burping or gas relief offered', symptomIds: ['crying'] },
-  { id: 'witching_hour', label: 'Could be the witching hour (late afternoon fussiness, 0–4 months)', symptomIds: ['crying'], ageRange: { maxMonths: 4 } },
-  { id: 'offering_variety', label: 'Offering variety without pressure', symptomIds: ['refusing_food'] },
+  {
+    id: 'witching_hour',
+    label: 'Could be the witching hour (late afternoon fussiness, 0–4 months)',
+    symptomIds: ['crying'],
+    ageRange: { maxMonths: 4 },
+  },
+  {
+    id: 'offering_variety',
+    label: 'Offering variety without pressure',
+    symptomIds: ['refusing_food'],
+  },
   { id: 'mealtime_relaxed', label: 'Mealtime feels relaxed', symptomIds: ['refusing_food'] },
-  { id: 'milk_intake', label: 'Milk intake is moderate (under ~400ml/day for 12+ months)', symptomIds: ['refusing_food'], ageRange: { minMonths: 12 } },
+  {
+    id: 'milk_intake',
+    label: 'Milk intake is moderate (under ~400ml/day for 12+ months)',
+    symptomIds: ['refusing_food'],
+    ageRange: { minMonths: 12 },
+  },
   { id: 'sleep_routine', label: 'Sleep routine is consistent', symptomIds: ['wont_sleep'] },
   { id: 'dark_quiet_room', label: 'Sleep space is dark and quiet', symptomIds: ['wont_sleep'] },
-  { id: 'not_overtired', label: 'Not overtired; within a good sleep window', symptomIds: ['wont_sleep'] },
+  {
+    id: 'not_overtired',
+    label: 'Not overtired; within a good sleep window',
+    symptomIds: ['wont_sleep'],
+  },
 ];
 
 /** All manual checklist definitions (order preserved for display). */
@@ -119,13 +171,34 @@ export interface DevelopmentalContext {
 }
 
 export const DEVELOPMENTAL_CONTEXTS: DevelopmentalContext[] = [
-  { ageRange: { maxMonths: 4 }, text: 'Witching hour (late afternoon fussiness) is normal and temporary.' },
-  { ageRange: { minMonths: 0, maxMonths: 1 }, text: 'Growth spurts cause increased hunger and fussiness — increase feeding frequency.' },
-  { ageRange: { minMonths: 1.5, maxMonths: 2 }, text: 'Growth spurts cause increased hunger and fussiness — increase feeding frequency.' },
-  { ageRange: { minMonths: 2.5, maxMonths: 4 }, text: 'Growth spurts cause increased hunger and fussiness — increase feeding frequency.' },
-  { ageRange: { minMonths: 4, maxMonths: 24 }, text: 'Teething can cause discomfort — offer a chilled teething ring.' },
-  { ageRange: { minMonths: 6 }, text: 'Separation anxiety is normal — offer reassurance and consistent routines.' },
-  { ageRange: { minMonths: 12 }, text: 'Appetite naturally decreases after the first year — don\'t force feed.' },
+  {
+    ageRange: { maxMonths: 4 },
+    text: 'Witching hour (late afternoon fussiness) is normal and temporary.',
+  },
+  {
+    ageRange: { minMonths: 0, maxMonths: 1 },
+    text: 'Growth spurts cause increased hunger and fussiness — increase feeding frequency.',
+  },
+  {
+    ageRange: { minMonths: 1.5, maxMonths: 2 },
+    text: 'Growth spurts cause increased hunger and fussiness — increase feeding frequency.',
+  },
+  {
+    ageRange: { minMonths: 2.5, maxMonths: 4 },
+    text: 'Growth spurts cause increased hunger and fussiness — increase feeding frequency.',
+  },
+  {
+    ageRange: { minMonths: 4, maxMonths: 24 },
+    text: 'Teething can cause discomfort — offer a chilled teething ring.',
+  },
+  {
+    ageRange: { minMonths: 6 },
+    text: 'Separation anxiety is normal — offer reassurance and consistent routines.',
+  },
+  {
+    ageRange: { minMonths: 12 },
+    text: "Appetite naturally decreases after the first year — don't force feed.",
+  },
 ];
 
 /** Step labels for the progress indicator. */
@@ -169,7 +242,7 @@ export const FUSS_BUS_GLOSSARY: Record<string, GlossaryEntry> = {
   },
   'Witching hour': {
     title: 'Witching hour',
-    body: 'A regular fussy period in the late afternoon or evening in the first few months, often linked to development and overstimulation. It\'s normal and temporary; soothing techniques and taking shifts with a partner can help.',
+    body: "A regular fussy period in the late afternoon or evening in the first few months, often linked to development and overstimulation. It's normal and temporary; soothing techniques and taking shifts with a partner can help.",
   },
   Teething: {
     title: 'Teething',

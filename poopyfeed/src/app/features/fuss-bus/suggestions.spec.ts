@@ -52,7 +52,7 @@ describe('SuggestionsComponent', () => {
   it('renders glossary terms in soothing toolkit as clickable buttons', () => {
     const el = fixture.nativeElement as HTMLElement;
     const colicHoldButton = Array.from(el.querySelectorAll('button')).find(
-      (btn) => btn.textContent?.trim() === 'Colic hold'
+      (btn) => btn.textContent?.trim() === 'Colic hold',
     );
     expect(colicHoldButton).toBeTruthy();
     expect(colicHoldButton?.getAttribute('aria-label')).toBe('What is Colic hold?');
@@ -61,7 +61,7 @@ describe('SuggestionsComponent', () => {
   it('opens definition overlay when a glossary term is clicked', () => {
     const el = fixture.nativeElement as HTMLElement;
     const colicHoldButton = Array.from(el.querySelectorAll('button')).find(
-      (btn) => btn.textContent?.trim() === 'Colic hold'
+      (btn) => btn.textContent?.trim() === 'Colic hold',
     );
     expect(colicHoldButton).toBeTruthy();
     colicHoldButton?.click();

@@ -29,20 +29,17 @@ async function createFeedingsForOverdueAlert(page: Page): Promise<string> {
   ];
 
   for (const fedAt of times) {
-    const resp = await page.request.post(
-      `${baseURL}/api/v1/children/${childId}/feedings/`,
-      {
-        headers: {
-          Authorization: `Token ${token}`,
-          'Content-Type': 'application/json',
-        },
-        data: {
-          feeding_type: 'bottle',
-          fed_at: fedAt.toISOString(),
-          amount_oz: 4,
-        },
-      }
-    );
+    const resp = await page.request.post(`${baseURL}/api/v1/children/${childId}/feedings/`, {
+      headers: {
+        Authorization: `Token ${token}`,
+        'Content-Type': 'application/json',
+      },
+      data: {
+        feeding_type: 'bottle',
+        fed_at: fedAt.toISOString(),
+        amount_oz: 4,
+      },
+    });
     if (resp.status() !== 201) {
       throw new Error(`createFeedingsForOverdueAlert: POST feeding returned ${resp.status()}`);
     }
@@ -75,19 +72,16 @@ async function createNapsForOverdueWakeAlert(page: Page): Promise<string> {
   ];
 
   for (const { napped_at, ended_at } of naps) {
-    const resp = await page.request.post(
-      `${baseURL}/api/v1/children/${childId}/naps/`,
-      {
-        headers: {
-          Authorization: `Token ${token}`,
-          'Content-Type': 'application/json',
-        },
-        data: {
-          napped_at: napped_at.toISOString(),
-          ended_at: ended_at.toISOString(),
-        },
-      }
-    );
+    const resp = await page.request.post(`${baseURL}/api/v1/children/${childId}/naps/`, {
+      headers: {
+        Authorization: `Token ${token}`,
+        'Content-Type': 'application/json',
+      },
+      data: {
+        napped_at: napped_at.toISOString(),
+        ended_at: ended_at.toISOString(),
+      },
+    });
     if (resp.status() !== 201) {
       throw new Error(`createNapsForOverdueAlert: POST nap returned ${resp.status()}`);
     }
@@ -114,9 +108,9 @@ test.describe('Pattern alerts', () => {
   }) => {
     await createChildAndGoToDashboard(page, 'E2E Pattern Alerts');
 
-    await expect(
-      page.getByRole('heading', { name: 'Quick Log', level: 2 })
-    ).toBeVisible({ timeout: E2E_TIMEOUT });
+    await expect(page.getByRole('heading', { name: 'Quick Log', level: 2 })).toBeVisible({
+      timeout: E2E_TIMEOUT,
+    });
 
     // No feeding/nap history → pattern alerts return all false → region not rendered
     await expect(page.getByRole('region', { name: 'Pattern alerts' })).toHaveCount(0);
@@ -134,67 +128,64 @@ test.describe('Pattern alerts', () => {
       .click();
 
     await expect
-      .poll(
-        async () =>
-          await page.getByText('Wet diaper recorded successfully').isVisible(),
-        { timeout: E2E_TIMEOUT, intervals: [500] }
-      )
+      .poll(async () => await page.getByText('Wet diaper recorded successfully').isVisible(), {
+        timeout: E2E_TIMEOUT,
+        intervals: [500],
+      })
       .toBe(true);
 
-    await expect(
-      page.getByRole('heading', { name: 'Quick Log', level: 2 })
-    ).toBeVisible({ timeout: E2E_TIMEOUT });
+    await expect(page.getByRole('heading', { name: 'Quick Log', level: 2 })).toBeVisible({
+      timeout: E2E_TIMEOUT,
+    });
     await expect(page.getByRole('region', { name: 'Pattern alerts' })).toHaveCount(0);
   });
 
-  test('dashboard shows feeding pattern alert when overdue vs history', async ({
-    page,
-  }) => {
+  test('dashboard shows feeding pattern alert when overdue vs history', async ({ page }) => {
     await createChildAndGoToDashboard(page, 'E2E Pattern Alerts Overdue');
 
     await createFeedingsForOverdueAlert(page);
 
     await page.reload();
-    await expect(
-      page.getByRole('heading', { name: 'Quick Log', level: 2 })
-    ).toBeVisible({ timeout: E2E_TIMEOUT });
+    await expect(page.getByRole('heading', { name: 'Quick Log', level: 2 })).toBeVisible({
+      timeout: E2E_TIMEOUT,
+    });
 
-    await expect(
-      page.getByRole('region', { name: 'Pattern alerts' })
-    ).toBeVisible({ timeout: E2E_TIMEOUT });
+    await expect(page.getByRole('region', { name: 'Pattern alerts' })).toBeVisible({
+      timeout: E2E_TIMEOUT,
+    });
     await expect
       .poll(
         async () => {
-          const alert = page.getByRole('alert').filter({ hasText: /usually feeds every|it's been/ });
+          const alert = page
+            .getByRole('alert')
+            .filter({ hasText: /usually feeds every|it's been/ });
           return await alert.isVisible();
         },
-        { timeout: E2E_TIMEOUT, intervals: [1500] }
+        { timeout: E2E_TIMEOUT, intervals: [1500] },
       )
       .toBe(true);
   });
 
-  test('dashboard shows nap pattern alert when awake longer than usual', async ({
-    page,
-  }) => {
+  test('dashboard shows nap pattern alert when awake longer than usual', async ({ page }) => {
     await createChildAndGoToDashboard(page, 'E2E Pattern Alerts Nap');
 
     await createNapsForOverdueWakeAlert(page);
 
     await page.reload();
-    await expect(
-      page.getByRole('heading', { name: 'Quick Log', level: 2 })
-    ).toBeVisible({ timeout: E2E_TIMEOUT });
+    await expect(page.getByRole('heading', { name: 'Quick Log', level: 2 })).toBeVisible({
+      timeout: E2E_TIMEOUT,
+    });
 
-    await expect(
-      page.getByRole('region', { name: 'Pattern alerts' })
-    ).toBeVisible({ timeout: E2E_TIMEOUT });
+    await expect(page.getByRole('region', { name: 'Pattern alerts' })).toBeVisible({
+      timeout: E2E_TIMEOUT,
+    });
     await expect
       .poll(
         async () => {
           const alert = page.getByRole('alert').filter({ hasText: /usually naps after|awake for/ });
           return await alert.isVisible();
         },
-        { timeout: E2E_TIMEOUT, intervals: [1500] }
+        { timeout: E2E_TIMEOUT, intervals: [1500] },
       )
       .toBe(true);
   });

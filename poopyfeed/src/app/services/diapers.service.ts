@@ -19,16 +19,8 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { ErrorHandler } from './error.utils';
 import { Observable, tap, catchError, throwError, map } from 'rxjs';
 import { SwCacheService } from './sw-cache.service';
-import {
-  DiaperChange,
-  DiaperChangeCreate,
-  DiaperChangeUpdate,
-} from '../models/diaper.model';
-import {
-  PaginatedResponse,
-  PaginationMeta,
-  DEFAULT_PAGE_SIZE,
-} from '../models/pagination.model';
+import { DiaperChange, DiaperChangeCreate, DiaperChangeUpdate } from '../models/diaper.model';
+import { PaginatedResponse, PaginationMeta, DEFAULT_PAGE_SIZE } from '../models/pagination.model';
 
 @Injectable({
   providedIn: 'root',
@@ -84,7 +76,7 @@ export class DiapersService {
       dateTo?: string;
       change_type?: string;
     },
-    page = 1
+    page = 1,
   ): Observable<DiaperChange[]> {
     let params = new HttpParams().set('page', String(page));
 
@@ -119,7 +111,7 @@ export class DiapersService {
         map((response) => response.results),
         catchError((error) => {
           return throwError(() => ErrorHandler.handle(error, 'List'));
-        })
+        }),
       );
   }
 
@@ -130,17 +122,14 @@ export class DiapersService {
     return this.http.get<DiaperChange>(`${this.baseUrl(childId)}/${id}/`).pipe(
       catchError((error) => {
         return throwError(() => ErrorHandler.handle(error, 'Get'));
-      })
+      }),
     );
   }
 
   /**
    * Create a new diaper change
    */
-  create(
-    childId: number,
-    data: DiaperChangeCreate
-  ): Observable<DiaperChange> {
+  create(childId: number, data: DiaperChangeCreate): Observable<DiaperChange> {
     return this.http.post<DiaperChange>(`${this.baseUrl(childId)}/`, data).pipe(
       tap((diaper) => {
         // Add to cached list
@@ -150,36 +139,30 @@ export class DiapersService {
       }),
       catchError((error) => {
         return throwError(() => ErrorHandler.handle(error, 'Create'));
-      })
+      }),
     );
   }
 
   /**
    * Update an existing diaper change
    */
-  update(
-    childId: number,
-    id: number,
-    data: DiaperChangeUpdate
-  ): Observable<DiaperChange> {
-    return this.http
-      .patch<DiaperChange>(`${this.baseUrl(childId)}/${id}/`, data)
-      .pipe(
-        tap((updatedDiaper) => {
-          // Update in cached list
-          const currentDiapers = this.diapers();
-          const index = currentDiapers.findIndex((d) => d.id === id);
-          if (index !== -1) {
-            const updatedDiapers = [...currentDiapers];
-            updatedDiapers[index] = updatedDiaper;
-            this.diapers.set(updatedDiapers);
-          }
-          this.swCache.evictReadonlyListCaches(childId);
-        }),
-        catchError((error) => {
-          return throwError(() => ErrorHandler.handle(error, 'Update'));
-        })
-      );
+  update(childId: number, id: number, data: DiaperChangeUpdate): Observable<DiaperChange> {
+    return this.http.patch<DiaperChange>(`${this.baseUrl(childId)}/${id}/`, data).pipe(
+      tap((updatedDiaper) => {
+        // Update in cached list
+        const currentDiapers = this.diapers();
+        const index = currentDiapers.findIndex((d) => d.id === id);
+        if (index !== -1) {
+          const updatedDiapers = [...currentDiapers];
+          updatedDiapers[index] = updatedDiaper;
+          this.diapers.set(updatedDiapers);
+        }
+        this.swCache.evictReadonlyListCaches(childId);
+      }),
+      catchError((error) => {
+        return throwError(() => ErrorHandler.handle(error, 'Update'));
+      }),
+    );
   }
 
   /**
@@ -195,7 +178,7 @@ export class DiapersService {
       }),
       catchError((error) => {
         return throwError(() => ErrorHandler.handle(error, 'Delete'));
-      })
+      }),
     );
   }
 }

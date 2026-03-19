@@ -32,8 +32,7 @@ describe('ChildTimeline', () => {
     custom_bottle_low_oz: null,
     custom_bottle_mid_oz: null,
     custom_bottle_high_oz: null,
-        feeding_reminder_interval: null,
-
+    feeding_reminder_interval: null,
   };
 
   const today = new Date();
@@ -191,9 +190,7 @@ describe('ChildTimeline', () => {
       toLocal: vi.fn((utcString: string) => {
         const s = utcString.trim();
         const asUtc =
-          s.includes('T') && !s.endsWith('Z') && !/[+-]\d{2}:?\d{2}$/.test(s)
-            ? s + 'Z'
-            : s;
+          s.includes('T') && !s.endsWith('Z') && !/[+-]\d{2}:?\d{2}$/.test(s) ? s + 'Z' : s;
         return new Date(asUtc);
       }),
       toInputFormat: vi.fn(),
@@ -293,9 +290,7 @@ describe('ChildTimeline', () => {
 
     it('should handle API errors gracefully', async () => {
       const childrenService = TestBed.inject(ChildrenService);
-      vi.mocked(childrenService.get).mockReturnValue(
-        throwError(() => new Error('Failed to load'))
-      );
+      vi.mocked(childrenService.get).mockReturnValue(throwError(() => new Error('Failed to load')));
 
       component.ngOnInit();
       await fixture.whenStable();
@@ -660,9 +655,7 @@ describe('ChildTimeline', () => {
       const activitiesWithGap = component.dayActivities();
 
       // Find the original 08:00 feeding - it shows the gap from 08:03 feeding (3 min, suppressed)
-      const originalFeedingActivity = activitiesWithGap.find(
-        (a) => a.activity.id === 1
-      );
+      const originalFeedingActivity = activitiesWithGap.find((a) => a.activity.id === 1);
       expect(originalFeedingActivity?.gapMinutes).toBeNull();
       expect(originalFeedingActivity?.gapStartTime).toBeNull();
       expect(originalFeedingActivity?.gapEndTime).toBeNull();
@@ -731,9 +724,7 @@ describe('ChildTimeline', () => {
       const activitiesWithGap = component.dayActivities();
 
       // Find the feeding - it should display the gap from the nap
-      const feedingAfterNap = activitiesWithGap.find(
-        (a) => a.activity.id === 100
-      );
+      const feedingAfterNap = activitiesWithGap.find((a) => a.activity.id === 100);
 
       // After gap shifting, feeding (14:30) shows gap from nap (13:45 to 14:30) = 45 minutes
       expect(feedingAfterNap?.gapMinutes).toBe(45);
@@ -791,9 +782,7 @@ describe('ChildTimeline', () => {
       const activitiesWithGap = component.dayActivities();
 
       // Find the feeding that comes after the nap
-      const feedingActivity = activitiesWithGap.find(
-        (a) => a.activity.id === 102
-      );
+      const feedingActivity = activitiesWithGap.find((a) => a.activity.id === 102);
 
       // After gap shifting, feeding (12:30) displays the gap from nap (11:30 to 12:30)
       // Should use nap napped_at as end time (11:30 - 12:30 = 60 minutes)
@@ -915,9 +904,7 @@ describe('ChildTimeline', () => {
         (date: Date | string) => {
           const s = typeof date === 'string' ? date : (date as Date).toISOString();
           const asUtc =
-            s.includes('T') && !s.endsWith('Z') && !/[+-]\d{2}:?\d{2}$/.test(s)
-              ? s + 'Z'
-              : s;
+            s.includes('T') && !s.endsWith('Z') && !/[+-]\d{2}:?\d{2}$/.test(s) ? s + 'Z' : s;
           const d = new Date(asUtc);
           return new Intl.DateTimeFormat('en-CA', {
             timeZone: 'UTC',
@@ -925,7 +912,7 @@ describe('ChildTimeline', () => {
             month: '2-digit',
             day: '2-digit',
           }).format(d);
-        }
+        },
       );
       // selectedDateString for dayOffset 0 uses default mock (today in UTC = todayStr)
       component.dayOffset.set(0);
@@ -964,9 +951,7 @@ describe('ChildTimeline', () => {
         (date: Date | string) => {
           const s = typeof date === 'string' ? date : (date as Date).toISOString();
           const asUtc =
-            s.includes('T') && !s.endsWith('Z') && !/[+-]\d{2}:?\d{2}$/.test(s)
-              ? s + 'Z'
-              : s;
+            s.includes('T') && !s.endsWith('Z') && !/[+-]\d{2}:?\d{2}$/.test(s) ? s + 'Z' : s;
           const d = new Date(asUtc);
           return new Intl.DateTimeFormat('en-CA', {
             timeZone: 'UTC',
@@ -974,7 +959,7 @@ describe('ChildTimeline', () => {
             month: '2-digit',
             day: '2-digit',
           }).format(d);
-        }
+        },
       );
       // selectedDateString for dayOffset 0 is today (todayStr); activity is yesterday
       component.dayOffset.set(0);
@@ -1025,11 +1010,9 @@ describe('ChildTimeline', () => {
             month: '2-digit',
             day: '2-digit',
           }).format(d);
-        }
+        },
       );
-      vi.mocked(
-        dateTimeServiceMock.getDateNDaysAgoInUserTimezone
-      ).mockReturnValue('2024-01-15');
+      vi.mocked(dateTimeServiceMock.getDateNDaysAgoInUserTimezone).mockReturnValue('2024-01-15');
 
       // 4:30 AM UTC Jan 16 = 11:30 PM EST Jan 15
       component.allActivities.set([
@@ -1038,7 +1021,10 @@ describe('ChildTimeline', () => {
           type: 'feeding',
           timestamp: '2024-01-16T04:30:00Z',
           data: {
-            id: 50, child: 1, feeding_type: 'bottle', amount_oz: 5,
+            id: 50,
+            child: 1,
+            feeding_type: 'bottle',
+            amount_oz: 5,
             fed_at: '2024-01-16T04:30:00Z',
             created_at: '2024-01-16T04:30:00Z',
             updated_at: '2024-01-16T04:30:00Z',
@@ -1069,11 +1055,9 @@ describe('ChildTimeline', () => {
             month: '2-digit',
             day: '2-digit',
           }).format(d);
-        }
+        },
       );
-      vi.mocked(
-        dateTimeServiceMock.getDateNDaysAgoInUserTimezone
-      ).mockReturnValue('2024-01-16');
+      vi.mocked(dateTimeServiceMock.getDateNDaysAgoInUserTimezone).mockReturnValue('2024-01-16');
 
       // 5:01 AM UTC Jan 16 = 12:01 AM EST Jan 16
       component.allActivities.set([
@@ -1082,7 +1066,9 @@ describe('ChildTimeline', () => {
           type: 'diaper',
           timestamp: '2024-01-16T05:01:00Z',
           data: {
-            id: 51, child: 1, change_type: 'wet',
+            id: 51,
+            child: 1,
+            change_type: 'wet',
             changed_at: '2024-01-16T05:01:00Z',
             created_at: '2024-01-16T05:01:00Z',
             updated_at: '2024-01-16T05:01:00Z',
@@ -1113,7 +1099,7 @@ describe('ChildTimeline', () => {
             month: '2-digit',
             day: '2-digit',
           }).format(d);
-        }
+        },
       );
 
       // 4:00 AM UTC Jan 16 = 11:00 PM EST Jan 15 (previous day)
@@ -1124,7 +1110,10 @@ describe('ChildTimeline', () => {
           type: 'feeding',
           timestamp: '2024-01-16T04:00:00Z',
           data: {
-            id: 60, child: 1, feeding_type: 'bottle', amount_oz: 5,
+            id: 60,
+            child: 1,
+            feeding_type: 'bottle',
+            amount_oz: 5,
             fed_at: '2024-01-16T04:00:00Z',
             created_at: '2024-01-16T04:00:00Z',
             updated_at: '2024-01-16T04:00:00Z',
@@ -1139,7 +1128,9 @@ describe('ChildTimeline', () => {
           type: 'diaper',
           timestamp: '2024-01-16T05:00:00Z',
           data: {
-            id: 61, child: 1, change_type: 'wet',
+            id: 61,
+            child: 1,
+            change_type: 'wet',
             changed_at: '2024-01-16T05:00:00Z',
             created_at: '2024-01-16T05:00:00Z',
             updated_at: '2024-01-16T05:00:00Z',
@@ -1152,9 +1143,7 @@ describe('ChildTimeline', () => {
       ]);
 
       // View Jan 15 in EST — should only show the 11 PM feeding
-      vi.mocked(
-        dateTimeServiceMock.getDateNDaysAgoInUserTimezone
-      ).mockReturnValue('2024-01-15');
+      vi.mocked(dateTimeServiceMock.getDateNDaysAgoInUserTimezone).mockReturnValue('2024-01-15');
       component.dayOffset.set(1);
 
       let dayActs = component.dayActivities();
@@ -1162,9 +1151,7 @@ describe('ChildTimeline', () => {
       expect(dayActs[0].activity.id).toBe(60);
 
       // View Jan 16 in EST — should only show the midnight diaper
-      vi.mocked(
-        dateTimeServiceMock.getDateNDaysAgoInUserTimezone
-      ).mockReturnValue('2024-01-16');
+      vi.mocked(dateTimeServiceMock.getDateNDaysAgoInUserTimezone).mockReturnValue('2024-01-16');
       component.dayOffset.set(2);
 
       dayActs = component.dayActivities();
@@ -1183,7 +1170,7 @@ describe('ChildTimeline', () => {
             month: '2-digit',
             day: '2-digit',
           }).format(d);
-        }
+        },
       );
 
       // 11 PM UTC Jan 15 = 8 AM Tokyo Jan 16
@@ -1193,7 +1180,9 @@ describe('ChildTimeline', () => {
           type: 'nap',
           timestamp: '2024-01-15T23:00:00Z',
           data: {
-            id: 70, child: 1, duration_minutes: 30,
+            id: 70,
+            child: 1,
+            duration_minutes: 30,
             napped_at: '2024-01-15T23:00:00Z',
             ended_at: '2024-01-15T23:30:00Z',
             created_at: '2024-01-15T23:00:00Z',
@@ -1207,9 +1196,7 @@ describe('ChildTimeline', () => {
       ]);
 
       // In Tokyo, this activity is on Jan 16
-      vi.mocked(
-        dateTimeServiceMock.getDateNDaysAgoInUserTimezone
-      ).mockReturnValue('2024-01-16');
+      vi.mocked(dateTimeServiceMock.getDateNDaysAgoInUserTimezone).mockReturnValue('2024-01-16');
       component.dayOffset.set(1);
 
       let dayActs = component.dayActivities();
@@ -1217,9 +1204,7 @@ describe('ChildTimeline', () => {
       expect(dayActs[0].activity.id).toBe(70);
 
       // Viewing Jan 15 in Tokyo should NOT show this activity
-      vi.mocked(
-        dateTimeServiceMock.getDateNDaysAgoInUserTimezone
-      ).mockReturnValue('2024-01-15');
+      vi.mocked(dateTimeServiceMock.getDateNDaysAgoInUserTimezone).mockReturnValue('2024-01-15');
       component.dayOffset.set(2);
 
       dayActs = component.dayActivities();

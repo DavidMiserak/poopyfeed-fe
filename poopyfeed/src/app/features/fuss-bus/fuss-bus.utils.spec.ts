@@ -64,8 +64,24 @@ describe('fuss-bus.utils', () => {
         },
       };
       const timeline: TimelineEvent[] = [
-        { type: 'diaper', at: '2026-03-01T11:50:00Z', diaper: { id: 1, changed_at: '2026-03-01T11:50:00Z', change_type: 'wet' }, gap_after_minutes: null, gap_after_start: null, gap_after_end: null, is_nap_eligible: null },
-        { type: 'feeding', at: '2026-03-01T10:30:00Z', feeding: { id: 1, fed_at: '2026-03-01T10:30:00Z', feeding_type: 'bottle', amount_oz: 4 }, gap_after_minutes: null, gap_after_start: null, gap_after_end: null, is_nap_eligible: null },
+        {
+          type: 'diaper',
+          at: '2026-03-01T11:50:00Z',
+          diaper: { id: 1, changed_at: '2026-03-01T11:50:00Z', change_type: 'wet' },
+          gap_after_minutes: null,
+          gap_after_start: null,
+          gap_after_end: null,
+          is_nap_eligible: null,
+        },
+        {
+          type: 'feeding',
+          at: '2026-03-01T10:30:00Z',
+          feeding: { id: 1, fed_at: '2026-03-01T10:30:00Z', feeding_type: 'bottle', amount_oz: 4 },
+          gap_after_minutes: null,
+          gap_after_start: null,
+          gap_after_end: null,
+          is_nap_eligible: null,
+        },
       ];
       const state = getAutoCheckState(null, patternAlerts, timeline, fixedNow, 6);
       expect(state.fed).toBe('ok');
@@ -85,7 +101,14 @@ describe('fuss-bus.utils', () => {
           last_fed_at: '',
           data_points: 0,
         },
-        nap: { alert: false, message: null, avg_wake_window_minutes: null, minutes_awake: null, last_nap_ended_at: null, data_points: 0 },
+        nap: {
+          alert: false,
+          message: null,
+          avg_wake_window_minutes: null,
+          minutes_awake: null,
+          last_nap_ended_at: null,
+          data_points: 0,
+        },
       };
       const state = getAutoCheckState(null, patternAlerts, [], fixedNow);
       expect(state.fed).toBe('missing');
@@ -174,16 +197,21 @@ describe('fuss-bus.utils', () => {
 
   describe('prioritizeSuggestions', () => {
     it('puts unchecked auto items as high priority', () => {
-      const suggestions = prioritizeSuggestions(
-        ['fed'],
-        [],
-        'crying',
-        2,
-        { fed: 'missing', fedDetail: 'No feedings today', diaper: 'ok', diaperDetail: 'Ok', nap: 'ok', napDetail: 'Ok' }
-      );
+      const suggestions = prioritizeSuggestions(['fed'], [], 'crying', 2, {
+        fed: 'missing',
+        fedDetail: 'No feedings today',
+        diaper: 'ok',
+        diaperDetail: 'Ok',
+        nap: 'ok',
+        napDetail: 'Ok',
+      });
       const high = suggestions.filter((s) => s.priority === 'high');
       expect(high.length).toBeGreaterThanOrEqual(1);
-      expect(high.some((s) => s.text.toLowerCase().includes('hungry') || s.text.toLowerCase().includes('feed'))).toBe(true);
+      expect(
+        high.some(
+          (s) => s.text.toLowerCase().includes('hungry') || s.text.toLowerCase().includes('feed'),
+        ),
+      ).toBe(true);
     });
 
     it('includes low-priority soothing hint', () => {
@@ -192,7 +220,9 @@ describe('fuss-bus.utils', () => {
         diaper: 'ok',
         nap: 'ok',
       });
-      expect(suggestions.some((s) => s.priority === 'low' && s.text.includes('Soothing Toolkit'))).toBe(true);
+      expect(
+        suggestions.some((s) => s.priority === 'low' && s.text.includes('Soothing Toolkit')),
+      ).toBe(true);
     });
   });
 
@@ -200,7 +230,9 @@ describe('fuss-bus.utils', () => {
     it('returns matching contexts for 2 weeks', () => {
       const contexts = getDevelopmentalContexts(0);
       expect(contexts.length).toBeGreaterThan(0);
-      expect(contexts.some((c) => c.includes('Witching hour') || c.includes('Growth spurt'))).toBe(true);
+      expect(contexts.some((c) => c.includes('Witching hour') || c.includes('Growth spurt'))).toBe(
+        true,
+      );
     });
 
     it('returns teething context for 6 months', () => {
@@ -210,7 +242,11 @@ describe('fuss-bus.utils', () => {
 
     it('returns appetite context for 18 months', () => {
       const contexts = getDevelopmentalContexts(18);
-      expect(contexts.some((c) => c.toLowerCase().includes('appetite') || c.toLowerCase().includes('first year'))).toBe(true);
+      expect(
+        contexts.some(
+          (c) => c.toLowerCase().includes('appetite') || c.toLowerCase().includes('first year'),
+        ),
+      ).toBe(true);
     });
   });
 });

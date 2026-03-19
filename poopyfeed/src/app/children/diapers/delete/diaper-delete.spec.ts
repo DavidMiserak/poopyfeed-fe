@@ -28,11 +28,10 @@ describe('DiaperDelete', () => {
     last_diaper_change: '2024-02-10T14:30:00Z',
     last_nap: '2024-02-10T13:00:00Z',
     last_feeding: '2024-02-10T12:00:00Z',
-        custom_bottle_low_oz: null,
-        custom_bottle_mid_oz: null,
-        custom_bottle_high_oz: null,
-        feeding_reminder_interval: null,
-
+    custom_bottle_low_oz: null,
+    custom_bottle_mid_oz: null,
+    custom_bottle_high_oz: null,
+    feeding_reminder_interval: null,
   };
 
   const mockWetDiaper: DiaperChange = {
@@ -158,18 +157,17 @@ describe('DiaperDelete', () => {
 
     it('should populate child after load', async () => {
       component.ngOnInit();
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
 
       expect(component.child()).toEqual(mockChild);
     });
 
     it('should populate diaper after load', async () => {
       component.ngOnInit();
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
 
       expect(component.diaper()).toEqual(mockWetDiaper);
     });
-
 
     it('should handle child load error', () => {
       const error = new Error('Failed to load child');
@@ -207,7 +205,7 @@ describe('DiaperDelete', () => {
       vi.mocked(diapersService.delete).mockReturnValue(of(void 0));
 
       component.onConfirmDelete();
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
 
       expect(component.isDeleting()).toBe(false);
     });
@@ -218,7 +216,7 @@ describe('DiaperDelete', () => {
       vi.mocked(diapersService.delete).mockReturnValue(of(void 0));
 
       component.onConfirmDelete();
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
 
       expect(router.navigate).toHaveBeenCalledWith(['/children', 1, 'diapers']);
     });
@@ -230,7 +228,7 @@ describe('DiaperDelete', () => {
       vi.mocked(diapersService.delete).mockReturnValue(of(void 0));
 
       component.onConfirmDelete();
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
 
       expect(component.error()).toBeNull();
     });
@@ -260,7 +258,7 @@ describe('DiaperDelete', () => {
       vi.mocked(diapersService.delete).mockReturnValue(throwError(() => deleteError));
 
       component.onConfirmDelete();
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
 
       expect(component.error()).toBe('Delete failed');
       expect(component.isDeleting()).toBe(false);

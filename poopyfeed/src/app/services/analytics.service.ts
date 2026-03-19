@@ -122,9 +122,7 @@ export class AnalyticsService {
       .get<FeedingTrends>(`${this.API_BASE}/${childId}/feeding-trends/`, { params })
       .pipe(
         tap((trends) => this.feedingTrends.set(trends)),
-        catchError((error) =>
-          throwError(() => ErrorHandler.handle(error, 'Get feeding trends'))
-        )
+        catchError((error) => throwError(() => ErrorHandler.handle(error, 'Get feeding trends'))),
       );
   }
 
@@ -154,9 +152,7 @@ export class AnalyticsService {
       .get<DiaperPatterns>(`${this.API_BASE}/${childId}/diaper-patterns/`, { params })
       .pipe(
         tap((patterns) => this.diaperPatterns.set(patterns)),
-        catchError((error) =>
-          throwError(() => ErrorHandler.handle(error, 'Get diaper patterns'))
-        )
+        catchError((error) => throwError(() => ErrorHandler.handle(error, 'Get diaper patterns'))),
       );
   }
 
@@ -186,9 +182,7 @@ export class AnalyticsService {
       .get<SleepSummary>(`${this.API_BASE}/${childId}/sleep-summary/`, { params })
       .pipe(
         tap((summary) => this.sleepSummary.set(summary)),
-        catchError((error) =>
-          throwError(() => ErrorHandler.handle(error, 'Get sleep summary'))
-        )
+        catchError((error) => throwError(() => ErrorHandler.handle(error, 'Get sleep summary'))),
       );
   }
 
@@ -213,9 +207,7 @@ export class AnalyticsService {
   getTodaySummary(childId: number): Observable<TodaySummaryData> {
     return this.http.get<TodaySummaryData>(`${this.API_BASE}/${childId}/today-summary/`).pipe(
       tap((summary) => this.todaySummary.set(summary)),
-      catchError((error) =>
-        throwError(() => ErrorHandler.handle(error, "Get today's summary"))
-      )
+      catchError((error) => throwError(() => ErrorHandler.handle(error, "Get today's summary"))),
     );
   }
 
@@ -239,8 +231,8 @@ export class AnalyticsService {
           this.weeklySummary.set(data.weekly);
         }),
         catchError((error) =>
-          throwError(() => ErrorHandler.handle(error, 'Get dashboard summary'))
-        )
+          throwError(() => ErrorHandler.handle(error, 'Get dashboard summary')),
+        ),
       );
   }
 
@@ -265,9 +257,7 @@ export class AnalyticsService {
   getWeeklySummary(childId: number): Observable<WeeklySummaryData> {
     return this.http.get<WeeklySummaryData>(`${this.API_BASE}/${childId}/weekly-summary/`).pipe(
       tap((summary) => this.weeklySummary.set(summary)),
-      catchError((error) =>
-        throwError(() => ErrorHandler.handle(error, 'Get weekly summary'))
-      )
+      catchError((error) => throwError(() => ErrorHandler.handle(error, 'Get weekly summary'))),
     );
   }
 
@@ -284,22 +274,14 @@ export class AnalyticsService {
    *
    * @throws ApiError if child not found or user lacks access
    */
-  getTimeline(
-    childId: number,
-    page = 1,
-    pageSize = 100
-  ): Observable<TimelineResponse> {
+  getTimeline(childId: number, page = 1, pageSize = 100): Observable<TimelineResponse> {
     const params = new HttpParams()
       .set('page', page.toString())
       .set('page_size', Math.min(Math.max(1, pageSize), 100).toString());
 
     return this.http
       .get<TimelineResponse>(`${this.API_BASE}/${childId}/timeline/`, { params })
-      .pipe(
-        catchError((error) =>
-          throwError(() => ErrorHandler.handle(error, 'Get timeline'))
-        )
-      );
+      .pipe(catchError((error) => throwError(() => ErrorHandler.handle(error, 'Get timeline'))));
   }
 
   /**
@@ -328,13 +310,17 @@ export class AnalyticsService {
     const params = new HttpParams().set('days', days.toString());
 
     return this.http
-      .post(`${this.API_BASE}/${childId}/export-csv/`, {}, {
-        params,
-        responseType: 'blob',
-      })
+      .post(
+        `${this.API_BASE}/${childId}/export-csv/`,
+        {},
+        {
+          params,
+          responseType: 'blob',
+        },
+      )
       .pipe(
         tap((blob) => this.downloadFile(blob, this.generateCSVFilename(childId))),
-        catchError((error) => throwError(() => ErrorHandler.handle(error, 'Export CSV')))
+        catchError((error) => throwError(() => ErrorHandler.handle(error, 'Export CSV'))),
       );
   }
 
@@ -364,9 +350,7 @@ export class AnalyticsService {
   exportPDFAsync(childId: number, days = 30): Observable<ExportJobResponse> {
     return this.http
       .post<ExportJobResponse>(`${this.API_BASE}/${childId}/export-pdf/`, { days })
-      .pipe(
-        catchError((error) => throwError(() => ErrorHandler.handle(error, 'Export PDF')))
-      );
+      .pipe(catchError((error) => throwError(() => ErrorHandler.handle(error, 'Export PDF'))));
   }
 
   /**
@@ -398,11 +382,11 @@ export class AnalyticsService {
    *   });
    */
   getPDFJobStatus(childId: number, taskId: string): Observable<JobStatusResponse> {
-    return this.http.get<JobStatusResponse>(`${this.API_BASE}/${childId}/export-status/${taskId}/`).pipe(
-      catchError((error) =>
-        throwError(() => ErrorHandler.handle(error, 'Get PDF job status'))
-      )
-    );
+    return this.http
+      .get<JobStatusResponse>(`${this.API_BASE}/${childId}/export-status/${taskId}/`)
+      .pipe(
+        catchError((error) => throwError(() => ErrorHandler.handle(error, 'Get PDF job status'))),
+      );
   }
 
   /**
@@ -426,9 +410,7 @@ export class AnalyticsService {
         this.downloadFile(blob, filename);
       }),
       map(() => undefined),
-      catchError((error) =>
-        throwError(() => ErrorHandler.handle(error, 'PDF download failed'))
-      )
+      catchError((error) => throwError(() => ErrorHandler.handle(error, 'PDF download failed'))),
     );
   }
 
@@ -443,12 +425,10 @@ export class AnalyticsService {
    * @returns Observable<PatternAlertsResponse> Pattern alert data
    */
   getPatternAlerts(childId: number): Observable<PatternAlertsResponse> {
-    return this.http
-      .get<PatternAlertsResponse>(`${this.API_BASE}/${childId}/pattern-alerts/`)
-      .pipe(
-        tap((alerts) => this.patternAlerts.set(alerts)),
-        catchError(() => EMPTY)
-      );
+    return this.http.get<PatternAlertsResponse>(`${this.API_BASE}/${childId}/pattern-alerts/`).pipe(
+      tap((alerts) => this.patternAlerts.set(alerts)),
+      catchError(() => EMPTY),
+    );
   }
 
   /**

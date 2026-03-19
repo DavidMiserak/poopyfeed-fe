@@ -61,11 +61,7 @@ export function resetFormCompletely(form: FormGroup): void {
  * hasError(this.form, 'name') // any error
  * ```
  */
-export function hasError(
-  form: FormGroup,
-  controlName: string,
-  errorType?: string
-): boolean {
+export function hasError(form: FormGroup, controlName: string, errorType?: string): boolean {
   const control = form.get(controlName);
   if (!control) {
     return false;
@@ -98,11 +94,7 @@ export function hasError(
  * getErrorMessage(this.form, 'amount_oz', 'Amount')
  * ```
  */
-export function getErrorMessage(
-  form: FormGroup,
-  controlName: string,
-  fieldLabel: string
-): string {
+export function getErrorMessage(form: FormGroup, controlName: string, fieldLabel: string): string {
   const control = form.get(controlName);
   if (!control?.errors) {
     return '';

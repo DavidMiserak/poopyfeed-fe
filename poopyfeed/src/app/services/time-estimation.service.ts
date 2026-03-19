@@ -67,8 +67,7 @@ export class TimeEstimationService {
 
     // Calculate total typical duration and determine if overflow
     const totalDurationMs = newEvents.reduce(
-      (sum, event) =>
-        sum + this.getEventDurationMs(event.type, config),
+      (sum, event) => sum + this.getEventDurationMs(event.type, config),
       0,
     );
 
@@ -94,12 +93,7 @@ export class TimeEstimationService {
 
       // New event: assign calculated time
       const eventDurationMs = isOverflowed
-        ? this.getCompressedDurationMs(
-            event.type,
-            config,
-            totalDurationMs,
-            windowDurationMs,
-          )
+        ? this.getCompressedDurationMs(event.type, config, totalDurationMs, windowDurationMs)
         : this.getEventDurationMs(event.type, config);
 
       const eventStartTime = currentTime;
@@ -108,10 +102,7 @@ export class TimeEstimationService {
 
       // Enforce minimum gap between events
       const minGapMs = config.minGapMinutes * 60000;
-      const adjustedStartTime = Math.max(
-        eventStartTime,
-        currentTime + minGapMs,
-      );
+      const adjustedStartTime = Math.max(eventStartTime, currentTime + minGapMs);
 
       currentTime = Math.max(nextEventStartTime, adjustedStartTime + eventDurationMs);
 
@@ -205,8 +196,7 @@ export class TimeEstimationService {
     }
 
     // Check window duration doesn't exceed 24 hours
-    const durationHours =
-      (endTime.getTime() - startTime.getTime()) / (1000 * 60 * 60);
+    const durationHours = (endTime.getTime() - startTime.getTime()) / (1000 * 60 * 60);
     if (durationHours > 24) {
       errors.push('Time window cannot exceed 24 hours');
     }
@@ -223,10 +213,7 @@ export class TimeEstimationService {
    *
    * @internal
    */
-  private getEventDurationMs(
-    type: CatchUpEvent['type'],
-    config: TimeEstimationConfig,
-  ): number {
+  private getEventDurationMs(type: CatchUpEvent['type'], config: TimeEstimationConfig): number {
     const durationMinutes =
       type === 'feeding'
         ? config.feedingDurationMinutes

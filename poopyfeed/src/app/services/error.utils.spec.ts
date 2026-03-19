@@ -206,7 +206,7 @@ describe('ErrorHandler', () => {
       const httpError = new HttpErrorResponse({
         error: {},
         status: 418, // I'm a teapot
-        statusText: 'I\'m a teapot',
+        statusText: "I'm a teapot",
       });
       const result = ErrorHandler.handle(httpError);
       expect(result.message).toContain('unexpected error');
@@ -338,7 +338,7 @@ describe('ErrorHandler - network error edge cases', () => {
     const httpError = new HttpErrorResponse({
       error: { detail: 'I am a teapot' },
       status: 418,
-      statusText: 'I\'m a teapot',
+      statusText: "I'm a teapot",
     });
     const result = ErrorHandler.handle(httpError);
     expect(result.message).toBe('I am a teapot');

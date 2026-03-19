@@ -120,7 +120,7 @@ describe('ExportDialogComponent', () => {
         expect.objectContaining({
           format: 'csv',
           days: 30,
-        })
+        }),
       );
 
       submitSpy.mockRestore();
@@ -135,7 +135,7 @@ describe('ExportDialogComponent', () => {
         expect.objectContaining({
           format: 'pdf',
           days: 60,
-        })
+        }),
       );
 
       submitSpy.mockRestore();
@@ -168,9 +168,7 @@ describe('ExportDialogComponent', () => {
       component.form.patchValue({ days: 100 });
       fixture.detectChanges();
 
-      const submitButton = fixture.nativeElement.querySelector(
-        'button[type="submit"]'
-      );
+      const submitButton = fixture.nativeElement.querySelector('button[type="submit"]');
       expect(submitButton.disabled).toBe(true);
     });
 
@@ -178,9 +176,7 @@ describe('ExportDialogComponent', () => {
       component.form.patchValue({ format: 'csv', days: 30 });
       fixture.detectChanges();
 
-      const submitButton = fixture.nativeElement.querySelector(
-        'button[type="submit"]'
-      );
+      const submitButton = fixture.nativeElement.querySelector('button[type="submit"]');
       expect(submitButton.disabled).toBe(false);
     });
   });
@@ -199,12 +195,8 @@ describe('ExportDialogComponent', () => {
       fixture.componentRef.setInput('isSubmitting', true);
       fixture.detectChanges();
 
-      const submitButton = fixture.nativeElement.querySelector(
-        'button[type="submit"]'
-      );
-      const cancelButton = fixture.nativeElement.querySelector(
-        'button[type="button"]'
-      );
+      const submitButton = fixture.nativeElement.querySelector('button[type="submit"]');
+      const cancelButton = fixture.nativeElement.querySelector('button[type="button"]');
 
       expect(submitButton.disabled).toBe(true);
       expect(cancelButton.disabled).toBe(true);
@@ -217,12 +209,8 @@ describe('ExportDialogComponent', () => {
       fixture.componentRef.setInput('isSubmitting', false);
       fixture.detectChanges();
 
-      const submitButton = fixture.nativeElement.querySelector(
-        'button[type="submit"]'
-      );
-      const cancelButton = fixture.nativeElement.querySelector(
-        'button[type="button"]'
-      );
+      const submitButton = fixture.nativeElement.querySelector('button[type="submit"]');
+      const cancelButton = fixture.nativeElement.querySelector('button[type="button"]');
 
       expect(submitButton.disabled).toBe(false);
       expect(cancelButton.disabled).toBe(false);
@@ -236,9 +224,7 @@ describe('ExportDialogComponent', () => {
     });
 
     it('should render format radio buttons', () => {
-      const radioButtons = fixture.nativeElement.querySelectorAll(
-        'input[type="radio"]'
-      );
+      const radioButtons = fixture.nativeElement.querySelectorAll('input[type="radio"]');
       expect(radioButtons.length).toBe(2);
     });
 
@@ -258,9 +244,7 @@ describe('ExportDialogComponent', () => {
       component.form.patchValue({ format: 'csv' });
       fixture.detectChanges();
 
-      const infoBox = fixture.nativeElement.querySelector(
-        '[role="status"]'
-      );
+      const infoBox = fixture.nativeElement.querySelector('[role="status"]');
       expect(infoBox?.textContent).toContain('CSV');
       expect(infoBox?.textContent).toContain('Excel');
     });
@@ -303,9 +287,7 @@ describe('ExportDialogComponent', () => {
     });
 
     it('should have aria-label on radio options', () => {
-      const radioButtons = fixture.nativeElement.querySelectorAll(
-        'input[type="radio"]'
-      );
+      const radioButtons = fixture.nativeElement.querySelectorAll('input[type="radio"]');
       radioButtons.forEach((radio: HTMLElement) => {
         expect(radio.getAttribute('aria-label')).toBeTruthy();
       });
@@ -327,9 +309,7 @@ describe('ExportDialogComponent', () => {
       fixture.componentRef.setInput('isSubmitting', true);
       fixture.detectChanges();
 
-      const submitButton = fixture.nativeElement.querySelector(
-        'button[type="submit"]'
-      );
+      const submitButton = fixture.nativeElement.querySelector('button[type="submit"]');
       expect(submitButton.getAttribute('aria-busy')).toBe('true');
     });
 

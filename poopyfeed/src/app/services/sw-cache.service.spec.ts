@@ -7,10 +7,7 @@ describe('SwCacheService', () => {
   describe('server platform', () => {
     beforeEach(() => {
       TestBed.configureTestingModule({
-        providers: [
-          SwCacheService,
-          { provide: PLATFORM_ID, useValue: 'server' },
-        ],
+        providers: [SwCacheService, { provide: PLATFORM_ID, useValue: 'server' }],
       });
     });
 
@@ -37,10 +34,7 @@ describe('SwCacheService', () => {
       });
 
       TestBed.configureTestingModule({
-        providers: [
-          SwCacheService,
-          { provide: PLATFORM_ID, useValue: 'browser' },
-        ],
+        providers: [SwCacheService, { provide: PLATFORM_ID, useValue: 'browser' }],
       });
     });
 
@@ -56,5 +50,4 @@ describe('SwCacheService', () => {
       expect(keysFn).toHaveBeenCalled();
     });
   });
-
 });

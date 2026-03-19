@@ -76,7 +76,15 @@ describe('QuickLog', () => {
 
     it('should log nap with current timestamp when canEdit is true', () => {
       const mockDate = new Date('2024-02-10T10:30:00Z');
-      const mockNap = { id: 123, child: 1, napped_at: mockDate.toISOString(), ended_at: null, duration_minutes: null, created_at: mockDate.toISOString(), updated_at: mockDate.toISOString() };
+      const mockNap = {
+        id: 123,
+        child: 1,
+        napped_at: mockDate.toISOString(),
+        ended_at: null,
+        duration_minutes: null,
+        created_at: mockDate.toISOString(),
+        updated_at: mockDate.toISOString(),
+      };
       vi.mocked(dateTimeService.toUTC).mockReturnValue(mockDate.toISOString());
       vi.mocked(napsService.create).mockReturnValue(of(mockNap));
       const quickLoggedSpy = vi.spyOn(component.quickLogged, 'emit');
@@ -96,7 +104,15 @@ describe('QuickLog', () => {
 
     it('should show success toast on successful nap log', () => {
       const mockDate = new Date('2024-02-10T10:30:00Z');
-      const mockNap = { id: 123, child: 1, napped_at: mockDate.toISOString(), ended_at: null, duration_minutes: null, created_at: mockDate.toISOString(), updated_at: mockDate.toISOString() };
+      const mockNap = {
+        id: 123,
+        child: 1,
+        napped_at: mockDate.toISOString(),
+        ended_at: null,
+        duration_minutes: null,
+        created_at: mockDate.toISOString(),
+        updated_at: mockDate.toISOString(),
+      };
       vi.mocked(dateTimeService.toUTC).mockReturnValue(mockDate.toISOString());
       vi.mocked(napsService.create).mockReturnValue(of(mockNap));
 
@@ -107,9 +123,7 @@ describe('QuickLog', () => {
 
     it('should handle errors from nap service', () => {
       vi.mocked(dateTimeService.toUTC).mockReturnValue(new Date().toISOString());
-      vi.mocked(napsService.create).mockReturnValue(
-        throwError(() => new Error('Server error'))
-      );
+      vi.mocked(napsService.create).mockReturnValue(throwError(() => new Error('Server error')));
 
       component.quickLogNap();
 
@@ -139,7 +153,15 @@ describe('QuickLog', () => {
 
     it('should set isLoggingNap to true while logging', () => {
       const mockDate = new Date('2024-02-10T10:30:00Z');
-      const mockNap = { id: 123, child: 1, napped_at: mockDate.toISOString(), ended_at: null, duration_minutes: null, created_at: mockDate.toISOString(), updated_at: mockDate.toISOString() };
+      const mockNap = {
+        id: 123,
+        child: 1,
+        napped_at: mockDate.toISOString(),
+        ended_at: null,
+        duration_minutes: null,
+        created_at: mockDate.toISOString(),
+        updated_at: mockDate.toISOString(),
+      };
       vi.mocked(dateTimeService.toUTC).mockReturnValue(mockDate.toISOString());
       let capturedIsLogging = false;
 
@@ -162,7 +184,14 @@ describe('QuickLog', () => {
 
     it('should log wet diaper with current timestamp when canEdit is true', () => {
       const mockDate = new Date('2024-02-10T10:30:00Z');
-      const mockDiaper = { id: 123, child: 1, change_type: 'wet' as const, changed_at: mockDate.toISOString(), created_at: mockDate.toISOString(), updated_at: mockDate.toISOString() };
+      const mockDiaper = {
+        id: 123,
+        child: 1,
+        change_type: 'wet' as const,
+        changed_at: mockDate.toISOString(),
+        created_at: mockDate.toISOString(),
+        updated_at: mockDate.toISOString(),
+      };
       vi.mocked(dateTimeService.toUTC).mockReturnValue(mockDate.toISOString());
       vi.mocked(diapersService.create).mockReturnValue(of(mockDiaper));
       const quickLoggedSpy = vi.spyOn(component.quickLogged, 'emit');
@@ -183,7 +212,14 @@ describe('QuickLog', () => {
 
     it('should show success toast on successful wet diaper log', () => {
       const mockDate = new Date('2024-02-10T10:30:00Z');
-      const mockDiaper = { id: 123, child: 1, change_type: 'wet' as const, changed_at: mockDate.toISOString(), created_at: mockDate.toISOString(), updated_at: mockDate.toISOString() };
+      const mockDiaper = {
+        id: 123,
+        child: 1,
+        change_type: 'wet' as const,
+        changed_at: mockDate.toISOString(),
+        created_at: mockDate.toISOString(),
+        updated_at: mockDate.toISOString(),
+      };
       vi.mocked(dateTimeService.toUTC).mockReturnValue(mockDate.toISOString());
       vi.mocked(diapersService.create).mockReturnValue(of(mockDiaper));
 
@@ -195,7 +231,7 @@ describe('QuickLog', () => {
     it('should handle errors from diaper service', () => {
       vi.mocked(dateTimeService.toUTC).mockReturnValue(new Date().toISOString());
       vi.mocked(diapersService.create).mockReturnValue(
-        throwError(() => new Error('Diaper server error'))
+        throwError(() => new Error('Diaper server error')),
       );
 
       component.quickLogWetDiaper();
@@ -226,7 +262,14 @@ describe('QuickLog', () => {
 
     it('should set isLoggingWetDiaper to true while logging', () => {
       const mockDate = new Date('2024-02-10T10:30:00Z');
-      const mockDiaper = { id: 123, child: 1, change_type: 'wet' as const, changed_at: mockDate.toISOString(), created_at: mockDate.toISOString(), updated_at: mockDate.toISOString() };
+      const mockDiaper = {
+        id: 123,
+        child: 1,
+        change_type: 'wet' as const,
+        changed_at: mockDate.toISOString(),
+        created_at: mockDate.toISOString(),
+        updated_at: mockDate.toISOString(),
+      };
       vi.mocked(dateTimeService.toUTC).mockReturnValue(mockDate.toISOString());
       let capturedIsLogging = false;
 
@@ -249,7 +292,14 @@ describe('QuickLog', () => {
 
     it('should log dirty diaper with current timestamp when canEdit is true', () => {
       const mockDate = new Date('2024-02-10T10:30:00Z');
-      const mockDiaper = { id: 123, child: 1, change_type: 'dirty' as const, changed_at: mockDate.toISOString(), created_at: mockDate.toISOString(), updated_at: mockDate.toISOString() };
+      const mockDiaper = {
+        id: 123,
+        child: 1,
+        change_type: 'dirty' as const,
+        changed_at: mockDate.toISOString(),
+        created_at: mockDate.toISOString(),
+        updated_at: mockDate.toISOString(),
+      };
       vi.mocked(dateTimeService.toUTC).mockReturnValue(mockDate.toISOString());
       vi.mocked(diapersService.create).mockReturnValue(of(mockDiaper));
       const quickLoggedSpy = vi.spyOn(component.quickLogged, 'emit');
@@ -269,7 +319,14 @@ describe('QuickLog', () => {
 
     it('should show success toast on successful dirty diaper log', () => {
       const mockDate = new Date('2024-02-10T10:30:00Z');
-      const mockDiaper = { id: 123, child: 1, change_type: 'dirty' as const, changed_at: mockDate.toISOString(), created_at: mockDate.toISOString(), updated_at: mockDate.toISOString() };
+      const mockDiaper = {
+        id: 123,
+        child: 1,
+        change_type: 'dirty' as const,
+        changed_at: mockDate.toISOString(),
+        created_at: mockDate.toISOString(),
+        updated_at: mockDate.toISOString(),
+      };
       vi.mocked(dateTimeService.toUTC).mockReturnValue(mockDate.toISOString());
       vi.mocked(diapersService.create).mockReturnValue(of(mockDiaper));
 
@@ -281,7 +338,7 @@ describe('QuickLog', () => {
     it('should handle errors from diaper service for dirty diaper', () => {
       vi.mocked(dateTimeService.toUTC).mockReturnValue(new Date().toISOString());
       vi.mocked(diapersService.create).mockReturnValue(
-        throwError(() => new Error('Diaper server error'))
+        throwError(() => new Error('Diaper server error')),
       );
 
       component.quickLogDirtyDiaper();
@@ -299,7 +356,14 @@ describe('QuickLog', () => {
 
     it('should set isLoggingDirtyDiaper to true while logging', () => {
       const mockDate = new Date('2024-02-10T10:30:00Z');
-      const mockDiaper = { id: 123, child: 1, change_type: 'dirty' as const, changed_at: mockDate.toISOString(), created_at: mockDate.toISOString(), updated_at: mockDate.toISOString() };
+      const mockDiaper = {
+        id: 123,
+        child: 1,
+        change_type: 'dirty' as const,
+        changed_at: mockDate.toISOString(),
+        created_at: mockDate.toISOString(),
+        updated_at: mockDate.toISOString(),
+      };
       vi.mocked(dateTimeService.toUTC).mockReturnValue(mockDate.toISOString());
       let capturedIsLogging = false;
 
@@ -322,7 +386,14 @@ describe('QuickLog', () => {
 
     it('should log both diaper with current timestamp when canEdit is true', () => {
       const mockDate = new Date('2024-02-10T10:30:00Z');
-      const mockDiaper = { id: 123, child: 1, change_type: 'both' as const, changed_at: mockDate.toISOString(), created_at: mockDate.toISOString(), updated_at: mockDate.toISOString() };
+      const mockDiaper = {
+        id: 123,
+        child: 1,
+        change_type: 'both' as const,
+        changed_at: mockDate.toISOString(),
+        created_at: mockDate.toISOString(),
+        updated_at: mockDate.toISOString(),
+      };
       vi.mocked(dateTimeService.toUTC).mockReturnValue(mockDate.toISOString());
       vi.mocked(diapersService.create).mockReturnValue(of(mockDiaper));
       const quickLoggedSpy = vi.spyOn(component.quickLogged, 'emit');
@@ -337,24 +408,35 @@ describe('QuickLog', () => {
 
       expect(component.isLoggingBothDiaper()).toBe(false);
       expect(quickLoggedSpy).toHaveBeenCalled();
-      expect(toastService.success).toHaveBeenCalledWith('Wet and dirty diaper recorded successfully');
+      expect(toastService.success).toHaveBeenCalledWith(
+        'Wet and dirty diaper recorded successfully',
+      );
     });
 
     it('should show success toast on successful both diaper log', () => {
       const mockDate = new Date('2024-02-10T10:30:00Z');
-      const mockDiaper = { id: 123, child: 1, change_type: 'both' as const, changed_at: mockDate.toISOString(), created_at: mockDate.toISOString(), updated_at: mockDate.toISOString() };
+      const mockDiaper = {
+        id: 123,
+        child: 1,
+        change_type: 'both' as const,
+        changed_at: mockDate.toISOString(),
+        created_at: mockDate.toISOString(),
+        updated_at: mockDate.toISOString(),
+      };
       vi.mocked(dateTimeService.toUTC).mockReturnValue(mockDate.toISOString());
       vi.mocked(diapersService.create).mockReturnValue(of(mockDiaper));
 
       component.quickLogBothDiaper();
 
-      expect(toastService.success).toHaveBeenCalledWith('Wet and dirty diaper recorded successfully');
+      expect(toastService.success).toHaveBeenCalledWith(
+        'Wet and dirty diaper recorded successfully',
+      );
     });
 
     it('should handle errors from diaper service for both diaper', () => {
       vi.mocked(dateTimeService.toUTC).mockReturnValue(new Date().toISOString());
       vi.mocked(diapersService.create).mockReturnValue(
-        throwError(() => new Error('Diaper server error'))
+        throwError(() => new Error('Diaper server error')),
       );
 
       component.quickLogBothDiaper();
@@ -372,7 +454,14 @@ describe('QuickLog', () => {
 
     it('should set isLoggingBothDiaper to true while logging', () => {
       const mockDate = new Date('2024-02-10T10:30:00Z');
-      const mockDiaper = { id: 123, child: 1, change_type: 'both' as const, changed_at: mockDate.toISOString(), created_at: mockDate.toISOString(), updated_at: mockDate.toISOString() };
+      const mockDiaper = {
+        id: 123,
+        child: 1,
+        change_type: 'both' as const,
+        changed_at: mockDate.toISOString(),
+        created_at: mockDate.toISOString(),
+        updated_at: mockDate.toISOString(),
+      };
       vi.mocked(dateTimeService.toUTC).mockReturnValue(mockDate.toISOString());
       let capturedIsLogging = false;
 
@@ -406,13 +495,20 @@ describe('QuickLog', () => {
         last_feeding: null,
         last_diaper_change: null,
         last_nap: null,
-          custom_bottle_low_oz: null,
-          custom_bottle_mid_oz: null,
-          custom_bottle_high_oz: null,
-          feeding_reminder_interval: null,
-
+        custom_bottle_low_oz: null,
+        custom_bottle_mid_oz: null,
+        custom_bottle_high_oz: null,
+        feeding_reminder_interval: null,
       };
-      const mockFeeding = { id: 123, child: 1, feeding_type: 'bottle' as const, fed_at: mockDate.toISOString(), amount_oz: 4, created_at: mockDate.toISOString(), updated_at: mockDate.toISOString() };
+      const mockFeeding = {
+        id: 123,
+        child: 1,
+        feeding_type: 'bottle' as const,
+        fed_at: mockDate.toISOString(),
+        amount_oz: 4,
+        created_at: mockDate.toISOString(),
+        updated_at: mockDate.toISOString(),
+      };
 
       fixture.componentRef.setInput('child', mockChild);
       vi.mocked(dateTimeService.toUTC).mockReturnValue(mockDate.toISOString());
@@ -443,17 +539,16 @@ describe('QuickLog', () => {
         last_feeding: null,
         last_diaper_change: null,
         last_nap: null,
-          custom_bottle_low_oz: null,
-          custom_bottle_mid_oz: null,
-          custom_bottle_high_oz: null,
-          feeding_reminder_interval: null,
-
+        custom_bottle_low_oz: null,
+        custom_bottle_mid_oz: null,
+        custom_bottle_high_oz: null,
+        feeding_reminder_interval: null,
       };
 
       fixture.componentRef.setInput('child', mockChild);
       vi.mocked(dateTimeService.toUTC).mockReturnValue(new Date().toISOString());
       vi.mocked(feedingsService.create).mockReturnValue(
-        throwError(() => new Error('Feed server error'))
+        throwError(() => new Error('Feed server error')),
       );
 
       component.quickLogBottleLow();
@@ -474,11 +569,10 @@ describe('QuickLog', () => {
         last_feeding: null,
         last_diaper_change: null,
         last_nap: null,
-          custom_bottle_low_oz: null,
-          custom_bottle_mid_oz: null,
-          custom_bottle_high_oz: null,
-          feeding_reminder_interval: null,
-
+        custom_bottle_low_oz: null,
+        custom_bottle_mid_oz: null,
+        custom_bottle_high_oz: null,
+        feeding_reminder_interval: null,
       };
 
       fixture.componentRef.setInput('child', mockChild);
@@ -507,8 +601,7 @@ describe('QuickLog', () => {
         custom_bottle_low_oz: null,
         custom_bottle_mid_oz: null,
         custom_bottle_high_oz: null,
-          feeding_reminder_interval: null,
-
+        feeding_reminder_interval: null,
       };
 
       fixture.componentRef.setInput('child', mockChild);
@@ -535,13 +628,20 @@ describe('QuickLog', () => {
         last_feeding: null,
         last_diaper_change: null,
         last_nap: null,
-          custom_bottle_low_oz: null,
-          custom_bottle_mid_oz: null,
-          custom_bottle_high_oz: null,
-          feeding_reminder_interval: null,
-
+        custom_bottle_low_oz: null,
+        custom_bottle_mid_oz: null,
+        custom_bottle_high_oz: null,
+        feeding_reminder_interval: null,
       };
-      const mockFeeding = { id: 123, child: 1, feeding_type: 'bottle' as const, fed_at: mockDate.toISOString(), amount_oz: 5, created_at: mockDate.toISOString(), updated_at: mockDate.toISOString() };
+      const mockFeeding = {
+        id: 123,
+        child: 1,
+        feeding_type: 'bottle' as const,
+        fed_at: mockDate.toISOString(),
+        amount_oz: 5,
+        created_at: mockDate.toISOString(),
+        updated_at: mockDate.toISOString(),
+      };
 
       fixture.componentRef.setInput('child', mockChild);
       vi.mocked(dateTimeService.toUTC).mockReturnValue(mockDate.toISOString());
@@ -572,17 +672,16 @@ describe('QuickLog', () => {
         last_feeding: null,
         last_diaper_change: null,
         last_nap: null,
-          custom_bottle_low_oz: null,
-          custom_bottle_mid_oz: null,
-          custom_bottle_high_oz: null,
-          feeding_reminder_interval: null,
-
+        custom_bottle_low_oz: null,
+        custom_bottle_mid_oz: null,
+        custom_bottle_high_oz: null,
+        feeding_reminder_interval: null,
       };
 
       fixture.componentRef.setInput('child', mockChild);
       vi.mocked(dateTimeService.toUTC).mockReturnValue(new Date().toISOString());
       vi.mocked(feedingsService.create).mockReturnValue(
-        throwError(() => new Error('Feed server error'))
+        throwError(() => new Error('Feed server error')),
       );
 
       component.quickLogBottleMid();
@@ -603,11 +702,10 @@ describe('QuickLog', () => {
         last_feeding: null,
         last_diaper_change: null,
         last_nap: null,
-          custom_bottle_low_oz: null,
-          custom_bottle_mid_oz: null,
-          custom_bottle_high_oz: null,
-          feeding_reminder_interval: null,
-
+        custom_bottle_low_oz: null,
+        custom_bottle_mid_oz: null,
+        custom_bottle_high_oz: null,
+        feeding_reminder_interval: null,
       };
 
       fixture.componentRef.setInput('child', mockChild);
@@ -638,13 +736,20 @@ describe('QuickLog', () => {
         last_feeding: null,
         last_diaper_change: null,
         last_nap: null,
-          custom_bottle_low_oz: null,
-          custom_bottle_mid_oz: null,
-          custom_bottle_high_oz: null,
-          feeding_reminder_interval: null,
-
+        custom_bottle_low_oz: null,
+        custom_bottle_mid_oz: null,
+        custom_bottle_high_oz: null,
+        feeding_reminder_interval: null,
       };
-      const mockFeeding = { id: 123, child: 1, feeding_type: 'bottle' as const, fed_at: mockDate.toISOString(), amount_oz: 6, created_at: mockDate.toISOString(), updated_at: mockDate.toISOString() };
+      const mockFeeding = {
+        id: 123,
+        child: 1,
+        feeding_type: 'bottle' as const,
+        fed_at: mockDate.toISOString(),
+        amount_oz: 6,
+        created_at: mockDate.toISOString(),
+        updated_at: mockDate.toISOString(),
+      };
 
       fixture.componentRef.setInput('child', mockChild);
       vi.mocked(dateTimeService.toUTC).mockReturnValue(mockDate.toISOString());
@@ -676,11 +781,10 @@ describe('QuickLog', () => {
         last_feeding: null,
         last_diaper_change: null,
         last_nap: null,
-          custom_bottle_low_oz: null,
-          custom_bottle_mid_oz: null,
-          custom_bottle_high_oz: null,
-          feeding_reminder_interval: null,
-
+        custom_bottle_low_oz: null,
+        custom_bottle_mid_oz: null,
+        custom_bottle_high_oz: null,
+        feeding_reminder_interval: null,
       };
 
       fixture.componentRef.setInput('child', mockChild);
@@ -700,17 +804,16 @@ describe('QuickLog', () => {
         last_feeding: null,
         last_diaper_change: null,
         last_nap: null,
-          custom_bottle_low_oz: null,
-          custom_bottle_mid_oz: null,
-          custom_bottle_high_oz: null,
-          feeding_reminder_interval: null,
-
+        custom_bottle_low_oz: null,
+        custom_bottle_mid_oz: null,
+        custom_bottle_high_oz: null,
+        feeding_reminder_interval: null,
       };
 
       fixture.componentRef.setInput('child', mockChild);
       vi.mocked(dateTimeService.toUTC).mockReturnValue(new Date().toISOString());
       vi.mocked(feedingsService.create).mockReturnValue(
-        throwError(() => new Error('Feed server error'))
+        throwError(() => new Error('Feed server error')),
       );
 
       component.quickLogBottleHigh();
@@ -731,11 +834,10 @@ describe('QuickLog', () => {
         last_feeding: null,
         last_diaper_change: null,
         last_nap: null,
-          custom_bottle_low_oz: null,
-          custom_bottle_mid_oz: null,
-          custom_bottle_high_oz: null,
-          feeding_reminder_interval: null,
-
+        custom_bottle_low_oz: null,
+        custom_bottle_mid_oz: null,
+        custom_bottle_high_oz: null,
+        feeding_reminder_interval: null,
       };
 
       fixture.componentRef.setInput('child', mockChild);
@@ -831,7 +933,6 @@ describe('QuickLog', () => {
           custom_bottle_mid_oz: null,
           custom_bottle_high_oz: null,
           feeding_reminder_interval: null,
-
         };
         fixture.componentRef.setInput('childId', 1);
         fixture.componentRef.setInput('canEdit', true);
@@ -885,7 +986,6 @@ describe('QuickLog', () => {
           custom_bottle_mid_oz: null,
           custom_bottle_high_oz: null,
           feeding_reminder_interval: null,
-
         };
         fixture.componentRef.setInput('childId', 1);
         fixture.componentRef.setInput('child', mockChild);
@@ -959,7 +1059,6 @@ describe('QuickLog', () => {
           custom_bottle_mid_oz: null,
           custom_bottle_high_oz: null,
           feeding_reminder_interval: null,
-
         };
 
         fixture.componentRef.setInput('childId', 1);
@@ -1107,7 +1206,9 @@ describe('QuickLog', () => {
     });
 
     it('should have diaper group with border', () => {
-      const diaperGroup = fixture.nativeElement.querySelector('.border-2.border-orange-200.rounded-3xl');
+      const diaperGroup = fixture.nativeElement.querySelector(
+        '.border-2.border-orange-200.rounded-3xl',
+      );
       expect(diaperGroup).toBeTruthy();
       expect(diaperGroup.classList.contains('border-2')).toBe(true);
       expect(diaperGroup.classList.contains('border-orange-200')).toBe(true);
@@ -1125,11 +1226,10 @@ describe('QuickLog', () => {
         last_feeding: null,
         last_diaper_change: null,
         last_nap: null,
-          custom_bottle_low_oz: null,
-          custom_bottle_mid_oz: null,
-          custom_bottle_high_oz: null,
-          feeding_reminder_interval: null,
-
+        custom_bottle_low_oz: null,
+        custom_bottle_mid_oz: null,
+        custom_bottle_high_oz: null,
+        feeding_reminder_interval: null,
       };
 
       fixture.componentRef.setInput('child', mockChild);
@@ -1351,11 +1451,10 @@ describe('QuickLog', () => {
         last_feeding: null,
         last_diaper_change: null,
         last_nap: null,
-          custom_bottle_low_oz: null,
-          custom_bottle_mid_oz: null,
-          custom_bottle_high_oz: null,
-          feeding_reminder_interval: null,
-
+        custom_bottle_low_oz: null,
+        custom_bottle_mid_oz: null,
+        custom_bottle_high_oz: null,
+        feeding_reminder_interval: null,
       };
 
       fixture.componentRef.setInput('child', mockChild);
@@ -1381,11 +1480,10 @@ describe('QuickLog', () => {
         last_feeding: null,
         last_diaper_change: null,
         last_nap: null,
-          custom_bottle_low_oz: null,
-          custom_bottle_mid_oz: null,
-          custom_bottle_high_oz: null,
-          feeding_reminder_interval: null,
-
+        custom_bottle_low_oz: null,
+        custom_bottle_mid_oz: null,
+        custom_bottle_high_oz: null,
+        feeding_reminder_interval: null,
       };
 
       fixture.componentRef.setInput('child', mockChild);
@@ -1442,9 +1540,7 @@ describe('QuickLog', () => {
       const today = new Date('2024-02-20T12:00:00Z');
       vi.setSystemTime(today);
       const oneDay = 24 * 60 * 60 * 1000;
-      const newbornDate = new Date(today.getTime() - oneDay)
-        .toISOString()
-        .split('T')[0];
+      const newbornDate = new Date(today.getTime() - oneDay).toISOString().split('T')[0];
       const sixMonthOldDate = new Date(today.getTime() - 26 * 7 * oneDay)
         .toISOString()
         .split('T')[0];
@@ -1460,11 +1556,10 @@ describe('QuickLog', () => {
         last_feeding: null,
         last_diaper_change: null,
         last_nap: null,
-          custom_bottle_low_oz: null,
-          custom_bottle_mid_oz: null,
-          custom_bottle_high_oz: null,
-          feeding_reminder_interval: null,
-
+        custom_bottle_low_oz: null,
+        custom_bottle_mid_oz: null,
+        custom_bottle_high_oz: null,
+        feeding_reminder_interval: null,
       };
 
       const mockChild2: Child = {
@@ -1478,11 +1573,10 @@ describe('QuickLog', () => {
         last_feeding: null,
         last_diaper_change: null,
         last_nap: null,
-          custom_bottle_low_oz: null,
-          custom_bottle_mid_oz: null,
-          custom_bottle_high_oz: null,
-          feeding_reminder_interval: null,
-
+        custom_bottle_low_oz: null,
+        custom_bottle_mid_oz: null,
+        custom_bottle_high_oz: null,
+        feeding_reminder_interval: null,
       };
 
       fixture.componentRef.setInput('child', mockChild1);
@@ -1510,11 +1604,10 @@ describe('QuickLog', () => {
         last_feeding: null,
         last_diaper_change: null,
         last_nap: null,
-          custom_bottle_low_oz: null,
-          custom_bottle_mid_oz: null,
-          custom_bottle_high_oz: null,
-          feeding_reminder_interval: null,
-
+        custom_bottle_low_oz: null,
+        custom_bottle_mid_oz: null,
+        custom_bottle_high_oz: null,
+        feeding_reminder_interval: null,
       };
 
       fixture.componentRef.setInput('child', mockChild);
@@ -1528,7 +1621,9 @@ describe('QuickLog', () => {
       const bottleHighButton = buttons[6];
 
       expect(bottleLowButton.getAttribute('aria-label')).toBe('Log a bottle feeding with 4 oz');
-      expect(bottleMidButton.getAttribute('aria-label')).toBe('Log a bottle feeding with 5 oz (recommended)');
+      expect(bottleMidButton.getAttribute('aria-label')).toBe(
+        'Log a bottle feeding with 5 oz (recommended)',
+      );
       expect(bottleHighButton.getAttribute('aria-label')).toBe('Log a bottle feeding with 6 oz');
     });
 
@@ -1544,9 +1639,9 @@ describe('QuickLog', () => {
         last_feeding: null,
         last_diaper_change: null,
         last_nap: null,
-        custom_bottle_low_oz: 3.5,   // Custom amount instead of 4 (5-1)
-        custom_bottle_mid_oz: 5.5,   // Custom amount instead of 5
-        custom_bottle_high_oz: 6.5,  // Custom amount instead of 6 (5+1)
+        custom_bottle_low_oz: 3.5, // Custom amount instead of 4 (5-1)
+        custom_bottle_mid_oz: 5.5, // Custom amount instead of 5
+        custom_bottle_high_oz: 6.5, // Custom amount instead of 6 (5+1)
       };
 
       fixture.componentRef.setInput('child', mockChild);
@@ -1573,8 +1668,7 @@ describe('QuickLog', () => {
         custom_bottle_low_oz: null,
         custom_bottle_mid_oz: null,
         custom_bottle_high_oz: null,
-          feeding_reminder_interval: null,
-
+        feeding_reminder_interval: null,
       };
 
       fixture.componentRef.setInput('child', mockChild);
@@ -1598,16 +1692,16 @@ describe('QuickLog', () => {
         last_feeding: null,
         last_diaper_change: null,
         last_nap: null,
-        custom_bottle_low_oz: 3.5,    // Custom
-        custom_bottle_mid_oz: null,   // Use fallback
-        custom_bottle_high_oz: 6.5,   // Custom
+        custom_bottle_low_oz: 3.5, // Custom
+        custom_bottle_mid_oz: null, // Use fallback
+        custom_bottle_high_oz: 6.5, // Custom
       };
 
       fixture.componentRef.setInput('child', mockChild);
       fixture.detectChanges();
 
       expect(component.bottleAmountLow()).toBe(3.5); // Custom
-      expect(component.bottleAmountMid()).toBe(5);   // Fallback: 5 oz
+      expect(component.bottleAmountMid()).toBe(5); // Fallback: 5 oz
       expect(component.bottleAmountHigh()).toBe(6.5); // Custom
     });
 
@@ -1626,8 +1720,7 @@ describe('QuickLog', () => {
         custom_bottle_low_oz: null,
         custom_bottle_mid_oz: null,
         custom_bottle_high_oz: null,
-          feeding_reminder_interval: null,
-
+        feeding_reminder_interval: null,
       };
 
       const mockChild2: Child = {
@@ -1641,9 +1734,9 @@ describe('QuickLog', () => {
         last_feeding: null,
         last_diaper_change: null,
         last_nap: null,
-        custom_bottle_low_oz: 2,   // Custom
-        custom_bottle_mid_oz: 3,   // Custom
-        custom_bottle_high_oz: 4,  // Custom
+        custom_bottle_low_oz: 2, // Custom
+        custom_bottle_mid_oz: 3, // Custom
+        custom_bottle_high_oz: 4, // Custom
       };
 
       // First child: uses age-based
@@ -1676,7 +1769,7 @@ describe('QuickLog', () => {
         custom_bottle_low_oz: 3.5,
         custom_bottle_mid_oz: 5.5,
         custom_bottle_high_oz: 6.5,
-          feeding_reminder_interval: null,
+        feeding_reminder_interval: null,
       };
 
       fixture.componentRef.setInput('child', mockChild);
@@ -1731,8 +1824,7 @@ describe('QuickLog', () => {
         custom_bottle_low_oz: null,
         custom_bottle_mid_oz: null,
         custom_bottle_high_oz: null,
-          feeding_reminder_interval: null,
-
+        feeding_reminder_interval: null,
       };
       fixture.componentRef.setInput('child', childNoDob);
       fixture.detectChanges();
@@ -1779,8 +1871,7 @@ describe('QuickLog', () => {
         custom_bottle_low_oz: null,
         custom_bottle_mid_oz: null,
         custom_bottle_high_oz: null,
-          feeding_reminder_interval: null,
-
+        feeding_reminder_interval: null,
       };
       fixture.componentRef.setInput('child', newbornChild);
       fixture.detectChanges();
@@ -1858,7 +1949,9 @@ describe('QuickLog', () => {
 
     it('should handle error from wet diaper service', () => {
       vi.mocked(dateTimeService.toUTC).mockReturnValue(new Date().toISOString());
-      vi.mocked(diapersService.create).mockReturnValue(throwError(() => new Error('Network error')));
+      vi.mocked(diapersService.create).mockReturnValue(
+        throwError(() => new Error('Network error')),
+      );
 
       component.quickLogWetDiaper();
 
@@ -1916,7 +2009,9 @@ describe('QuickLog', () => {
       component.quickLogBothDiaper();
 
       expect(spy).toHaveBeenCalled();
-      expect(toastService.success).toHaveBeenCalledWith('Wet and dirty diaper recorded successfully');
+      expect(toastService.success).toHaveBeenCalledWith(
+        'Wet and dirty diaper recorded successfully',
+      );
     });
   });
 });

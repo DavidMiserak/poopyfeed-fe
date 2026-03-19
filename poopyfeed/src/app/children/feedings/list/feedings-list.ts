@@ -92,7 +92,7 @@ export class FeedingsList implements OnInit {
       this.router.events
         .pipe(
           filter((e): e is NavigationEnd => e instanceof NavigationEnd),
-          takeUntilDestroyed(this.destroyRef)
+          takeUntilDestroyed(this.destroyRef),
         )
         .subscribe(() => {
           const routeId = this.route.snapshot.paramMap.get('childId');
@@ -122,7 +122,8 @@ export class FeedingsList implements OnInit {
           timestampField: 'fed_at',
           typeField: 'feeding_type',
           resourceName: 'feeding',
-          deleteConfirmMessage: (count: number) => `Delete ${count} feeding(s)? This cannot be undone.`,
+          deleteConfirmMessage: (count: number) =>
+            `Delete ${count} feeding(s)? This cannot be undone.`,
         });
         this.listService.allItems.set(feedings);
         this.listService.isLoading.set(false);
@@ -229,8 +230,6 @@ export class FeedingsList implements OnInit {
     const childId = this.childId();
     if (!childId) return;
 
-    this.listService.bulkDelete((id: number) =>
-      this.feedingsService.delete(childId, id)
-    );
+    this.listService.bulkDelete((id: number) => this.feedingsService.delete(childId, id));
   }
 }

@@ -15,18 +15,16 @@ export type TrackingListSegment = 'feedings' | 'diapers' | 'naps';
 export function waitForTrackingList200(
   page: Page,
   pathSegment: TrackingListSegment,
-  timeout: number = E2E_TIMEOUT
+  timeout: number = E2E_TIMEOUT,
 ): Promise<void> {
-  const listPattern = new RegExp(
-    `/api/v1/children/\\d+/${pathSegment}/?($|\\?)`
-  );
-  return page.waitForResponse(
-    (resp) =>
-      resp.request().method() === 'GET' &&
-      listPattern.test(resp.url()) &&
-      resp.status() === 200,
-    { timeout }
-  ).then(() => {});
+  const listPattern = new RegExp(`/api/v1/children/\\d+/${pathSegment}/?($|\\?)`);
+  return page
+    .waitForResponse(
+      (resp) =>
+        resp.request().method() === 'GET' && listPattern.test(resp.url()) && resp.status() === 200,
+      { timeout },
+    )
+    .then(() => {});
 }
 
 export interface EditTrackingItemAndSeeUpdateOptions {
@@ -60,7 +58,7 @@ export interface EditTrackingItemAndSeeUpdateOptions {
  */
 export async function editTrackingItemAndSeeUpdateOnList(
   page: Page,
-  options: EditTrackingItemAndSeeUpdateOptions
+  options: EditTrackingItemAndSeeUpdateOptions,
 ): Promise<void> {
   const {
     childNamePrefix,
@@ -87,9 +85,9 @@ export async function editTrackingItemAndSeeUpdateOnList(
   // Dashboard button now navigates to list, not create form
   await expect(page).toHaveURL(listUrlPattern, { timeout: E2E_TIMEOUT });
   // Navigate to create form from list
-  await expect(
-    page.getByRole('button', { name: listHeaderButton })
-  ).toBeVisible({ timeout: E2E_TIMEOUT });
+  await expect(page.getByRole('button', { name: listHeaderButton })).toBeVisible({
+    timeout: E2E_TIMEOUT,
+  });
   await page.getByRole('button', { name: listHeaderButton }).click();
   await expect(page).toHaveURL(createUrlPattern, { timeout: E2E_TIMEOUT });
 
@@ -99,25 +97,21 @@ export async function editTrackingItemAndSeeUpdateOnList(
   await list200Promise;
 
   await expect(page).toHaveURL(listUrlPattern, { timeout: E2E_TIMEOUT });
-  await expect(
-    page.getByRole('button', { name: listHeaderButton })
-  ).toBeVisible({ timeout: E2E_TIMEOUT });
-  await expect(
-    page.getByText(initialRowText).first()
-  ).toBeVisible({ timeout: E2E_TIMEOUT });
+  await expect(page.getByRole('button', { name: listHeaderButton })).toBeVisible({
+    timeout: E2E_TIMEOUT,
+  });
+  await expect(page.getByText(initialRowText).first()).toBeVisible({ timeout: E2E_TIMEOUT });
 
   await page.getByRole('button', { name: editButtonLabel }).first().click();
   await expect(page).toHaveURL(editUrlPattern);
-  await expect(
-    page.getByRole('heading', { name: editHeadingPattern })
-  ).toBeVisible();
+  await expect(page.getByRole('heading', { name: editHeadingPattern })).toBeVisible();
 
   // Wait for the edit form to be ready (update button visible) so resource data has loaded
   // before making changes (prevents race where patchFormWithResource overwrites user edits).
   // Element-based wait is reliable on slow/flaky mobile networks; avoid networkidle.
-  await expect(
-    page.getByRole('button', { name: updateButtonLabel })
-  ).toBeVisible({ timeout: E2E_TIMEOUT });
+  await expect(page.getByRole('button', { name: updateButtonLabel })).toBeVisible({
+    timeout: E2E_TIMEOUT,
+  });
 
   await changeForm(page);
   const list200AfterUpdate = waitForTrackingList200(page, listApiSegment);
@@ -130,9 +124,9 @@ export async function editTrackingItemAndSeeUpdateOnList(
     });
   }
   await expect(page).toHaveURL(listUrlPattern, { timeout: E2E_TIMEOUT });
-  await expect(
-    page.getByRole('button', { name: listHeaderButton })
-  ).toBeVisible({ timeout: E2E_TIMEOUT });
+  await expect(page.getByRole('button', { name: listHeaderButton })).toBeVisible({
+    timeout: E2E_TIMEOUT,
+  });
 
   const updatedLocator = page.getByText(updatedRowText).first();
   const updatedVisible = await updatedLocator
@@ -142,9 +136,9 @@ export async function editTrackingItemAndSeeUpdateOnList(
   if (!updatedVisible) {
     try {
       await page.reload({ timeout: E2E_TIMEOUT });
-      await expect(
-        page.getByRole('button', { name: listHeaderButton })
-      ).toBeVisible({ timeout: E2E_TIMEOUT });
+      await expect(page.getByRole('button', { name: listHeaderButton })).toBeVisible({
+        timeout: E2E_TIMEOUT,
+      });
     } catch {
       // Reload failed; still assert updated row in case it appeared
     }

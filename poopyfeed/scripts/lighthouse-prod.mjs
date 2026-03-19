@@ -58,7 +58,7 @@ async function runLighthouse(browser, url, options) {
         screenEmulation: { mobile: true },
       },
       undefined,
-      page
+      page,
     );
     return { lhr, report };
   } finally {
@@ -78,7 +78,7 @@ async function main() {
 
   try {
     mkdirSync(OUT_DIR, { recursive: true });
-  } catch (_) { }
+  } catch (_) {}
 
   const browser = await puppeteer.launch({
     headless: true,
@@ -111,7 +111,7 @@ async function main() {
             screenEmulation: { mobile: true },
           },
           undefined,
-          page
+          page,
         );
         await page.close();
 
@@ -142,7 +142,7 @@ async function main() {
             screenEmulation: { mobile: true },
           },
           undefined,
-          page
+          page,
         );
         await page.close();
 

@@ -13,7 +13,16 @@ import { AdSenseService } from './services/adsense.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, Header, Footer, Toast, TimezoneBanner, UpdateBanner, NetworkBanner, CookieConsentBanner],
+  imports: [
+    RouterOutlet,
+    Header,
+    Footer,
+    Toast,
+    TimezoneBanner,
+    UpdateBanner,
+    NetworkBanner,
+    CookieConsentBanner,
+  ],
   templateUrl: './app.html',
   styleUrl: './app.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -8,10 +8,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
-import {
-  provideHttpClientTesting,
-  HttpTestingController,
-} from '@angular/common/http/testing';
+import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
 import { AnalyticsService } from './analytics.service';
 import { AccountService } from './account.service';
 import { signal } from '@angular/core';
@@ -155,9 +152,7 @@ describe('AnalyticsService', () => {
         },
       });
 
-      const req = httpMock.expectOne(
-        '/api/v1/analytics/children/1/feeding-trends/?days=30'
-      );
+      const req = httpMock.expectOne('/api/v1/analytics/children/1/feeding-trends/?days=30');
       expect(req.request.method).toBe('GET');
       req.flush(mockFeedingTrends);
     });
@@ -165,9 +160,7 @@ describe('AnalyticsService', () => {
     it('should use default 30 days if not specified', () => {
       service.getFeedingTrends(1).subscribe();
 
-      const req = httpMock.expectOne(
-        '/api/v1/analytics/children/1/feeding-trends/?days=30'
-      );
+      const req = httpMock.expectOne('/api/v1/analytics/children/1/feeding-trends/?days=30');
       req.flush(mockFeedingTrends);
     });
 
@@ -181,9 +174,7 @@ describe('AnalyticsService', () => {
         },
       });
 
-      const req = httpMock.expectOne(
-        '/api/v1/analytics/children/999/feeding-trends/?days=30'
-      );
+      const req = httpMock.expectOne('/api/v1/analytics/children/999/feeding-trends/?days=30');
       req.flush(null, { status: 404, statusText: 'Not Found' });
 
       expect(errorCaught).toBe(true);
@@ -199,9 +190,7 @@ describe('AnalyticsService', () => {
         },
       });
 
-      const req = httpMock.expectOne(
-        '/api/v1/analytics/children/1/feeding-trends/?days=30'
-      );
+      const req = httpMock.expectOne('/api/v1/analytics/children/1/feeding-trends/?days=30');
       req.flush(null, { status: 403, statusText: 'Forbidden' });
 
       expect(errorCaught).toBe(true);
@@ -217,9 +206,7 @@ describe('AnalyticsService', () => {
         },
       });
 
-      const req = httpMock.expectOne(
-        '/api/v1/analytics/children/1/diaper-patterns/?days=30'
-      );
+      const req = httpMock.expectOne('/api/v1/analytics/children/1/diaper-patterns/?days=30');
       expect(req.request.method).toBe('GET');
       req.flush(mockDiaperPatterns);
     });
@@ -234,9 +221,7 @@ describe('AnalyticsService', () => {
         },
       });
 
-      const req = httpMock.expectOne(
-        '/api/v1/analytics/children/1/diaper-patterns/?days=30'
-      );
+      const req = httpMock.expectOne('/api/v1/analytics/children/1/diaper-patterns/?days=30');
       req.flush(null, { status: 500, statusText: 'Internal Server Error' });
 
       expect(errorCaught).toBe(true);
@@ -252,9 +237,7 @@ describe('AnalyticsService', () => {
         },
       });
 
-      const req = httpMock.expectOne(
-        '/api/v1/analytics/children/1/sleep-summary/?days=30'
-      );
+      const req = httpMock.expectOne('/api/v1/analytics/children/1/sleep-summary/?days=30');
       expect(req.request.method).toBe('GET');
       req.flush(mockSleepSummary);
     });
@@ -262,9 +245,7 @@ describe('AnalyticsService', () => {
     it('should support custom day parameters', () => {
       service.getSleepSummary(1, 60).subscribe();
 
-      const req = httpMock.expectOne(
-        '/api/v1/analytics/children/1/sleep-summary/?days=60'
-      );
+      const req = httpMock.expectOne('/api/v1/analytics/children/1/sleep-summary/?days=60');
       req.flush(mockSleepSummary);
     });
   });
@@ -278,9 +259,7 @@ describe('AnalyticsService', () => {
         },
       });
 
-      const req = httpMock.expectOne(
-        '/api/v1/analytics/children/1/today-summary/'
-      );
+      const req = httpMock.expectOne('/api/v1/analytics/children/1/today-summary/');
       expect(req.request.method).toBe('GET');
       req.flush(mockTodaySummary);
     });
@@ -288,9 +267,7 @@ describe('AnalyticsService', () => {
     it('should not include query parameters', () => {
       service.getTodaySummary(1).subscribe();
 
-      const req = httpMock.expectOne(
-        '/api/v1/analytics/children/1/today-summary/'
-      );
+      const req = httpMock.expectOne('/api/v1/analytics/children/1/today-summary/');
       expect(req.request.url).not.toContain('?');
       req.flush(mockTodaySummary);
     });
@@ -310,9 +287,7 @@ describe('AnalyticsService', () => {
         },
       });
 
-      const req = httpMock.expectOne(
-        '/api/v1/analytics/children/1/today-summary/'
-      );
+      const req = httpMock.expectOne('/api/v1/analytics/children/1/today-summary/');
       req.flush(summaryAtMidnight);
     });
   });
@@ -326,9 +301,7 @@ describe('AnalyticsService', () => {
         },
       });
 
-      const req = httpMock.expectOne(
-        '/api/v1/analytics/children/1/weekly-summary/'
-      );
+      const req = httpMock.expectOne('/api/v1/analytics/children/1/weekly-summary/');
       expect(req.request.method).toBe('GET');
       req.flush(mockWeeklySummary);
     });
@@ -350,9 +323,7 @@ describe('AnalyticsService', () => {
         },
       });
 
-      const req = httpMock.expectOne(
-        '/api/v1/children/1/dashboard-summary/'
-      );
+      const req = httpMock.expectOne('/api/v1/children/1/dashboard-summary/');
       expect(req.request.method).toBe('GET');
       req.flush(mockDashboardSummary);
     });
@@ -360,9 +331,7 @@ describe('AnalyticsService', () => {
     it('should update todaySummary and weeklySummary signals', () => {
       service.getDashboardSummary(1).subscribe();
 
-      const req = httpMock.expectOne(
-        '/api/v1/children/1/dashboard-summary/'
-      );
+      const req = httpMock.expectOne('/api/v1/children/1/dashboard-summary/');
       req.flush(mockDashboardSummary);
 
       expect(service.todaySummary()).toEqual(mockTodaySummary);
@@ -377,9 +346,7 @@ describe('AnalyticsService', () => {
         },
       });
 
-      const req = httpMock.expectOne(
-        '/api/v1/children/1/dashboard-summary/'
-      );
+      const req = httpMock.expectOne('/api/v1/children/1/dashboard-summary/');
       req.flush(null, { status: 404, statusText: 'Not Found' });
 
       expect(errorCaught).toBe(true);
@@ -418,7 +385,7 @@ describe('AnalyticsService', () => {
         (r) =>
           r.url === '/api/v1/analytics/children/1/timeline/' &&
           r.params.get('page') === '1' &&
-          r.params.get('page_size') === '100'
+          r.params.get('page_size') === '100',
       );
       expect(req.request.method).toBe('GET');
       req.flush(mockTimelineResponse);
@@ -431,7 +398,7 @@ describe('AnalyticsService', () => {
         (r) =>
           r.url === '/api/v1/analytics/children/2/timeline/' &&
           r.params.get('page') === '2' &&
-          r.params.get('page_size') === '25'
+          r.params.get('page_size') === '25',
       );
       req.flush({ count: 0, next: null, previous: null, results: [] });
     });
@@ -440,7 +407,8 @@ describe('AnalyticsService', () => {
       service.getTimeline(1, 1, 200).subscribe();
 
       const req = httpMock.expectOne(
-        (r) => r.url === '/api/v1/analytics/children/1/timeline/' && r.params.get('page_size') === '100'
+        (r) =>
+          r.url === '/api/v1/analytics/children/1/timeline/' && r.params.get('page_size') === '100',
       );
       req.flush({ count: 0, next: null, previous: null, results: [] });
     });
@@ -456,7 +424,7 @@ describe('AnalyticsService', () => {
         (r) =>
           r.url.startsWith('/api/v1/analytics/children/1/timeline/') &&
           r.params.get('page') === '1' &&
-          r.params.get('page_size') === '100'
+          r.params.get('page_size') === '100',
       );
       req.flush('Not found', { status: 404, statusText: 'Not Found' });
     });
@@ -472,15 +440,9 @@ describe('AnalyticsService', () => {
       service.getDiaperPatterns(1, 30).subscribe();
       service.getSleepSummary(1, 30).subscribe();
 
-      const feedingReq = httpMock.expectOne(
-        '/api/v1/analytics/children/1/feeding-trends/?days=30'
-      );
-      const diaperReq = httpMock.expectOne(
-        '/api/v1/analytics/children/1/diaper-patterns/?days=30'
-      );
-      const sleepReq = httpMock.expectOne(
-        '/api/v1/analytics/children/1/sleep-summary/?days=30'
-      );
+      const feedingReq = httpMock.expectOne('/api/v1/analytics/children/1/feeding-trends/?days=30');
+      const diaperReq = httpMock.expectOne('/api/v1/analytics/children/1/diaper-patterns/?days=30');
+      const sleepReq = httpMock.expectOne('/api/v1/analytics/children/1/sleep-summary/?days=30');
 
       feedingReq.flush(mockFeedingTrends);
       diaperReq.flush(mockDiaperPatterns);
@@ -504,9 +466,7 @@ describe('AnalyticsService', () => {
         },
       });
 
-      const req = httpMock.expectOne(
-        '/api/v1/analytics/children/1/export-csv/?days=30'
-      );
+      const req = httpMock.expectOne('/api/v1/analytics/children/1/export-csv/?days=30');
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual({});
       expect(req.request.responseType).toBe('blob');
@@ -518,9 +478,7 @@ describe('AnalyticsService', () => {
 
       service.exportCSV(1).subscribe();
 
-      const req = httpMock.expectOne(
-        '/api/v1/analytics/children/1/export-csv/?days=30'
-      );
+      const req = httpMock.expectOne('/api/v1/analytics/children/1/export-csv/?days=30');
       expect(req.request.body).toEqual({});
       req.flush(mockCSVBlob);
     });
@@ -530,9 +488,7 @@ describe('AnalyticsService', () => {
 
       service.exportCSV(1, 60).subscribe();
 
-      const req = httpMock.expectOne(
-        '/api/v1/analytics/children/1/export-csv/?days=60'
-      );
+      const req = httpMock.expectOne('/api/v1/analytics/children/1/export-csv/?days=60');
       expect(req.request.body).toEqual({});
       req.flush(mockCSVBlob);
     });
@@ -547,9 +503,7 @@ describe('AnalyticsService', () => {
         },
       });
 
-      const req = httpMock.expectOne(
-        '/api/v1/analytics/children/999/export-csv/?days=30'
-      );
+      const req = httpMock.expectOne('/api/v1/analytics/children/999/export-csv/?days=30');
       req.flush(null, { status: 404, statusText: 'Not Found' });
 
       expect(errorCaught).toBe(true);
@@ -565,9 +519,7 @@ describe('AnalyticsService', () => {
         },
       });
 
-      const req = httpMock.expectOne(
-        '/api/v1/analytics/children/1/export-csv/?days=30'
-      );
+      const req = httpMock.expectOne('/api/v1/analytics/children/1/export-csv/?days=30');
       req.flush(null, { status: 403, statusText: 'Forbidden' });
 
       expect(errorCaught).toBe(true);
@@ -592,9 +544,7 @@ describe('AnalyticsService', () => {
         },
       });
 
-      const req = httpMock.expectOne(
-        '/api/v1/analytics/children/1/export-pdf/'
-      );
+      const req = httpMock.expectOne('/api/v1/analytics/children/1/export-pdf/');
       expect(req.request.method).toBe('POST');
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual({ days: 30 });
@@ -604,9 +554,7 @@ describe('AnalyticsService', () => {
     it('should use default 30 days if not specified', () => {
       service.exportPDFAsync(1).subscribe();
 
-      const req = httpMock.expectOne(
-        '/api/v1/analytics/children/1/export-pdf/'
-      );
+      const req = httpMock.expectOne('/api/v1/analytics/children/1/export-pdf/');
       expect(req.request.body).toEqual({ days: 30 });
       req.flush(mockExportJobResponse);
     });
@@ -614,9 +562,7 @@ describe('AnalyticsService', () => {
     it('should support custom days parameter', () => {
       service.exportPDFAsync(1, 60).subscribe();
 
-      const req = httpMock.expectOne(
-        '/api/v1/analytics/children/1/export-pdf/'
-      );
+      const req = httpMock.expectOne('/api/v1/analytics/children/1/export-pdf/');
       expect(req.request.body).toEqual({ days: 60 });
       req.flush(mockExportJobResponse);
     });
@@ -631,12 +577,10 @@ describe('AnalyticsService', () => {
         },
       });
 
-      const req = httpMock.expectOne(
-        '/api/v1/analytics/children/1/export-pdf/'
-      );
+      const req = httpMock.expectOne('/api/v1/analytics/children/1/export-pdf/');
       req.flush(
         { detail: 'Export service unavailable' },
-        { status: 503, statusText: 'Service Unavailable' }
+        { status: 503, statusText: 'Service Unavailable' },
       );
 
       expect(errorCaught).toBe(true);
@@ -658,9 +602,7 @@ describe('AnalyticsService', () => {
         },
       });
 
-      const req = httpMock.expectOne(
-        '/api/v1/analytics/children/1/export-status/abc123def456/'
-      );
+      const req = httpMock.expectOne('/api/v1/analytics/children/1/export-status/abc123def456/');
       expect(req.request.method).toBe('GET');
       req.flush(mockPendingStatus);
     });
@@ -679,9 +621,7 @@ describe('AnalyticsService', () => {
         },
       });
 
-      const req = httpMock.expectOne(
-        '/api/v1/analytics/children/1/export-status/abc123def456/'
-      );
+      const req = httpMock.expectOne('/api/v1/analytics/children/1/export-status/abc123def456/');
       req.flush(mockProcessingStatus);
     });
 
@@ -707,9 +647,7 @@ describe('AnalyticsService', () => {
         },
       });
 
-      const req = httpMock.expectOne(
-        '/api/v1/analytics/children/1/export-status/abc123def456/'
-      );
+      const req = httpMock.expectOne('/api/v1/analytics/children/1/export-status/abc123def456/');
       req.flush(mockCompletedStatus);
     });
 
@@ -723,15 +661,11 @@ describe('AnalyticsService', () => {
       service.getPDFJobStatus(1, 'abc123def456').subscribe({
         next: (response) => {
           expect(response.status).toBe('failed');
-          expect(response.error).toBe(
-            'PDF generation failed due to invalid data'
-          );
+          expect(response.error).toBe('PDF generation failed due to invalid data');
         },
       });
 
-      const req = httpMock.expectOne(
-        '/api/v1/analytics/children/1/export-status/abc123def456/'
-      );
+      const req = httpMock.expectOne('/api/v1/analytics/children/1/export-status/abc123def456/');
       req.flush(mockFailedStatus);
     });
 
@@ -745,13 +679,8 @@ describe('AnalyticsService', () => {
         },
       });
 
-      const req = httpMock.expectOne(
-        '/api/v1/analytics/children/1/export-status/expired-task-id/'
-      );
-      req.flush(
-        { detail: 'Task not found (expired)' },
-        { status: 404, statusText: 'Not Found' }
-      );
+      const req = httpMock.expectOne('/api/v1/analytics/children/1/export-status/expired-task-id/');
+      req.flush({ detail: 'Task not found (expired)' }, { status: 404, statusText: 'Not Found' });
 
       expect(errorCaught).toBe(true);
     });
@@ -850,9 +779,7 @@ describe('AnalyticsService', () => {
         },
       });
 
-      const req = httpMock.expectOne(
-        '/api/v1/analytics/children/1/pattern-alerts/'
-      );
+      const req = httpMock.expectOne('/api/v1/analytics/children/1/pattern-alerts/');
       expect(req.request.method).toBe('GET');
       req.flush(mockPatternAlerts);
     });
@@ -862,13 +789,15 @@ describe('AnalyticsService', () => {
       let errorCalled = false;
 
       service.getPatternAlerts(1).subscribe({
-        next: () => { nextCalled = true; },
-        error: () => { errorCalled = true; },
+        next: () => {
+          nextCalled = true;
+        },
+        error: () => {
+          errorCalled = true;
+        },
       });
 
-      const req = httpMock.expectOne(
-        '/api/v1/analytics/children/1/pattern-alerts/'
-      );
+      const req = httpMock.expectOne('/api/v1/analytics/children/1/pattern-alerts/');
       req.flush(null, { status: 500, statusText: 'Internal Server Error' });
 
       expect(nextCalled).toBe(false);
@@ -879,12 +808,12 @@ describe('AnalyticsService', () => {
       let errorCalled = false;
 
       service.getPatternAlerts(999).subscribe({
-        error: () => { errorCalled = true; },
+        error: () => {
+          errorCalled = true;
+        },
       });
 
-      const req = httpMock.expectOne(
-        '/api/v1/analytics/children/999/pattern-alerts/'
-      );
+      const req = httpMock.expectOne('/api/v1/analytics/children/999/pattern-alerts/');
       req.flush(null, { status: 404, statusText: 'Not Found' });
 
       expect(errorCalled).toBe(false);
@@ -894,12 +823,12 @@ describe('AnalyticsService', () => {
       let errorCalled = false;
 
       service.getPatternAlerts(1).subscribe({
-        error: () => { errorCalled = true; },
+        error: () => {
+          errorCalled = true;
+        },
       });
 
-      const req = httpMock.expectOne(
-        '/api/v1/analytics/children/1/pattern-alerts/'
-      );
+      const req = httpMock.expectOne('/api/v1/analytics/children/1/pattern-alerts/');
       req.flush(null, { status: 403, statusText: 'Forbidden' });
 
       expect(errorCalled).toBe(false);
@@ -910,9 +839,7 @@ describe('AnalyticsService', () => {
 
       service.getPatternAlerts(1).subscribe();
 
-      const req = httpMock.expectOne(
-        '/api/v1/analytics/children/1/pattern-alerts/'
-      );
+      const req = httpMock.expectOne('/api/v1/analytics/children/1/pattern-alerts/');
       req.flush(null, { status: 500, statusText: 'Internal Server Error' });
 
       expect(service.patternAlerts()).toBeNull();
@@ -930,9 +857,7 @@ describe('AnalyticsService', () => {
         },
       });
 
-      const req = httpMock.expectOne(
-        '/api/v1/analytics/children/1/feeding-trends/?days=30'
-      );
+      const req = httpMock.expectOne('/api/v1/analytics/children/1/feeding-trends/?days=30');
       req.flush({}, { status: 429, statusText: 'Too Many Requests' });
 
       expect(errorCaught).toBe(true);
@@ -948,9 +873,7 @@ describe('AnalyticsService', () => {
         },
       });
 
-      const req = httpMock.expectOne(
-        '/api/v1/analytics/children/1/export-pdf/'
-      );
+      const req = httpMock.expectOne('/api/v1/analytics/children/1/export-pdf/');
       req.flush(null, { status: 502, statusText: 'Bad Gateway' });
 
       expect(errorCaught).toBe(true);

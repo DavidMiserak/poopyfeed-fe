@@ -39,7 +39,9 @@ describe('publicOnlyGuard', () => {
     mockAuthService.isAuthenticated.set(false);
     localStorage.removeItem('auth_token');
 
-    const result = TestBed.runInInjectionContext(() => publicOnlyGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot));
+    const result = TestBed.runInInjectionContext(() =>
+      publicOnlyGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot),
+    );
 
     expect(result).toBe(true);
     expect(mockRouter.createUrlTree).not.toHaveBeenCalled();
@@ -51,7 +53,9 @@ describe('publicOnlyGuard', () => {
     mockRouter.createUrlTree.mockReturnValue(mockUrlTree);
     localStorage.removeItem('auth_token');
 
-    const result = TestBed.runInInjectionContext(() => publicOnlyGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot));
+    const result = TestBed.runInInjectionContext(() =>
+      publicOnlyGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot),
+    );
 
     expect(result).toBe(mockUrlTree);
     expect(mockRouter.createUrlTree).toHaveBeenCalledWith(['/children']);
@@ -63,7 +67,9 @@ describe('publicOnlyGuard', () => {
     mockRouter.createUrlTree.mockReturnValue(mockUrlTree);
     localStorage.setItem('auth_token', 'test-token');
 
-    const result = TestBed.runInInjectionContext(() => publicOnlyGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot));
+    const result = TestBed.runInInjectionContext(() =>
+      publicOnlyGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot),
+    );
 
     expect(result).toBe(mockUrlTree);
     expect(mockRouter.createUrlTree).toHaveBeenCalledWith(['/children']);
@@ -78,7 +84,9 @@ describe('publicOnlyGuard', () => {
       value: undefined,
     });
 
-    const result = TestBed.runInInjectionContext(() => publicOnlyGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot));
+    const result = TestBed.runInInjectionContext(() =>
+      publicOnlyGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot),
+    );
 
     Object.defineProperty(globalThis, 'window', {
       writable: true,
@@ -94,7 +102,9 @@ describe('publicOnlyGuard', () => {
     mockRouter.createUrlTree.mockReturnValue(mockUrlTree);
     localStorage.removeItem('auth_token');
 
-    const result = TestBed.runInInjectionContext(() => publicOnlyGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot));
+    const result = TestBed.runInInjectionContext(() =>
+      publicOnlyGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot),
+    );
 
     expect(result).toBe(mockUrlTree);
     expect(mockRouter.createUrlTree).toHaveBeenCalledWith(['/children']);
@@ -104,7 +114,9 @@ describe('publicOnlyGuard', () => {
     mockAuthService.isAuthenticated.set(false);
     localStorage.setItem('auth_token', '');
 
-    const result = TestBed.runInInjectionContext(() => publicOnlyGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot));
+    const result = TestBed.runInInjectionContext(() =>
+      publicOnlyGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot),
+    );
 
     expect(result).toBe(true);
     expect(mockRouter.createUrlTree).not.toHaveBeenCalled();
@@ -116,7 +128,9 @@ describe('publicOnlyGuard', () => {
     mockRouter.createUrlTree.mockReturnValue(mockUrlTree);
     localStorage.setItem('auth_token', '   ');
 
-    const result = TestBed.runInInjectionContext(() => publicOnlyGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot));
+    const result = TestBed.runInInjectionContext(() =>
+      publicOnlyGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot),
+    );
 
     // Whitespace is truthy, so should redirect
     expect(result).toBe(mockUrlTree);
@@ -129,7 +143,9 @@ describe('publicOnlyGuard', () => {
     mockRouter.createUrlTree.mockReturnValue(mockUrlTree);
     localStorage.setItem('auth_token', 'valid-token');
 
-    const result = TestBed.runInInjectionContext(() => publicOnlyGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot));
+    const result = TestBed.runInInjectionContext(() =>
+      publicOnlyGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot),
+    );
 
     expect(result).toBe(mockUrlTree);
     expect(mockRouter.createUrlTree).toHaveBeenCalledWith(['/children']);
@@ -141,7 +157,9 @@ describe('publicOnlyGuard', () => {
     mockRouter.createUrlTree.mockReturnValue(mockUrlTree);
 
     // First check - unauthenticated
-    let result = TestBed.runInInjectionContext(() => publicOnlyGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot));
+    let result = TestBed.runInInjectionContext(() =>
+      publicOnlyGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot),
+    );
     expect(result).toBe(true);
 
     // Change auth state
@@ -150,7 +168,9 @@ describe('publicOnlyGuard', () => {
     mockRouter.createUrlTree.mockReturnValue(mockUrlTree);
 
     // Second check - now authenticated
-    result = TestBed.runInInjectionContext(() => publicOnlyGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot));
+    result = TestBed.runInInjectionContext(() =>
+      publicOnlyGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot),
+    );
     expect(result).toBe(mockUrlTree);
     expect(mockRouter.createUrlTree).toHaveBeenCalledWith(['/children']);
   });

@@ -16,8 +16,7 @@ export class Toast {
 
   getToastClasses(type: string): string {
     const classes: Record<string, string> = {
-      success:
-        'bg-emerald-50 border-emerald-400 text-emerald-900 text-opacity-80',
+      success: 'bg-emerald-50 border-emerald-400 text-emerald-900 text-opacity-80',
       error: 'bg-red-50 border-red-400 text-red-900 text-opacity-80',
       warning: 'bg-amber-50 border-amber-400 text-amber-900 text-opacity-80',
       info: 'bg-blue-50 border-blue-400 text-blue-900 text-opacity-80',

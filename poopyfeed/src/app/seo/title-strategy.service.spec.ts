@@ -47,14 +47,20 @@ describe('PoopyFeedTitleStrategy', () => {
 
   it('should set document title when buildTitle returns a value', () => {
     vi.spyOn(strategy, 'buildTitle').mockReturnValue('Dashboard | PoopyFeed');
-    const snapshot = { url: '/children/1', root: { firstChild: null, data: {} } } as unknown as RouterStateSnapshot;
+    const snapshot = {
+      url: '/children/1',
+      root: { firstChild: null, data: {} },
+    } as unknown as RouterStateSnapshot;
     strategy.updateTitle(snapshot);
     expect(mockTitle.setTitle).toHaveBeenCalledWith('Dashboard | PoopyFeed');
   });
 
   it('should not set title when buildTitle returns undefined', () => {
     vi.spyOn(strategy, 'buildTitle').mockReturnValue(undefined);
-    const snapshot = { url: '/', root: { firstChild: null, data: {} } } as unknown as RouterStateSnapshot;
+    const snapshot = {
+      url: '/',
+      root: { firstChild: null, data: {} },
+    } as unknown as RouterStateSnapshot;
     strategy.updateTitle(snapshot);
     expect(mockTitle.setTitle).not.toHaveBeenCalled();
   });
@@ -62,8 +68,13 @@ describe('PoopyFeedTitleStrategy', () => {
   it('should add meta description when no existing meta tag', () => {
     mockDocument.querySelector.mockReturnValue(null);
     vi.spyOn(strategy, 'buildTitle').mockReturnValue(undefined);
-    const leaf = { data: { description: 'Custom page description' } } as unknown as ActivatedRouteSnapshot;
-    vi.spyOn(strategy as unknown as { getLeafRoute: (r: unknown) => unknown }, 'getLeafRoute').mockReturnValue(leaf);
+    const leaf = {
+      data: { description: 'Custom page description' },
+    } as unknown as ActivatedRouteSnapshot;
+    vi.spyOn(
+      strategy as unknown as { getLeafRoute: (r: unknown) => unknown },
+      'getLeafRoute',
+    ).mockReturnValue(leaf);
     const snapshot = { url: '/', root: {} } as unknown as RouterStateSnapshot;
     strategy.updateTitle(snapshot);
     expect(mockMeta.addTag).toHaveBeenCalledWith({
@@ -76,11 +87,16 @@ describe('PoopyFeedTitleStrategy', () => {
     const existingMeta = document.createElement('meta');
     existingMeta.setAttribute('name', 'description');
     mockDocument.querySelector.mockImplementation((sel: string) =>
-      sel === 'meta[name="description"]' ? existingMeta : null
+      sel === 'meta[name="description"]' ? existingMeta : null,
     );
     vi.spyOn(strategy, 'buildTitle').mockReturnValue(undefined);
-    const leaf = { data: { description: 'Updated description' } } as unknown as ActivatedRouteSnapshot;
-    vi.spyOn(strategy as unknown as { getLeafRoute: (r: unknown) => unknown }, 'getLeafRoute').mockReturnValue(leaf);
+    const leaf = {
+      data: { description: 'Updated description' },
+    } as unknown as ActivatedRouteSnapshot;
+    vi.spyOn(
+      strategy as unknown as { getLeafRoute: (r: unknown) => unknown },
+      'getLeafRoute',
+    ).mockReturnValue(leaf);
     const snapshot = { url: '/', root: {} } as unknown as RouterStateSnapshot;
     strategy.updateTitle(snapshot);
     expect(existingMeta.getAttribute('content')).toBe('Updated description');

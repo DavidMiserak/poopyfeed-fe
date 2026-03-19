@@ -1,28 +1,13 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  OnInit,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
-import {
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { SharingService } from '../../services/sharing.service';
 import { ChildrenService } from '../../services/children.service';
 import { ToastService } from '../../services/toast.service';
 import { ChildNavigationService } from '../../services/child-navigation.service';
-import {
-  ChildShare,
-  ShareInvite,
-  InviteCreate,
-} from '../../models/sharing.model';
+import { ChildShare, ShareInvite, InviteCreate } from '../../models/sharing.model';
 import { Child } from '../../models/child.model';
 import { getGenderIcon } from '../../utils/date.utils';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog';
@@ -62,9 +47,7 @@ export class SharingManage implements OnInit {
   deleteInviteTarget = signal<number | null>(null);
 
   inviteForm = new FormGroup({
-    role: new FormControl<'co-parent' | 'caregiver'>('co-parent', [
-      Validators.required,
-    ]),
+    role: new FormControl<'co-parent' | 'caregiver'>('co-parent', [Validators.required]),
   });
 
   ngOnInit() {
@@ -117,20 +100,18 @@ export class SharingManage implements OnInit {
       role: formValue.role!,
     };
 
-    this.sharingService
-      .createInvite(this.childId()!, inviteData)
-      .subscribe({
-        next: (invite) => {
-          this.isCreatingInvite.set(false);
-          this.gaTracking.trackEvent('share_child');
-          // Prepend new invite to list
-          this.invites.update((invites) => [invite, ...invites]);
-        },
-        error: (err: Error) => {
-          this.isCreatingInvite.set(false);
-          this.error.set(err.message);
-        },
-      });
+    this.sharingService.createInvite(this.childId()!, inviteData).subscribe({
+      next: (invite) => {
+        this.isCreatingInvite.set(false);
+        this.gaTracking.trackEvent('share_child');
+        // Prepend new invite to list
+        this.invites.update((invites) => [invite, ...invites]);
+      },
+      error: (err: Error) => {
+        this.isCreatingInvite.set(false);
+        this.error.set(err.message);
+      },
+    });
   }
 
   onRevokeShare(shareId: number, email: string) {
@@ -155,9 +136,7 @@ export class SharingManage implements OnInit {
       next: () => {
         this.toast.success('Access revoked');
         this.gaTracking.trackEvent('remove_member');
-        this.shares.update((shares) =>
-          shares.filter((s) => s.id !== shareId)
-        );
+        this.shares.update((shares) => shares.filter((s) => s.id !== shareId));
       },
       error: (err: Error) => {
         this.error.set(err.message);
@@ -171,19 +150,17 @@ export class SharingManage implements OnInit {
       return;
     }
 
-    this.sharingService
-      .toggleInvite(childId, inviteId, !currentStatus)
-      .subscribe({
-        next: (updatedInvite) => {
-          // Update invite in list
-          this.invites.update((invites) =>
-            invites.map((inv) => (inv.id === inviteId ? updatedInvite : inv))
-          );
-        },
-        error: (err: Error) => {
-          this.error.set(err.message);
-        },
-      });
+    this.sharingService.toggleInvite(childId, inviteId, !currentStatus).subscribe({
+      next: (updatedInvite) => {
+        // Update invite in list
+        this.invites.update((invites) =>
+          invites.map((inv) => (inv.id === inviteId ? updatedInvite : inv)),
+        );
+      },
+      error: (err: Error) => {
+        this.error.set(err.message);
+      },
+    });
   }
 
   onDeleteInvite(inviteId: number) {
@@ -206,9 +183,7 @@ export class SharingManage implements OnInit {
     this.sharingService.deleteInvite(childId, inviteId).subscribe({
       next: () => {
         this.toast.success('Invite deleted');
-        this.invites.update((invites) =>
-          invites.filter((inv) => inv.id !== inviteId)
-        );
+        this.invites.update((invites) => invites.filter((inv) => inv.id !== inviteId));
       },
       error: (err: Error) => {
         this.error.set(err.message);
@@ -228,7 +203,7 @@ export class SharingManage implements OnInit {
       },
       () => {
         this.error.set('Failed to copy invite link');
-      }
+      },
     );
   }
 

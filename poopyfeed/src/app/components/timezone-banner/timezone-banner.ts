@@ -1,9 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { TimezoneCheckService } from '../../services/timezone-check.service';
 import { ToastService } from '../../services/toast.service';
 
@@ -21,13 +16,14 @@ import { ToastService } from '../../services/toast.service';
           <p class="font-['DM_Sans',sans-serif] text-sm text-amber-900">
             @if (tzService.profileTimezone() === 'UTC') {
               Your device timezone is
-              <span class="font-semibold">{{ tzService.browserTimezone() }}</span>.
-              Set it as your preference so times display correctly.
+              <span class="font-semibold">{{ tzService.browserTimezone() }}</span
+              >. Set it as your preference so times display correctly.
             } @else {
               Your device timezone is
               <span class="font-semibold">{{ tzService.browserTimezone() }}</span>
               but your account is set to
-              <span class="font-semibold">{{ tzService.profileTimezone() }}</span>.
+              <span class="font-semibold">{{ tzService.profileTimezone() }}</span
+              >.
             }
           </p>
           <div class="flex items-center gap-2">
@@ -37,10 +33,11 @@ import { ToastService } from '../../services/toast.service';
               class="px-3 py-1.5 text-sm font-semibold rounded-lg bg-amber-500 text-white hover:bg-amber-600 disabled:opacity-50 transition-colors"
               [attr.aria-busy]="isUpdating()"
             >
-            @if (isUpdating()) {
-              Updating...
+              @if (isUpdating()) {
+                Updating...
               } @else {
-                {{ tzService.profileTimezone() === 'UTC' ? 'Set to' : 'Update to' }} {{ tzService.browserTimezone() }}
+                {{ tzService.profileTimezone() === 'UTC' ? 'Set to' : 'Update to' }}
+                {{ tzService.browserTimezone() }}
               }
             </button>
             <button

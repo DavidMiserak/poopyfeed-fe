@@ -10,13 +10,9 @@ test.describe('Auth', () => {
     `e2e-${Date.now()}-${Math.random().toString(36).slice(2, 10)}@example.com`;
   const password = 'e2e-test-password-123';
 
-  test('signup redirects to My Children and shows empty state', async ({
-    page,
-  }) => {
+  test('signup redirects to My Children and shows empty state', async ({ page }) => {
     await page.goto('/signup');
-    await expect(
-      page.getByRole('heading', { name: 'Join PoopyFeed!' })
-    ).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Join PoopyFeed!' })).toBeVisible();
     await expect(page.locator('#password')).toBeVisible();
 
     await page.getByLabel('Email address').fill(uniqueEmail());
@@ -25,17 +21,11 @@ test.describe('Auth', () => {
     await page.getByRole('button', { name: 'Create Account' }).click();
 
     await expect(page).toHaveURL(/\/children/);
-    await expect(
-      page.getByRole('heading', { name: 'My Children' })
-    ).toBeVisible();
-    await expect(
-      page.getByRole('heading', { name: 'No children yet!' })
-    ).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'My Children' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'No children yet!' })).toBeVisible();
   });
 
-  test('login with valid credentials redirects to My Children', async ({
-    page,
-  }) => {
+  test('login with valid credentials redirects to My Children', async ({ page }) => {
     const email = uniqueEmail();
     await page.goto('/signup');
     await expect(page.locator('#password')).toBeVisible();
@@ -53,16 +43,12 @@ test.describe('Auth', () => {
     await page.getByRole('button', { name: 'Sign In' }).click();
 
     await expect(page).toHaveURL(/\/children/);
-    await expect(
-      page.getByRole('heading', { name: 'My Children' })
-    ).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'My Children' })).toBeVisible();
   });
 
   test('login with invalid password shows error', async ({ page }) => {
     await page.goto('/login');
-    await expect(
-      page.getByRole('heading', { name: 'Welcome Back!' })
-    ).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Welcome Back!' })).toBeVisible();
 
     await page.getByLabel('Email address').fill('nobody@example.com');
     await page.getByLabel('Password').fill('wrong-password');
@@ -74,9 +60,7 @@ test.describe('Auth', () => {
     });
   });
 
-  test('signup with password mismatch shows validation error', async ({
-    page,
-  }) => {
+  test('signup with password mismatch shows validation error', async ({ page }) => {
     await page.goto('/signup');
     await expect(page.locator('#password')).toBeVisible();
     await page.getByLabel('Email address').fill(uniqueEmail());

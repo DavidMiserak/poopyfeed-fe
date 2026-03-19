@@ -10,7 +10,11 @@
 @if (diaper()) {
   <app-delete-confirmation
     [title]="'Delete Diaper Change?'"
-    [warningMsg]="'⚠️ This will permanently delete this diaper change record' + (child() ? ' for ' + child()!.name : '') + '. This cannot be undone.'"
+    [warningMsg]="
+      '⚠️ This will permanently delete this diaper change record' +
+      (child() ? ' for ' + child()!.name : '') +
+      '. This cannot be undone.'
+    "
     [backRoute]="['/children', childId()!, 'diapers']"
     [backLabel]="'Back to Diaper Changes'"
     [isDeleting]="isDeleting()"
@@ -20,7 +24,10 @@
     (cancelled)="onCancel()"
   >
     <!-- Diaper Details -->
-    <div itemDetails class="bg-gradient-to-r from-orange-50 to-amber-50 border-l-4 border-orange-500 p-4 mb-6 rounded-xl">
+    <div
+      itemDetails
+      class="bg-gradient-to-r from-orange-50 to-amber-50 border-l-4 border-orange-500 p-4 mb-6 rounded-xl"
+    >
       <div class="flex items-start gap-3">
         <span class="text-3xl">{{ getDiaperIcon(diaper()!.change_type) }}</span>
         <div>

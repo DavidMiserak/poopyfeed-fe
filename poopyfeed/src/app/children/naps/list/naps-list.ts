@@ -85,7 +85,7 @@ export class NapsList implements OnInit {
       this.router.events
         .pipe(
           filter((e): e is NavigationEnd => e instanceof NavigationEnd),
-          takeUntilDestroyed(this.destroyRef)
+          takeUntilDestroyed(this.destroyRef),
         )
         .subscribe(() => {
           const routeId = this.route.snapshot.paramMap.get('childId');
@@ -216,8 +216,6 @@ export class NapsList implements OnInit {
     const childId = this.childId();
     if (!childId) return;
 
-    this.listService.bulkDelete((id: number) =>
-      this.napsService.delete(childId, id)
-    );
+    this.listService.bulkDelete((id: number) => this.napsService.delete(childId, id));
   }
 }

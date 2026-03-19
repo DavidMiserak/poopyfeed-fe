@@ -30,11 +30,10 @@ describe('FeedingForm', () => {
     last_diaper_change: '2024-02-10T14:30:00Z',
     last_nap: '2024-02-10T13:00:00Z',
     last_feeding: '2024-02-10T12:00:00Z',
-        custom_bottle_low_oz: null,
-        custom_bottle_mid_oz: null,
-        custom_bottle_high_oz: null,
-        feeding_reminder_interval: null,
-
+    custom_bottle_low_oz: null,
+    custom_bottle_mid_oz: null,
+    custom_bottle_high_oz: null,
+    feeding_reminder_interval: null,
   };
 
   const mockFeeding: Feeding = {
@@ -167,14 +166,11 @@ describe('FeedingForm', () => {
       expect(component.feedingForm.get('feeding_type')?.value).toBe('breast');
     });
 
-
     it('should accept valid bottle amount (5 oz)', () => {
       const amountControl = component.feedingForm.get('amount_oz');
       amountControl?.setValue(5);
       expect(amountControl?.valid).toBe(true);
     });
-
-
 
     it('should accept valid breast duration (20 minutes)', () => {
       const durationControl = component.feedingForm.get('duration_minutes');
@@ -191,7 +187,6 @@ describe('FeedingForm', () => {
         expect(sideControl?.value).toBe(side);
       });
     });
-
   });
 
   describe('DateTime Handling', () => {
@@ -200,10 +195,7 @@ describe('FeedingForm', () => {
       vi.useFakeTimers();
       vi.setSystemTime(now);
 
-      const setDefaultSpy = vi.spyOn(
-        component,
-        'setDefaultDateTime' as never
-      );
+      const setDefaultSpy = vi.spyOn(component, 'setDefaultDateTime' as never);
       component['setDefaultDateTime']();
 
       expect(setDefaultSpy).toHaveBeenCalled();
@@ -225,18 +217,10 @@ describe('FeedingForm', () => {
   describe('Form Submission - Create', () => {
     beforeEach(() => {
       vi.mocked(childrenService.get).mockReturnValue(of(mockChild));
-      vi.mocked(dateTimeService.toInputFormat).mockReturnValue(
-        '2024-02-10T10:30'
-      );
-      vi.mocked(dateTimeService.toUTC).mockReturnValue(
-        '2024-02-10T10:30:00Z'
-      );
-      vi.mocked(dateTimeService.toLocal).mockReturnValue(
-        new Date('2024-02-10T14:30:00')
-      );
-      vi.mocked(dateTimeService.fromInputFormat).mockReturnValue(
-        new Date('2024-02-10T10:30:00')
-      );
+      vi.mocked(dateTimeService.toInputFormat).mockReturnValue('2024-02-10T10:30');
+      vi.mocked(dateTimeService.toUTC).mockReturnValue('2024-02-10T10:30:00Z');
+      vi.mocked(dateTimeService.toLocal).mockReturnValue(new Date('2024-02-10T14:30:00'));
+      vi.mocked(dateTimeService.fromInputFormat).mockReturnValue(new Date('2024-02-10T10:30:00'));
     });
 
     it('should build correct DTO for bottle feeding creation', () => {
@@ -351,9 +335,7 @@ describe('FeedingForm', () => {
 
     it('should convert UTC datetime to local format for bottle feeding', () => {
       const _mockLocalDate = new Date('2024-02-10T14:30:00');
-      vi.mocked(dateTimeService.toInputFormat).mockReturnValue(
-        '2024-02-10T14:30'
-      );
+      vi.mocked(dateTimeService.toInputFormat).mockReturnValue('2024-02-10T14:30');
 
       component['patchFormWithResource'](mockFeeding);
 
@@ -395,17 +377,13 @@ describe('FeedingForm', () => {
     it('should accept notes up to 500 characters', () => {
       const longNotes = 'a'.repeat(500);
       component.feedingForm.get('notes')?.setValue(longNotes);
-      expect(component.feedingForm.get('notes')?.hasError('maxlength')).toBe(
-        false
-      );
+      expect(component.feedingForm.get('notes')?.hasError('maxlength')).toBe(false);
     });
 
     it('should reject notes exceeding 500 characters', () => {
       const tooLongNotes = 'a'.repeat(501);
       component.feedingForm.get('notes')?.setValue(tooLongNotes);
-      expect(component.feedingForm.get('notes')?.hasError('maxlength')).toBe(
-        true
-      );
+      expect(component.feedingForm.get('notes')?.hasError('maxlength')).toBe(true);
     });
 
     it('should accept empty notes', () => {
@@ -443,7 +421,6 @@ describe('FeedingForm', () => {
       });
       expect(component.feedingForm.valid).toBe(true);
     });
-
   });
 
   describe('Edge Cases', () => {
@@ -487,11 +464,7 @@ describe('FeedingForm', () => {
 
     it('should preserve breast side values (left, right, both)', () => {
       const sideControl = component.feedingForm.get('side');
-      const sides: ('left' | 'right' | 'both')[] = [
-        'left',
-        'right',
-        'both',
-      ];
+      const sides: ('left' | 'right' | 'both')[] = ['left', 'right', 'both'];
 
       sides.forEach((side) => {
         sideControl?.setValue(side);
@@ -641,7 +614,9 @@ describe('FeedingForm', () => {
 
       it('should handle permission-related errors', () => {
         component.error.set('Permission denied: You do not have access to edit this child');
-        expect(component.error()).toBe('Permission denied: You do not have access to edit this child');
+        expect(component.error()).toBe(
+          'Permission denied: You do not have access to edit this child',
+        );
       });
 
       it('should handle server errors (5xx)', () => {
@@ -1235,7 +1210,9 @@ describe('FeedingForm', () => {
       fixture.detectChanges();
 
       const el = fixture.nativeElement as HTMLElement;
-      expect(el.textContent).toContain(`Amount must be at least ${FEEDING_VALIDATION.MIN_BOTTLE_OZ} oz`);
+      expect(el.textContent).toContain(
+        `Amount must be at least ${FEEDING_VALIDATION.MIN_BOTTLE_OZ} oz`,
+      );
     });
 
     it('should show amount_oz max error', () => {
@@ -1246,7 +1223,9 @@ describe('FeedingForm', () => {
       fixture.detectChanges();
 
       const el = fixture.nativeElement as HTMLElement;
-      expect(el.textContent).toContain(`Amount must be at most ${FEEDING_VALIDATION.MAX_BOTTLE_OZ} oz`);
+      expect(el.textContent).toContain(
+        `Amount must be at most ${FEEDING_VALIDATION.MAX_BOTTLE_OZ} oz`,
+      );
     });
 
     it('should show duration_minutes required error', () => {
@@ -1268,7 +1247,9 @@ describe('FeedingForm', () => {
       fixture.detectChanges();
 
       const el = fixture.nativeElement as HTMLElement;
-      expect(el.textContent).toContain(`Duration must be at least ${FEEDING_VALIDATION.MIN_BREAST_MINUTES} minute`);
+      expect(el.textContent).toContain(
+        `Duration must be at least ${FEEDING_VALIDATION.MIN_BREAST_MINUTES} minute`,
+      );
     });
 
     it('should show duration_minutes max error', () => {
@@ -1279,7 +1260,9 @@ describe('FeedingForm', () => {
       fixture.detectChanges();
 
       const el = fixture.nativeElement as HTMLElement;
-      expect(el.textContent).toContain(`Duration must be at most ${FEEDING_VALIDATION.MAX_BREAST_MINUTES} minutes`);
+      expect(el.textContent).toContain(
+        `Duration must be at most ${FEEDING_VALIDATION.MAX_BREAST_MINUTES} minutes`,
+      );
     });
 
     it('should show side required error', () => {

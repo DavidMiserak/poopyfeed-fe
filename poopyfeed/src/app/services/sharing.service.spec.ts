@@ -3,10 +3,7 @@
  */
 
 import { TestBed } from '@angular/core/testing';
-import {
-  HttpTestingController,
-  provideHttpClientTesting,
-} from '@angular/common/http/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { SharingService } from './sharing.service';
 import {
@@ -372,10 +369,7 @@ describe('SharingService', () => {
       });
 
       const req = httpMock.expectOne('/api/v1/children/1/invites/');
-      req.flush(
-        { role: ['This field is required'] },
-        { status: 400, statusText: 'Bad Request' }
-      );
+      req.flush({ role: ['This field is required'] }, { status: 400, statusText: 'Bad Request' });
 
       expect(errorCaught).toBe(true);
     });
@@ -398,7 +392,7 @@ describe('SharingService', () => {
       const req = httpMock.expectOne('/api/v1/children/1/invites/');
       req.flush(
         { role: ['Invalid role. Must be co-parent or caregiver'] },
-        { status: 400, statusText: 'Bad Request' }
+        { status: 400, statusText: 'Bad Request' },
       );
 
       expect(errorCaught).toBe(true);
@@ -417,7 +411,7 @@ describe('SharingService', () => {
       const req = httpMock.expectOne('/api/v1/children/1/invites/');
       req.flush(
         { non_field_errors: ['Invalid invite data'] },
-        { status: 400, statusText: 'Bad Request' }
+        { status: 400, statusText: 'Bad Request' },
       );
 
       expect(errorCaught).toBe(true);
@@ -532,7 +526,7 @@ describe('SharingService', () => {
       const req = httpMock.expectOne('/api/v1/invites/accept/');
       req.flush(
         { token: ['Invalid or expired invite token'] },
-        { status: 400, statusText: 'Bad Request' }
+        { status: 400, statusText: 'Bad Request' },
       );
 
       expect(errorCaught).toBe(true);
@@ -583,7 +577,7 @@ describe('SharingService', () => {
       const req = httpMock.expectOne('/api/v1/invites/accept/');
       req.flush(
         { non_field_errors: ['You already have access to this child'] },
-        { status: 400, statusText: 'Bad Request' }
+        { status: 400, statusText: 'Bad Request' },
       );
 
       expect(errorCaught).toBe(true);
@@ -602,7 +596,7 @@ describe('SharingService', () => {
       const req = httpMock.expectOne('/api/v1/invites/accept/');
       req.flush(
         { detail: 'Invite has been deactivated' },
-        { status: 400, statusText: 'Bad Request' }
+        { status: 400, statusText: 'Bad Request' },
       );
 
       expect(errorCaught).toBe(true);
@@ -822,10 +816,7 @@ describe('SharingService', () => {
       });
 
       const req = httpMock.expectOne('/api/v1/children/1/shares/');
-      req.flush(
-        { detail: 'Custom error detail' },
-        { status: 400, statusText: 'Bad Request' }
-      );
+      req.flush({ detail: 'Custom error detail' }, { status: 400, statusText: 'Bad Request' });
 
       expect(errorCaught).toBe(true);
     });
@@ -1058,7 +1049,7 @@ describe('SharingService', () => {
           role: ['Invalid role'],
           child: ['Invalid child ID'],
         },
-        { status: 400, statusText: 'Bad Request' }
+        { status: 400, statusText: 'Bad Request' },
       );
 
       expect(errorCaught).toBe(true);
@@ -1080,7 +1071,7 @@ describe('SharingService', () => {
           non_field_errors: ['You already have access to this child'],
           token: ['Invalid format'],
         },
-        { status: 400, statusText: 'Bad Request' }
+        { status: 400, statusText: 'Bad Request' },
       );
 
       expect(errorCaught).toBe(true);

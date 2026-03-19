@@ -5,7 +5,10 @@ import { GaTrackingService } from '../../services/ga-tracking.service';
 describe('CookieConsentBanner', () => {
   let component: CookieConsentBanner;
   let fixture: ComponentFixture<CookieConsentBanner>;
-  let gaService: { enableTracking: ReturnType<typeof vi.fn>; disableTracking: ReturnType<typeof vi.fn> };
+  let gaService: {
+    enableTracking: ReturnType<typeof vi.fn>;
+    disableTracking: ReturnType<typeof vi.fn>;
+  };
 
   beforeEach(() => {
     localStorage.clear();

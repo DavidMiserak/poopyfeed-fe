@@ -38,12 +38,7 @@ describe('ExportJobStatusComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ExportJobStatusComponent],
-      providers: [
-        provideHttpClient(),
-        provideHttpClientTesting(),
-        AnalyticsService,
-        ToastService,
-      ],
+      providers: [provideHttpClient(), provideHttpClientTesting(), AnalyticsService, ToastService],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ExportJobStatusComponent);
@@ -89,7 +84,7 @@ describe('ExportJobStatusComponent', () => {
           task_id: mockTaskId,
           status: 'pending',
           progress: 0,
-        })
+        }),
       );
 
       fixture.detectChanges();
@@ -166,9 +161,7 @@ describe('ExportJobStatusComponent', () => {
       expect(component.status()).toBe('completed');
       expect(component.progress()).toBe(100);
       expect(component.downloadUrl()).toBe('/api/download/abc.pdf');
-      expect(component.expiresAt()).toEqual(
-        new Date('2024-02-13T10:00:00Z')
-      );
+      expect(component.expiresAt()).toEqual(new Date('2024-02-13T10:00:00Z'));
       expect(component.isPolling()).toBe(false);
     });
 
@@ -252,9 +245,7 @@ describe('ExportJobStatusComponent', () => {
         component['isPolling'].set(false);
       }
 
-      expect(toastSpy).toHaveBeenCalledWith(
-        'PDF export ready for download!'
-      );
+      expect(toastSpy).toHaveBeenCalledWith('PDF export ready for download!');
 
       toastSpy.mockRestore();
     });
@@ -313,7 +304,7 @@ describe('ExportJobStatusComponent', () => {
           task_id: mockTaskId,
           status: 'processing',
           progress: 50,
-        })
+        }),
       );
 
       fixture.detectChanges();
@@ -331,18 +322,14 @@ describe('ExportJobStatusComponent', () => {
     it('should render status container', () => {
       fixture.detectChanges();
 
-      const statusContainer = fixture.nativeElement.querySelector(
-        '[role="status"]'
-      );
+      const statusContainer = fixture.nativeElement.querySelector('[role="status"]');
       expect(statusContainer).toBeTruthy();
     });
 
     it('should render progress bar with ARIA attributes', () => {
       fixture.detectChanges();
 
-      const progressBar = fixture.nativeElement.querySelector(
-        '[role="progressbar"]'
-      );
+      const progressBar = fixture.nativeElement.querySelector('[role="progressbar"]');
       expect(progressBar).toBeTruthy();
       expect(progressBar.getAttribute('aria-valuemin')).toBe('0');
       expect(progressBar.getAttribute('aria-valuemax')).toBe('100');
@@ -395,9 +382,7 @@ describe('ExportJobStatusComponent', () => {
       // Trigger change detection to update DOM
       fixture.detectChanges();
 
-      const progressBar = fixture.nativeElement.querySelector(
-        '[role="progressbar"]'
-      );
+      const progressBar = fixture.nativeElement.querySelector('[role="progressbar"]');
       expect(progressBar.getAttribute('aria-label')).toContain('50%');
     });
 
@@ -525,7 +510,7 @@ describe('ExportJobStatusComponent', () => {
       fixture.detectChanges();
 
       const downloadButton = fixture.nativeElement.querySelector(
-        'button[aria-label="Download PDF export file"]'
+        'button[aria-label="Download PDF export file"]',
       );
       expect(downloadButton).toBeTruthy();
       expect(downloadButton.textContent).toContain('Download PDF');
@@ -537,7 +522,7 @@ describe('ExportJobStatusComponent', () => {
       fixture.detectChanges();
 
       const downloadButton = fixture.nativeElement.querySelector(
-        'button[aria-label="Download PDF export file"]'
+        'button[aria-label="Download PDF export file"]',
       );
       expect(downloadButton).toBeFalsy();
     });
@@ -565,8 +550,8 @@ describe('ExportJobStatusComponent', () => {
       fixture.detectChanges();
 
       const buttons = fixture.nativeElement.querySelectorAll('button');
-      const dismissButton = (Array.from(buttons) as Element[]).find(
-        (btn: Element) => btn.textContent?.trim().includes('Dismiss')
+      const dismissButton = (Array.from(buttons) as Element[]).find((btn: Element) =>
+        btn.textContent?.trim().includes('Dismiss'),
       );
       expect(dismissButton).toBeTruthy();
     });
@@ -576,8 +561,8 @@ describe('ExportJobStatusComponent', () => {
       fixture.detectChanges();
 
       const buttons = fixture.nativeElement.querySelectorAll('button');
-      const closeButton = (Array.from(buttons) as Element[]).find(
-        (btn: Element) => btn.textContent?.trim().includes('Close')
+      const closeButton = (Array.from(buttons) as Element[]).find((btn: Element) =>
+        btn.textContent?.trim().includes('Close'),
       );
       expect(closeButton).toBeTruthy();
     });

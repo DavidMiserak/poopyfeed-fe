@@ -10,7 +10,11 @@
 @if (nap()) {
   <app-delete-confirmation
     [title]="'Delete Nap?'"
-    [warningMsg]="'⚠️ This will permanently delete this nap record' + (child() ? ' for ' + child()!.name : '') + '. This cannot be undone.'"
+    [warningMsg]="
+      '⚠️ This will permanently delete this nap record' +
+      (child() ? ' for ' + child()!.name : '') +
+      '. This cannot be undone.'
+    "
     [backRoute]="['/children', childId()!, 'naps']"
     [backLabel]="'Back to Naps'"
     [isDeleting]="isDeleting()"
@@ -20,13 +24,14 @@
     (cancelled)="onCancel()"
   >
     <!-- Nap Details -->
-    <div itemDetails class="bg-gradient-to-r from-amber-50 to-yellow-50 border-l-4 border-amber-500 p-4 mb-6 rounded-xl">
+    <div
+      itemDetails
+      class="bg-gradient-to-r from-amber-50 to-yellow-50 border-l-4 border-amber-500 p-4 mb-6 rounded-xl"
+    >
       <div class="flex items-start gap-3">
         <span class="text-3xl">😴</span>
         <div>
-          <p class="font-['DM_Sans',sans-serif] font-bold text-slate-900">
-            Nap Time
-          </p>
+          <p class="font-['DM_Sans',sans-serif] font-bold text-slate-900">Nap Time</p>
           <p class="font-['DM_Sans',sans-serif] text-sm text-slate-600 mt-1">
             {{ formatDateTime(nap()!.napped_at) }}
           </p>

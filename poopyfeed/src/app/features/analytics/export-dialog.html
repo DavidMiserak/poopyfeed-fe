@@ -1,9 +1,7 @@
 <div class="w-full max-w-md">
   <!-- Header -->
   <div class="mb-6">
-    <h2 class="font-['Fredoka',sans-serif] text-2xl font-bold text-slate-900">
-      Export Analytics
-    </h2>
+    <h2 class="font-['Fredoka',sans-serif] text-2xl font-bold text-slate-900">Export Analytics</h2>
     <p class="font-['DM_Sans',sans-serif] text-sm text-slate-600 mt-1">
       Download your baby's activity data in CSV or PDF format
     </p>
@@ -52,7 +50,9 @@
           />
           <div class="ml-4 flex-1">
             <p class="font-['DM_Sans',sans-serif] font-medium text-slate-900">PDF (Formatted)</p>
-            <p class="font-['DM_Sans',sans-serif] text-sm text-slate-600">Includes charts & summaries</p>
+            <p class="font-['DM_Sans',sans-serif] text-sm text-slate-600">
+              Includes charts & summaries
+            </p>
           </div>
           <span class="text-2xl">📊</span>
         </label>
@@ -86,14 +86,14 @@
       @switch (form.get('format')?.value) {
         @case ('csv') {
           <p class="font-['DM_Sans',sans-serif]">
-            <span class="font-semibold">CSV files</span> can be opened in Excel or
-            Google Sheets for analysis
+            <span class="font-semibold">CSV files</span> can be opened in Excel or Google Sheets for
+            analysis
           </p>
         }
         @case ('pdf') {
           <p class="font-['DM_Sans',sans-serif]">
-            <span class="font-semibold">PDF generation</span> may take 1-2 minutes.
-            You'll get a download link via notification.
+            <span class="font-semibold">PDF generation</span> may take 1-2 minutes. You'll get a
+            download link via notification.
           </p>
         }
       }
@@ -118,12 +118,25 @@
         [attr.aria-busy]="isSubmitting()"
         aria-label="Confirm and start export"
       >
-        <span class="absolute inset-0 bg-gradient-to-br from-rose-400 to-orange-400 transition-transform duration-300 group-hover:scale-110"></span>
+        <span
+          class="absolute inset-0 bg-gradient-to-br from-rose-400 to-orange-400 transition-transform duration-300 group-hover:scale-110"
+        ></span>
         <span class="relative z-10 flex items-center gap-2">
           @if (isSubmitting()) {
             <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              <circle
+                class="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="4"
+              ></circle>
+              <path
+                class="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              ></path>
             </svg>
             Exporting...
           } @else {

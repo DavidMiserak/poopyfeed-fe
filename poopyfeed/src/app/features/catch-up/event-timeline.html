@@ -7,7 +7,9 @@
         (click)="addEventHandler('feeding')"
         [disabled]="!canAddEvent()"
         class="h-14 bg-gradient-to-br from-rose-50 to-rose-100 border-2 border-rose-200 rounded-xl text-base font-['DM_Sans',sans-serif] font-semibold text-slate-900 hover:border-rose-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-        [attr.aria-label]="canAddEvent() ? 'Add feeding event' : 'Cannot add more events (limit reached)'"
+        [attr.aria-label]="
+          canAddEvent() ? 'Add feeding event' : 'Cannot add more events (limit reached)'
+        "
       >
         🍼 Feeding
       </button>
@@ -15,7 +17,9 @@
         (click)="addEventHandler('diaper')"
         [disabled]="!canAddEvent()"
         class="h-14 bg-gradient-to-br from-orange-50 to-orange-100 border-2 border-orange-200 rounded-xl text-base font-['DM_Sans',sans-serif] font-semibold text-slate-900 hover:border-orange-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-        [attr.aria-label]="canAddEvent() ? 'Add diaper event' : 'Cannot add more events (limit reached)'"
+        [attr.aria-label]="
+          canAddEvent() ? 'Add diaper event' : 'Cannot add more events (limit reached)'
+        "
       >
         💧 Diaper
       </button>
@@ -23,7 +27,9 @@
         (click)="addEventHandler('nap')"
         [disabled]="!canAddEvent()"
         class="h-14 bg-gradient-to-br from-indigo-50 to-blue-100 border-2 border-blue-200 rounded-xl text-base font-['DM_Sans',sans-serif] font-semibold text-slate-900 hover:border-blue-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-        [attr.aria-label]="canAddEvent() ? 'Add nap event' : 'Cannot add more events (limit reached)'"
+        [attr.aria-label]="
+          canAddEvent() ? 'Add nap event' : 'Cannot add more events (limit reached)'
+        "
       >
         😴 Nap
       </button>
@@ -75,7 +81,10 @@
                 class="w-0.5 h-16"
                 [class.bg-slate-300]="event.isExisting && events()[idx + 1].isExisting"
                 [class.bg-blue-200]="!event.isExisting && !events()[idx + 1].isExisting"
-                [class.bg-gradient-to-b]="(event.isExisting && !events()[idx + 1].isExisting) || (!event.isExisting && events()[idx + 1].isExisting)"
+                [class.bg-gradient-to-b]="
+                  (event.isExisting && !events()[idx + 1].isExisting) ||
+                  (!event.isExisting && events()[idx + 1].isExisting)
+                "
                 [class.from-rose-200]="event.isExisting && !events()[idx + 1].isExisting"
                 [class.to-blue-200]="event.isExisting && !events()[idx + 1].isExisting"
                 [class.from-blue-200]="!event.isExisting && events()[idx + 1].isExisting"
@@ -96,7 +105,12 @@
               [class.opacity-75]="event.isExisting"
               [class.cursor-not-allowed]="event.isExisting"
               (click)="selectEventHandler(event.id)"
-              [attr.aria-label]="event.type + ' event at ' + event.estimatedTime + (event.isExisting ? ' (read-only)' : '')"
+              [attr.aria-label]="
+                event.type +
+                ' event at ' +
+                event.estimatedTime +
+                (event.isExisting ? ' (read-only)' : '')
+              "
             >
               <div class="flex items-center gap-3">
                 <span class="text-2xl">{{ getActivityIcon(event.type) }}</span>
@@ -111,7 +125,10 @@
                   </p>
                 </div>
                 @if (event.isExisting) {
-                  <span class="text-sm px-2 py-1 bg-slate-200 text-slate-700 rounded-lg font-medium flex-shrink-0" title="Existing event (read-only anchor)">
+                  <span
+                    class="text-sm px-2 py-1 bg-slate-200 text-slate-700 rounded-lg font-medium flex-shrink-0"
+                    title="Existing event (read-only anchor)"
+                  >
                     🔒 Locked
                   </span>
                 }
@@ -123,10 +140,18 @@
     </div>
   } @else {
     <!-- Empty State -->
-    <div class="text-center py-12 bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl border-2 border-dashed border-amber-300">
-      <p class="font-['Fredoka',sans-serif] text-lg font-bold text-slate-900 mb-2">No activities yet</p>
-      <p class="font-['DM_Sans',sans-serif] text-slate-600 mb-4">Tap the buttons above to add activities</p>
-      <p class="font-['DM_Sans',sans-serif] text-sm text-slate-500">(Max {{ maxEvents }} activities per session)</p>
+    <div
+      class="text-center py-12 bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl border-2 border-dashed border-amber-300"
+    >
+      <p class="font-['Fredoka',sans-serif] text-lg font-bold text-slate-900 mb-2">
+        No activities yet
+      </p>
+      <p class="font-['DM_Sans',sans-serif] text-slate-600 mb-4">
+        Tap the buttons above to add activities
+      </p>
+      <p class="font-['DM_Sans',sans-serif] text-sm text-slate-500">
+        (Max {{ maxEvents }} activities per session)
+      </p>
     </div>
   }
 </div>

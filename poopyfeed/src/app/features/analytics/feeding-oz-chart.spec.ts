@@ -336,9 +336,7 @@ describe('FeedingOzChart', () => {
     it('should handle decimal oz values in tooltip', async () => {
       const dataWithDecimals: FeedingTrends = {
         ...mockData,
-        daily_data: [
-          { date: '2024-01-01', count: 3, average_duration: null, total_oz: 15.5 },
-        ],
+        daily_data: [{ date: '2024-01-01', count: 3, average_duration: null, total_oz: 15.5 }],
       };
 
       fixture.componentRef.setInput('data', dataWithDecimals);

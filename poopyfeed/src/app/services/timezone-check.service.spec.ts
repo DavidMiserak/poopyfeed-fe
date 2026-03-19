@@ -18,9 +18,7 @@ const mockProfile: UserProfile = {
 
 function getDifferentTz(): string {
   const browserTz = DateTimeService.getBrowserTimezone();
-  return browserTz === 'America/New_York'
-    ? 'America/Chicago'
-    : 'America/New_York';
+  return browserTz === 'America/New_York' ? 'America/Chicago' : 'America/New_York';
 }
 
 describe('TimezoneCheckService', () => {
@@ -84,7 +82,7 @@ describe('TimezoneCheckService', () => {
       expect(service.showBanner()).toBe(true);
 
       accountServiceMock.updateProfile.mockReturnValue(
-        of({ ...mockProfile, timezone: browserTz! })
+        of({ ...mockProfile, timezone: browserTz! }),
       );
       service.updateToDetectedTimezone();
       expect(service.showBanner()).toBe(false);

@@ -30,11 +30,10 @@ describe('FeedingsList - Batch Operations', () => {
     last_diaper_change: '2024-01-15T14:30:00Z',
     last_nap: '2024-01-15T13:00:00Z',
     last_feeding: '2024-01-15T12:00:00Z',
-        custom_bottle_low_oz: null,
-        custom_bottle_mid_oz: null,
-        custom_bottle_high_oz: null,
-        feeding_reminder_interval: null,
-
+    custom_bottle_low_oz: null,
+    custom_bottle_mid_oz: null,
+    custom_bottle_high_oz: null,
+    feeding_reminder_interval: null,
   };
 
   const mockFeedings: Feeding[] = [
@@ -263,9 +262,7 @@ describe('FeedingsList - Batch Operations', () => {
 
       component.bulkDelete();
 
-      expect(confirmSpy).toHaveBeenCalledWith(
-        'Delete 2 feeding(s)? This cannot be undone.'
-      );
+      expect(confirmSpy).toHaveBeenCalledWith('Delete 2 feeding(s)? This cannot be undone.');
       confirmSpy.mockRestore();
     });
 
@@ -303,7 +300,7 @@ describe('FeedingsList - Batch Operations', () => {
 
       component.bulkDelete();
 
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
       expect(component.allItems()).toEqual([mockFeedings[1]]); // Only feeding 2 remains
       confirmSpy.mockRestore();
     });
@@ -318,7 +315,7 @@ describe('FeedingsList - Batch Operations', () => {
 
       component.bulkDelete();
 
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
       expect(component.selectedIds()).toEqual(new Set());
       confirmSpy.mockRestore();
     });
@@ -336,7 +333,7 @@ describe('FeedingsList - Batch Operations', () => {
       component.bulkDelete();
 
       // Wait for deletion to complete and check flag is cleared
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
       expect(component.isBulkDeleting()).toBeFalsy();
       confirmSpy.mockRestore();
     });
@@ -351,21 +348,19 @@ describe('FeedingsList - Batch Operations', () => {
 
       component.bulkDelete();
 
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
       expect(component.isBulkDeleting()).toBeFalsy();
       confirmSpy.mockRestore();
     });
 
     it('should handle deletion errors gracefully', async () => {
       const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
-      vi.mocked(feedingsService.delete).mockImplementation(
-        (childId: number, id: number) => {
-          if (id === 2) {
-            return throwError(() => new Error('Delete failed'));
-          }
-          return of(void 0);
+      vi.mocked(feedingsService.delete).mockImplementation((childId: number, id: number) => {
+        if (id === 2) {
+          return throwError(() => new Error('Delete failed'));
         }
-      );
+        return of(void 0);
+      });
 
       component.childId.set(1);
       component.allItems.set(mockFeedings);
@@ -373,7 +368,7 @@ describe('FeedingsList - Batch Operations', () => {
 
       component.bulkDelete();
 
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
       // Should still complete bulk delete operation
       expect(component.isBulkDeleting()).toBeFalsy();
       confirmSpy.mockRestore();
@@ -408,7 +403,7 @@ describe('FeedingsList - Batch Operations', () => {
       // User confirms bulk delete
       component.bulkDelete();
 
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
       expect(component.selectedIds()).toEqual(new Set());
       expect(component.allItems()).toEqual([]);
       expect(component.hasSelectedItems()).toBeFalsy();
@@ -477,7 +472,7 @@ describe('FeedingsList - Batch Operations', () => {
 
       component.bulkDelete();
 
-      await new Promise(resolve => setTimeout(resolve, 150));
+      await new Promise((resolve) => setTimeout(resolve, 150));
       expect(callCount).toBe(2); // Both delete attempts made
       confirmSpy.mockRestore();
     });
@@ -568,11 +563,10 @@ describe('FeedingsList - Core Functionality Tests', () => {
     last_diaper_change: '2024-02-10T14:30:00Z',
     last_nap: '2024-02-10T13:00:00Z',
     last_feeding: '2024-02-10T12:00:00Z',
-        custom_bottle_low_oz: null,
-        custom_bottle_mid_oz: null,
-        custom_bottle_high_oz: null,
-        feeding_reminder_interval: null,
-
+    custom_bottle_low_oz: null,
+    custom_bottle_mid_oz: null,
+    custom_bottle_high_oz: null,
+    feeding_reminder_interval: null,
   };
 
   const mockCoParentChild: Child = {
@@ -692,21 +686,21 @@ describe('FeedingsList - Core Functionality Tests', () => {
 
     it('should populate allFeedings after load', async () => {
       component.ngOnInit();
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
 
       expect(component.allItems()).toHaveLength(3);
     });
 
     it('should set isLoading=false after load', async () => {
       component.ngOnInit();
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
 
       expect(component.isLoading()).toBe(false);
     });
 
     it('should set child signal after load', async () => {
       component.ngOnInit();
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
 
       expect(component.child()).toEqual(mockChild);
     });
@@ -982,15 +976,11 @@ describe('FeedingsList - Core Functionality Tests', () => {
 
       const mockRoute = TestBed.inject(ActivatedRoute);
       const originalGet = mockRoute.snapshot.paramMap.get;
-      mockRoute.snapshot.paramMap.get = vi.fn((key: string) =>
-        key === 'childId' ? '2' : null
-      );
-      vi.mocked(childrenService.get).mockReturnValue(
-        of({ ...mockChild, id: 2, name: 'Baby Bob' })
-      );
+      mockRoute.snapshot.paramMap.get = vi.fn((key: string) => (key === 'childId' ? '2' : null));
+      vi.mocked(childrenService.get).mockReturnValue(of({ ...mockChild, id: 2, name: 'Baby Bob' }));
 
       component.ngOnInit();
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
 
       expect(component.childId()).toBe(2);
       expect(component.child()?.id).toBe(2);
@@ -1008,7 +998,7 @@ describe('FeedingsList - Core Functionality Tests', () => {
       vi.mocked(feedingsService.list).mockReturnValue(of([]));
 
       component.ngOnInit();
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
 
       expect(component.allItems()).toEqual([]);
 

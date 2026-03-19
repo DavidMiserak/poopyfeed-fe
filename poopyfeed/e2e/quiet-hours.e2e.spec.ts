@@ -10,33 +10,27 @@ test.describe('Quiet Hours', () => {
   test('account settings page shows Quiet Hours section', async ({ page }) => {
     await page.goto('/account');
 
-    await expect(
-      page.getByRole('heading', { name: 'Account Settings' })
-    ).toBeVisible({ timeout: E2E_TIMEOUT });
+    await expect(page.getByRole('heading', { name: 'Account Settings' })).toBeVisible({
+      timeout: E2E_TIMEOUT,
+    });
 
-    await expect(
-      page.getByRole('heading', { name: 'Quiet Hours', level: 2 })
-    ).toBeVisible({ timeout: E2E_TIMEOUT });
+    await expect(page.getByRole('heading', { name: 'Quiet Hours', level: 2 })).toBeVisible({
+      timeout: E2E_TIMEOUT,
+    });
 
-    await expect(
-      page.getByLabel('Enable quiet hours', { exact: true })
-    ).toBeVisible();
-    await expect(
-      page.getByRole('button', { name: 'Save Quiet Hours' })
-    ).toBeVisible();
+    await expect(page.getByLabel('Enable quiet hours', { exact: true })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Save Quiet Hours' })).toBeVisible();
   });
 
   test('saving quiet hours shows success feedback', async ({ page }) => {
     await page.goto('/account');
 
-    await expect(
-      page.getByRole('heading', { name: 'Quiet Hours', level: 2 })
-    ).toBeVisible({ timeout: E2E_TIMEOUT });
+    await expect(page.getByRole('heading', { name: 'Quiet Hours', level: 2 })).toBeVisible({
+      timeout: E2E_TIMEOUT,
+    });
 
     await page.getByRole('button', { name: 'Save Quiet Hours' }).click();
 
-    await expect(
-      page.getByText('Quiet hours saved').first()
-    ).toBeVisible({ timeout: E2E_TIMEOUT });
+    await expect(page.getByText('Quiet hours saved').first()).toBeVisible({ timeout: E2E_TIMEOUT });
   });
 });

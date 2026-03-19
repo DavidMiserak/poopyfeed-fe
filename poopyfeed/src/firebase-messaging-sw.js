@@ -12,12 +12,12 @@ importScripts('https://www.gstatic.com/firebasejs/11.8.1/firebase-messaging-comp
 
 // Initialize Firebase with project config
 firebase.initializeApp({
-  apiKey: "AIzaSyBYZ7TixRk_1ruHCTbYhZzjAeffPsasqfg",
-  authDomain: "poopyfeed.firebaseapp.com",
-  projectId: "poopyfeed",
-  storageBucket: "poopyfeed.firebasestorage.app",
-  messagingSenderId: "635637455070",
-  appId: "1:635637455070:web:a0cc85a1f50b2791e60a4f"
+  apiKey: 'AIzaSyBYZ7TixRk_1ruHCTbYhZzjAeffPsasqfg',
+  authDomain: 'poopyfeed.firebaseapp.com',
+  projectId: 'poopyfeed',
+  storageBucket: 'poopyfeed.firebasestorage.app',
+  messagingSenderId: '635637455070',
+  appId: '1:635637455070:web:a0cc85a1f50b2791e60a4f',
 });
 
 const messaging = firebase.messaging();
@@ -55,6 +55,6 @@ self.addEventListener('notificationclick', (event) => {
       }
       // Otherwise open a new window
       return self.clients.openWindow(url);
-    })
+    }),
   );
 });

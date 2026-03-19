@@ -17,10 +17,7 @@ describe('Hero', () => {
 
     await TestBed.configureTestingModule({
       imports: [Hero],
-      providers: [
-        provideRouter([]),
-        { provide: AuthService, useValue: authServiceMock },
-      ],
+      providers: [provideRouter([]), { provide: AuthService, useValue: authServiceMock }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(Hero);

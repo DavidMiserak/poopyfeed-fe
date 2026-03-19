@@ -16,15 +16,11 @@ test.describe('Naps', () => {
     await logWithDetails.getByRole('button', { name: 'Go to naps list' }).click();
     // Button now navigates to list, not create form
     await expect(page).toHaveURL(/\/children\/\d+\/naps$/, { timeout: E2E_TIMEOUT });
-    await expect(
-      page.getByRole('button', { name: 'Add Nap' })
-    ).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Add Nap' })).toBeVisible();
     // Navigate to create form from list
     await page.getByRole('button', { name: 'Add Nap' }).click();
     await expect(page).toHaveURL(/\/children\/\d+\/naps\/create/, { timeout: E2E_TIMEOUT });
-    await expect(
-      page.getByRole('heading', { name: /Add Nap/ })
-    ).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Add Nap/ })).toBeVisible();
 
     await page.getByLabel('Date & Time').fill('2024-06-15T13:00');
     await page.getByLabel('End Time (optional)').fill('2024-06-15T14:30');
@@ -34,17 +30,13 @@ test.describe('Naps', () => {
 
     await expect(page).toHaveURL(/\/children\/\d+\/naps$/, { timeout: E2E_TIMEOUT });
     await expect(page.getByText('Loading naps...')).toBeHidden({ timeout: E2E_TIMEOUT });
-    await expect(
-      page.getByRole('button', { name: 'Add Nap' })
-    ).toBeVisible({ timeout: E2E_TIMEOUT });
-    await expect(
-      page.getByText('Nap Time').first()
-    ).toBeVisible({ timeout: E2E_TIMEOUT });
+    await expect(page.getByRole('button', { name: 'Add Nap' })).toBeVisible({
+      timeout: E2E_TIMEOUT,
+    });
+    await expect(page.getByText('Nap Time').first()).toBeVisible({ timeout: E2E_TIMEOUT });
   });
 
-  test('nap form shows validation when date and time is missing', async ({
-    page,
-  }) => {
+  test('nap form shows validation when date and time is missing', async ({ page }) => {
     await createChildAndGoToDashboard(page, 'E2E Naps');
     const logWithDetails = page.getByText('Log with details', { exact: true }).locator('..');
     await logWithDetails.getByRole('button', { name: 'Go to naps list' }).click();
@@ -58,9 +50,7 @@ test.describe('Naps', () => {
     await expect(page).toHaveURL(/\/children\/\d+\/naps\/create/);
   });
 
-  test('user can edit a nap and see update on the naps list', async ({
-    page,
-  }) => {
+  test('user can edit a nap and see update on the naps list', async ({ page }) => {
     await editTrackingItemAndSeeUpdateOnList(page, {
       childNamePrefix: 'E2E Naps',
       dashboardButton: 'Go to naps list',
@@ -85,9 +75,7 @@ test.describe('Naps', () => {
     });
   });
 
-  test('user can delete a nap and return to the list', async ({
-    page,
-  }) => {
+  test('user can delete a nap and return to the list', async ({ page }) => {
     await createChildAndGoToDashboard(page, 'E2E Naps');
     const logWithDetails = page.getByText('Log with details', { exact: true }).locator('..');
     await logWithDetails.getByRole('button', { name: 'Go to naps list' }).click();
@@ -100,15 +88,13 @@ test.describe('Naps', () => {
     await list200AfterAdd;
     await expect(page).toHaveURL(/\/children\/\d+\/naps$/, { timeout: E2E_TIMEOUT });
     await expect(page.getByText('Loading naps...')).toBeHidden({ timeout: E2E_TIMEOUT });
-    await expect(
-      page.getByText('Nap Time').first()
-    ).toBeVisible({ timeout: E2E_TIMEOUT });
+    await expect(page.getByText('Nap Time').first()).toBeVisible({ timeout: E2E_TIMEOUT });
 
     await page.getByRole('button', { name: 'Delete nap' }).first().click();
     await expect(page).toHaveURL(/\/children\/\d+\/naps\/\d+\/delete/, { timeout: E2E_TIMEOUT });
-    await expect(
-      page.getByRole('heading', { name: 'Delete Nap?' })
-    ).toBeVisible({ timeout: E2E_TIMEOUT });
+    await expect(page.getByRole('heading', { name: 'Delete Nap?' })).toBeVisible({
+      timeout: E2E_TIMEOUT,
+    });
 
     const list200AfterDelete = waitForTrackingList200(page, 'naps');
     await page.getByRole('button', { name: 'Yes, Delete Forever' }).click();
@@ -116,46 +102,38 @@ test.describe('Naps', () => {
 
     await expect(page).toHaveURL(/\/children\/\d+\/naps$/, { timeout: E2E_TIMEOUT });
     await expect(page.getByText('Loading naps...')).toBeHidden({ timeout: E2E_TIMEOUT });
-    await expect(
-      page.getByRole('button', { name: 'Add Nap' })
-    ).toBeVisible({ timeout: E2E_TIMEOUT });
+    await expect(page.getByRole('button', { name: 'Add Nap' })).toBeVisible({
+      timeout: E2E_TIMEOUT,
+    });
   });
 
-  test('naps list shows pagination and user can go to next and previous page', async ({
-    page,
-  }) => {
+  test('naps list shows pagination and user can go to next and previous page', async ({ page }) => {
     await createChildAndGoToDashboard(page, 'E2E Naps Pagination');
     const childId = await createItemsForPagination(page, 'naps', (at) => ({
       napped_at: at.toISOString(),
     }));
 
     await page.goto(`/children/${childId}/naps/`);
-    await expect(page).toHaveURL(new RegExp(`/children/${childId}/naps/?$`), { timeout: E2E_TIMEOUT });
+    await expect(page).toHaveURL(new RegExp(`/children/${childId}/naps/?$`), {
+      timeout: E2E_TIMEOUT,
+    });
 
-    await expect(
-      page.getByRole('heading', { name: /Naps for/ })
-    ).toBeVisible({ timeout: E2E_TIMEOUT });
+    await expect(page.getByRole('heading', { name: /Naps for/ })).toBeVisible({
+      timeout: E2E_TIMEOUT,
+    });
     await expect(page.getByText('Loading naps...')).toBeHidden({ timeout: E2E_TIMEOUT });
-    await expect(
-      page.getByRole('button', { name: 'Add Nap' })
-    ).toBeVisible({ timeout: E2E_TIMEOUT });
+    await expect(page.getByRole('button', { name: 'Add Nap' })).toBeVisible({
+      timeout: E2E_TIMEOUT,
+    });
 
     await expect(page.getByText('Page 1 of 2')).toBeVisible({ timeout: E2E_TIMEOUT });
-    await expect(
-      page.getByRole('button', { name: 'Next page' })
-    ).toBeVisible();
-    await expect(
-      page.getByRole('button', { name: 'Previous page' })
-    ).toBeDisabled();
+    await expect(page.getByRole('button', { name: 'Next page' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Previous page' })).toBeDisabled();
 
     await page.getByRole('button', { name: 'Next page' }).click();
     await expect(page.getByText('Page 2 of 2')).toBeVisible();
-    await expect(
-      page.getByRole('button', { name: 'Previous page' })
-    ).toBeEnabled();
-    await expect(
-      page.getByRole('button', { name: 'Next page' })
-    ).toBeDisabled();
+    await expect(page.getByRole('button', { name: 'Previous page' })).toBeEnabled();
+    await expect(page.getByRole('button', { name: 'Next page' })).toBeDisabled();
 
     await page.getByRole('button', { name: 'Previous page' }).click();
     await expect(page.getByText('Page 1 of 2')).toBeVisible();

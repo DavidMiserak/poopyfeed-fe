@@ -6,7 +6,9 @@
   <!-- Auto-checked items section -->
   @if (hasAutoItems()) {
     <div class="space-y-2">
-      <h4 class="font-['DM_Sans',sans-serif] text-xs font-semibold uppercase tracking-wide text-slate-500">
+      <h4
+        class="font-['DM_Sans',sans-serif] text-xs font-semibold uppercase tracking-wide text-slate-500"
+      >
         Checked automatically
       </h4>
       <ul class="space-y-2 list-none pl-0">
@@ -24,7 +26,9 @@
                   @case ('ok') {
                     <span class="flex-shrink-0 text-green-600" aria-hidden="true">✓</span>
                     <div class="flex-1 min-w-0">
-                      <span class="font-['DM_Sans',sans-serif] font-medium text-slate-800">{{ item.label }}</span>
+                      <span class="font-['DM_Sans',sans-serif] font-medium text-slate-800">{{
+                        item.label
+                      }}</span>
                       @if (item.detail) {
                         <span class="text-slate-600 text-sm ml-1">— {{ item.detail }}</span>
                       }
@@ -33,40 +37,76 @@
                   @case ('warning') {
                     <span class="flex-shrink-0 text-amber-500" aria-hidden="true">⚠</span>
                     <div class="flex-1 min-w-0">
-                      <span class="font-['DM_Sans',sans-serif] font-medium text-slate-800">{{ item.label }}</span>
+                      <span class="font-['DM_Sans',sans-serif] font-medium text-slate-800">{{
+                        item.label
+                      }}</span>
                       @if (item.detail) {
                         <span class="text-amber-700 text-sm ml-1">— {{ item.detail }}</span>
                       }
                     </div>
                     @if (item.id === 'fed') {
-                      <button type="button" (click)="onLogNow('feeding')" class="text-sm font-semibold text-rose-600 hover:underline cursor-pointer">Log now</button>
+                      <button
+                        type="button"
+                        (click)="onLogNow('feeding')"
+                        class="text-sm font-semibold text-rose-600 hover:underline cursor-pointer"
+                      >
+                        Log now
+                      </button>
                     }
                     @if (item.id === 'nap') {
-                      <button type="button" (click)="onLogNow('nap')" class="text-sm font-semibold text-rose-600 hover:underline cursor-pointer">Log now</button>
+                      <button
+                        type="button"
+                        (click)="onLogNow('nap')"
+                        class="text-sm font-semibold text-rose-600 hover:underline cursor-pointer"
+                      >
+                        Log now
+                      </button>
                     }
                   }
                   @case ('missing') {
                     <span class="flex-shrink-0 text-slate-400" aria-hidden="true">○</span>
                     <div class="flex-1 min-w-0">
-                      <span class="font-['DM_Sans',sans-serif] font-medium text-slate-800">{{ item.label }}</span>
+                      <span class="font-['DM_Sans',sans-serif] font-medium text-slate-800">{{
+                        item.label
+                      }}</span>
                       @if (item.detail) {
                         <span class="text-slate-500 text-sm ml-1">— {{ item.detail }}</span>
                       }
                     </div>
                     @if (item.id === 'fed') {
-                      <button type="button" (click)="onLogNow('feeding')" class="text-sm font-semibold text-rose-600 hover:underline cursor-pointer min-w-[60px] min-h-[44px]">Log now</button>
+                      <button
+                        type="button"
+                        (click)="onLogNow('feeding')"
+                        class="text-sm font-semibold text-rose-600 hover:underline cursor-pointer min-w-[60px] min-h-[44px]"
+                      >
+                        Log now
+                      </button>
                     }
                     @if (item.id === 'diaper') {
-                      <button type="button" (click)="onLogNow('diaper')" class="text-sm font-semibold text-rose-600 hover:underline cursor-pointer min-w-[60px] min-h-[44px]">Log now</button>
+                      <button
+                        type="button"
+                        (click)="onLogNow('diaper')"
+                        class="text-sm font-semibold text-rose-600 hover:underline cursor-pointer min-w-[60px] min-h-[44px]"
+                      >
+                        Log now
+                      </button>
                     }
                     @if (item.id === 'nap') {
-                      <button type="button" (click)="onLogNow('nap')" class="text-sm font-semibold text-rose-600 hover:underline cursor-pointer min-w-[60px] min-h-[44px]">Log now</button>
+                      <button
+                        type="button"
+                        (click)="onLogNow('nap')"
+                        class="text-sm font-semibold text-rose-600 hover:underline cursor-pointer min-w-[60px] min-h-[44px]"
+                      >
+                        Log now
+                      </button>
                     }
                   }
                   @default {
                     <span class="flex-shrink-0 text-slate-400" aria-hidden="true">○</span>
                     <div class="flex-1 min-w-0">
-                      <span class="font-['DM_Sans',sans-serif] font-medium text-slate-800">{{ item.label }}</span>
+                      <span class="font-['DM_Sans',sans-serif] font-medium text-slate-800">{{
+                        item.label
+                      }}</span>
                       @if (item.detail) {
                         <span class="text-slate-500 text-sm ml-1">— {{ item.detail }}</span>
                       }
@@ -84,7 +124,9 @@
   <!-- Manual check items section -->
   @if (hasManualItems()) {
     <div class="space-y-2">
-      <h4 class="font-['DM_Sans',sans-serif] text-xs font-semibold uppercase tracking-wide text-slate-500">
+      <h4
+        class="font-['DM_Sans',sans-serif] text-xs font-semibold uppercase tracking-wide text-slate-500"
+      >
         Things you can check
       </h4>
       <ul class="space-y-3 list-none pl-0">
@@ -102,7 +144,10 @@
                 @if (isManualChecked(item.id)) {
                   <span class="flex-shrink-0 text-green-600" aria-hidden="true">✓</span>
                 } @else {
-                  <span class="flex-shrink-0 w-5 h-5 rounded border-2 border-slate-300" aria-hidden="true"></span>
+                  <span
+                    class="flex-shrink-0 w-5 h-5 rounded border-2 border-slate-300"
+                    aria-hidden="true"
+                  ></span>
                 }
                 <span class="font-medium text-slate-800">{{ item.label }}</span>
               </button>

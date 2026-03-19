@@ -100,9 +100,9 @@ describe('EventTimeline', () => {
       fixture.componentRef.setInput('events', []);
       fixture.detectChanges();
 
-      const feedingButton = (Array.from(
-        fixture.nativeElement.querySelectorAll('button'),
-      ) as Element[]).find((b) => b.textContent?.includes('Feeding'));
+      const feedingButton = (
+        Array.from(fixture.nativeElement.querySelectorAll('button')) as Element[]
+      ).find((b) => b.textContent?.includes('Feeding'));
 
       (feedingButton as HTMLElement)?.click();
 
@@ -114,9 +114,9 @@ describe('EventTimeline', () => {
       fixture.componentRef.setInput('events', []);
       fixture.detectChanges();
 
-      const diaperButton = (Array.from(
-        fixture.nativeElement.querySelectorAll('button'),
-      ) as Element[]).find((b) => b.textContent?.includes('Diaper'));
+      const diaperButton = (
+        Array.from(fixture.nativeElement.querySelectorAll('button')) as Element[]
+      ).find((b) => b.textContent?.includes('Diaper'));
 
       (diaperButton as HTMLElement)?.click();
 
@@ -128,9 +128,9 @@ describe('EventTimeline', () => {
       fixture.componentRef.setInput('events', []);
       fixture.detectChanges();
 
-      const napButton = (Array.from(
-        fixture.nativeElement.querySelectorAll('button'),
-      ) as Element[]).find((b) => b.textContent?.includes('Nap'));
+      const napButton = (
+        Array.from(fixture.nativeElement.querySelectorAll('button')) as Element[]
+      ).find((b) => b.textContent?.includes('Nap'));
 
       (napButton as HTMLElement)?.click();
 
@@ -142,9 +142,7 @@ describe('EventTimeline', () => {
       fixture.componentRef.setInput('events', maxEvents);
       fixture.detectChanges();
 
-      const buttons = fixture.nativeElement.querySelectorAll(
-        'button[aria-label*="Add"]',
-      );
+      const buttons = fixture.nativeElement.querySelectorAll('button[aria-label*="Add"]');
       (Array.from(buttons) as HTMLButtonElement[]).forEach((btn) => {
         expect(btn.disabled).toBe(true);
       });
@@ -158,9 +156,9 @@ describe('EventTimeline', () => {
       fixture.detectChanges();
 
       // Find the event card button by looking for button with aria-label containing "event at" (not "Add")
-      const eventButton = (Array.from(
-        fixture.nativeElement.querySelectorAll('button'),
-      ) as Element[]).find((b) => {
+      const eventButton = (
+        Array.from(fixture.nativeElement.querySelectorAll('button')) as Element[]
+      ).find((b) => {
         const label = b.getAttribute('aria-label') || '';
         return label.includes('feeding') && label.includes('event at');
       });
@@ -238,9 +236,7 @@ describe('EventTimeline', () => {
     });
 
     it('should prevent adding when at max new events', () => {
-      const maxNewEvents = Array(CATCH_UP_VALIDATION.MAX_EVENTS_PER_BATCH).fill(
-        mockNewEvent,
-      );
+      const maxNewEvents = Array(CATCH_UP_VALIDATION.MAX_EVENTS_PER_BATCH).fill(mockNewEvent);
       fixture.componentRef.setInput('events', maxNewEvents);
       fixture.detectChanges();
 

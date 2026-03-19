@@ -51,7 +51,7 @@ export class TrackingFilterComponent {
 
   // Computed
   hasActiveFilters = computed(
-    () => !!(this.filters().dateFrom || this.filters().dateTo || this.filters().type)
+    () => !!(this.filters().dateFrom || this.filters().dateTo || this.filters().type),
   );
 
   // Handlers

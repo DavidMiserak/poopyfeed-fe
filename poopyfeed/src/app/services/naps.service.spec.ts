@@ -3,10 +3,7 @@
  */
 
 import { TestBed } from '@angular/core/testing';
-import {
-  HttpTestingController,
-  provideHttpClientTesting,
-} from '@angular/common/http/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { NapsService } from './naps.service';
 import { Nap, NapCreate, NapUpdate } from '../models/nap.model';
@@ -84,7 +81,7 @@ describe('NapsService', () => {
       const req = httpMock.expectOne(
         (r) =>
           r.url.startsWith('/api/v1/children/1/naps/') &&
-          (r.method !== 'GET' || r.params.get('page') === '1')
+          (r.method !== 'GET' || r.params.get('page') === '1'),
       );
       expect(req.request.method).toBe('GET');
       req.flush({ count: mockNaps.length, next: null, previous: null, results: mockNaps });
@@ -100,7 +97,7 @@ describe('NapsService', () => {
       const req = httpMock.expectOne(
         (r) =>
           r.url.startsWith('/api/v1/children/1/naps/') &&
-          (r.method !== 'GET' || r.params.get('page') === '1')
+          (r.method !== 'GET' || r.params.get('page') === '1'),
       );
       req.flush({ count: 0, next: null, previous: null, results: [] });
     });
@@ -121,7 +118,7 @@ describe('NapsService', () => {
           r.url.startsWith('/api/v1/children/1/naps/') &&
           r.params.get('page') === '1' &&
           r.params.get('napped_at__gte') === filters.dateFrom &&
-          r.params.get('napped_at__lt') === filters.dateTo
+          r.params.get('napped_at__lt') === filters.dateTo,
       );
       expect(req.request.method).toBe('GET');
       req.flush({ count: mockNaps.length, next: null, previous: null, results: mockNaps });
@@ -140,7 +137,7 @@ describe('NapsService', () => {
       const req = httpMock.expectOne(
         (r) =>
           r.url.startsWith('/api/v1/children/1/naps/') &&
-          (r.method !== 'GET' || r.params.get('page') === '1')
+          (r.method !== 'GET' || r.params.get('page') === '1'),
       );
       req.flush(null, { status: 401, statusText: 'Unauthorized' });
 
@@ -160,7 +157,7 @@ describe('NapsService', () => {
       const req = httpMock.expectOne(
         (r) =>
           r.url.startsWith('/api/v1/children/1/naps/') &&
-          (r.method !== 'GET' || r.params.get('page') === '1')
+          (r.method !== 'GET' || r.params.get('page') === '1'),
       );
       req.flush(null, { status: 403, statusText: 'Forbidden' });
 
@@ -180,7 +177,7 @@ describe('NapsService', () => {
       const req = httpMock.expectOne(
         (r) =>
           r.url.startsWith('/api/v1/children/999/naps/') &&
-          (r.method !== 'GET' || r.params.get('page') === '1')
+          (r.method !== 'GET' || r.params.get('page') === '1'),
       );
       req.flush(null, { status: 404, statusText: 'Not Found' });
 
@@ -200,7 +197,7 @@ describe('NapsService', () => {
       const req = httpMock.expectOne(
         (r) =>
           r.url.startsWith('/api/v1/children/1/naps/') &&
-          (r.method !== 'GET' || r.params.get('page') === '1')
+          (r.method !== 'GET' || r.params.get('page') === '1'),
       );
       req.flush(null, { status: 500, statusText: 'Internal Server Error' });
 
@@ -256,7 +253,6 @@ describe('NapsService', () => {
 
   describe('create', () => {
     const createData: NapCreate = {
-
       napped_at: '2024-01-15T20:00:00Z',
       notes: 'Evening nap',
     };
@@ -281,7 +277,7 @@ describe('NapsService', () => {
       const req = httpMock.expectOne(
         (r) =>
           r.url.startsWith('/api/v1/children/1/naps/') &&
-          (r.method !== 'GET' || r.params.get('page') === '1')
+          (r.method !== 'GET' || r.params.get('page') === '1'),
       );
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual(createData);
@@ -303,11 +299,11 @@ describe('NapsService', () => {
       const req = httpMock.expectOne(
         (r) =>
           r.url.startsWith('/api/v1/children/1/naps/') &&
-          (r.method !== 'GET' || r.params.get('page') === '1')
+          (r.method !== 'GET' || r.params.get('page') === '1'),
       );
       req.flush(
         { napped_at: ['This field is required'] },
-        { status: 400, statusText: 'Bad Request' }
+        { status: 400, statusText: 'Bad Request' },
       );
 
       expect(errorCaught).toBe(true);
@@ -326,11 +322,11 @@ describe('NapsService', () => {
       const req = httpMock.expectOne(
         (r) =>
           r.url.startsWith('/api/v1/children/1/naps/') &&
-          (r.method !== 'GET' || r.params.get('page') === '1')
+          (r.method !== 'GET' || r.params.get('page') === '1'),
       );
       req.flush(
         { non_field_errors: ['Invalid nap data'] },
-        { status: 400, statusText: 'Bad Request' }
+        { status: 400, statusText: 'Bad Request' },
       );
 
       expect(errorCaught).toBe(true);
@@ -349,7 +345,7 @@ describe('NapsService', () => {
       const req = httpMock.expectOne(
         (r) =>
           r.url.startsWith('/api/v1/children/1/naps/') &&
-          (r.method !== 'GET' || r.params.get('page') === '1')
+          (r.method !== 'GET' || r.params.get('page') === '1'),
       );
       req.flush(null, { status: 403, statusText: 'Forbidden' });
 
@@ -428,7 +424,7 @@ describe('NapsService', () => {
       const req = httpMock.expectOne('/api/v1/children/1/naps/1/');
       req.flush(
         { napped_at: ['Enter a valid date/time'] },
-        { status: 400, statusText: 'Bad Request' }
+        { status: 400, statusText: 'Bad Request' },
       );
 
       expect(errorCaught).toBe(true);
@@ -507,10 +503,7 @@ describe('NapsService', () => {
       });
 
       const req = httpMock.expectOne('/api/v1/children/1/naps/1/');
-      req.flush(
-        { detail: 'Custom error detail' },
-        { status: 400, statusText: 'Bad Request' }
-      );
+      req.flush({ detail: 'Custom error detail' }, { status: 400, statusText: 'Bad Request' });
 
       expect(errorCaught).toBe(true);
     });
@@ -562,7 +555,7 @@ describe('NapsService', () => {
       const req = httpMock.expectOne(
         (r) =>
           r.url.startsWith('/api/v1/children/1/naps/') &&
-          (r.method !== 'GET' || r.params.get('page') === '1')
+          (r.method !== 'GET' || r.params.get('page') === '1'),
       );
       req.flush({}, { status: 400, statusText: 'Bad Request' });
 
@@ -600,7 +593,7 @@ describe('NapsService', () => {
       const req = httpMock.expectOne(
         (r) =>
           r.url.startsWith('/api/v1/children/1/naps/') &&
-          (r.method !== 'GET' || r.params.get('page') === '1')
+          (r.method !== 'GET' || r.params.get('page') === '1'),
       );
       req.flush(null, { status: 503, statusText: 'Service Unavailable' });
 
@@ -636,7 +629,7 @@ describe('NapsService', () => {
       const req = httpMock.expectOne(
         (r) =>
           r.url.startsWith('/api/v1/children/1/naps/') &&
-          (r.method !== 'GET' || r.params.get('page') === '1')
+          (r.method !== 'GET' || r.params.get('page') === '1'),
       );
       req.flush(null, { status: 401, statusText: 'Unauthorized' });
 
@@ -688,7 +681,7 @@ describe('NapsService', () => {
       const req = httpMock.expectOne(
         (r) =>
           r.url.startsWith('/api/v1/children/1/naps/') &&
-          (r.method !== 'GET' || r.params.get('page') === '1')
+          (r.method !== 'GET' || r.params.get('page') === '1'),
       );
       req.flush({}, { status: 429, statusText: 'Too Many Requests' });
 
@@ -710,12 +703,9 @@ describe('NapsService', () => {
       const req = httpMock.expectOne(
         (r) =>
           r.url.startsWith('/api/v1/children/1/naps/') &&
-          (r.method !== 'GET' || r.params.get('page') === '1')
+          (r.method !== 'GET' || r.params.get('page') === '1'),
       );
-      req.flush(
-        { napped_at: ['Invalid date format'] },
-        { status: 400, statusText: 'Bad Request' }
-      );
+      req.flush({ napped_at: ['Invalid date format'] }, { status: 400, statusText: 'Bad Request' });
 
       expect(errorCaught).toBe(true);
     });
@@ -739,7 +729,7 @@ describe('NapsService', () => {
       const listReq = httpMock.expectOne(
         (r) =>
           r.url.startsWith('/api/v1/children/1/naps/') &&
-          (r.method !== 'GET' || r.params.get('page') === '1')
+          (r.method !== 'GET' || r.params.get('page') === '1'),
       );
       const getReq = httpMock.expectOne('/api/v1/children/1/naps/1/');
 
@@ -777,7 +767,7 @@ describe('NapsService', () => {
       let req = httpMock.expectOne(
         (r) =>
           r.url.startsWith('/api/v1/children/1/naps/') &&
-          (r.method !== 'GET' || r.params.get('page') === '1')
+          (r.method !== 'GET' || r.params.get('page') === '1'),
       );
       req.flush({}, { status: 400, statusText: 'Bad Request' });
 
@@ -794,7 +784,7 @@ describe('NapsService', () => {
       req = httpMock.expectOne(
         (r) =>
           r.url.startsWith('/api/v1/children/1/naps/') &&
-          (r.method !== 'GET' || r.params.get('page') === '1')
+          (r.method !== 'GET' || r.params.get('page') === '1'),
       );
       req.flush(createdNap);
 
@@ -845,7 +835,7 @@ describe('NapsService', () => {
       const req = httpMock.expectOne(
         (r) =>
           r.url.startsWith('/api/v1/children/1/naps/') &&
-          (r.method !== 'GET' || r.params.get('page') === '1')
+          (r.method !== 'GET' || r.params.get('page') === '1'),
       );
       req.error(new ProgressEvent('error'), {
         status: 0,
@@ -887,7 +877,7 @@ describe('NapsService', () => {
       const req = httpMock.expectOne(
         (r) =>
           r.url.startsWith('/api/v1/children/1/naps/') &&
-          (r.method !== 'GET' || r.params.get('page') === '1')
+          (r.method !== 'GET' || r.params.get('page') === '1'),
       );
       req.error(new ProgressEvent('error'), {
         status: 0,
@@ -931,7 +921,7 @@ describe('NapsService', () => {
       const req = httpMock.expectOne(
         (r) =>
           r.url.startsWith('/api/v1/children/1/naps/') &&
-          (r.method !== 'GET' || r.params.get('page') === '1')
+          (r.method !== 'GET' || r.params.get('page') === '1'),
       );
       req.flush(['Array', 'response'], { status: 500, statusText: 'Internal Server Error' });
 
@@ -966,7 +956,7 @@ describe('NapsService', () => {
       const req = httpMock.expectOne(
         (r) =>
           r.url.startsWith('/api/v1/children/1/naps/') &&
-          (r.method !== 'GET' || r.params.get('page') === '1')
+          (r.method !== 'GET' || r.params.get('page') === '1'),
       );
       req.flush(null, { status: 401, statusText: 'Unauthorized' });
 

@@ -201,7 +201,7 @@ describe('TrackingItemContainerComponent', () => {
         amber: 'from-amber-50 to-yellow-50',
       };
 
-      colors.forEach(color => {
+      colors.forEach((color) => {
         fixture.componentRef.setInput('isSelected', false);
         fixture.componentRef.setInput('accentColor', color);
 
@@ -212,7 +212,7 @@ describe('TrackingItemContainerComponent', () => {
     it('should support selected and unselected states for all colors', () => {
       const colors: ('rose' | 'orange' | 'amber')[] = ['rose', 'orange', 'amber'];
 
-      colors.forEach(color => {
+      colors.forEach((color) => {
         fixture.componentRef.setInput('accentColor', color);
 
         // Test unselected
@@ -237,7 +237,7 @@ describe('TrackingItemContainerComponent', () => {
         amber: 'ring-amber-400',
       };
 
-      colors.forEach(color => {
+      colors.forEach((color) => {
         fixture.componentRef.setInput('isSelected', true);
         fixture.componentRef.setInput('accentColor', color);
         fixture.detectChanges();

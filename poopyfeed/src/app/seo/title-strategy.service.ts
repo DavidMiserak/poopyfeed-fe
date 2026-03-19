@@ -2,11 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { Meta } from '@angular/platform-browser';
 import { DOCUMENT } from '@angular/core';
-import {
-  TitleStrategy,
-  RouterStateSnapshot,
-  ActivatedRouteSnapshot,
-} from '@angular/router';
+import { TitleStrategy, RouterStateSnapshot, ActivatedRouteSnapshot } from '@angular/router';
 
 const DEFAULT_DESCRIPTION =
   'PoopyFeed helps families and caregivers track feedings, diapers, and naps in one simple app. Stay coordinated and reduce guesswork.';
@@ -23,8 +19,7 @@ export class PoopyFeedTitleStrategy extends TitleStrategy {
       this.title.setTitle(title);
     }
     const leaf = this.getLeafRoute(snapshot.root);
-    const description =
-      (leaf?.data?.['description'] as string) ?? DEFAULT_DESCRIPTION;
+    const description = (leaf?.data?.['description'] as string) ?? DEFAULT_DESCRIPTION;
     this.updateMetaDescription(description);
     this.updateCanonical(snapshot);
   }
@@ -39,9 +34,7 @@ export class PoopyFeedTitleStrategy extends TitleStrategy {
     }
   }
 
-  private getLeafRoute(
-    route: ActivatedRouteSnapshot | null
-  ): ActivatedRouteSnapshot | null {
+  private getLeafRoute(route: ActivatedRouteSnapshot | null): ActivatedRouteSnapshot | null {
     let r: ActivatedRouteSnapshot | null = route;
     while (r?.firstChild) r = r.firstChild;
     return r;

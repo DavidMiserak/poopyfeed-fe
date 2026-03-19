@@ -9,14 +9,7 @@
  * - Always-visible event cards for new entries
  */
 
-import {
-  Component,
-  input,
-  output,
-  computed,
-  inject,
-  ChangeDetectionStrategy,
-} from '@angular/core';
+import { Component, input, output, computed, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CatchUpEvent, CATCH_UP_VALIDATION } from '../../models';
 import { DateTimeService } from '../../services/datetime.service';
 import { getActivityIcon, formatActivityAge } from '../../utils/date.utils';

@@ -70,12 +70,11 @@ export type DiaperChangeUpdate = Partial<DiaperChangeCreate>;
  * const changeType = 'both';
  * const display = CHANGE_TYPE_LABELS[changeType]; // 'Both'
  */
-export const CHANGE_TYPE_LABELS: Record<DiaperChange['change_type'], string> =
-  {
-    wet: 'Wet',
-    dirty: 'Dirty',
-    both: 'Both',
-  };
+export const CHANGE_TYPE_LABELS: Record<DiaperChange['change_type'], string> = {
+  wet: 'Wet',
+  dirty: 'Dirty',
+  both: 'Both',
+};
 
 /**
  * Validation constants for diaper change forms.

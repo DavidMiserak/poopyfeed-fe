@@ -8,10 +8,7 @@ describe('ChildNavigationService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [
-        ChildNavigationService,
-        { provide: Router, useValue: { navigate: vi.fn() } },
-      ],
+      providers: [ChildNavigationService, { provide: Router, useValue: { navigate: vi.fn() } }],
     });
     service = TestBed.inject(ChildNavigationService);
     router = TestBed.inject(Router);

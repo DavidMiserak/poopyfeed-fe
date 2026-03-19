@@ -151,15 +151,13 @@ export class ChildTimeline implements OnInit {
 
     const activities = this.allActivities()
       .filter((activity) => {
-        const activityDate = this.datetimeService.getDateInUserTimezone(
-          activity.timestamp
-        );
+        const activityDate = this.datetimeService.getDateInUserTimezone(activity.timestamp);
         return activityDate === selectedDateString;
       })
       .sort(
         (a, b) =>
           this.datetimeService.toLocal(b.timestamp).getTime() -
-          this.datetimeService.toLocal(a.timestamp).getTime()
+          this.datetimeService.toLocal(a.timestamp).getTime(),
       );
 
     // Use gap metadata from API response, shifted to display gaps between events.
@@ -285,7 +283,7 @@ export class ChildTimeline implements OnInit {
       next: ({ child, timeline }) => {
         this.child.set(child);
         const activities = timeline.results.map((event) =>
-          this.timelineEventToActivityItem(event, childId)
+          this.timelineEventToActivityItem(event, childId),
         );
         this.allActivities.set(activities);
         this.isLoading.set(false);
@@ -300,10 +298,7 @@ export class ChildTimeline implements OnInit {
   /**
    * Map a timeline API event to ActivityItem (adds child and timestamps for display types).
    */
-  private timelineEventToActivityItem(
-    event: TimelineEvent,
-    childId: number
-  ): ActivityItem {
+  private timelineEventToActivityItem(event: TimelineEvent, childId: number): ActivityItem {
     const at = event.at;
     const gapFields = {
       gapAfterMinutes: event.gap_after_minutes,
@@ -527,7 +522,7 @@ export class ChildTimeline implements OnInit {
     this.analyticsService.getTimeline(childId, 1, 100).subscribe({
       next: (timeline) => {
         const activities = timeline.results.map((event) =>
-          this.timelineEventToActivityItem(event, childId)
+          this.timelineEventToActivityItem(event, childId),
         );
         this.allActivities.set(activities);
         this.isAddingNap.set(false);

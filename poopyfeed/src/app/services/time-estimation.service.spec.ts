@@ -1,10 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { TimeEstimationService } from './time-estimation.service';
-import {
-  CatchUpEvent,
-  TimeWindow,
-  CATCH_UP_VALIDATION,
-} from '../models';
+import { CatchUpEvent, TimeWindow, CATCH_UP_VALIDATION } from '../models';
 
 describe('TimeEstimationService', () => {
   let service: TimeEstimationService;
@@ -232,10 +228,7 @@ describe('TimeEstimationService', () => {
         data: { change_type: 'wet', changed_at: '' },
       };
 
-      const result = service.estimateEventTimes(
-        [existingEvent, newEvent],
-        window,
-      );
+      const result = service.estimateEventTimes([existingEvent, newEvent], window);
 
       // Existing event keeps original time
       expect(result.events[0].estimatedTime).toBe('2024-02-17T10:00:00Z');
@@ -337,9 +330,7 @@ describe('TimeEstimationService', () => {
 
       // Times should be recalculated (nap takes 60 min, so should be earlier)
       expect(result.events[0].type).toBe('nap');
-      expect(
-        new Date(result.events[0].estimatedTime).getTime(),
-      ).toBeLessThanOrEqual(
+      expect(new Date(result.events[0].estimatedTime).getTime()).toBeLessThanOrEqual(
         new Date(result.events[1].estimatedTime).getTime(),
       );
     });
@@ -459,9 +450,7 @@ describe('TimeEstimationService', () => {
       const errors = service.validateTimeWindow(window);
 
       // Should not have duration error
-      expect(errors).not.toContain(
-        'Time window cannot exceed 24 hours',
-      );
+      expect(errors).not.toContain('Time window cannot exceed 24 hours');
     });
 
     it('should accumulate multiple validation errors', () => {

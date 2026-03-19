@@ -8,6 +8,4 @@ import { RouterLink } from '@angular/router';
   styleUrl: './cta.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class Cta {
-
-}
+export class Cta {}

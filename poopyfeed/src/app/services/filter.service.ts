@@ -62,12 +62,7 @@ export class FilterService {
    *   'feeding_type'
    * );
    */
-  filter<T>(
-    items: T[],
-    criteria: FilterCriteria,
-    timestampField: string,
-    typeField?: string
-  ): T[] {
+  filter<T>(items: T[], criteria: FilterCriteria, timestampField: string, typeField?: string): T[] {
     if (!items.length) return items;
 
     return items.filter((item) => {

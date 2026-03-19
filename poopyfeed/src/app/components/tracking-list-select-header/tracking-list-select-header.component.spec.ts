@@ -34,7 +34,7 @@ describe('TrackingListSelectHeaderComponent', () => {
       fixture.detectChanges();
 
       const checkbox = fixture.nativeElement.querySelector(
-        'input[type="checkbox"]'
+        'input[type="checkbox"]',
       ) as HTMLInputElement;
       expect(checkbox.checked).toBe(true);
     });
@@ -47,7 +47,7 @@ describe('TrackingListSelectHeaderComponent', () => {
       fixture.detectChanges();
 
       const checkbox = fixture.nativeElement.querySelector(
-        'input[type="checkbox"]'
+        'input[type="checkbox"]',
       ) as HTMLInputElement;
       expect(checkbox.checked).toBe(false);
     });

@@ -89,9 +89,7 @@ export class AnalyticsDashboard implements OnInit {
     );
   });
 
-  private hasDailyCounts(
-    data: { daily_data?: DailyData[] } | null | undefined,
-  ): boolean {
+  private hasDailyCounts(data: { daily_data?: DailyData[] } | null | undefined): boolean {
     return data?.daily_data?.some((d) => d.count > 0) ?? false;
   }
 

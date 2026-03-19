@@ -211,7 +211,7 @@ describe('SleepSummaryChart', () => {
 
       expect(consoleSpy).toHaveBeenCalledWith(
         'Failed to render sleep summary chart:',
-        expect.any(Error)
+        expect.any(Error),
       );
       consoleSpy.mockRestore();
       newFixture.destroy();

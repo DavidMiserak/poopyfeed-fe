@@ -1,13 +1,14 @@
 <!-- Desktop Header -->
 <div class="hidden sm:flex items-center justify-between mb-8">
   <div>
-    <button
-      type="button"
-      (click)="onBackClick()"
-      [class]="buildBackButtonClass()"
-    >
+    <button type="button" (click)="onBackClick()" [class]="buildBackButtonClass()">
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M10 19l-7-7m0 0l7-7m-7 7h18"
+        />
       </svg>
       Back to Advanced
     </button>
@@ -15,11 +16,7 @@
       {{ title() }}
     </h1>
   </div>
-  <button
-    type="button"
-    (click)="onAddClick()"
-    [class]="buildAddButtonClass()"
-  >
+  <button type="button" (click)="onAddClick()" [class]="buildAddButtonClass()">
     <span class="absolute inset-0" [class]="buildGradientClass()"></span>
     <span class="relative z-10 flex items-center gap-2">
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -33,13 +30,14 @@
 <!-- Mobile Header -->
 <div class="sm:hidden space-y-4 mb-8">
   <div>
-    <button
-      type="button"
-      (click)="onBackClick()"
-      [class]="buildBackButtonClass()"
-    >
+    <button type="button" (click)="onBackClick()" [class]="buildBackButtonClass()">
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M10 19l-7-7m0 0l7-7m-7 7h18"
+        />
       </svg>
       Back to Advanced
     </button>
@@ -47,11 +45,7 @@
       {{ title() }}
     </h1>
   </div>
-  <button
-    type="button"
-    (click)="onAddClick()"
-    [class]="buildAddButtonMobileClass()"
-  >
+  <button type="button" (click)="onAddClick()" [class]="buildAddButtonMobileClass()">
     <span class="absolute inset-0" [class]="buildGradientClass()"></span>
     <span class="relative z-10 flex items-center justify-center gap-2">
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">

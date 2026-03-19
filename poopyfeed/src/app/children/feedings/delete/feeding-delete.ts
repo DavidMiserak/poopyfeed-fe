@@ -1,10 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  OnInit,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FeedingsService } from '../../../services/feedings.service';
 import { ChildrenService } from '../../../services/children.service';
@@ -105,12 +99,7 @@ export class FeedingDelete implements OnInit {
     if (feeding.feeding_type === 'bottle') {
       return `Bottle: ${feeding.amount_oz} oz`;
     } else {
-      const side =
-        feeding.side === 'left'
-          ? 'Left'
-          : feeding.side === 'right'
-            ? 'Right'
-            : 'Both';
+      const side = feeding.side === 'left' ? 'Left' : feeding.side === 'right' ? 'Right' : 'Both';
       return `Breast: ${feeding.duration_minutes} min (${side})`;
     }
   }

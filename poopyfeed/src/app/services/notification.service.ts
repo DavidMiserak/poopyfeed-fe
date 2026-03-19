@@ -87,9 +87,7 @@ export class NotificationService {
       .pipe(
         map((res) => res.results),
         tap((list) => this.notifications.set(list)),
-        catchError((err) =>
-          throwError(() => ErrorHandler.handle(err, 'List notifications'))
-        )
+        catchError((err) => throwError(() => ErrorHandler.handle(err, 'List notifications'))),
       );
   }
 
@@ -107,11 +105,7 @@ export class NotificationService {
       .get<PaginatedResponse<Notification>>(`${NOTIFICATIONS_BASE}/`, {
         params: { page },
       })
-      .pipe(
-        catchError((err) =>
-          throwError(() => ErrorHandler.handle(err, 'List notifications'))
-        )
-      );
+      .pipe(catchError((err) => throwError(() => ErrorHandler.handle(err, 'List notifications'))));
   }
 
   /**
@@ -121,17 +115,11 @@ export class NotificationService {
    * @throws ApiError on failure
    */
   getUnreadCount(): Observable<number> {
-    return this.http
-      .get<UnreadCountResponse>(`${NOTIFICATIONS_BASE}/unread-count/`)
-      .pipe(
-        tap((res) => this.unreadCount.set(res.count)),
-        map((res) => res.count),
-        catchError((err) =>
-          throwError(() =>
-            ErrorHandler.handle(err, 'Get notification count')
-          )
-        )
-      );
+    return this.http.get<UnreadCountResponse>(`${NOTIFICATIONS_BASE}/unread-count/`).pipe(
+      tap((res) => this.unreadCount.set(res.count)),
+      map((res) => res.count),
+      catchError((err) => throwError(() => ErrorHandler.handle(err, 'Get notification count'))),
+    );
   }
 
   /**
@@ -145,60 +133,44 @@ export class NotificationService {
    * Mark a single notification as read. Updates local state on success.
    */
   markAsRead(id: number): Observable<Notification> {
-    return this.http
-      .patch<Notification>(`${NOTIFICATIONS_BASE}/${id}/`, { is_read: true })
-      .pipe(
-        tap((updated) => {
-          this.notifications.update((list) =>
-            list.map((n) => (n.id === id ? { ...n, ...updated } : n))
-          );
-          if (!updated.is_read) return;
-          this.unreadCount.update((c) => Math.max(0, c - 1));
-        }),
-        catchError((err) =>
-          throwError(() =>
-            ErrorHandler.handle(err, 'Mark notification as read')
-          )
-        )
-      );
+    return this.http.patch<Notification>(`${NOTIFICATIONS_BASE}/${id}/`, { is_read: true }).pipe(
+      tap((updated) => {
+        this.notifications.update((list) =>
+          list.map((n) => (n.id === id ? { ...n, ...updated } : n)),
+        );
+        if (!updated.is_read) return;
+        this.unreadCount.update((c) => Math.max(0, c - 1));
+      }),
+      catchError((err) => throwError(() => ErrorHandler.handle(err, 'Mark notification as read'))),
+    );
   }
 
   /**
    * Mark all notifications as read. Updates unreadCount and notifications on success.
    */
   markAllRead(): Observable<number> {
-    return this.http
-      .post<MarkAllReadResponse>(`${NOTIFICATIONS_BASE}/mark-all-read/`, {})
-      .pipe(
-        tap(() => {
-          this.unreadCount.set(0);
-          this.notifications.update((list) =>
-            list.map((n) => ({ ...n, is_read: true }))
-          );
-        }),
-        map((res) => res.updated),
-        catchError((err) =>
-          throwError(() =>
-            ErrorHandler.handle(err, 'Mark all notifications as read')
-          )
-        )
-      );
+    return this.http.post<MarkAllReadResponse>(`${NOTIFICATIONS_BASE}/mark-all-read/`, {}).pipe(
+      tap(() => {
+        this.unreadCount.set(0);
+        this.notifications.update((list) => list.map((n) => ({ ...n, is_read: true })));
+      }),
+      map((res) => res.updated),
+      catchError((err) =>
+        throwError(() => ErrorHandler.handle(err, 'Mark all notifications as read')),
+      ),
+    );
   }
 
   /**
    * List notification preferences (auto-created for accessible children). Updates preferences signal.
    */
   getPreferences(): Observable<NotificationPreference[]> {
-    return this.http
-      .get<NotificationPreference[]>(`${NOTIFICATIONS_BASE}/preferences/`)
-      .pipe(
-        tap((list) => this.preferences.set(list)),
-        catchError((err) =>
-          throwError(() =>
-            ErrorHandler.handle(err, 'Get notification preferences')
-          )
-        )
-      );
+    return this.http.get<NotificationPreference[]>(`${NOTIFICATIONS_BASE}/preferences/`).pipe(
+      tap((list) => this.preferences.set(list)),
+      catchError((err) =>
+        throwError(() => ErrorHandler.handle(err, 'Get notification preferences')),
+      ),
+    );
   }
 
   /**
@@ -206,24 +178,19 @@ export class NotificationService {
    */
   updatePreference(
     id: number,
-    body: NotificationPreferenceUpdate
+    body: NotificationPreferenceUpdate,
   ): Observable<NotificationPreference> {
     return this.http
-      .patch<NotificationPreference>(
-        `${NOTIFICATIONS_BASE}/preferences/${id}/`,
-        body
-      )
+      .patch<NotificationPreference>(`${NOTIFICATIONS_BASE}/preferences/${id}/`, body)
       .pipe(
         tap((updated) => {
           this.preferences.update((list) =>
-            list.map((p) => (p.id === id ? { ...p, ...updated } : p))
+            list.map((p) => (p.id === id ? { ...p, ...updated } : p)),
           );
         }),
         catchError((err) =>
-          throwError(() =>
-            ErrorHandler.handle(err, 'Update notification preference')
-          )
-        )
+          throwError(() => ErrorHandler.handle(err, 'Update notification preference')),
+        ),
       );
   }
 
@@ -231,32 +198,20 @@ export class NotificationService {
    * Get quiet hours (created with defaults if missing). Updates quietHours signal.
    */
   getQuietHours(): Observable<QuietHours> {
-    return this.http
-      .get<QuietHours>(`${NOTIFICATIONS_BASE}/quiet-hours/`)
-      .pipe(
-        tap((qh) => this.quietHours.set(qh)),
-        catchError((err) =>
-          throwError(() =>
-            ErrorHandler.handle(err, 'Get quiet hours')
-          )
-        )
-      );
+    return this.http.get<QuietHours>(`${NOTIFICATIONS_BASE}/quiet-hours/`).pipe(
+      tap((qh) => this.quietHours.set(qh)),
+      catchError((err) => throwError(() => ErrorHandler.handle(err, 'Get quiet hours'))),
+    );
   }
 
   /**
    * Update quiet hours.
    */
   updateQuietHours(body: QuietHoursUpdate): Observable<QuietHours> {
-    return this.http
-      .patch<QuietHours>(`${NOTIFICATIONS_BASE}/quiet-hours/`, body)
-      .pipe(
-        tap((qh) => this.quietHours.set(qh)),
-        catchError((err) =>
-          throwError(() =>
-            ErrorHandler.handle(err, 'Update quiet hours')
-          )
-        )
-      );
+    return this.http.patch<QuietHours>(`${NOTIFICATIONS_BASE}/quiet-hours/`, body).pipe(
+      tap((qh) => this.quietHours.set(qh)),
+      catchError((err) => throwError(() => ErrorHandler.handle(err, 'Update quiet hours'))),
+    );
   }
 
   /**
@@ -271,11 +226,11 @@ export class NotificationService {
     const whenVisible = filter(() => !document.hidden);
     const pollTick = timer(0, POLL_INTERVAL_MS).pipe(
       whenVisible,
-      switchMap(() => this.getUnreadCount())
+      switchMap(() => this.getUnreadCount()),
     );
     const onFocus = fromEvent(document, 'visibilitychange').pipe(
       filter(() => !document.hidden),
-      switchMap(() => this.getUnreadCount())
+      switchMap(() => this.getUnreadCount()),
     );
 
     merge(pollTick, onFocus)

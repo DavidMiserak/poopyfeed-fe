@@ -1,14 +1,7 @@
 import { TestBed } from '@angular/core/testing';
-import {
-  HttpClientTestingModule,
-  HttpTestingController,
-} from '@angular/common/http/testing';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { BatchesService } from './batches.service';
-import {
-  BatchResponse,
-  BatchErrorResponse,
-  CatchUpEvent,
-} from '../models';
+import { BatchResponse, BatchErrorResponse, CatchUpEvent } from '../models';
 
 describe('BatchesService', () => {
   let service: BatchesService;
@@ -507,10 +500,7 @@ describe('BatchesService', () => {
       });
 
       const req = httpMock.expectOne(`/api/v1/children/${childId}/batch/`);
-      req.flush(
-        { detail: 'Not found.' },
-        { status: 404, statusText: 'Not Found' },
-      );
+      req.flush({ detail: 'Not found.' }, { status: 404, statusText: 'Not Found' });
 
       expect(errorCaught).toBe(true);
     });

@@ -1,20 +1,38 @@
-<div class="min-h-screen relative bg-gradient-to-br from-rose-50 via-amber-50 to-orange-50 px-6 py-12 overflow-hidden">
+<div
+  class="min-h-screen relative bg-gradient-to-br from-rose-50 via-amber-50 to-orange-50 px-6 py-12 overflow-hidden"
+>
   <!-- Decorative background elements (static, Tailwind only) -->
   <div class="absolute inset-0 opacity-10 pointer-events-none">
-    <div class="absolute top-20 left-20 w-64 h-64 bg-gradient-to-br from-rose-400 to-orange-400 rounded-full blur-3xl"></div>
-    <div class="absolute bottom-20 right-20 w-96 h-96 bg-gradient-to-br from-amber-400 to-orange-400 rounded-full blur-3xl"></div>
+    <div
+      class="absolute top-20 left-20 w-64 h-64 bg-gradient-to-br from-rose-400 to-orange-400 rounded-full blur-3xl"
+    ></div>
+    <div
+      class="absolute bottom-20 right-20 w-96 h-96 bg-gradient-to-br from-amber-400 to-orange-400 rounded-full blur-3xl"
+    ></div>
   </div>
 
   <div class="max-w-5xl mx-auto relative z-10">
     @if (isLoading()) {
       <div class="space-y-6" aria-busy="true" aria-label="Loading advanced options">
-        <div class="h-4 w-40 rounded bg-gradient-to-r from-slate-200 to-slate-300 animate-pulse mb-4"></div>
-        <div class="h-10 w-64 rounded-lg bg-gradient-to-r from-slate-200 to-slate-300 animate-pulse mb-6"></div>
+        <div
+          class="h-4 w-40 rounded bg-gradient-to-r from-slate-200 to-slate-300 animate-pulse mb-4"
+        ></div>
+        <div
+          class="h-10 w-64 rounded-lg bg-gradient-to-r from-slate-200 to-slate-300 animate-pulse mb-6"
+        ></div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div class="h-28 rounded-2xl bg-gradient-to-r from-slate-200 to-slate-300 animate-pulse"></div>
-          <div class="h-28 rounded-2xl bg-gradient-to-r from-slate-200 to-slate-300 animate-pulse"></div>
-          <div class="h-28 rounded-2xl bg-gradient-to-r from-slate-200 to-slate-300 animate-pulse"></div>
-          <div class="h-28 rounded-2xl bg-gradient-to-r from-slate-200 to-slate-300 animate-pulse"></div>
+          <div
+            class="h-28 rounded-2xl bg-gradient-to-r from-slate-200 to-slate-300 animate-pulse"
+          ></div>
+          <div
+            class="h-28 rounded-2xl bg-gradient-to-r from-slate-200 to-slate-300 animate-pulse"
+          ></div>
+          <div
+            class="h-28 rounded-2xl bg-gradient-to-r from-slate-200 to-slate-300 animate-pulse"
+          ></div>
+          <div
+            class="h-28 rounded-2xl bg-gradient-to-r from-slate-200 to-slate-300 animate-pulse"
+          ></div>
         </div>
       </div>
     }
@@ -30,10 +48,7 @@
 
     @if (child() && !isLoading()) {
       <div class="space-y-6">
-        <app-advanced-tools-grid
-          [childId]="child()!.id"
-          [childName]="child()!.name"
-        />
+        <app-advanced-tools-grid [childId]="child()!.id" [childName]="child()!.name" />
       </div>
     }
   </div>

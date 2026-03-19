@@ -6,13 +6,9 @@ import { E2E_TIMEOUT } from './constants';
  * Uses auth fixture (storageState from auth.setup.ts); runs in *-authenticated projects.
  */
 test.describe('Children', () => {
-  test('add child form shows validation when required name is empty', async ({
-    page,
-  }) => {
+  test('add child form shows validation when required name is empty', async ({ page }) => {
     await page.goto('/children/create');
-    await expect(
-      page.getByRole('heading', { name: 'Add New Baby' })
-    ).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Add New Baby' })).toBeVisible();
 
     await page.getByLabel("Baby's Name").focus();
     await page.getByRole('heading', { name: 'Add New Baby' }).click();
@@ -21,19 +17,13 @@ test.describe('Children', () => {
     await expect(page).toHaveURL(/\/children\/create/);
   });
 
-  test('signed-in user can add a child and see them on My Children', async ({
-    page,
-  }) => {
+  test('signed-in user can add a child and see them on My Children', async ({ page }) => {
     await page.goto('/children');
-    await expect(
-      page.getByRole('heading', { name: 'My Children' })
-    ).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'My Children' })).toBeVisible();
 
     await page.getByRole('link', { name: 'Add a new baby' }).first().click();
     await expect(page).toHaveURL(/\/children\/create/);
-    await expect(
-      page.getByRole('heading', { name: 'Add New Baby' })
-    ).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Add New Baby' })).toBeVisible();
 
     await page.getByLabel("Baby's Name").fill('E2E Baby');
     await page.getByLabel('Date of Birth').fill('2024-06-01');
@@ -44,11 +34,11 @@ test.describe('Children', () => {
       timeout: E2E_TIMEOUT,
     });
     await page.goto('/children');
-    await expect(
-      page.getByRole('heading', { name: 'My Children' })
-    ).toBeVisible({ timeout: E2E_TIMEOUT });
-    await expect(
-      page.getByRole('heading', { name: 'E2E Baby' }).first()
-    ).toBeVisible({ timeout: E2E_TIMEOUT });
+    await expect(page.getByRole('heading', { name: 'My Children' })).toBeVisible({
+      timeout: E2E_TIMEOUT,
+    });
+    await expect(page.getByRole('heading', { name: 'E2E Baby' }).first()).toBeVisible({
+      timeout: E2E_TIMEOUT,
+    });
   });
 });

@@ -21,9 +21,7 @@ export const test = base.extend({
         throw new Error(`E2E fail-fast: server error ${status} from ${url}`);
       }
       if (status === 429) {
-        throw new Error(
-          `E2E fail-fast: backend throttled (429) from ${url}. ${THROTTLE_MSG}`
-        );
+        throw new Error(`E2E fail-fast: backend throttled (429) from ${url}. ${THROTTLE_MSG}`);
       }
     });
     await use(page);

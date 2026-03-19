@@ -28,7 +28,7 @@ const SEGMENT_TO_BATCH_TYPE: Record<string, string> = {
 export async function createItemsForPagination(
   page: Page,
   pathSegment: 'feedings' | 'diapers' | 'naps',
-  buildPayload: (timestamp: Date) => Record<string, unknown>
+  buildPayload: (timestamp: Date) => Record<string, unknown>,
 ): Promise<string> {
   const match = page.url().match(/\/children\/(\d+)\//);
   if (!match) throw new Error('Expected to be on child dashboard');
@@ -47,20 +47,17 @@ export async function createItemsForPagination(
 
   for (let offset = 0; offset < events.length; offset += BATCH_SIZE) {
     const chunk = events.slice(offset, offset + BATCH_SIZE);
-    const response = await page.request.post(
-      `${baseURL}/api/v1/children/${childId}/batch/`,
-      {
-        headers: {
-          Authorization: `Token ${token}`,
-          'Content-Type': 'application/json',
-        },
-        data: { events: chunk },
-      }
-    );
+    const response = await page.request.post(`${baseURL}/api/v1/children/${childId}/batch/`, {
+      headers: {
+        Authorization: `Token ${token}`,
+        'Content-Type': 'application/json',
+      },
+      data: { events: chunk },
+    });
     if (response.status() !== 201) {
       const body = await response.text();
       throw new Error(
-        `Pagination setup: batch POST returned ${response.status()}, expected 201. Body: ${body.slice(0, 500)}`
+        `Pagination setup: batch POST returned ${response.status()}, expected 201. Body: ${body.slice(0, 500)}`,
       );
     }
   }

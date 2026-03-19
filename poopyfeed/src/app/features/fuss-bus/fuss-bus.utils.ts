@@ -44,10 +44,7 @@ export interface AutoCheckState {
  * Returns child's age in months from date of birth (YYYY-MM-DD).
  * Uses provided now or current date for calculation.
  */
-export function getChildAgeInMonths(
-  dateOfBirth: string,
-  now: Date = new Date()
-): number {
+export function getChildAgeInMonths(dateOfBirth: string, now: Date = new Date()): number {
   const birth = new Date(dateOfBirth);
   const months =
     (now.getFullYear() - birth.getFullYear()) * 12 +
@@ -61,10 +58,7 @@ export interface AgeRange {
   maxMonths?: number;
 }
 
-export function isInAgeRange(
-  months: number,
-  range: AgeRange
-): boolean {
+export function isInAgeRange(months: number, range: AgeRange): boolean {
   if (range.minMonths != null && months < range.minMonths) return false;
   if (range.maxMonths != null && months > range.maxMonths) return false;
   return true;
@@ -91,7 +85,7 @@ export function getAutoCheckState(
   patternAlerts: PatternAlertsResponse | null,
   timelineResults: TimelineEvent[] | null,
   now: Date = new Date(),
-  childAgeMonths = 6
+  childAgeMonths = 6,
 ): AutoCheckState {
   const nowIso = now.toISOString();
 
@@ -222,7 +216,7 @@ export interface ChecklistItem {
 export function buildChecklistItems(
   symptomId: FussBusSymptomId,
   childAgeMonths: number,
-  autoCheckState: AutoCheckState
+  autoCheckState: AutoCheckState,
 ): ChecklistItem[] {
   const items: ChecklistItem[] = [];
 
@@ -231,7 +225,11 @@ export function buildChecklistItems(
     label: 'Fed recently',
     kind: 'auto',
     autoStatus: autoCheckState.fed,
-    detail: autoCheckState.fedDetail ?? (autoCheckState.fed === 'missing' ? 'No feedings logged today — consider whether baby might be hungry' : undefined),
+    detail:
+      autoCheckState.fedDetail ??
+      (autoCheckState.fed === 'missing'
+        ? 'No feedings logged today — consider whether baby might be hungry'
+        : undefined),
     interactive: false,
   });
   items.push({
@@ -239,7 +237,11 @@ export function buildChecklistItems(
     label: 'Clean diaper',
     kind: 'auto',
     autoStatus: autoCheckState.diaper,
-    detail: autoCheckState.diaperDetail ?? (autoCheckState.diaper === 'missing' ? 'No diaper changes logged recently — consider a change if needed' : undefined),
+    detail:
+      autoCheckState.diaperDetail ??
+      (autoCheckState.diaper === 'missing'
+        ? 'No diaper changes logged recently — consider a change if needed'
+        : undefined),
     interactive: false,
   });
   items.push({
@@ -286,7 +288,7 @@ export function prioritizeSuggestions(
   uncheckedManualIds: string[],
   symptomId: FussBusSymptomId,
   childAgeMonths: number,
-  autoCheckState: AutoCheckState
+  autoCheckState: AutoCheckState,
 ): PrioritizedSuggestion[] {
   const suggestions: PrioritizedSuggestion[] = [];
 
@@ -336,7 +338,7 @@ export function prioritizeSuggestions(
  * Returns developmental context strings that apply to this child's age.
  */
 export function getDevelopmentalContexts(childAgeMonths: number): string[] {
-  return DEVELOPMENTAL_CONTEXTS.filter((dc) =>
-    isInAgeRange(childAgeMonths, dc.ageRange)
-  ).map((dc) => dc.text);
+  return DEVELOPMENTAL_CONTEXTS.filter((dc) => isInAgeRange(childAgeMonths, dc.ageRange)).map(
+    (dc) => dc.text,
+  );
 }

@@ -24,9 +24,7 @@ export class TimezoneCheckService {
   private dismissed = signal(this.wasDismissedThisSession());
   private updating = signal(false);
 
-  readonly browserTimezone = signal<string | null>(
-    DateTimeService.getBrowserTimezone()
-  );
+  readonly browserTimezone = signal<string | null>(DateTimeService.getBrowserTimezone());
 
   /**
    * True when the browser timezone differs from the user's saved preference
@@ -45,15 +43,13 @@ export class TimezoneCheckService {
     return profile.timezone !== browserTz;
   });
 
-  readonly profileTimezone = computed(
-    () => this.accountService.profile()?.timezone ?? 'UTC'
-  );
+  readonly profileTimezone = computed(() => this.accountService.profile()?.timezone ?? 'UTC');
 
   constructor() {
     this.router.events
       .pipe(
         filter((e): e is NavigationEnd => e instanceof NavigationEnd),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(() => this.refreshBrowserTimezone());
   }

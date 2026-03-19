@@ -92,7 +92,7 @@ export class DiapersList implements OnInit {
       this.router.events
         .pipe(
           filter((e): e is NavigationEnd => e instanceof NavigationEnd),
-          takeUntilDestroyed(this.destroyRef)
+          takeUntilDestroyed(this.destroyRef),
         )
         .subscribe(() => {
           const routeId = this.route.snapshot.paramMap.get('childId');
@@ -122,7 +122,8 @@ export class DiapersList implements OnInit {
           timestampField: 'changed_at',
           typeField: 'change_type',
           resourceName: 'diaper change',
-          deleteConfirmMessage: (count: number) => `Delete ${count} diaper change(s)? This cannot be undone.`,
+          deleteConfirmMessage: (count: number) =>
+            `Delete ${count} diaper change(s)? This cannot be undone.`,
         });
         this.listService.allItems.set(diapers);
         this.listService.isLoading.set(false);
@@ -183,13 +184,7 @@ export class DiapersList implements OnInit {
   navigateToDelete(diaperId: number) {
     const childId = this.childId();
     if (childId) {
-      this.router.navigate([
-        '/children',
-        childId,
-        'diapers',
-        diaperId,
-        'delete',
-      ]);
+      this.router.navigate(['/children', childId, 'diapers', diaperId, 'delete']);
     }
   }
 
@@ -240,8 +235,6 @@ export class DiapersList implements OnInit {
     const childId = this.childId();
     if (!childId) return;
 
-    this.listService.bulkDelete((id: number) =>
-      this.diapersService.delete(childId, id)
-    );
+    this.listService.bulkDelete((id: number) => this.diapersService.delete(childId, id));
   }
 }

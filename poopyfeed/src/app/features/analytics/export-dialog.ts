@@ -46,19 +46,8 @@
  * - cancelEvent: void - Emitted when user cancels the dialog
  */
 
-import {
-  Component,
-  input,
-  output,
-  ChangeDetectionStrategy,
-  OnInit,
-} from '@angular/core';
-import {
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { Component, input, output, ChangeDetectionStrategy, OnInit } from '@angular/core';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ExportOptions } from '../../models/analytics.model';
 
 @Component({

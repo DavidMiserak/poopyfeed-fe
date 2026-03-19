@@ -10,9 +10,7 @@ type QuickLogType = 'feeding' | 'diaper' | 'nap';
 @Component({
   selector: 'app-quick-log-redirect',
   imports: [LoadingStateComponent],
-  template: `
-    <app-loading-state message="Opening quick log..." color="amber" />
-  `,
+  template: ` <app-loading-state message="Opening quick log..." color="amber" /> `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuickLogRedirect implements OnInit {
@@ -39,10 +37,9 @@ export class QuickLogRedirect implements OnInit {
       return;
     }
 
-    this.router.navigate(
-      ['/children', childId, this.getRouteSegment(type), 'create'],
-      { replaceUrl: true }
-    );
+    this.router.navigate(['/children', childId, this.getRouteSegment(type), 'create'], {
+      replaceUrl: true,
+    });
   }
 
   private redirectToChildren(message: string): void {

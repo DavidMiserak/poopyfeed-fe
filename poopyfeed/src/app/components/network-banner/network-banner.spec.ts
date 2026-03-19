@@ -16,9 +16,7 @@ describe('NetworkBanner', () => {
 
     await TestBed.configureTestingModule({
       imports: [NetworkBanner],
-      providers: [
-        { provide: NetworkStatusService, useValue: mockNetworkStatus },
-      ],
+      providers: [{ provide: NetworkStatusService, useValue: mockNetworkStatus }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(NetworkBanner);

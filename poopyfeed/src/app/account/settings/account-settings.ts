@@ -1,16 +1,5 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  OnInit,
-  signal,
-} from '@angular/core';
-import {
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AccountService } from '../../services/account.service';
 import { AuthService } from '../../services/auth.service';
@@ -86,10 +75,7 @@ export class AccountSettings implements OnInit {
 
   passwordForm = new FormGroup({
     current_password: new FormControl('', [Validators.required]),
-    new_password: new FormControl('', [
-      Validators.required,
-      Validators.minLength(8),
-    ]),
+    new_password: new FormControl('', [Validators.required, Validators.minLength(8)]),
     new_password_confirm: new FormControl('', [Validators.required]),
   });
 
@@ -273,9 +259,7 @@ export class AccountSettings implements OnInit {
           this.toast.success('Push notifications enabled');
           this.gaTracking.trackEvent('enable_notifications');
         } else {
-          this.toast.error(
-            'Could not enable push notifications. Check browser permissions.'
-          );
+          this.toast.error('Could not enable push notifications. Check browser permissions.');
         }
       }
     } catch {

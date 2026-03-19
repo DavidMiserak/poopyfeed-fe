@@ -35,7 +35,7 @@ export class AccountService {
   getProfile(): Observable<UserProfile> {
     return this.http.get<UserProfile>(`${this.API_BASE}/profile/`).pipe(
       tap((profile) => this.profile.set(profile)),
-      catchError((error) => throwError(() => ErrorHandler.handle(error, 'Get')))
+      catchError((error) => throwError(() => ErrorHandler.handle(error, 'Get'))),
     );
   }
 
@@ -47,12 +47,10 @@ export class AccountService {
    * @throws ApiError on validation failure
    */
   updateProfile(data: UserProfileUpdate): Observable<UserProfile> {
-    return this.http
-      .patch<UserProfile>(`${this.API_BASE}/profile/`, data)
-      .pipe(
-        tap((profile) => this.profile.set(profile)),
-        catchError((error) => throwError(() => ErrorHandler.handle(error, 'Update')))
-      );
+    return this.http.patch<UserProfile>(`${this.API_BASE}/profile/`, data).pipe(
+      tap((profile) => this.profile.set(profile)),
+      catchError((error) => throwError(() => ErrorHandler.handle(error, 'Update'))),
+    );
   }
 
   /**
@@ -62,14 +60,10 @@ export class AccountService {
    * @returns Observable of detail and new auth_token
    * @throws ApiError on wrong current password or validation failure
    */
-  changePassword(
-    data: ChangePasswordRequest
-  ): Observable<ChangePasswordResponse> {
+  changePassword(data: ChangePasswordRequest): Observable<ChangePasswordResponse> {
     return this.http
       .post<ChangePasswordResponse>(`${this.API_BASE}/password/`, data)
-      .pipe(
-        catchError((error) => throwError(() => ErrorHandler.handle(error, 'Update')))
-      );
+      .pipe(catchError((error) => throwError(() => ErrorHandler.handle(error, 'Update'))));
   }
 
   /**
@@ -82,8 +76,6 @@ export class AccountService {
   deleteAccount(data: DeleteAccountRequest): Observable<void> {
     return this.http
       .post<void>(`${this.API_BASE}/delete/`, data)
-      .pipe(
-        catchError((error) => throwError(() => ErrorHandler.handle(error, 'Delete')))
-      );
+      .pipe(catchError((error) => throwError(() => ErrorHandler.handle(error, 'Delete'))));
   }
 }

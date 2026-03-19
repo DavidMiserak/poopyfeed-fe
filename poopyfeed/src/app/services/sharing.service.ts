@@ -38,16 +38,14 @@ export class SharingService {
    * @throws ApiError on failure
    */
   listShares(childId: number): Observable<ChildShare[]> {
-    return this.http
-      .get<ChildShare[]>(`${this.API_BASE}/${childId}/shares/`)
-      .pipe(
-        tap((shares) => {
-          this.shares.set(shares);
-        }),
-        catchError((error) => {
-          return throwError(() => ErrorHandler.handle(error, 'List'));
-        })
-      );
+    return this.http.get<ChildShare[]>(`${this.API_BASE}/${childId}/shares/`).pipe(
+      tap((shares) => {
+        this.shares.set(shares);
+      }),
+      catchError((error) => {
+        return throwError(() => ErrorHandler.handle(error, 'List'));
+      }),
+    );
   }
 
   /**
@@ -59,18 +57,16 @@ export class SharingService {
    * @throws ApiError on failure
    */
   revokeShare(childId: number, shareId: number): Observable<void> {
-    return this.http
-      .delete<void>(`${this.API_BASE}/${childId}/shares/${shareId}/`)
-      .pipe(
-        tap(() => {
-          // Remove from cached list
-          const currentShares = this.shares();
-          this.shares.set(currentShares.filter((s) => s.id !== shareId));
-        }),
-        catchError((error) => {
-          return throwError(() => ErrorHandler.handle(error, 'Delete'));
-        })
-      );
+    return this.http.delete<void>(`${this.API_BASE}/${childId}/shares/${shareId}/`).pipe(
+      tap(() => {
+        // Remove from cached list
+        const currentShares = this.shares();
+        this.shares.set(currentShares.filter((s) => s.id !== shareId));
+      }),
+      catchError((error) => {
+        return throwError(() => ErrorHandler.handle(error, 'Delete'));
+      }),
+    );
   }
 
   /**
@@ -81,16 +77,14 @@ export class SharingService {
    * @throws ApiError on failure
    */
   listInvites(childId: number): Observable<ShareInvite[]> {
-    return this.http
-      .get<ShareInvite[]>(`${this.API_BASE}/${childId}/invites/`)
-      .pipe(
-        tap((invites) => {
-          this.invites.set(invites);
-        }),
-        catchError((error) => {
-          return throwError(() => ErrorHandler.handle(error, 'List'));
-        })
-      );
+    return this.http.get<ShareInvite[]>(`${this.API_BASE}/${childId}/invites/`).pipe(
+      tap((invites) => {
+        this.invites.set(invites);
+      }),
+      catchError((error) => {
+        return throwError(() => ErrorHandler.handle(error, 'List'));
+      }),
+    );
   }
 
   /**
@@ -101,22 +95,17 @@ export class SharingService {
    * @returns Observable of created invite (with token)
    * @throws ApiError on failure
    */
-  createInvite(
-    childId: number,
-    data: InviteCreate
-  ): Observable<ShareInvite> {
-    return this.http
-      .post<ShareInvite>(`${this.API_BASE}/${childId}/invites/`, data)
-      .pipe(
-        tap((invite) => {
-          // Add to cached list
-          const currentInvites = this.invites();
-          this.invites.set([invite, ...currentInvites]);
-        }),
-        catchError((error) => {
-          return throwError(() => ErrorHandler.handle(error, 'Create'));
-        })
-      );
+  createInvite(childId: number, data: InviteCreate): Observable<ShareInvite> {
+    return this.http.post<ShareInvite>(`${this.API_BASE}/${childId}/invites/`, data).pipe(
+      tap((invite) => {
+        // Add to cached list
+        const currentInvites = this.invites();
+        this.invites.set([invite, ...currentInvites]);
+      }),
+      catchError((error) => {
+        return throwError(() => ErrorHandler.handle(error, 'Create'));
+      }),
+    );
   }
 
   /**
@@ -128,11 +117,7 @@ export class SharingService {
    * @returns Observable of updated invite
    * @throws ApiError on failure
    */
-  toggleInvite(
-    childId: number,
-    inviteId: number,
-    isActive: boolean
-  ): Observable<ShareInvite> {
+  toggleInvite(childId: number, inviteId: number, isActive: boolean): Observable<ShareInvite> {
     return this.http
       .patch<ShareInvite>(`${this.API_BASE}/${childId}/invites/${inviteId}/`, {
         is_active: isActive,
@@ -150,7 +135,7 @@ export class SharingService {
         }),
         catchError((error) => {
           return throwError(() => ErrorHandler.handle(error, 'Update'));
-        })
+        }),
       );
   }
 
@@ -163,18 +148,16 @@ export class SharingService {
    * @throws ApiError on failure
    */
   deleteInvite(childId: number, inviteId: number): Observable<void> {
-    return this.http
-      .delete<void>(`${this.API_BASE}/${childId}/invites/${inviteId}/`)
-      .pipe(
-        tap(() => {
-          // Remove from cached list
-          const currentInvites = this.invites();
-          this.invites.set(currentInvites.filter((i) => i.id !== inviteId));
-        }),
-        catchError((error) => {
-          return throwError(() => ErrorHandler.handle(error, 'Delete'));
-        })
-      );
+    return this.http.delete<void>(`${this.API_BASE}/${childId}/invites/${inviteId}/`).pipe(
+      tap(() => {
+        // Remove from cached list
+        const currentInvites = this.invites();
+        this.invites.set(currentInvites.filter((i) => i.id !== inviteId));
+      }),
+      catchError((error) => {
+        return throwError(() => ErrorHandler.handle(error, 'Delete'));
+      }),
+    );
   }
 
   /**
@@ -192,7 +175,7 @@ export class SharingService {
       .pipe(
         catchError((error) => {
           return throwError(() => ErrorHandler.handle(error, 'Accept'));
-        })
+        }),
       );
   }
 

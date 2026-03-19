@@ -280,7 +280,7 @@ describe('TrackingEmptyStateComponent', () => {
     it('should support different emojis', () => {
       const emojis = ['😴', '🧷', '🍼'];
 
-      emojis.forEach(emoji => {
+      emojis.forEach((emoji) => {
         fixture.componentRef.setInput('emoji', emoji);
         fixture.componentRef.setInput('title', 'Test');
         fixture.componentRef.setInput('subtitle', 'Test');

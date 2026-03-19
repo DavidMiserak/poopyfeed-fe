@@ -108,8 +108,16 @@ export class FussBusComponent implements OnInit, OnDestroy {
     if (state.fed !== 'ok') uncheckedAuto.push('fed');
     if (state.diaper !== 'ok') uncheckedAuto.push('diaper');
     if (state.nap !== 'ok') uncheckedAuto.push('nap');
-    const uncheckedManual = items.filter((i) => i.kind === 'manual' && !manualIds.has(i.id)).map((i) => i.id);
-    return prioritizeSuggestions(uncheckedAuto, uncheckedManual, symptom, this.childAgeMonths(), state);
+    const uncheckedManual = items
+      .filter((i) => i.kind === 'manual' && !manualIds.has(i.id))
+      .map((i) => i.id);
+    return prioritizeSuggestions(
+      uncheckedAuto,
+      uncheckedManual,
+      symptom,
+      this.childAgeMonths(),
+      state,
+    );
   });
 
   developmentalContexts = computed(() => getDevelopmentalContexts(this.childAgeMonths()));
@@ -152,17 +160,17 @@ export class FussBusComponent implements OnInit, OnDestroy {
         this.error.set(err.message);
         this.isLoading.set(false);
         return of(null);
-      })
+      }),
     );
-    const dashboard$ = this.analyticsService.getDashboardSummary(id).pipe(
-      catchError(() => of(null))
-    );
-    const patternAlerts$ = this.analyticsService.getPatternAlerts(id).pipe(
-      catchError(() => of(null))
-    );
-    const timeline$ = this.analyticsService.getTimeline(id, 1, 50).pipe(
-      catchError(() => of({ count: 0, next: null, previous: null, results: [] }))
-    );
+    const dashboard$ = this.analyticsService
+      .getDashboardSummary(id)
+      .pipe(catchError(() => of(null)));
+    const patternAlerts$ = this.analyticsService
+      .getPatternAlerts(id)
+      .pipe(catchError(() => of(null)));
+    const timeline$ = this.analyticsService
+      .getTimeline(id, 1, 50)
+      .pipe(catchError(() => of({ count: 0, next: null, previous: null, results: [] })));
 
     child$.subscribe((child) => {
       if (!child) return;
@@ -176,7 +184,9 @@ export class FussBusComponent implements OnInit, OnDestroy {
       }).subscribe({
         next: ({ dashboard, patternAlerts, timeline }) => {
           if (!dashboard || !patternAlerts) {
-            this.trackingDataError.set('Couldn\'t load tracking data — you can still work through the list below.');
+            this.trackingDataError.set(
+              "Couldn't load tracking data — you can still work through the list below.",
+            );
           }
           this.dashboardSummary.set(dashboard ?? null);
           this.patternAlerts.set(patternAlerts ?? null);
@@ -184,17 +194,25 @@ export class FussBusComponent implements OnInit, OnDestroy {
           const c = this.child();
           const ageMonths = c ? getChildAgeInMonths(c.date_of_birth) : 6;
           this.autoCheckState.set(
-            getAutoCheckState(dashboard ?? null, patternAlerts ?? null, timeline?.results ?? null, new Date(), ageMonths)
+            getAutoCheckState(
+              dashboard ?? null,
+              patternAlerts ?? null,
+              timeline?.results ?? null,
+              new Date(),
+              ageMonths,
+            ),
           );
           this.isLoading.set(false);
         },
         error: () => {
-          this.trackingDataError.set('Couldn\'t load tracking data — you can still work through the list below.');
+          this.trackingDataError.set(
+            "Couldn't load tracking data — you can still work through the list below.",
+          );
           this.dashboardSummary.set(null);
           this.patternAlerts.set(null);
           this.timelineResults.set([]);
           this.autoCheckState.set(
-            getAutoCheckState(null, null, null, new Date(), this.childAgeMonths())
+            getAutoCheckState(null, null, null, new Date(), this.childAgeMonths()),
           );
           this.isLoading.set(false);
         },

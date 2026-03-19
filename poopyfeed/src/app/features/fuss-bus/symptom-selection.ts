@@ -1,10 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  input,
-  output,
-  computed,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output, computed } from '@angular/core';
 import { SYMPTOM_TYPES, type FussBusSymptomId } from './fuss-bus.data';
 import { getChildAgeInMonths } from './fuss-bus.utils';
 

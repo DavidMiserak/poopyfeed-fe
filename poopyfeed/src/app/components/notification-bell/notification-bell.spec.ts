@@ -125,7 +125,9 @@ describe('NotificationBellComponent', () => {
     btn.click();
     fixture.detectChanges();
     const buttons = compiled.querySelectorAll('.notification-bell-dropdown button');
-    const markAllReadButton = Array.from(buttons).find((b) => b.textContent?.trim() === 'Mark all read');
+    const markAllReadButton = Array.from(buttons).find(
+      (b) => b.textContent?.trim() === 'Mark all read',
+    );
     expect(markAllReadButton).toBeTruthy();
   });
 
@@ -133,11 +135,13 @@ describe('NotificationBellComponent', () => {
     mockNotificationService.unreadCount.set(1);
     mockNotificationService.notifications.set([mockNotification]);
     fixture.detectChanges();
-    const bellBtn = compiled.querySelector('button[aria-label="Notifications"]') as HTMLButtonElement;
+    const bellBtn = compiled.querySelector(
+      'button[aria-label="Notifications"]',
+    ) as HTMLButtonElement;
     bellBtn.click();
     fixture.detectChanges();
     const markAllReadButton = Array.from(compiled.querySelectorAll('button')).find(
-      (b) => b.textContent?.trim() === 'Mark all read'
+      (b) => b.textContent?.trim() === 'Mark all read',
     );
     markAllReadButton?.click();
     expect(mockNotificationService.markAllRead).toHaveBeenCalled();
@@ -147,7 +151,9 @@ describe('NotificationBellComponent', () => {
     const navigateSpy = vi.spyOn(router, 'navigate');
     mockNotificationService.notifications.set([mockNotification]);
     fixture.detectChanges();
-    const bellBtn = compiled.querySelector('button[aria-label="Notifications"]') as HTMLButtonElement;
+    const bellBtn = compiled.querySelector(
+      'button[aria-label="Notifications"]',
+    ) as HTMLButtonElement;
     bellBtn.click();
     fixture.detectChanges();
     const firstItem = compiled.querySelector('.notification-bell-item');
@@ -159,7 +165,9 @@ describe('NotificationBellComponent', () => {
   });
 
   it('should close dropdown when clicking outside', () => {
-    const bellBtn = compiled.querySelector('button[aria-label="Notifications"]') as HTMLButtonElement;
+    const bellBtn = compiled.querySelector(
+      'button[aria-label="Notifications"]',
+    ) as HTMLButtonElement;
     bellBtn.click();
     fixture.detectChanges();
     expect(fixture.componentInstance.dropdownOpen()).toBe(true);
@@ -171,7 +179,9 @@ describe('NotificationBellComponent', () => {
   it('should display notification message and icon in dropdown', () => {
     mockNotificationService.notifications.set([mockNotification]);
     fixture.detectChanges();
-    const bellBtn = compiled.querySelector('button[aria-label="Notifications"]') as HTMLButtonElement;
+    const bellBtn = compiled.querySelector(
+      'button[aria-label="Notifications"]',
+    ) as HTMLButtonElement;
     bellBtn.click();
     fixture.detectChanges();
     expect(compiled.textContent).toContain('Alice logged a feeding for Baby Bob');
@@ -182,7 +192,9 @@ describe('NotificationBellComponent', () => {
     const listSubject = new Subject<Notification[]>();
     mockNotificationService.list.mockReturnValue(listSubject);
     mockNotificationService.notifications.set([]);
-    const bellBtn = compiled.querySelector('button[aria-label="Notifications"]') as HTMLButtonElement;
+    const bellBtn = compiled.querySelector(
+      'button[aria-label="Notifications"]',
+    ) as HTMLButtonElement;
     bellBtn.click();
     fixture.detectChanges();
     expect(compiled.textContent).toContain('Loading…');
@@ -193,11 +205,11 @@ describe('NotificationBellComponent', () => {
   });
 
   it('should show toast.error when list() fails', () => {
-    mockNotificationService.list.mockReturnValue(
-      throwError(() => new Error('List failed'))
-    );
+    mockNotificationService.list.mockReturnValue(throwError(() => new Error('List failed')));
     mockNotificationService.notifications.set([]);
-    const bellBtn = compiled.querySelector('button[aria-label="Notifications"]') as HTMLButtonElement;
+    const bellBtn = compiled.querySelector(
+      'button[aria-label="Notifications"]',
+    ) as HTMLButtonElement;
     bellBtn.click();
     fixture.detectChanges();
     expect(mockToast.error).toHaveBeenCalledWith('List failed');
@@ -205,11 +217,13 @@ describe('NotificationBellComponent', () => {
 
   it('should show toast.error when markAsRead() fails', () => {
     mockNotificationService.markAsRead.mockReturnValue(
-      throwError(() => new Error('Mark read failed'))
+      throwError(() => new Error('Mark read failed')),
     );
     mockNotificationService.notifications.set([mockNotification]);
     fixture.detectChanges();
-    const bellBtn = compiled.querySelector('button[aria-label="Notifications"]') as HTMLButtonElement;
+    const bellBtn = compiled.querySelector(
+      'button[aria-label="Notifications"]',
+    ) as HTMLButtonElement;
     bellBtn.click();
     fixture.detectChanges();
     const firstItem = compiled.querySelector('.notification-bell-item') as HTMLButtonElement;
@@ -219,16 +233,18 @@ describe('NotificationBellComponent', () => {
 
   it('should show toast.error when markAllRead() fails', () => {
     mockNotificationService.markAllRead.mockReturnValue(
-      throwError(() => new Error('Mark all failed'))
+      throwError(() => new Error('Mark all failed')),
     );
     mockNotificationService.unreadCount.set(1);
     mockNotificationService.notifications.set([mockNotification]);
     fixture.detectChanges();
-    const bellBtn = compiled.querySelector('button[aria-label="Notifications"]') as HTMLButtonElement;
+    const bellBtn = compiled.querySelector(
+      'button[aria-label="Notifications"]',
+    ) as HTMLButtonElement;
     bellBtn.click();
     fixture.detectChanges();
     const markAllReadButton = Array.from(compiled.querySelectorAll('button')).find(
-      (b) => b.textContent?.trim() === 'Mark all read'
+      (b) => b.textContent?.trim() === 'Mark all read',
     );
     markAllReadButton?.click();
     expect(mockToast.error).toHaveBeenCalledWith('Mark all failed');

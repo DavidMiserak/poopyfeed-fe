@@ -1,16 +1,11 @@
-import {
-  ApplicationConfig,
-  provideBrowserGlobalErrorListeners,
-  isDevMode,
-} from '@angular/core';
-import {
-  NoPreloading,
-  provideRouter,
-  withPreloading,
-  TitleStrategy,
-} from '@angular/router';
+import { ApplicationConfig, provideBrowserGlobalErrorListeners, isDevMode } from '@angular/core';
+import { NoPreloading, provideRouter, withPreloading, TitleStrategy } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { provideClientHydration, withEventReplay, withHttpTransferCacheOptions } from '@angular/platform-browser';
+import {
+  provideClientHydration,
+  withEventReplay,
+  withHttpTransferCacheOptions,
+} from '@angular/platform-browser';
 import { provideServiceWorker } from '@angular/service-worker';
 
 import { routes } from './app.routes';

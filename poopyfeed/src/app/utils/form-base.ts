@@ -145,8 +145,7 @@ export abstract class TrackingFormBase<
   TResource,
   TCreate,
   TService extends TrackingService<TResource, TCreate>,
->
-{
+> {
   /**
    * @abstract Router for navigation after form submission
    */

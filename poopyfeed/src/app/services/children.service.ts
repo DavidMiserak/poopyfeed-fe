@@ -108,7 +108,7 @@ export class ChildrenService {
       }),
       catchError((error) => {
         return throwError(() => ErrorHandler.handle(error, 'List children'));
-      })
+      }),
     );
   }
 
@@ -147,7 +147,7 @@ export class ChildrenService {
       }),
       catchError((error) => {
         return throwError(() => ErrorHandler.handle(error, 'Get child'));
-      })
+      }),
     );
   }
 
@@ -186,7 +186,7 @@ export class ChildrenService {
       }),
       catchError((error) => {
         return throwError(() => ErrorHandler.handle(error, 'Create child'));
-      })
+      }),
     );
   }
 
@@ -232,7 +232,7 @@ export class ChildrenService {
       }),
       catchError((error) => {
         return throwError(() => ErrorHandler.handle(error, 'Update child'));
-      })
+      }),
     );
   }
 
@@ -269,7 +269,7 @@ export class ChildrenService {
       }),
       catchError((error) => {
         return throwError(() => ErrorHandler.handle(error, 'Delete child'));
-      })
+      }),
     );
   }
 }

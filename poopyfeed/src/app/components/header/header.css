@@ -6,7 +6,8 @@
 
 /* Bottle wiggle animation for logo emoji */
 @keyframes wiggle {
-  0%, 100% {
+  0%,
+  100% {
     transform: rotate(0deg);
   }
   25% {
@@ -37,7 +38,9 @@
   height: 2px;
   background: #475569; /* slate-600 */
   border-radius: 1px;
-  transition: transform 0.3s ease, opacity 0.2s ease;
+  transition:
+    transform 0.3s ease,
+    opacity 0.2s ease;
   transform-origin: center;
 }
 

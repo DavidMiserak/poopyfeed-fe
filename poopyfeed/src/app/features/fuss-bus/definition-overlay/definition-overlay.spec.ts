@@ -33,7 +33,9 @@ describe('DefinitionOverlayComponent', () => {
     it('renders dialog with title and body', () => {
       const el = fixture.nativeElement as HTMLElement;
       expect(el.querySelector('#definition-overlay-title')?.textContent?.trim()).toBe('Colic hold');
-      expect(el.querySelector('#definition-overlay-body')?.textContent?.trim()).toContain('Hold your baby tummy-down');
+      expect(el.querySelector('#definition-overlay-body')?.textContent?.trim()).toContain(
+        'Hold your baby tummy-down',
+      );
     });
 
     it('has role="dialog" and aria-modal="true"', () => {

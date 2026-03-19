@@ -133,17 +133,13 @@ describe('DateTimeService', () => {
       const yesterday = new Date();
       yesterday.setDate(yesterday.getDate() - 1);
       yesterday.setHours(12, 0, 0, 0);
-      expect(service.isTodayInUserTimezone(yesterday.toISOString())).toBe(
-        false
-      );
+      expect(service.isTodayInUserTimezone(yesterday.toISOString())).toBe(false);
     });
   });
 
   describe('getDateNDaysAgoInUserTimezone', () => {
     it('should return today for 0 days ago', () => {
-      expect(service.getDateNDaysAgoInUserTimezone(0)).toBe(
-        service.getTodayInUserTimezone()
-      );
+      expect(service.getDateNDaysAgoInUserTimezone(0)).toBe(service.getTodayInUserTimezone());
     });
 
     it('should return YYYY-MM-DD format', () => {
@@ -173,9 +169,7 @@ describe('DateTimeService', () => {
       const localDate = new Date('2024-01-15T10:30:00');
       const utcString = service.toUTC(localDate);
 
-      expect(utcString).toMatch(
-        /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/
-      );
+      expect(utcString).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
       expect(utcString).toContain('2024');
     });
 
@@ -183,18 +177,14 @@ describe('DateTimeService', () => {
       const localDate = new Date('2024-01-15T00:00:00');
       const utcString = service.toUTC(localDate);
 
-      expect(utcString).toMatch(
-        /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/
-      );
+      expect(utcString).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
     });
 
     it('should handle leap year dates', () => {
       const localDate = new Date('2024-02-29T12:00:00');
       const utcString = service.toUTC(localDate);
 
-      expect(utcString).toMatch(
-        /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/
-      );
+      expect(utcString).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
       expect(utcString).toContain('2024-02-29');
     });
   });
@@ -362,9 +352,7 @@ describe('DateTimeService', () => {
       const localDate = service.fromInputFormat(inputValue);
       const utcString = service.toUTC(localDate);
 
-      expect(utcString).toMatch(
-        /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/
-      );
+      expect(utcString).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
 
       // Parse back and verify
       const parsed = service.toLocal(utcString);

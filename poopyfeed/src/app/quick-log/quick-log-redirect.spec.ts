@@ -41,10 +41,9 @@ describe('QuickLogRedirect', () => {
   });
 
   it('should navigate to child feedings create when type is feeding and last child exists', () => {
-    expect(mockRouter.navigate).toHaveBeenCalledWith(
-      ['/children', 10, 'feedings', 'create'],
-      { replaceUrl: true }
-    );
+    expect(mockRouter.navigate).toHaveBeenCalledWith(['/children', 10, 'feedings', 'create'], {
+      replaceUrl: true,
+    });
     expect(mockToast.info).not.toHaveBeenCalled();
   });
 
@@ -62,7 +61,9 @@ describe('QuickLogRedirect', () => {
     fixture = TestBed.createComponent(QuickLogRedirect);
     fixture.detectChanges();
 
-    expect(mockToast.info).toHaveBeenCalledWith('Unknown quick log type. Please pick a child to log.');
+    expect(mockToast.info).toHaveBeenCalledWith(
+      'Unknown quick log type. Please pick a child to log.',
+    );
     expect(mockRouter.navigate).toHaveBeenCalledWith(['/children'], { replaceUrl: true });
   });
 
@@ -71,10 +72,9 @@ describe('QuickLogRedirect', () => {
     fixture = TestBed.createComponent(QuickLogRedirect);
     fixture.detectChanges();
 
-    expect(mockRouter.navigate).toHaveBeenCalledWith(
-      ['/children', 10, 'diapers', 'create'],
-      { replaceUrl: true }
-    );
+    expect(mockRouter.navigate).toHaveBeenCalledWith(['/children', 10, 'diapers', 'create'], {
+      replaceUrl: true,
+    });
   });
 
   it('should not navigate on server platform', () => {

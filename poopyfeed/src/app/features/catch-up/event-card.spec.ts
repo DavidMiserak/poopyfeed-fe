@@ -10,7 +10,12 @@ describe('EventCard', () => {
   let component: EventCard;
   let fixture: ComponentFixture<EventCard>;
   let dateTimeService: { toInputFormat: ReturnType<typeof vi.fn> };
-  let toastService: { success: ReturnType<typeof vi.fn>; error: ReturnType<typeof vi.fn>; warning: ReturnType<typeof vi.fn>; info: ReturnType<typeof vi.fn> };
+  let toastService: {
+    success: ReturnType<typeof vi.fn>;
+    error: ReturnType<typeof vi.fn>;
+    warning: ReturnType<typeof vi.fn>;
+    info: ReturnType<typeof vi.fn>;
+  };
 
   const mockNewFeedingEvent: CatchUpEvent = {
     id: 'event-feeding-1',
@@ -97,9 +102,7 @@ describe('EventCard', () => {
       fixture.componentRef.setInput('event', mockNewFeedingEvent);
       fixture.detectChanges();
 
-      const deleteButton = fixture.nativeElement.textContent?.includes(
-        'Remove this activity',
-      );
+      const deleteButton = fixture.nativeElement.textContent?.includes('Remove this activity');
       expect(deleteButton).toBeTruthy();
     });
   });
@@ -117,9 +120,7 @@ describe('EventCard', () => {
       fixture.componentRef.setInput('event', mockExistingFeedingEvent);
       fixture.detectChanges();
 
-      const deleteButton = fixture.nativeElement.textContent?.includes(
-        'Remove this activity',
-      );
+      const deleteButton = fixture.nativeElement.textContent?.includes('Remove this activity');
       expect(deleteButton).toBeFalsy();
     });
 

@@ -11,13 +11,7 @@
  * - childId: Child's unique identifier (required)
  */
 
-import {
-  Component,
-  inject,
-  OnInit,
-  OnDestroy,
-  ChangeDetectionStrategy,
-} from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { signal } from '@angular/core';
 import { Subject } from 'rxjs';

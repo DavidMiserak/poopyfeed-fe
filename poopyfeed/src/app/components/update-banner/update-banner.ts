@@ -58,7 +58,7 @@ export class UpdateBanner {
 
     const appIsStable$ = this.appRef.isStable.pipe(
       filter((isStable) => isStable),
-      take(1)
+      take(1),
     );
     const updateInterval$ = interval(6 * 60 * 60 * 1000);
 
@@ -71,7 +71,7 @@ export class UpdateBanner {
     this.swUpdate.versionUpdates
       .pipe(
         filter((event): event is VersionReadyEvent => event.type === 'VERSION_READY'),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(() => this.updateAvailable.set(true));
   }

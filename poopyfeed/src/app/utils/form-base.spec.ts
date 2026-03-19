@@ -110,11 +110,10 @@ describe('TrackingFormBase', () => {
     last_diaper_change: null,
     last_nap: null,
     last_feeding: null,
-        custom_bottle_low_oz: null,
-        custom_bottle_mid_oz: null,
-        custom_bottle_high_oz: null,
-        feeding_reminder_interval: null,
-
+    custom_bottle_low_oz: null,
+    custom_bottle_mid_oz: null,
+    custom_bottle_high_oz: null,
+    feeding_reminder_interval: null,
   };
 
   beforeEach(async () => {
@@ -217,7 +216,7 @@ describe('TrackingFormBase', () => {
         return params[key] || null;
       };
       vi.spyOn(mockService, 'get').mockReturnValue(
-        of({ id: 99, name: 'Test', timestamp: '2024-01-15T10:00:00Z' })
+        of({ id: 99, name: 'Test', timestamp: '2024-01-15T10:00:00Z' }),
       );
       component['initializeForm']();
       expect(component.isEdit()).toBe(true);
@@ -250,7 +249,7 @@ describe('TrackingFormBase', () => {
         return params[key] || null;
       };
       vi.spyOn(mockService, 'get').mockReturnValue(
-        of({ id: 99, name: 'Loaded', timestamp: '2024-01-15T14:00:00Z' })
+        of({ id: 99, name: 'Loaded', timestamp: '2024-01-15T14:00:00Z' }),
       );
       component['initializeForm']();
       expect(mockService.get).toHaveBeenCalledWith(1, 99);
@@ -266,7 +265,7 @@ describe('TrackingFormBase', () => {
         return params[key] || null;
       };
       vi.spyOn(mockService, 'get').mockReturnValue(
-        of({ id: 99, name: 'Loaded', timestamp: '2024-01-15T14:00:00Z' })
+        of({ id: 99, name: 'Loaded', timestamp: '2024-01-15T14:00:00Z' }),
       );
       component['initializeForm']();
       expect(component.getForm().get('name')?.value).toBe('Loaded');
@@ -297,7 +296,7 @@ describe('TrackingFormBase', () => {
 
     it('should create resource on create submission', () => {
       vi.spyOn(mockService, 'create').mockReturnValue(
-        of({ id: 1, name: 'Test Item', timestamp: '2024-01-15T10:00:00Z' })
+        of({ id: 1, name: 'Test Item', timestamp: '2024-01-15T10:00:00Z' }),
       );
       component.onSubmit();
       expect(mockService.create).toHaveBeenCalledWith(1, expect.any(Object));
@@ -313,10 +312,10 @@ describe('TrackingFormBase', () => {
         return params[key] || null;
       };
       vi.spyOn(mockService, 'get').mockReturnValue(
-        of({ id: 99, name: 'Test', timestamp: '2024-01-15T10:00:00Z' })
+        of({ id: 99, name: 'Test', timestamp: '2024-01-15T10:00:00Z' }),
       );
       vi.spyOn(mockService, 'update').mockReturnValue(
-        of({ id: 99, name: 'Updated', timestamp: '2024-01-15T10:00:00Z' })
+        of({ id: 99, name: 'Updated', timestamp: '2024-01-15T10:00:00Z' }),
       );
       component['initializeForm']();
       component.getForm().patchValue({
@@ -328,7 +327,7 @@ describe('TrackingFormBase', () => {
 
     it('should show success toast on create', async () => {
       vi.spyOn(mockService, 'create').mockReturnValue(
-        of({ id: 1, name: 'Test Item', timestamp: '2024-01-15T10:00:00Z' })
+        of({ id: 1, name: 'Test Item', timestamp: '2024-01-15T10:00:00Z' }),
       );
       component.onSubmit();
       await new Promise((resolve) => setTimeout(resolve, 10));

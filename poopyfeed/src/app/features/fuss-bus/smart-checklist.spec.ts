@@ -4,10 +4,36 @@ import type { ChecklistItem } from './fuss-bus.utils';
 
 function makeItems(): ChecklistItem[] {
   return [
-    { id: 'fed', label: 'Fed recently', kind: 'auto', autoStatus: 'ok', detail: 'Fed 30 min ago', interactive: false },
-    { id: 'diaper', label: 'Clean diaper', kind: 'auto', autoStatus: 'ok', detail: 'Changed 15 min ago', interactive: false },
-    { id: 'nap', label: 'Nap on schedule', kind: 'auto', autoStatus: 'warning', detail: 'Last nap ended 3.5h ago', interactive: false },
-    { id: 'comfortable_temperature', label: 'Comfortable temperature', kind: 'manual', interactive: true },
+    {
+      id: 'fed',
+      label: 'Fed recently',
+      kind: 'auto',
+      autoStatus: 'ok',
+      detail: 'Fed 30 min ago',
+      interactive: false,
+    },
+    {
+      id: 'diaper',
+      label: 'Clean diaper',
+      kind: 'auto',
+      autoStatus: 'ok',
+      detail: 'Changed 15 min ago',
+      interactive: false,
+    },
+    {
+      id: 'nap',
+      label: 'Nap on schedule',
+      kind: 'auto',
+      autoStatus: 'warning',
+      detail: 'Last nap ended 3.5h ago',
+      interactive: false,
+    },
+    {
+      id: 'comfortable_temperature',
+      label: 'Comfortable temperature',
+      kind: 'manual',
+      interactive: true,
+    },
   ];
 }
 

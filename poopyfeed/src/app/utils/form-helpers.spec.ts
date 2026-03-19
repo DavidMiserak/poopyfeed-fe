@@ -1,11 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import {
-  markAllAsTouched,
-  resetFormCompletely,
-  hasError,
-  getErrorMessage,
-} from './form-helpers';
+import { markAllAsTouched, resetFormCompletely, hasError, getErrorMessage } from './form-helpers';
 
 describe('Form Helpers', () => {
   let form: FormGroup;

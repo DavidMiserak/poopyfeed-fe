@@ -21,10 +21,14 @@ test.describe('Pediatrician summary', () => {
     await moreTools.click();
     await expect(page).toHaveURL(/\/children\/\d+\/advanced$/, { timeout: E2E_TIMEOUT });
 
-    await expect(page.getByRole('link', { name: 'For the Doctor' })).toBeVisible({ timeout: E2E_TIMEOUT });
+    await expect(page.getByRole('link', { name: 'For the Doctor' })).toBeVisible({
+      timeout: E2E_TIMEOUT,
+    });
     await page.getByRole('link', { name: 'For the Doctor' }).click();
 
-    await expect(page).toHaveURL(/\/children\/\d+\/pediatrician-summary$/, { timeout: E2E_TIMEOUT });
+    await expect(page).toHaveURL(/\/children\/\d+\/pediatrician-summary$/, {
+      timeout: E2E_TIMEOUT,
+    });
 
     // Wait for SummaryNavComponent (loading finished)
     await expect(page.getByRole('link', { name: 'Back to Advanced' })).toBeVisible({

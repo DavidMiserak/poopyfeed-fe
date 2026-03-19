@@ -1,8 +1,14 @@
-<div class="min-h-screen relative bg-gradient-to-br from-rose-50 via-amber-50 to-orange-50 px-6 py-12 overflow-hidden">
+<div
+  class="min-h-screen relative bg-gradient-to-br from-rose-50 via-amber-50 to-orange-50 px-6 py-12 overflow-hidden"
+>
   <!-- Decorative background elements (static, Tailwind only) -->
   <div class="absolute inset-0 opacity-10 pointer-events-none">
-    <div class="absolute top-20 left-20 w-64 h-64 bg-gradient-to-br from-rose-400 to-orange-400 rounded-full blur-3xl"></div>
-    <div class="absolute bottom-20 right-20 w-96 h-96 bg-gradient-to-br from-amber-400 to-orange-400 rounded-full blur-3xl"></div>
+    <div
+      class="absolute top-20 left-20 w-64 h-64 bg-gradient-to-br from-rose-400 to-orange-400 rounded-full blur-3xl"
+    ></div>
+    <div
+      class="absolute bottom-20 right-20 w-96 h-96 bg-gradient-to-br from-amber-400 to-orange-400 rounded-full blur-3xl"
+    ></div>
   </div>
 
   <div class="max-w-6xl mx-auto relative z-10">
@@ -30,22 +36,39 @@
             routerLink="/children"
             class="font-['DM_Sans',sans-serif] text-sm text-slate-600 hover:text-rose-400 transition-colors font-medium inline-flex items-center gap-2"
           >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M10 19l-7-7m0 0l7-7m-7 7h18"
+              />
             </svg>
             Back to My Children
           </a>
         </div>
 
         <!-- Child Hero Banner -->
-        <div class="bg-gradient-to-r from-rose-400 via-rose-500 to-orange-400 rounded-3xl shadow-2xl p-6 sm:p-8">
+        <div
+          class="bg-gradient-to-r from-rose-400 via-rose-500 to-orange-400 rounded-3xl shadow-2xl p-6 sm:p-8"
+        >
           <div class="flex items-center justify-between gap-4">
             <div class="flex items-center gap-4">
-              <div class="w-16 h-16 sm:w-20 sm:h-20 bg-white rounded-full flex items-center justify-center shadow-lg">
+              <div
+                class="w-16 h-16 sm:w-20 sm:h-20 bg-white rounded-full flex items-center justify-center shadow-lg"
+              >
                 <span class="text-4xl sm:text-5xl">{{ getGenderIcon(child()!.gender) }}</span>
               </div>
               <div>
-                <h1 class="font-['Fredoka',sans-serif] text-2xl sm:text-4xl font-bold text-white mb-1">
+                <h1
+                  class="font-['Fredoka',sans-serif] text-2xl sm:text-4xl font-bold text-white mb-1"
+                >
                   {{ child()!.name }}
                 </h1>
                 <p class="font-['DM_Sans',sans-serif] text-rose-100 text-lg">
@@ -58,8 +81,19 @@
                 [routerLink]="['/children', child()!.id, 'edit']"
                 class="inline-flex items-center gap-2 px-4 py-2 rounded-xl font-['DM_Sans',sans-serif] font-bold text-white border-2 border-white/60 hover:bg-white/20 transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0"
               >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                <svg
+                  class="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                  />
                 </svg>
                 <span class="hidden sm:inline">Edit</span>
               </a>
@@ -91,8 +125,19 @@
               aria-label="View advanced options for this child"
             >
               More tools
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 5l7 7-7 7"
+                />
               </svg>
             </button>
           </div>
@@ -107,8 +152,19 @@
                   role="alert"
                   class="flex items-start gap-3 rounded-2xl border-2 border-amber-200 bg-amber-50 p-4 shadow-sm"
                 >
-                  <svg class="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  <svg
+                    class="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-500"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                    />
                   </svg>
                   <p class="text-sm font-medium text-amber-900">{{ alert.message }}</p>
                 </div>
@@ -150,7 +206,12 @@
                       viewBox="0 0 24 24"
                       aria-hidden="true"
                     >
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M9 5l7 7-7 7"
+                      />
                     </svg>
                   </div>
                 </button>
@@ -180,7 +241,12 @@
                       viewBox="0 0 24 24"
                       aria-hidden="true"
                     >
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M9 5l7 7-7 7"
+                      />
                     </svg>
                   </div>
                 </button>
@@ -218,7 +284,12 @@
                       viewBox="0 0 24 24"
                       aria-hidden="true"
                     >
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M9 5l7 7-7 7"
+                      />
                     </svg>
                   </div>
                 </button>
@@ -229,7 +300,9 @@
 
         <!-- Quick Log (standalone, no section card wrapper) -->
         <div>
-          <h2 class="font-['Fredoka',sans-serif] text-2xl font-bold text-slate-900 mb-4">Quick Log</h2>
+          <h2 class="font-['Fredoka',sans-serif] text-2xl font-bold text-slate-900 mb-4">
+            Quick Log
+          </h2>
           <app-quick-log
             [childId]="childId()!"
             [canEdit]="canAdd()"
@@ -248,7 +321,9 @@
                 aria-label="Loading Today's Summary"
               >
                 <div class="flex flex-col md:flex-row md:divide-x divide-slate-200">
-                  <div class="flex-1 px-6 py-4 flex items-center gap-4 border-b md:border-b-0 border-slate-200">
+                  <div
+                    class="flex-1 px-6 py-4 flex items-center gap-4 border-b md:border-b-0 border-slate-200"
+                  >
                     <div class="w-8 h-8 rounded-full bg-gray-200 animate-pulse"></div>
                     <div class="space-y-1">
                       <div class="h-8 w-12 rounded bg-gray-200 animate-pulse"></div>
@@ -256,7 +331,9 @@
                       <div class="h-3 w-16 rounded bg-gray-200 animate-pulse"></div>
                     </div>
                   </div>
-                  <div class="flex-1 px-6 py-4 flex items-center gap-4 border-b md:border-b-0 border-slate-200">
+                  <div
+                    class="flex-1 px-6 py-4 flex items-center gap-4 border-b md:border-b-0 border-slate-200"
+                  >
                     <div class="w-8 h-8 rounded-full bg-gray-200 animate-pulse"></div>
                     <div class="space-y-1">
                       <div class="h-8 w-12 rounded bg-gray-200 animate-pulse"></div>
@@ -283,8 +360,12 @@
         }
 
         <!-- Log with Details -->
-        <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-6 border-2 border-slate-200">
-          <p class="font-['Fredoka',sans-serif] text-base font-bold text-slate-900 mb-3">Log with details</p>
+        <div
+          class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-6 border-2 border-slate-200"
+        >
+          <p class="font-['Fredoka',sans-serif] text-base font-bold text-slate-900 mb-3">
+            Log with details
+          </p>
           <div class="flex flex-wrap gap-3">
             <button
               (click)="navigateToFeedings()"
@@ -294,7 +375,10 @@
               aria-label="Go to feedings list"
             >
               @if (isNavigatingToFeeding()) {
-                <span class="inline-block w-4 h-4 border-2 border-rose-400 border-t-transparent rounded-full animate-spin" aria-hidden="true"></span>
+                <span
+                  class="inline-block w-4 h-4 border-2 border-rose-400 border-t-transparent rounded-full animate-spin"
+                  aria-hidden="true"
+                ></span>
               } @else {
                 <span aria-hidden="true">🍼</span>
               }
@@ -308,7 +392,10 @@
               aria-label="Go to diapers list"
             >
               @if (isNavigatingToDiaper()) {
-                <span class="inline-block w-4 h-4 border-2 border-orange-400 border-t-transparent rounded-full animate-spin" aria-hidden="true"></span>
+                <span
+                  class="inline-block w-4 h-4 border-2 border-orange-400 border-t-transparent rounded-full animate-spin"
+                  aria-hidden="true"
+                ></span>
               } @else {
                 <span aria-hidden="true">🧷</span>
               }
@@ -322,7 +409,10 @@
               aria-label="Go to naps list"
             >
               @if (isNavigatingToNap()) {
-                <span class="inline-block w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin" aria-hidden="true"></span>
+                <span
+                  class="inline-block w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"
+                  aria-hidden="true"
+                ></span>
               } @else {
                 <span aria-hidden="true">😴</span>
               }
@@ -335,13 +425,11 @@
         @defer (on viewport) {
           <app-dashboard-section-card title="Activity History" borderColor="amber">
             @if (isDetailLoading()) {
-              <div
-                class="space-y-3"
-                aria-busy="true"
-                aria-label="Loading Activity History"
-              >
-                @for (row of [1,2,3,4,5]; track row) {
-                  <div class="h-14 rounded-xl border-l-4 border-l-slate-300 bg-gray-100 flex items-center gap-3 p-3">
+              <div class="space-y-3" aria-busy="true" aria-label="Loading Activity History">
+                @for (row of [1, 2, 3, 4, 5]; track row) {
+                  <div
+                    class="h-14 rounded-xl border-l-4 border-l-slate-300 bg-gray-100 flex items-center gap-3 p-3"
+                  >
                     <div class="w-8 h-8 rounded-full bg-gray-200 animate-pulse"></div>
                     <div class="flex-1 space-y-1">
                       <div class="h-4 w-32 rounded bg-gray-200 animate-pulse"></div>
@@ -417,12 +505,19 @@
                         class="flex items-center gap-3 p-3 rounded-xl border-l-4"
                         [class]="getActivityRowClasses(item.type)"
                       >
-                        <span class="text-2xl" [attr.aria-hidden]="true">{{ getActivityIcon(item.type) }}</span>
+                        <span class="text-2xl" [attr.aria-hidden]="true">{{
+                          getActivityIcon(item.type)
+                        }}</span>
                         <div class="flex-1 min-w-0">
-                          <p class="font-['DM_Sans',sans-serif] text-sm font-semibold text-slate-800 flex items-center gap-2 flex-wrap">
+                          <p
+                            class="font-['DM_Sans',sans-serif] text-sm font-semibold text-slate-800 flex items-center gap-2 flex-wrap"
+                          >
                             {{ getActivityTitle(item) }}
                             @if (isOngoingNap(item)) {
-                              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-800">Ongoing</span>
+                              <span
+                                class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-800"
+                                >Ongoing</span
+                              >
                             }
                           </p>
                           <p class="font-['DM_Sans',sans-serif] text-xs text-slate-500">

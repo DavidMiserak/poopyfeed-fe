@@ -32,11 +32,10 @@ const mockChild: Child = {
   last_diaper_change: '2024-01-15T14:30:00Z',
   last_nap: '2024-01-15T13:00:00Z',
   last_feeding: '2024-01-15T12:00:00Z',
-      custom_bottle_low_oz: null,
-      custom_bottle_mid_oz: null,
-      custom_bottle_high_oz: null,
-        feeding_reminder_interval: null,
-
+  custom_bottle_low_oz: null,
+  custom_bottle_mid_oz: null,
+  custom_bottle_high_oz: null,
+  feeding_reminder_interval: null,
 };
 
 function makeTodayTimestamp(minutesAfterMidnight = 720): string {
@@ -143,7 +142,7 @@ function makeDashboardSummary(
     today?: TodaySummaryData;
     weekly?: WeeklySummaryData;
     unread_count?: number;
-  } = {}
+  } = {},
 ): DashboardSummaryResponse {
   return {
     today: makeTodaySummary(),
@@ -180,7 +179,7 @@ function makePatternAlerts(overrides: Partial<PatternAlertsResponse> = {}): Patt
 function makeTimelineResponse(
   feedings: Feeding[],
   diapers: DiaperChange[],
-  naps: Nap[]
+  naps: Nap[],
 ): TimelineResponse {
   const events: TimelineEvent[] = [
     ...feedings.map((f) => ({
@@ -223,9 +222,7 @@ function makeTimelineResponse(
       is_nap_eligible: null,
     })),
   ];
-  events.sort(
-    (a, b) => new Date(b.at).getTime() - new Date(a.at).getTime()
-  );
+  events.sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime());
   return {
     count: events.length,
     next: null,
@@ -265,9 +262,7 @@ describe('ChildDashboard', () => {
     analyticsService = TestBed.inject(AnalyticsService);
     notificationService = TestBed.inject(NotificationService);
 
-    vi.spyOn(analyticsService, 'getPatternAlerts').mockReturnValue(
-      of(makePatternAlerts())
-    );
+    vi.spyOn(analyticsService, 'getPatternAlerts').mockReturnValue(of(makePatternAlerts()));
   });
 
   function setupWithData(
@@ -283,10 +278,10 @@ describe('ChildDashboard', () => {
 
     vi.spyOn(childrenService, 'get').mockReturnValue(of(mockChild));
     vi.spyOn(analyticsService, 'getTimeline').mockReturnValue(
-      of(makeTimelineResponse(feedings, diapers, naps))
+      of(makeTimelineResponse(feedings, diapers, naps)),
     );
     vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(
-      of(makeDashboardSummary({ today: todaySummary, unread_count: unreadCount }))
+      of(makeDashboardSummary({ today: todaySummary, unread_count: unreadCount })),
     );
 
     fixture = TestBed.createComponent(ChildDashboard);
@@ -314,11 +309,9 @@ describe('ChildDashboard', () => {
     it('should be null before data loads', () => {
       vi.spyOn(childrenService, 'get').mockReturnValue(of(mockChild));
       vi.spyOn(analyticsService, 'getTimeline').mockReturnValue(
-        of(makeTimelineResponse([], [], []))
+        of(makeTimelineResponse([], [], [])),
       );
-vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(
-      of(makeDashboardSummary())
-    );
+      vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(of(makeDashboardSummary()));
 
       fixture = TestBed.createComponent(ChildDashboard);
       component = fixture.componentInstance;
@@ -337,7 +330,7 @@ vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(
 
       vi.spyOn(childrenService, 'get').mockReturnValue(of(mockChild));
       vi.spyOn(analyticsService, 'getTimeline').mockReturnValue(
-        of(makeTimelineResponse([], [], []))
+        of(makeTimelineResponse([], [], [])),
       );
       vi.spyOn(analyticsService, 'getDashboardSummary')
         .mockReturnValueOnce(of(makeDashboardSummary({ today: summary1 })))
@@ -356,18 +349,14 @@ vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(
 
   describe('dashboard batch and notification seed', () => {
     it('should call getDashboardSummary (not getTodaySummary) and seed unread count', () => {
-      const getDashboardSummarySpy = vi.spyOn(
-        analyticsService,
-        'getDashboardSummary'
-      ).mockReturnValue(of(makeDashboardSummary({ unread_count: 5 })));
+      const getDashboardSummarySpy = vi
+        .spyOn(analyticsService, 'getDashboardSummary')
+        .mockReturnValue(of(makeDashboardSummary({ unread_count: 5 })));
       vi.spyOn(childrenService, 'get').mockReturnValue(of(mockChild));
       vi.spyOn(analyticsService, 'getTimeline').mockReturnValue(
-        of(makeTimelineResponse([], [], []))
+        of(makeTimelineResponse([], [], [])),
       );
-      const setUnreadCountFromBatchSpy = vi.spyOn(
-        notificationService,
-        'setUnreadCountFromBatch'
-      );
+      const setUnreadCountFromBatchSpy = vi.spyOn(notificationService, 'setUnreadCountFromBatch');
 
       fixture = TestBed.createComponent(ChildDashboard);
       component = fixture.componentInstance;
@@ -379,14 +368,12 @@ vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(
   });
 
   describe('section skeletons (loading state)', () => {
-    it('should show Today\'s Summary skeleton with aria-busy and aria-label when detail loading', async () => {
+    it("should show Today's Summary skeleton with aria-busy and aria-label when detail loading", async () => {
       vi.spyOn(childrenService, 'get').mockReturnValue(of(mockChild));
       vi.spyOn(analyticsService, 'getTimeline').mockReturnValue(
-        of(makeTimelineResponse([], [], []))
+        of(makeTimelineResponse([], [], [])),
       );
-      vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(
-        NEVER
-      );
+      vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(NEVER);
 
       fixture = TestBed.createComponent(ChildDashboard);
       component = fixture.componentInstance;
@@ -399,9 +386,7 @@ vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(
       fixture.detectChanges();
 
       const compiled = fixture.nativeElement as HTMLElement;
-      const todaySkeleton = compiled.querySelector(
-        '[aria-label="Loading Today\'s Summary"]'
-      );
+      const todaySkeleton = compiled.querySelector('[aria-label="Loading Today\'s Summary"]');
       expect(todaySkeleton).toBeTruthy();
       expect(todaySkeleton?.getAttribute('aria-busy')).toBe('true');
     });
@@ -409,11 +394,9 @@ vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(
     it('should show Recent Activity skeleton with aria-busy and aria-label when detail loading', async () => {
       vi.spyOn(childrenService, 'get').mockReturnValue(of(mockChild));
       vi.spyOn(analyticsService, 'getTimeline').mockReturnValue(
-        of(makeTimelineResponse([], [], []))
+        of(makeTimelineResponse([], [], [])),
       );
-      vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(
-        NEVER
-      );
+      vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(NEVER);
 
       fixture = TestBed.createComponent(ChildDashboard);
       component = fixture.componentInstance;
@@ -426,9 +409,7 @@ vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(
       fixture.detectChanges();
 
       const compiled = fixture.nativeElement as HTMLElement;
-      const activitySkeleton = compiled.querySelector(
-        '[aria-label="Loading Activity History"]'
-      );
+      const activitySkeleton = compiled.querySelector('[aria-label="Loading Activity History"]');
       expect(activitySkeleton).toBeTruthy();
       expect(activitySkeleton?.getAttribute('aria-busy')).toBe('true');
     });
@@ -510,11 +491,11 @@ vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(
       it('should load data with showLoading parameter defaulting to true', () => {
         vi.spyOn(childrenService, 'get').mockReturnValue(of(mockChild));
         vi.spyOn(analyticsService, 'getTimeline').mockReturnValue(
-          of(makeTimelineResponse([], [], []))
+          of(makeTimelineResponse([], [], [])),
         );
-vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(
-      of(makeDashboardSummary())
-    );
+        vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(
+          of(makeDashboardSummary()),
+        );
 
         component.loadDashboardData(1); // showLoading defaults to true
         expect(component.isLoading()).toBe(false); // Loading completes
@@ -524,11 +505,11 @@ vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(
       it('should skip loading indicator when showLoading=false (refresh after quick-log)', () => {
         vi.spyOn(childrenService, 'get').mockReturnValue(of(mockChild));
         vi.spyOn(analyticsService, 'getTimeline').mockReturnValue(
-          of(makeTimelineResponse([], [], []))
+          of(makeTimelineResponse([], [], [])),
         );
-vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(
-      of(makeDashboardSummary())
-    );
+        vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(
+          of(makeDashboardSummary()),
+        );
 
         component.isLoading.set(false); // Not loading initially
         component.loadDashboardData(1, false); // showLoading=false
@@ -543,11 +524,11 @@ vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(
       it('should clear error before loading new data', () => {
         vi.spyOn(childrenService, 'get').mockReturnValue(of(mockChild));
         vi.spyOn(analyticsService, 'getTimeline').mockReturnValue(
-          of(makeTimelineResponse([], [], []))
+          of(makeTimelineResponse([], [], [])),
         );
-vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(
-      of(makeDashboardSummary())
-    );
+        vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(
+          of(makeDashboardSummary()),
+        );
 
         component.error.set('Previous error');
         component.loadDashboardData(1);
@@ -563,14 +544,14 @@ vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(
         // Second load fails
         vi.clearAllMocks();
         vi.spyOn(childrenService, 'get').mockReturnValue(
-          throwError(() => new Error('Temporary error'))
+          throwError(() => new Error('Temporary error')),
         );
         vi.spyOn(analyticsService, 'getTimeline').mockReturnValue(
-          of(makeTimelineResponse([], [], []))
+          of(makeTimelineResponse([], [], [])),
         );
-vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(
-      of(makeDashboardSummary())
-    );
+        vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(
+          of(makeDashboardSummary()),
+        );
 
         component.loadDashboardData(1);
 
@@ -642,14 +623,14 @@ vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(
         // Should be sorted with most recent first
         const timestamps = component.recentActivity().map((a) => a.timestamp);
         const sortedTimestamps = [...timestamps].sort(
-          (a, b) => new Date(b).getTime() - new Date(a).getTime()
+          (a, b) => new Date(b).getTime() - new Date(a).getTime(),
         );
         expect(timestamps).toEqual(sortedTimestamps);
       });
 
       it('should limit visible activity to 10 items when more available', () => {
         const feedings = Array.from({ length: 15 }, (_, i) =>
-          makeFeeding({ id: i, fed_at: makeTodayTimestamp(i * 100) })
+          makeFeeding({ id: i, fed_at: makeTodayTimestamp(i * 100) }),
         );
 
         setupWithData(feedings);
@@ -729,7 +710,7 @@ vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(
       setupWithData();
       const compiled = fixture.nativeElement as HTMLElement;
       const moreButton = compiled.querySelector(
-        'button[aria-label="View advanced options for this child"]'
+        'button[aria-label="View advanced options for this child"]',
       );
       expect(moreButton).toBeTruthy();
     });
@@ -758,43 +739,32 @@ vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(
 
   describe('data loading', () => {
     it('should populate recent activity from timeline (feedings)', () => {
-      const feedings = [
-        makeFeeding({ id: 1 }),
-        makeFeeding({ id: 2 }),
-      ];
+      const feedings = [makeFeeding({ id: 1 }), makeFeeding({ id: 2 })];
       setupWithData(feedings);
 
-      expect(
-        component.recentActivity().filter((a) => a.type === 'feeding')
-      ).toHaveLength(2);
+      expect(component.recentActivity().filter((a) => a.type === 'feeding')).toHaveLength(2);
     });
 
     it('should populate recent activity from timeline (diapers)', () => {
       const diapers = [makeDiaper({ id: 1 })];
       setupWithData([], diapers);
 
-      expect(
-        component.recentActivity().filter((a) => a.type === 'diaper')
-      ).toHaveLength(1);
+      expect(component.recentActivity().filter((a) => a.type === 'diaper')).toHaveLength(1);
     });
 
     it('should populate recent activity from timeline (naps)', () => {
       const naps = [makeNap({ id: 1 }), makeNap({ id: 2 }), makeNap({ id: 3 })];
       setupWithData([], [], naps);
 
-      expect(
-        component.recentActivity().filter((a) => a.type === 'nap')
-      ).toHaveLength(3);
+      expect(component.recentActivity().filter((a) => a.type === 'nap')).toHaveLength(3);
     });
 
     it('should show loading state initially', () => {
       vi.spyOn(childrenService, 'get').mockReturnValue(of(mockChild));
       vi.spyOn(analyticsService, 'getTimeline').mockReturnValue(
-        of(makeTimelineResponse([], [], []))
+        of(makeTimelineResponse([], [], [])),
       );
-vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(
-      of(makeDashboardSummary())
-    );
+      vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(of(makeDashboardSummary()));
 
       fixture = TestBed.createComponent(ChildDashboard);
       component = fixture.componentInstance;
@@ -803,15 +773,11 @@ vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(
     });
 
     it('should handle error from API', () => {
-      vi.spyOn(childrenService, 'get').mockReturnValue(
-        throwError(() => new Error('Not found')),
-      );
+      vi.spyOn(childrenService, 'get').mockReturnValue(throwError(() => new Error('Not found')));
       vi.spyOn(analyticsService, 'getTimeline').mockReturnValue(
-        of(makeTimelineResponse([], [], []))
+        of(makeTimelineResponse([], [], [])),
       );
-vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(
-      of(makeDashboardSummary())
-    );
+      vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(of(makeDashboardSummary()));
 
       fixture = TestBed.createComponent(ChildDashboard);
       component = fixture.componentInstance;
@@ -961,11 +927,11 @@ vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(
 
         vi.spyOn(childrenService, 'get').mockReturnValue(of(mockChild));
         vi.spyOn(analyticsService, 'getTimeline').mockReturnValue(
-          of(makeTimelineResponse(feedingsMock, diapersMock, napsMock))
+          of(makeTimelineResponse(feedingsMock, diapersMock, napsMock)),
         );
-vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(
-      of(makeDashboardSummary())
-    );
+        vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(
+          of(makeDashboardSummary()),
+        );
 
         fixture = TestBed.createComponent(ChildDashboard);
         component = fixture.componentInstance;
@@ -1014,11 +980,11 @@ vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(
           .mockReturnValueOnce(of(child1))
           .mockReturnValueOnce(of(child2));
         vi.spyOn(analyticsService, 'getTimeline').mockReturnValue(
-          of(makeTimelineResponse([], [], []))
+          of(makeTimelineResponse([], [], [])),
         );
-vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(
-      of(makeDashboardSummary())
-    );
+        vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(
+          of(makeDashboardSummary()),
+        );
 
         fixture = TestBed.createComponent(ChildDashboard);
         component = fixture.componentInstance;
@@ -1037,11 +1003,11 @@ vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(
       it('should update childId signal when ngOnInit called with different route param', () => {
         vi.spyOn(childrenService, 'get').mockReturnValue(of(mockChild));
         vi.spyOn(analyticsService, 'getTimeline').mockReturnValue(
-          of(makeTimelineResponse([], [], []))
+          of(makeTimelineResponse([], [], [])),
         );
-vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(
-      of(makeDashboardSummary())
-    );
+        vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(
+          of(makeDashboardSummary()),
+        );
 
         const mockActivatedRoute = TestBed.inject(ActivatedRoute);
         vi.spyOn(mockActivatedRoute.snapshot.paramMap, 'get').mockReturnValue('5');
@@ -1070,9 +1036,7 @@ vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(
 
       it('should handle invalid childId (non-numeric)', () => {
         const mockActivatedRoute = TestBed.inject(ActivatedRoute);
-        vi.spyOn(mockActivatedRoute.snapshot.paramMap, 'get').mockReturnValue(
-          'invalid'
-        );
+        vi.spyOn(mockActivatedRoute.snapshot.paramMap, 'get').mockReturnValue('invalid');
 
         fixture = TestBed.createComponent(ChildDashboard);
         component = fixture.componentInstance;
@@ -1089,31 +1053,25 @@ vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(
 
         vi.spyOn(childrenService, 'get').mockReturnValue(of(mockChild));
         vi.spyOn(analyticsService, 'getTimeline')
-          .mockReturnValueOnce(
-            of(makeTimelineResponse([oldFeeding], [], []))
-          )
-          .mockReturnValueOnce(
-            of(makeTimelineResponse([newFeeding], [], []))
-          );
-vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(
-      of(makeDashboardSummary())
-    );
+          .mockReturnValueOnce(of(makeTimelineResponse([oldFeeding], [], [])))
+          .mockReturnValueOnce(of(makeTimelineResponse([newFeeding], [], [])));
+        vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(
+          of(makeDashboardSummary()),
+        );
 
         fixture = TestBed.createComponent(ChildDashboard);
         component = fixture.componentInstance;
 
         // First load
         component.loadDashboardData(1, true);
-        const firstFeeding = component
-          .recentActivity()
-          .find((a) => a.type === 'feeding')?.data as Feeding;
+        const firstFeeding = component.recentActivity().find((a) => a.type === 'feeding')
+          ?.data as Feeding;
         expect(firstFeeding?.amount_oz).toBe(2);
 
         // Second load - should update to new data
         component.loadDashboardData(1, true);
-        const secondFeeding = component
-          .recentActivity()
-          .find((a) => a.type === 'feeding')?.data as Feeding;
+        const secondFeeding = component.recentActivity().find((a) => a.type === 'feeding')
+          ?.data as Feeding;
         expect(secondFeeding?.amount_oz).toBe(4);
       });
 
@@ -1123,15 +1081,11 @@ vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(
 
         vi.spyOn(childrenService, 'get').mockReturnValue(of(mockChild));
         vi.spyOn(analyticsService, 'getTimeline')
-          .mockReturnValueOnce(
-            of(makeTimelineResponse([feeding1], [], []))
-          )
-          .mockReturnValueOnce(
-            of(makeTimelineResponse([feeding2], [], []))
-          );
-vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(
-      of(makeDashboardSummary())
-    );
+          .mockReturnValueOnce(of(makeTimelineResponse([feeding1], [], [])))
+          .mockReturnValueOnce(of(makeTimelineResponse([feeding2], [], [])));
+        vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(
+          of(makeDashboardSummary()),
+        );
 
         // Create first instance
         const fixture1 = TestBed.createComponent(ChildDashboard);
@@ -1144,12 +1098,8 @@ vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(
         component2.loadDashboardData(1);
 
         // Verify each instance has its own data (recent activity from timeline)
-        const act1 = component1
-          .recentActivity()
-          .find((a) => a.type === 'feeding');
-        const act2 = component2
-          .recentActivity()
-          .find((a) => a.type === 'feeding');
+        const act1 = component1.recentActivity().find((a) => a.type === 'feeding');
+        const act2 = component2.recentActivity().find((a) => a.type === 'feeding');
         expect(act1?.id).toBe(1);
         expect(act2?.id).toBe(2);
       });
@@ -1164,11 +1114,11 @@ vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(
           .mockReturnValueOnce(of(ownerChild))
           .mockReturnValueOnce(of(caregiverChild));
         vi.spyOn(analyticsService, 'getTimeline').mockReturnValue(
-          of(makeTimelineResponse([], [], []))
+          of(makeTimelineResponse([], [], [])),
         );
-vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(
-      of(makeDashboardSummary())
-    );
+        vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(
+          of(makeDashboardSummary()),
+        );
 
         fixture = TestBed.createComponent(ChildDashboard);
         component = fixture.componentInstance;
@@ -1192,15 +1142,11 @@ vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(
 
         vi.spyOn(childrenService, 'get').mockReturnValue(of(mockChild));
         vi.spyOn(analyticsService, 'getTimeline')
-          .mockReturnValueOnce(
-            of(makeTimelineResponse([feedingBefore], [], []))
-          )
-          .mockReturnValueOnce(
-            of(makeTimelineResponse([newFeeding, feedingBefore], [], []))
-          );
-vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(
-      of(makeDashboardSummary())
-    );
+          .mockReturnValueOnce(of(makeTimelineResponse([feedingBefore], [], [])))
+          .mockReturnValueOnce(of(makeTimelineResponse([newFeeding, feedingBefore], [], [])));
+        vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(
+          of(makeDashboardSummary()),
+        );
 
         fixture = TestBed.createComponent(ChildDashboard);
         component = fixture.componentInstance;
@@ -1211,9 +1157,7 @@ vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(
 
         // Should load new data without showing loading spinner (recent activity from timeline)
         expect(component.recentActivity().length).toBeGreaterThanOrEqual(2);
-        const first = component
-          .recentActivity()
-          .find((a) => a.type === 'feeding');
+        const first = component.recentActivity().find((a) => a.type === 'feeding');
         expect(first?.id).toBe(2);
       });
 
@@ -1341,16 +1285,18 @@ vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(
 
     it('should render feeding alert card when feeding alert is active', async () => {
       (analyticsService.getPatternAlerts as ReturnType<typeof vi.fn>).mockReturnValue(
-        of(makePatternAlerts({
-          feeding: {
-            alert: true,
-            message: "Baby usually feeds every 3h — it's been 3h 25m",
-            avg_interval_minutes: 180,
-            minutes_since_last: 205,
-            last_fed_at: makeTodayTimestamp(),
-            data_points: 15,
-          },
-        }))
+        of(
+          makePatternAlerts({
+            feeding: {
+              alert: true,
+              message: "Baby usually feeds every 3h — it's been 3h 25m",
+              avg_interval_minutes: 180,
+              minutes_since_last: 205,
+              last_fed_at: makeTodayTimestamp(),
+              data_points: 15,
+            },
+          }),
+        ),
       );
       setupWithData();
       fixture.detectChanges();
@@ -1364,21 +1310,23 @@ vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(
       expect(alertRegion).toBeTruthy();
       const alerts = compiled.querySelectorAll('[role="alert"]');
       expect(alerts.length).toBe(1);
-      expect(alerts[0].textContent).toContain("Baby usually feeds every 3h");
+      expect(alerts[0].textContent).toContain('Baby usually feeds every 3h');
     });
 
     it('should render nap alert card when nap alert is active', async () => {
       (analyticsService.getPatternAlerts as ReturnType<typeof vi.fn>).mockReturnValue(
-        of(makePatternAlerts({
-          nap: {
-            alert: true,
-            message: "Baby usually naps after ~2h awake — awake for 2h 15m",
-            avg_wake_window_minutes: 120,
-            minutes_awake: 135,
-            last_nap_ended_at: makeTodayTimestamp(),
-            data_points: 8,
-          },
-        }))
+        of(
+          makePatternAlerts({
+            nap: {
+              alert: true,
+              message: 'Baby usually naps after ~2h awake — awake for 2h 15m',
+              avg_wake_window_minutes: 120,
+              minutes_awake: 135,
+              last_nap_ended_at: makeTodayTimestamp(),
+              data_points: 8,
+            },
+          }),
+        ),
       );
       setupWithData();
       fixture.detectChanges();
@@ -1390,29 +1338,31 @@ vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(
       const compiled = fixture.nativeElement as HTMLElement;
       const alerts = compiled.querySelectorAll('[role="alert"]');
       expect(alerts.length).toBe(1);
-      expect(alerts[0].textContent).toContain("Baby usually naps after");
+      expect(alerts[0].textContent).toContain('Baby usually naps after');
     });
 
     it('should render both alert cards when both are active', async () => {
       (analyticsService.getPatternAlerts as ReturnType<typeof vi.fn>).mockReturnValue(
-        of(makePatternAlerts({
-          feeding: {
-            alert: true,
-            message: "Feeding overdue",
-            avg_interval_minutes: 180,
-            minutes_since_last: 205,
-            last_fed_at: makeTodayTimestamp(),
-            data_points: 15,
-          },
-          nap: {
-            alert: true,
-            message: "Nap overdue",
-            avg_wake_window_minutes: 120,
-            minutes_awake: 135,
-            last_nap_ended_at: makeTodayTimestamp(),
-            data_points: 8,
-          },
-        }))
+        of(
+          makePatternAlerts({
+            feeding: {
+              alert: true,
+              message: 'Feeding overdue',
+              avg_interval_minutes: 180,
+              minutes_since_last: 205,
+              last_fed_at: makeTodayTimestamp(),
+              data_points: 15,
+            },
+            nap: {
+              alert: true,
+              message: 'Nap overdue',
+              avg_wake_window_minutes: 120,
+              minutes_awake: 135,
+              last_nap_ended_at: makeTodayTimestamp(),
+              data_points: 8,
+            },
+          }),
+        ),
       );
       setupWithData();
       fixture.detectChanges();
@@ -1428,16 +1378,18 @@ vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(
 
     it('should not render alerts when alert=true but message is null', async () => {
       (analyticsService.getPatternAlerts as ReturnType<typeof vi.fn>).mockReturnValue(
-        of(makePatternAlerts({
-          feeding: {
-            alert: true,
-            message: null,
-            avg_interval_minutes: 180,
-            minutes_since_last: 205,
-            last_fed_at: makeTodayTimestamp(),
-            data_points: 15,
-          },
-        }))
+        of(
+          makePatternAlerts({
+            feeding: {
+              alert: true,
+              message: null,
+              avg_interval_minutes: 180,
+              minutes_since_last: 205,
+              last_fed_at: makeTodayTimestamp(),
+              data_points: 15,
+            },
+          }),
+        ),
       );
       setupWithData();
       fixture.detectChanges();
@@ -1453,7 +1405,7 @@ vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(
 
     it('should silently handle pattern alerts API error', () => {
       (analyticsService.getPatternAlerts as ReturnType<typeof vi.fn>).mockReturnValue(
-        throwError(() => new Error('Pattern alerts failed'))
+        throwError(() => new Error('Pattern alerts failed')),
       );
       setupWithData();
       fixture.detectChanges();
@@ -1468,16 +1420,20 @@ vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(
       setupWithData();
 
       alertsSpy.mockClear();
-      alertsSpy.mockReturnValue(of(makePatternAlerts({
-        feeding: {
-          alert: true,
-          message: "Feeding overdue after quick log",
-          avg_interval_minutes: 180,
-          minutes_since_last: 205,
-          last_fed_at: makeTodayTimestamp(),
-          data_points: 15,
-        },
-      })));
+      alertsSpy.mockReturnValue(
+        of(
+          makePatternAlerts({
+            feeding: {
+              alert: true,
+              message: 'Feeding overdue after quick log',
+              avg_interval_minutes: 180,
+              minutes_since_last: 205,
+              last_fed_at: makeTodayTimestamp(),
+              data_points: 15,
+            },
+          }),
+        ),
+      );
 
       component.onQuickLogged();
       fixture.detectChanges();
@@ -1490,16 +1446,18 @@ vi.spyOn(analyticsService, 'getDashboardSummary').mockReturnValue(
       setupWithData();
       expect(component.activeAlerts()).toEqual([]);
 
-      component.patternAlerts.set(makePatternAlerts({
-        feeding: {
-          alert: true,
-          message: "Feeding alert message",
-          avg_interval_minutes: 180,
-          minutes_since_last: 205,
-          last_fed_at: makeTodayTimestamp(),
-          data_points: 15,
-        },
-      }));
+      component.patternAlerts.set(
+        makePatternAlerts({
+          feeding: {
+            alert: true,
+            message: 'Feeding alert message',
+            avg_interval_minutes: 180,
+            minutes_since_last: 205,
+            last_fed_at: makeTodayTimestamp(),
+            data_points: 15,
+          },
+        }),
+      );
 
       expect(component.activeAlerts()).toEqual([
         { key: 'feeding', message: 'Feeding alert message' },

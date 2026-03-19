@@ -57,29 +57,27 @@ export class ResetPassword {
     this.isSubmitting.set(true);
     this.error.set(null);
 
-    this.authService
-      .resetPassword({ key: this.key as string, password })
-      .subscribe({
-        next: () => {
-          // After resetting password, load profile and navigate to children
-          this.accountService.getProfile().subscribe({
-            next: () => {
-              this.isSubmitting.set(false);
-              this.toast.success('Password reset successfully');
-              this.router.navigate(['/children']);
-            },
-            error: () => {
-              this.isSubmitting.set(false);
-              this.toast.success('Password reset successfully');
-              this.router.navigate(['/children']);
-            },
-          });
-        },
-        error: (err: Error) => {
-          this.isSubmitting.set(false);
-          this.error.set(err.message);
-          this.toast.error(err.message);
-        },
-      });
+    this.authService.resetPassword({ key: this.key as string, password }).subscribe({
+      next: () => {
+        // After resetting password, load profile and navigate to children
+        this.accountService.getProfile().subscribe({
+          next: () => {
+            this.isSubmitting.set(false);
+            this.toast.success('Password reset successfully');
+            this.router.navigate(['/children']);
+          },
+          error: () => {
+            this.isSubmitting.set(false);
+            this.toast.success('Password reset successfully');
+            this.router.navigate(['/children']);
+          },
+        });
+      },
+      error: (err: Error) => {
+        this.isSubmitting.set(false);
+        this.error.set(err.message);
+        this.toast.error(err.message);
+      },
+    });
   }
 }

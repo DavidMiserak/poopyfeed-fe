@@ -31,12 +31,7 @@
  * Style: nap-form.css
  */
 import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
-import {
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { NapsService } from '../../../services/naps.service';
 import { ChildrenService } from '../../../services/children.service';
@@ -56,10 +51,7 @@ import { ActionButtonGroupComponent } from '../../../components/action-button-gr
   styleUrl: './nap-form.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class NapForm
-  extends TrackingFormBase<Nap, NapCreate, NapsService>
-  implements OnInit
-{
+export class NapForm extends TrackingFormBase<Nap, NapCreate, NapsService> implements OnInit {
   /** Required injections for base class */
   protected router = inject(Router);
   protected route = inject(ActivatedRoute);
@@ -96,9 +88,7 @@ export class NapForm
   protected form = new FormGroup({
     napped_at: new FormControl('', [Validators.required, noFutureDateTime(this.datetimeService)]),
     ended_at: new FormControl('', [noFutureDateTime(this.datetimeService)]),
-    notes: new FormControl('', [
-      Validators.maxLength(NAP_VALIDATION.MAX_NOTES_LENGTH),
-    ]),
+    notes: new FormControl('', [Validators.maxLength(NAP_VALIDATION.MAX_NOTES_LENGTH)]),
   });
 
   /** Base class metadata */

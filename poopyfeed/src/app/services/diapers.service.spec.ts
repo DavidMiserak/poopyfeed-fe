@@ -3,17 +3,10 @@
  */
 
 import { TestBed } from '@angular/core/testing';
-import {
-  HttpTestingController,
-  provideHttpClientTesting,
-} from '@angular/common/http/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { DiapersService } from './diapers.service';
-import {
-  DiaperChange,
-  DiaperChangeCreate,
-  DiaperChangeUpdate,
-} from '../models/diaper.model';
+import { DiaperChange, DiaperChangeCreate, DiaperChangeUpdate } from '../models/diaper.model';
 import { SwCacheService } from './sw-cache.service';
 
 describe('DiapersService', () => {
@@ -51,11 +44,7 @@ describe('DiapersService', () => {
     updated_at: '2024-01-15T12:00:00Z',
   };
 
-  const mockDiapers: DiaperChange[] = [
-    mockWetDiaper,
-    mockDirtyDiaper,
-    mockBothDiaper,
-  ];
+  const mockDiapers: DiaperChange[] = [mockWetDiaper, mockDirtyDiaper, mockBothDiaper];
 
   beforeEach(async () => {
     swCache = { evictReadonlyListCaches: vi.fn() };
@@ -92,7 +81,7 @@ describe('DiapersService', () => {
       const req = httpMock.expectOne(
         (r) =>
           r.url.startsWith('/api/v1/children/1/diapers/') &&
-          (r.method !== 'GET' || r.params.get('page') === '1')
+          (r.method !== 'GET' || r.params.get('page') === '1'),
       );
       expect(req.request.method).toBe('GET');
       req.flush({ count: mockDiapers.length, next: null, previous: null, results: mockDiapers });
@@ -108,7 +97,7 @@ describe('DiapersService', () => {
       const req = httpMock.expectOne(
         (r) =>
           r.url.startsWith('/api/v1/children/1/diapers/') &&
-          (r.method !== 'GET' || r.params.get('page') === '1')
+          (r.method !== 'GET' || r.params.get('page') === '1'),
       );
       req.flush({ count: 0, next: null, previous: null, results: [] });
     });
@@ -131,7 +120,7 @@ describe('DiapersService', () => {
           r.params.get('page') === '1' &&
           r.params.get('changed_at__gte') === filters.dateFrom &&
           r.params.get('changed_at__lt') === filters.dateTo &&
-          r.params.get('change_type') === filters.change_type
+          r.params.get('change_type') === filters.change_type,
       );
       expect(req.request.method).toBe('GET');
       req.flush({ count: mockDiapers.length, next: null, previous: null, results: mockDiapers });
@@ -150,7 +139,7 @@ describe('DiapersService', () => {
       const req = httpMock.expectOne(
         (r) =>
           r.url.startsWith('/api/v1/children/1/diapers/') &&
-          (r.method !== 'GET' || r.params.get('page') === '1')
+          (r.method !== 'GET' || r.params.get('page') === '1'),
       );
       req.flush(null, { status: 401, statusText: 'Unauthorized' });
 
@@ -170,7 +159,7 @@ describe('DiapersService', () => {
       const req = httpMock.expectOne(
         (r) =>
           r.url.startsWith('/api/v1/children/1/diapers/') &&
-          (r.method !== 'GET' || r.params.get('page') === '1')
+          (r.method !== 'GET' || r.params.get('page') === '1'),
       );
       req.flush(null, { status: 403, statusText: 'Forbidden' });
 
@@ -190,7 +179,7 @@ describe('DiapersService', () => {
       const req = httpMock.expectOne(
         (r) =>
           r.url.startsWith('/api/v1/children/999/diapers/') &&
-          (r.method !== 'GET' || r.params.get('page') === '1')
+          (r.method !== 'GET' || r.params.get('page') === '1'),
       );
       req.flush(null, { status: 404, statusText: 'Not Found' });
 
@@ -210,7 +199,7 @@ describe('DiapersService', () => {
       const req = httpMock.expectOne(
         (r) =>
           r.url.startsWith('/api/v1/children/1/diapers/') &&
-          (r.method !== 'GET' || r.params.get('page') === '1')
+          (r.method !== 'GET' || r.params.get('page') === '1'),
       );
       req.flush(null, { status: 500, statusText: 'Internal Server Error' });
 
@@ -266,7 +255,6 @@ describe('DiapersService', () => {
 
   describe('create', () => {
     const createWetData: DiaperChangeCreate = {
-
       change_type: 'wet',
       changed_at: '2024-01-15T13:00:00Z',
       notes: 'Afternoon wet diaper',
@@ -281,7 +269,6 @@ describe('DiapersService', () => {
     };
 
     const createDirtyData: DiaperChangeCreate = {
-
       change_type: 'dirty',
       changed_at: '2024-01-15T14:00:00Z',
       notes: 'Afternoon poop',
@@ -296,7 +283,6 @@ describe('DiapersService', () => {
     };
 
     const createBothData: DiaperChangeCreate = {
-
       change_type: 'both',
       changed_at: '2024-01-15T15:00:00Z',
       notes: 'Both wet and dirty',
@@ -320,7 +306,7 @@ describe('DiapersService', () => {
       const req = httpMock.expectOne(
         (r) =>
           r.url.startsWith('/api/v1/children/1/diapers/') &&
-          (r.method !== 'GET' || r.params.get('page') === '1')
+          (r.method !== 'GET' || r.params.get('page') === '1'),
       );
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual(createWetData);
@@ -338,7 +324,7 @@ describe('DiapersService', () => {
       const req = httpMock.expectOne(
         (r) =>
           r.url.startsWith('/api/v1/children/1/diapers/') &&
-          (r.method !== 'GET' || r.params.get('page') === '1')
+          (r.method !== 'GET' || r.params.get('page') === '1'),
       );
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual(createDirtyData);
@@ -355,7 +341,7 @@ describe('DiapersService', () => {
       const req = httpMock.expectOne(
         (r) =>
           r.url.startsWith('/api/v1/children/1/diapers/') &&
-          (r.method !== 'GET' || r.params.get('page') === '1')
+          (r.method !== 'GET' || r.params.get('page') === '1'),
       );
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual(createBothData);
@@ -376,11 +362,11 @@ describe('DiapersService', () => {
       const req = httpMock.expectOne(
         (r) =>
           r.url.startsWith('/api/v1/children/1/diapers/') &&
-          (r.method !== 'GET' || r.params.get('page') === '1')
+          (r.method !== 'GET' || r.params.get('page') === '1'),
       );
       req.flush(
         { change_type: ['This field is required'] },
-        { status: 400, statusText: 'Bad Request' }
+        { status: 400, statusText: 'Bad Request' },
       );
 
       expect(errorCaught).toBe(true);
@@ -399,11 +385,11 @@ describe('DiapersService', () => {
       const req = httpMock.expectOne(
         (r) =>
           r.url.startsWith('/api/v1/children/1/diapers/') &&
-          (r.method !== 'GET' || r.params.get('page') === '1')
+          (r.method !== 'GET' || r.params.get('page') === '1'),
       );
       req.flush(
         { non_field_errors: ['Invalid diaper change data'] },
-        { status: 400, statusText: 'Bad Request' }
+        { status: 400, statusText: 'Bad Request' },
       );
 
       expect(errorCaught).toBe(true);
@@ -422,7 +408,7 @@ describe('DiapersService', () => {
       const req = httpMock.expectOne(
         (r) =>
           r.url.startsWith('/api/v1/children/1/diapers/') &&
-          (r.method !== 'GET' || r.params.get('page') === '1')
+          (r.method !== 'GET' || r.params.get('page') === '1'),
       );
       req.flush(null, { status: 403, statusText: 'Forbidden' });
 
@@ -503,7 +489,7 @@ describe('DiapersService', () => {
       const req = httpMock.expectOne('/api/v1/children/1/diapers/1/');
       req.flush(
         { change_type: ['Invalid change type'] },
-        { status: 400, statusText: 'Bad Request' }
+        { status: 400, statusText: 'Bad Request' },
       );
 
       expect(errorCaught).toBe(true);
@@ -582,10 +568,7 @@ describe('DiapersService', () => {
       });
 
       const req = httpMock.expectOne('/api/v1/children/1/diapers/1/');
-      req.flush(
-        { detail: 'Custom error detail' },
-        { status: 400, statusText: 'Bad Request' }
-      );
+      req.flush({ detail: 'Custom error detail' }, { status: 400, statusText: 'Bad Request' });
 
       expect(errorCaught).toBe(true);
     });
@@ -637,7 +620,7 @@ describe('DiapersService', () => {
       const req = httpMock.expectOne(
         (r) =>
           r.url.startsWith('/api/v1/children/1/diapers/') &&
-          (r.method !== 'GET' || r.params.get('page') === '1')
+          (r.method !== 'GET' || r.params.get('page') === '1'),
       );
       req.flush({}, { status: 400, statusText: 'Bad Request' });
 
@@ -674,10 +657,10 @@ describe('DiapersService', () => {
         });
 
         const req = httpMock.expectOne(
-        (r) =>
-          r.url.startsWith('/api/v1/children/1/diapers/') &&
-          (r.method !== 'GET' || r.params.get('page') === '1')
-      );
+          (r) =>
+            r.url.startsWith('/api/v1/children/1/diapers/') &&
+            (r.method !== 'GET' || r.params.get('page') === '1'),
+        );
         req.flush(null, { status: 503, statusText: 'Service Unavailable' });
 
         expect(errorCaught).toBe(true);
@@ -699,10 +682,10 @@ describe('DiapersService', () => {
         });
 
         const req = httpMock.expectOne(
-        (r) =>
-          r.url.startsWith('/api/v1/children/1/diapers/') &&
-          (r.method !== 'GET' || r.params.get('page') === '1')
-      );
+          (r) =>
+            r.url.startsWith('/api/v1/children/1/diapers/') &&
+            (r.method !== 'GET' || r.params.get('page') === '1'),
+        );
         req.flush(null, { status: 503, statusText: 'Service Unavailable' });
 
         expect(errorCaught).toBe(true);
@@ -757,10 +740,10 @@ describe('DiapersService', () => {
         });
 
         const req = httpMock.expectOne(
-        (r) =>
-          r.url.startsWith('/api/v1/children/1/diapers/') &&
-          (r.method !== 'GET' || r.params.get('page') === '1')
-      );
+          (r) =>
+            r.url.startsWith('/api/v1/children/1/diapers/') &&
+            (r.method !== 'GET' || r.params.get('page') === '1'),
+        );
         req.flush(null, { status: 504, statusText: 'Gateway Timeout' });
 
         expect(errorCaught).toBe(true);
@@ -782,10 +765,10 @@ describe('DiapersService', () => {
         });
 
         const req = httpMock.expectOne(
-        (r) =>
-          r.url.startsWith('/api/v1/children/1/diapers/') &&
-          (r.method !== 'GET' || r.params.get('page') === '1')
-      );
+          (r) =>
+            r.url.startsWith('/api/v1/children/1/diapers/') &&
+            (r.method !== 'GET' || r.params.get('page') === '1'),
+        );
         req.flush(null, { status: 504, statusText: 'Gateway Timeout' });
 
         expect(errorCaught).toBe(true);
@@ -809,10 +792,10 @@ describe('DiapersService', () => {
         });
 
         const req = httpMock.expectOne(
-        (r) =>
-          r.url.startsWith('/api/v1/children/1/diapers/') &&
-          (r.method !== 'GET' || r.params.get('page') === '1')
-      );
+          (r) =>
+            r.url.startsWith('/api/v1/children/1/diapers/') &&
+            (r.method !== 'GET' || r.params.get('page') === '1'),
+        );
         req.flush(null, { status: 507, statusText: 'Insufficient Storage' });
 
         expect(errorCaught).toBe(true);
@@ -836,10 +819,10 @@ describe('DiapersService', () => {
         });
 
         const req = httpMock.expectOne(
-        (r) =>
-          r.url.startsWith('/api/v1/children/1/diapers/') &&
-          (r.method !== 'GET' || r.params.get('page') === '1')
-      );
+          (r) =>
+            r.url.startsWith('/api/v1/children/1/diapers/') &&
+            (r.method !== 'GET' || r.params.get('page') === '1'),
+        );
         req.flush({ detail: 'Duplicate entry' }, { status: 409, statusText: 'Conflict' });
 
         expect(errorCaught).toBe(true);
@@ -878,10 +861,10 @@ describe('DiapersService', () => {
         });
 
         const req = httpMock.expectOne(
-        (r) =>
-          r.url.startsWith('/api/v1/children/1/diapers/') &&
-          (r.method !== 'GET' || r.params.get('page') === '1')
-      );
+          (r) =>
+            r.url.startsWith('/api/v1/children/1/diapers/') &&
+            (r.method !== 'GET' || r.params.get('page') === '1'),
+        );
         req.flush(null, { status: 429, statusText: 'Too Many Requests' });
 
         expect(errorCaught).toBe(true);
@@ -903,10 +886,10 @@ describe('DiapersService', () => {
         });
 
         const req = httpMock.expectOne(
-        (r) =>
-          r.url.startsWith('/api/v1/children/1/diapers/') &&
-          (r.method !== 'GET' || r.params.get('page') === '1')
-      );
+          (r) =>
+            r.url.startsWith('/api/v1/children/1/diapers/') &&
+            (r.method !== 'GET' || r.params.get('page') === '1'),
+        );
         req.flush(null, { status: 429, statusText: 'Too Many Requests' });
 
         expect(errorCaught).toBe(true);
@@ -930,10 +913,10 @@ describe('DiapersService', () => {
         });
 
         const req = httpMock.expectOne(
-        (r) =>
-          r.url.startsWith('/api/v1/children/1/diapers/') &&
-          (r.method !== 'GET' || r.params.get('page') === '1')
-      );
+          (r) =>
+            r.url.startsWith('/api/v1/children/1/diapers/') &&
+            (r.method !== 'GET' || r.params.get('page') === '1'),
+        );
         req.flush(null, { status: 401, statusText: 'Unauthorized' });
 
         expect(errorCaught).toBe(true);
@@ -992,14 +975,14 @@ describe('DiapersService', () => {
       const req = httpMock.expectOne(
         (r) =>
           r.url.startsWith('/api/v1/children/1/diapers/') &&
-          (r.method !== 'GET' || r.params.get('page') === '1')
+          (r.method !== 'GET' || r.params.get('page') === '1'),
       );
       req.flush(
         {
           change_type: ['Invalid choice'],
           changed_at: ['Invalid format'],
         },
-        { status: 400, statusText: 'Bad Request' }
+        { status: 400, statusText: 'Bad Request' },
       );
 
       expect(errorCaught).toBe(true);
@@ -1023,14 +1006,14 @@ describe('DiapersService', () => {
       const req = httpMock.expectOne(
         (r) =>
           r.url.startsWith('/api/v1/children/1/diapers/') &&
-          (r.method !== 'GET' || r.params.get('page') === '1')
+          (r.method !== 'GET' || r.params.get('page') === '1'),
       );
       req.flush(
         {
           non_field_errors: ['Invalid diaper state'],
           change_type: ['Invalid choice'],
         },
-        { status: 400, statusText: 'Bad Request' }
+        { status: 400, statusText: 'Bad Request' },
       );
 
       expect(errorCaught).toBe(true);
@@ -1050,7 +1033,7 @@ describe('DiapersService', () => {
       const req = httpMock.expectOne(
         (r) =>
           r.url.startsWith('/api/v1/children/1/diapers/') &&
-          (r.method !== 'GET' || r.params.get('page') === '1')
+          (r.method !== 'GET' || r.params.get('page') === '1'),
       );
       req.flush(null, { status: 500, statusText: 'Internal Server Error' });
 
@@ -1074,7 +1057,7 @@ describe('DiapersService', () => {
       const req = httpMock.expectOne(
         (r) =>
           r.url.startsWith('/api/v1/children/1/diapers/') &&
-          (r.method !== 'GET' || r.params.get('page') === '1')
+          (r.method !== 'GET' || r.params.get('page') === '1'),
       );
       req.flush(null, { status: 500, statusText: 'Internal Server Error' });
 
@@ -1151,7 +1134,7 @@ describe('DiapersService', () => {
         (r) =>
           r.method === 'GET' &&
           r.url.startsWith('/api/v1/children/1/diapers/') &&
-          r.params.get('page') === '1'
+          r.params.get('page') === '1',
       );
       const deleteReq = httpMock.expectOne('/api/v1/children/1/diapers/1/');
 
@@ -1188,14 +1171,14 @@ describe('DiapersService', () => {
       const req1 = httpMock.expectOne(
         (r) =>
           r.url.startsWith('/api/v1/children/1/diapers/') &&
-          (r.method !== 'GET' || r.params.get('page') === '1')
+          (r.method !== 'GET' || r.params.get('page') === '1'),
       );
       req1.flush(null, { status: 503, statusText: 'Service Unavailable' });
 
       const req2 = httpMock.expectOne(
         (r) =>
           r.url.startsWith('/api/v1/children/1/diapers/') &&
-          (r.method !== 'GET' || r.params.get('page') === '1')
+          (r.method !== 'GET' || r.params.get('page') === '1'),
       );
       const createdDiaper: DiaperChange = {
         id: 4,
@@ -1251,7 +1234,7 @@ describe('DiapersService', () => {
       const req = httpMock.expectOne(
         (r) =>
           r.url.startsWith('/api/v1/children/1/diapers/') &&
-          (r.method !== 'GET' || r.params.get('page') === '1')
+          (r.method !== 'GET' || r.params.get('page') === '1'),
       );
       req.error(new ProgressEvent('timeout'));
 
@@ -1276,7 +1259,7 @@ describe('DiapersService', () => {
       const req = httpMock.expectOne(
         (r) =>
           r.url.startsWith('/api/v1/children/1/diapers/') &&
-          (r.method !== 'GET' || r.params.get('page') === '1')
+          (r.method !== 'GET' || r.params.get('page') === '1'),
       );
       req.error(new ProgressEvent('CORS error'));
 
@@ -1318,7 +1301,7 @@ describe('DiapersService', () => {
       const req = httpMock.expectOne(
         (r) =>
           r.url.startsWith('/api/v1/children/1/diapers/') &&
-          (r.method !== 'GET' || r.params.get('page') === '1')
+          (r.method !== 'GET' || r.params.get('page') === '1'),
       );
       req.flush('Unexpected error occurred', { status: 500, statusText: 'Internal Server Error' });
 
@@ -1343,7 +1326,7 @@ describe('DiapersService', () => {
       const req = httpMock.expectOne(
         (r) =>
           r.url.startsWith('/api/v1/children/1/diapers/') &&
-          (r.method !== 'GET' || r.params.get('page') === '1')
+          (r.method !== 'GET' || r.params.get('page') === '1'),
       );
       req.flush(['Error 1', 'Error 2'], { status: 400, statusText: 'Bad Request' });
 

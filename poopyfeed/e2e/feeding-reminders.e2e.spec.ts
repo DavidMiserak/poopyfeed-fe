@@ -38,12 +38,12 @@ test.describe('Feeding Reminders', () => {
     const childId = await createChildAndGetId(page, 'Visible');
 
     await page.goto(`/children/${childId}/edit`);
-    await expect(page.getByRole('heading', { name: 'Edit Baby' })).toBeVisible({ timeout: E2E_TIMEOUT });
+    await expect(page.getByRole('heading', { name: 'Edit Baby' })).toBeVisible({
+      timeout: E2E_TIMEOUT,
+    });
 
     // Advanced settings panel is always visible on edit form
-    await expect(
-      page.locator('#advanced-settings-panel')
-    ).toBeVisible({ timeout: E2E_TIMEOUT });
+    await expect(page.locator('#advanced-settings-panel')).toBeVisible({ timeout: E2E_TIMEOUT });
 
     // Fieldset should be rendered inside advanced settings
     const remindersGroup = page.getByRole('group', { name: /Feeding Reminders/ });
@@ -78,7 +78,9 @@ test.describe('Feeding Reminders', () => {
     await expect(page).toHaveURL(/\/children$/, { timeout: E2E_TIMEOUT });
   });
 
-  test('owner can clear reminder interval to Off and form submits successfully', async ({ page }) => {
+  test('owner can clear reminder interval to Off and form submits successfully', async ({
+    page,
+  }) => {
     const childId = await createChildAndGetId(page, 'ClearInterval');
 
     await page.goto(`/children/${childId}/edit`);

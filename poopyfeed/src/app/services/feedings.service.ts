@@ -17,16 +17,8 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { ErrorHandler } from './error.utils';
 import { Observable, tap, catchError, throwError, map } from 'rxjs';
 import { SwCacheService } from './sw-cache.service';
-import {
-  Feeding,
-  FeedingCreate,
-  FeedingUpdate,
-} from '../models/feeding.model';
-import {
-  PaginatedResponse,
-  PaginationMeta,
-  DEFAULT_PAGE_SIZE,
-} from '../models/pagination.model';
+import { Feeding, FeedingCreate, FeedingUpdate } from '../models/feeding.model';
+import { PaginatedResponse, PaginationMeta, DEFAULT_PAGE_SIZE } from '../models/pagination.model';
 
 @Injectable({
   providedIn: 'root',
@@ -94,7 +86,7 @@ export class FeedingsService {
       dateTo?: string;
       feeding_type?: string;
     },
-    page = 1
+    page = 1,
   ): Observable<Feeding[]> {
     let params = new HttpParams().set('page', String(page));
 
@@ -110,25 +102,23 @@ export class FeedingsService {
       }
     }
 
-    return this.http
-      .get<PaginatedResponse<Feeding>>(`${this.baseUrl(childId)}/`, { params })
-      .pipe(
-        tap((response) => {
-          this.feedings.set(response.results);
-          this.pagination.set({
-            count: response.count,
-            next: response.next,
-            previous: response.previous,
-            page,
-            pageSize: DEFAULT_PAGE_SIZE,
-            totalPages: Math.ceil(response.count / DEFAULT_PAGE_SIZE) || 1,
-          });
-        }),
-        map((response) => response.results),
-        catchError((error) => {
-          return throwError(() => ErrorHandler.handle(error, 'List'));
-        })
-      );
+    return this.http.get<PaginatedResponse<Feeding>>(`${this.baseUrl(childId)}/`, { params }).pipe(
+      tap((response) => {
+        this.feedings.set(response.results);
+        this.pagination.set({
+          count: response.count,
+          next: response.next,
+          previous: response.previous,
+          page,
+          pageSize: DEFAULT_PAGE_SIZE,
+          totalPages: Math.ceil(response.count / DEFAULT_PAGE_SIZE) || 1,
+        });
+      }),
+      map((response) => response.results),
+      catchError((error) => {
+        return throwError(() => ErrorHandler.handle(error, 'List'));
+      }),
+    );
   }
 
   /**
@@ -148,7 +138,7 @@ export class FeedingsService {
     return this.http.get<Feeding>(`${this.baseUrl(childId)}/${id}/`).pipe(
       catchError((error) => {
         return throwError(() => ErrorHandler.handle(error, 'Get'));
-      })
+      }),
     );
   }
 
@@ -202,7 +192,7 @@ export class FeedingsService {
       }),
       catchError((error) => {
         return throwError(() => ErrorHandler.handle(error, 'Create'));
-      })
+      }),
     );
   }
 
@@ -221,29 +211,23 @@ export class FeedingsService {
    *
    * @throws ApiError if feeding not found, validation fails, or user lacks permission
    */
-  update(
-    childId: number,
-    id: number,
-    data: FeedingUpdate
-  ): Observable<Feeding> {
-    return this.http
-      .patch<Feeding>(`${this.baseUrl(childId)}/${id}/`, data)
-      .pipe(
-        tap((updatedFeeding) => {
-          // Update in cached list
-          const currentFeedings = this.feedings();
-          const index = currentFeedings.findIndex((f) => f.id === id);
-          if (index !== -1) {
-            const updatedFeedings = [...currentFeedings];
-            updatedFeedings[index] = updatedFeeding;
-            this.feedings.set(updatedFeedings);
-          }
-          this.swCache.evictReadonlyListCaches(childId);
-        }),
-        catchError((error) => {
-          return throwError(() => ErrorHandler.handle(error, 'Update'));
-        })
-      );
+  update(childId: number, id: number, data: FeedingUpdate): Observable<Feeding> {
+    return this.http.patch<Feeding>(`${this.baseUrl(childId)}/${id}/`, data).pipe(
+      tap((updatedFeeding) => {
+        // Update in cached list
+        const currentFeedings = this.feedings();
+        const index = currentFeedings.findIndex((f) => f.id === id);
+        if (index !== -1) {
+          const updatedFeedings = [...currentFeedings];
+          updatedFeedings[index] = updatedFeeding;
+          this.feedings.set(updatedFeedings);
+        }
+        this.swCache.evictReadonlyListCaches(childId);
+      }),
+      catchError((error) => {
+        return throwError(() => ErrorHandler.handle(error, 'Update'));
+      }),
+    );
   }
 
   /**
@@ -269,7 +253,7 @@ export class FeedingsService {
       }),
       catchError((error) => {
         return throwError(() => ErrorHandler.handle(error, 'Delete'));
-      })
+      }),
     );
   }
 }

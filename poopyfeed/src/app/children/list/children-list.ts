@@ -46,7 +46,12 @@ import { Router, RouterLink, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs';
 import { ChildrenService } from '../../services/children.service';
 import { Child, GENDER_LABELS, ROLE_LABELS } from '../../models/child.model';
-import { getChildAge, formatTimestamp, getGenderIcon, getRoleBadgeColor } from '../../utils/date.utils';
+import {
+  getChildAge,
+  formatTimestamp,
+  getGenderIcon,
+  getRoleBadgeColor,
+} from '../../utils/date.utils';
 import { ChildrenListSsr } from './children-list-ssr';
 import { GaTrackingService } from '../../services/ga-tracking.service';
 
@@ -111,7 +116,7 @@ export class ChildrenList implements OnInit {
       this.router.events
         .pipe(
           filter((e): e is NavigationEnd => e instanceof NavigationEnd),
-          takeUntilDestroyed(this.destroyRef)
+          takeUntilDestroyed(this.destroyRef),
         )
         .subscribe(() => {
           if (this.router.url === '/children' || this.router.url === '/children/') {
@@ -253,8 +258,7 @@ export class ChildrenList implements OnInit {
     const interval = child.feeding_reminder_interval;
     const lastFeeding = child.last_feeding;
     if (interval == null || lastFeeding == null) return false;
-    const hoursSince =
-      (Date.now() - new Date(lastFeeding).getTime()) / (1000 * 60 * 60);
+    const hoursSince = (Date.now() - new Date(lastFeeding).getTime()) / (1000 * 60 * 60);
     return hoursSince >= interval;
   }
 }

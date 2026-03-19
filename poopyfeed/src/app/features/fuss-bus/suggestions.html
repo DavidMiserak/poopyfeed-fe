@@ -22,7 +22,9 @@
   <!-- Developmental context -->
   @if (developmentalContexts().length > 0) {
     <section aria-label="Developmental context">
-      <h3 class="font-['Fredoka',sans-serif] text-xl font-bold text-slate-900 mb-3">Developmental context</h3>
+      <h3 class="font-['Fredoka',sans-serif] text-xl font-bold text-slate-900 mb-3">
+        Developmental context
+      </h3>
       <ul class="list-disc pl-5 space-y-1 font-['DM_Sans',sans-serif] text-slate-700">
         @for (ctx of developmentalContexts(); track ctx) {
           <li>{{ ctx }}</li>
@@ -33,11 +35,15 @@
 
   <!-- Soothing toolkit -->
   <section aria-label="Soothing toolkit">
-    <h3 class="font-['Fredoka',sans-serif] text-xl font-bold text-slate-900 mb-3">Soothing toolkit</h3>
+    <h3 class="font-['Fredoka',sans-serif] text-xl font-bold text-slate-900 mb-3">
+      Soothing toolkit
+    </h3>
     <div class="space-y-4">
       @for (cat of soothingToolkit; track cat.title) {
         <div>
-          <h4 class="font-['DM_Sans',sans-serif] font-semibold text-slate-800 mb-2">{{ cat.title }}</h4>
+          <h4 class="font-['DM_Sans',sans-serif] font-semibold text-slate-800 mb-2">
+            {{ cat.title }}
+          </h4>
           <div class="flex flex-wrap gap-2">
             @for (item of cat.items; track item) {
               @if (hasDefinition(item)) {
@@ -50,7 +56,9 @@
                   {{ item }}
                 </button>
               } @else {
-                <span class="inline-flex items-center px-3 py-1.5 rounded-full bg-rose-50 text-rose-700 text-sm font-medium">
+                <span
+                  class="inline-flex items-center px-3 py-1.5 rounded-full bg-rose-50 text-rose-700 text-sm font-medium"
+                >
                   {{ item }}
                 </span>
               }
@@ -58,7 +66,9 @@
           </div>
           @if (cat.title === 'Calming Sounds' && singingSongs.length > 0) {
             <div class="mt-3 ml-2 pl-3 border-l-2 border-rose-200" aria-label="Singing">
-              <h5 class="font-['DM_Sans',sans-serif] font-semibold text-slate-800 text-sm mb-2">Singing</h5>
+              <h5 class="font-['DM_Sans',sans-serif] font-semibold text-slate-800 text-sm mb-2">
+                Singing
+              </h5>
               <div class="flex flex-wrap gap-2">
                 @for (song of singingSongs; track song.title) {
                   <button
@@ -82,14 +92,21 @@
   <!-- Colic (optional) -->
   @if (showColicSection()) {
     <section aria-label="About colic" class="p-4 rounded-2xl bg-amber-50 border-2 border-amber-200">
-      <h3 class="font-['Fredoka',sans-serif] text-lg font-bold text-slate-900 mb-2">{{ colicSection.title }}</h3>
+      <h3 class="font-['Fredoka',sans-serif] text-lg font-bold text-slate-900 mb-2">
+        {{ colicSection.title }}
+      </h3>
       <p class="font-['DM_Sans',sans-serif] text-slate-700 text-sm">{{ colicSection.body }}</p>
     </section>
   }
 
   <!-- When to call the doctor -->
-  <section aria-label="When to call the doctor" class="p-4 rounded-2xl bg-red-50 border-2 border-red-300">
-    <h3 class="font-['Fredoka',sans-serif] text-lg font-bold text-slate-900 mb-2 flex items-center gap-2">
+  <section
+    aria-label="When to call the doctor"
+    class="p-4 rounded-2xl bg-red-50 border-2 border-red-300"
+  >
+    <h3
+      class="font-['Fredoka',sans-serif] text-lg font-bold text-slate-900 mb-2 flex items-center gap-2"
+    >
       <span aria-hidden="true">🩺</span>
       When to call the doctor
     </h3>
@@ -111,7 +128,9 @@
     [class.bg-rose-50]="!selfCareElevated()"
     [class.border-rose-200]="!selfCareElevated()"
   >
-    <h3 class="font-['Fredoka',sans-serif] text-lg font-bold text-slate-900 mb-2">Take care of yourself</h3>
+    <h3 class="font-['Fredoka',sans-serif] text-lg font-bold text-slate-900 mb-2">
+      Take care of yourself
+    </h3>
     <ul class="list-disc pl-5 space-y-1 text-slate-700 text-sm">
       @for (item of selfCareItems; track item) {
         <li>{{ item }}</li>

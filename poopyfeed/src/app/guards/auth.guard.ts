@@ -39,8 +39,7 @@ export const authGuard: CanActivateFn = () => {
   }
 
   // Client-side: not authenticated
-  const isAuthenticated =
-    authService.isAuthenticated() || !!localStorage.getItem('auth_token');
+  const isAuthenticated = authService.isAuthenticated() || !!localStorage.getItem('auth_token');
   if (!isAuthenticated) {
     return router.createUrlTree(['/login']);
   }
@@ -49,7 +48,7 @@ export const authGuard: CanActivateFn = () => {
   if (!accountService.profile()) {
     return accountService.getProfile().pipe(
       map(() => true),
-      catchError(() => of(true))
+      catchError(() => of(true)),
     );
   }
 

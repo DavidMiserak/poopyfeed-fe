@@ -80,22 +80,30 @@ export class AuthService {
    */
   login(credentials: LoginRequest): Observable<AuthResponse> {
     return this.http
-      .post<{status: number; data: {user: unknown}}>(`${this.ALLAUTH_BASE}/login`, credentials, {
-        withCredentials: true
-      })
+      .post<{ status: number; data: { user: unknown } }>(
+        `${this.ALLAUTH_BASE}/login`,
+        credentials,
+        {
+          withCredentials: true,
+        },
+      )
       .pipe(
         switchMap(() => {
           // After allauth login, get the auth token
-          return this.http.post<AuthResponse>(`${this.ALLAUTH_BASE}/token/`, {}, {
-            withCredentials: true
-          });
+          return this.http.post<AuthResponse>(
+            `${this.ALLAUTH_BASE}/token/`,
+            {},
+            {
+              withCredentials: true,
+            },
+          );
         }),
         tap((response) => {
           this.setToken(response.auth_token);
         }),
         catchError((error) => {
           return throwError(() => ErrorHandler.handle(error, 'Login'));
-        })
+        }),
       );
   }
 
@@ -113,10 +121,8 @@ export class AuthService {
       })
       .pipe(
         catchError((error) => {
-          return throwError(() =>
-            ErrorHandler.handle(error, 'Request password reset')
-          );
-        })
+          return throwError(() => ErrorHandler.handle(error, 'Request password reset'));
+        }),
       );
   }
 
@@ -137,7 +143,7 @@ export class AuthService {
         },
         {
           withCredentials: true,
-        }
+        },
       )
       .pipe(
         switchMap(() =>
@@ -146,17 +152,15 @@ export class AuthService {
             {},
             {
               withCredentials: true,
-            }
-          )
+            },
+          ),
         ),
         tap((response) => {
           this.setToken(response.auth_token);
         }),
         catchError((error) => {
-          return throwError(() =>
-            ErrorHandler.handle(error, 'Reset password')
-          );
-        })
+          return throwError(() => ErrorHandler.handle(error, 'Reset password'));
+        }),
       );
   }
 
@@ -170,28 +174,36 @@ export class AuthService {
   signup(data: SignupRequest): Observable<UserResponse> {
     // Remove re_password for allauth (it doesn't require confirmation)
     const { email, password } = data;
-    return this.http.post<{status: number; data: {user: UserResponse}}>(`${this.ALLAUTH_BASE}/signup`,
-      { email, password },
-      { withCredentials: true }
-    ).pipe(
-      switchMap((response) => {
-        // After allauth signup, get the auth token
-        return this.http.post<AuthResponse>(`${this.ALLAUTH_BASE}/token/`, {}, {
-          withCredentials: true
-        }).pipe(
-          tap((tokenResponse) => {
-            this.setToken(tokenResponse.auth_token);
-          }),
-          switchMap(() => {
-            // Return the user data
-            return [response.data.user];
-          })
-        );
-      }),
-      catchError((error) => {
-        return throwError(() => ErrorHandler.handle(error, 'Signup'));
-      })
-    );
+    return this.http
+      .post<{
+        status: number;
+        data: { user: UserResponse };
+      }>(`${this.ALLAUTH_BASE}/signup`, { email, password }, { withCredentials: true })
+      .pipe(
+        switchMap((response) => {
+          // After allauth signup, get the auth token
+          return this.http
+            .post<AuthResponse>(
+              `${this.ALLAUTH_BASE}/token/`,
+              {},
+              {
+                withCredentials: true,
+              },
+            )
+            .pipe(
+              tap((tokenResponse) => {
+                this.setToken(tokenResponse.auth_token);
+              }),
+              switchMap(() => {
+                // Return the user data
+                return [response.data.user];
+              }),
+            );
+        }),
+        catchError((error) => {
+          return throwError(() => ErrorHandler.handle(error, 'Signup'));
+        }),
+      );
   }
 
   /**
@@ -201,20 +213,22 @@ export class AuthService {
    * @throws ApiError if server request fails (token still cleared)
    */
   logout(): Observable<void> {
-    return this.http.delete<void>(`${this.ALLAUTH_BASE}/session`, {
-      withCredentials: true
-    }).pipe(
-      tap(() => {
-        this.clearToken();
-        this.router.navigate(['/login']);
-      }),
-      catchError((error) => {
-        // Clear token even if logout fails
-        this.clearToken();
-        this.router.navigate(['/login']);
-        return throwError(() => ErrorHandler.handle(error, 'Logout'));
+    return this.http
+      .delete<void>(`${this.ALLAUTH_BASE}/session`, {
+        withCredentials: true,
       })
-    );
+      .pipe(
+        tap(() => {
+          this.clearToken();
+          this.router.navigate(['/login']);
+        }),
+        catchError((error) => {
+          // Clear token even if logout fails
+          this.clearToken();
+          this.router.navigate(['/login']);
+          return throwError(() => ErrorHandler.handle(error, 'Logout'));
+        }),
+      );
   }
 
   /**

@@ -4,10 +4,7 @@
 
 import { TestBed } from '@angular/core/testing';
 import { DestroyRef } from '@angular/core';
-import {
-  HttpTestingController,
-  provideHttpClientTesting,
-} from '@angular/common/http/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { NotificationService } from './notification.service';
 import type {
@@ -85,8 +82,8 @@ describe('NotificationService', () => {
         },
       });
 
-      const req = httpMock.expectOne((r) =>
-        r.url.startsWith('/api/v1/notifications/') && !r.url.includes('unread-count')
+      const req = httpMock.expectOne(
+        (r) => r.url.startsWith('/api/v1/notifications/') && !r.url.includes('unread-count'),
       );
       expect(req.request.method).toBe('GET');
       req.flush({
@@ -113,8 +110,8 @@ describe('NotificationService', () => {
           errorCaught = true;
         },
       });
-      const req = httpMock.expectOne((r) =>
-        r.url.startsWith('/api/v1/notifications/') && !r.url.includes('unread-count')
+      const req = httpMock.expectOne(
+        (r) => r.url.startsWith('/api/v1/notifications/') && !r.url.includes('unread-count'),
       );
       req.flush(null, { status: 500, statusText: 'Server Error' });
       expect(errorCaught).toBe(true);

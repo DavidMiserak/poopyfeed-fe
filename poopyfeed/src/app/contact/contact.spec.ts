@@ -137,9 +137,7 @@ describe('Contact', () => {
 
   describe('Button Disabled State', () => {
     it('should disable submit button when form is invalid', () => {
-      const button = fixture.nativeElement.querySelector(
-        'button[type="submit"]'
-      );
+      const button = fixture.nativeElement.querySelector('button[type="submit"]');
       expect(button.disabled).toBe(true);
     });
 
@@ -153,9 +151,7 @@ describe('Contact', () => {
 
       fixture.detectChanges();
 
-      const button = fixture.nativeElement.querySelector(
-        'button[type="submit"]'
-      );
+      const button = fixture.nativeElement.querySelector('button[type="submit"]');
       expect(button.disabled).toBe(false);
     });
 
@@ -169,9 +165,7 @@ describe('Contact', () => {
       component.form.disable();
       fixture.detectChanges();
 
-      const button = fixture.nativeElement.querySelector(
-        'button[type="submit"]'
-      );
+      const button = fixture.nativeElement.querySelector('button[type="submit"]');
       expect(button.textContent?.trim()).toBe('Sending...');
     });
 
@@ -184,9 +178,7 @@ describe('Contact', () => {
       });
       fixture.detectChanges();
 
-      const button = fixture.nativeElement.querySelector(
-        'button[type="submit"]'
-      );
+      const button = fixture.nativeElement.querySelector('button[type="submit"]');
       expect(button.textContent?.trim()).toBe('Send Message');
     });
   });
@@ -243,9 +235,7 @@ describe('Contact', () => {
       fixture.detectChanges();
 
       const el = fixture.nativeElement as HTMLElement;
-      const subjectError = el.querySelector(
-        '[data-testid="contact-subject-error"]'
-      );
+      const subjectError = el.querySelector('[data-testid="contact-subject-error"]');
       expect(subjectError?.textContent).toContain('Subject is required');
     });
 
@@ -256,9 +246,7 @@ describe('Contact', () => {
       fixture.detectChanges();
 
       const el = fixture.nativeElement as HTMLElement;
-      const messageError = el.querySelector(
-        '[data-testid="contact-message-error"]'
-      );
+      const messageError = el.querySelector('[data-testid="contact-message-error"]');
       expect(messageError?.textContent).toContain('Message is required');
     });
 
@@ -269,9 +257,7 @@ describe('Contact', () => {
       fixture.detectChanges();
 
       const el = fixture.nativeElement as HTMLElement;
-      const messageError = el.querySelector(
-        '[data-testid="contact-message-error"]'
-      );
+      const messageError = el.querySelector('[data-testid="contact-message-error"]');
       expect(messageError?.textContent).toContain('at least 10 characters');
     });
   });

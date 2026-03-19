@@ -1,15 +1,10 @@
 <div class="print-view">
   <!-- Toolbar: hidden when printing -->
   <div class="print-view__toolbar no-print">
-    <a
-      [routerLink]="['/children', childId(), 'pediatrician-summary']"
-      class="print-view__back"
-    >
+    <a [routerLink]="['/children', childId(), 'pediatrician-summary']" class="print-view__back">
       ← Back to summary
     </a>
-    <button type="button" class="print-view__print-btn" (click)="onPrint()">
-      Print
-    </button>
+    <button type="button" class="print-view__print-btn" (click)="onPrint()">Print</button>
   </div>
 
   @if (isLoading()) {
@@ -19,7 +14,9 @@
   @if (error() && !isLoading()) {
     <app-error-card
       [errorMessage]="error()!"
-      [backRoute]="childId() !== null ? ['/children', childId()!, 'pediatrician-summary'] : '/children'"
+      [backRoute]="
+        childId() !== null ? ['/children', childId()!, 'pediatrician-summary'] : '/children'
+      "
       [backButtonText]="'Back to summary'"
       [gradientColor]="'rose'"
     />
@@ -28,7 +25,9 @@
   @if (child() && summary() && !isLoading() && !error()) {
     <article class="print-view__doc">
       <header class="print-view__header">
-        <span class="print-view__icon" aria-hidden="true">{{ getGenderIcon(child()!.gender) }}</span>
+        <span class="print-view__icon" aria-hidden="true">{{
+          getGenderIcon(child()!.gender)
+        }}</span>
         <div>
           <h1 class="print-view__title">Pediatrician summary</h1>
           <p class="print-view__child-name">{{ child()!.name }}</p>
@@ -42,13 +41,14 @@
         <section class="print-view__section" aria-label="Feeding summary">
           <h2>Feedings</h2>
           <p class="print-view__per-day">
-            Per day: {{ feedingsPerDay() | number:'1.1-1' }} feedings, {{ ozPerDay() | number:'1.1-1' }} oz
+            Per day: {{ feedingsPerDay() | number: '1.1-1' }} feedings,
+            {{ ozPerDay() | number: '1.1-1' }} oz
           </p>
           <dl class="print-view__dl">
             <dt>Total sessions</dt>
             <dd>{{ summary()!.feedings.count }}</dd>
             <dt>Total oz</dt>
-            <dd>{{ summary()!.feedings.total_oz | number:'1.1-1' }}</dd>
+            <dd>{{ summary()!.feedings.total_oz | number: '1.1-1' }}</dd>
             <dt>Bottle</dt>
             <dd>{{ summary()!.feedings.bottle }}</dd>
             <dt>Breast</dt>
@@ -63,7 +63,7 @@
         <section class="print-view__section" aria-label="Diaper summary">
           <h2>Diapers</h2>
           <p class="print-view__per-day">
-            Per day: {{ diapersPerDay() | number:'1.1-1' }} changes
+            Per day: {{ diapersPerDay() | number: '1.1-1' }} changes
           </p>
           <dl class="print-view__dl">
             <dt>Total changes</dt>
@@ -80,7 +80,8 @@
         <section class="print-view__section" aria-label="Sleep summary">
           <h2>Sleep</h2>
           <p class="print-view__per-day">
-            Per day: {{ napsPerDay() | number:'1.1-1' }} naps, {{ formatDuration(sleepMinutesPerDay()) }} sleep
+            Per day: {{ napsPerDay() | number: '1.1-1' }} naps,
+            {{ formatDuration(sleepMinutesPerDay()) }} sleep
           </p>
           <dl class="print-view__dl">
             <dt>Naps</dt>

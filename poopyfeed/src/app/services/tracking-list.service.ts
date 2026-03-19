@@ -113,7 +113,7 @@ export class TrackingListService<T extends { id: number }> {
     if (this.isAllSelected()) {
       this.selectedIds.set(new Set());
     } else {
-      this.selectedIds.set(new Set(items.map(item => item.id)));
+      this.selectedIds.set(new Set(items.map((item) => item.id)));
     }
   }
 
@@ -142,15 +142,13 @@ export class TrackingListService<T extends { id: number }> {
     this.isBulkDeleting.set(true);
     let completed = 0;
 
-    ids.forEach(id => {
+    ids.forEach((id) => {
       deleteFunction(id).subscribe({
         next: () => {
           completed++;
           if (completed === ids.size) {
             // All deletions complete - update state
-            this.allItems.set(
-              this.allItems().filter(item => !ids.has(item.id))
-            );
+            this.allItems.set(this.allItems().filter((item) => !ids.has(item.id)));
             this.selectedIds.set(new Set());
             this.isBulkDeleting.set(false);
           }

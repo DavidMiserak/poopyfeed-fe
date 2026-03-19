@@ -99,10 +99,7 @@ export interface InviteAcceptResponse {
 /**
  * Role display labels for sharing UI.
  */
-export const SHARE_ROLE_LABELS: Record<
-  ChildShare['role'] | ShareInvite['role'],
-  string
-> = {
+export const SHARE_ROLE_LABELS: Record<ChildShare['role'] | ShareInvite['role'], string> = {
   'co-parent': 'Co-parent',
   caregiver: 'Caregiver',
 };
@@ -110,11 +107,7 @@ export const SHARE_ROLE_LABELS: Record<
 /**
  * Role descriptions for invite creation (tooltips, help text).
  */
-export const SHARE_ROLE_DESCRIPTIONS: Record<
-  ChildShare['role'] | ShareInvite['role'],
-  string
-> = {
-  'co-parent':
-    'Can view and track all activities. Can manage sharing (except owner removal).',
+export const SHARE_ROLE_DESCRIPTIONS: Record<ChildShare['role'] | ShareInvite['role'], string> = {
+  'co-parent': 'Can view and track all activities. Can manage sharing (except owner removal).',
   caregiver: 'Can view and track all activities. Cannot manage sharing.',
 };

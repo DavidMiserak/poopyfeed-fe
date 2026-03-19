@@ -111,15 +111,9 @@ export class CatchUp implements OnInit {
   newEventCounter = signal(0);
 
   // ✅ Derived State (Computed Signals)
-  newEvents = computed(() =>
-    this.eventList().filter((e) => !e.isExisting),
-  );
-  existingEvents = computed(() =>
-    this.eventList().filter((e) => e.isExisting),
-  );
-  canAddEvent = computed(() =>
-    this.newEvents().length < CATCH_UP_VALIDATION.MAX_EVENTS_PER_BATCH,
-  );
+  newEvents = computed(() => this.eventList().filter((e) => !e.isExisting));
+  existingEvents = computed(() => this.eventList().filter((e) => e.isExisting));
+  canAddEvent = computed(() => this.newEvents().length < CATCH_UP_VALIDATION.MAX_EVENTS_PER_BATCH);
   totalEventCount = computed(() => this.eventList().length);
   hasChanges = computed(() => this.newEvents().length > 0);
   currentStepLabel = computed(() => {
@@ -271,9 +265,7 @@ export class CatchUp implements OnInit {
     });
 
     return events.sort(
-      (a, b) =>
-        new Date(a.estimatedTime).getTime() -
-        new Date(b.estimatedTime).getTime(),
+      (a, b) => new Date(a.estimatedTime).getTime() - new Date(b.estimatedTime).getTime(),
     );
   }
 
@@ -305,9 +297,7 @@ export class CatchUp implements OnInit {
   /**
    * Get default data object for a new event type.
    */
-  private getDefaultDataForType(
-    type: 'feeding' | 'diaper' | 'nap',
-  ): CatchUpEvent['data'] {
+  private getDefaultDataForType(type: 'feeding' | 'diaper' | 'nap'): CatchUpEvent['data'] {
     switch (type) {
       case 'feeding':
         return {
@@ -330,10 +320,7 @@ export class CatchUp implements OnInit {
   /**
    * Navigate to a specific step with validation.
    */
-  goToStep(
-    step: 'time-range' | 'events' | 'review' | 'success',
-    timeWindow?: TimeWindow,
-  ) {
+  goToStep(step: 'time-range' | 'events' | 'review' | 'success', timeWindow?: TimeWindow) {
     if (timeWindow) {
       // Validate before advancing from time-range to events
       const errors = this.timeEstimationService.validateTimeWindow(timeWindow);
@@ -422,15 +409,21 @@ export class CatchUp implements OnInit {
       naps: this.napsService.list(childId, filters),
     })
       .pipe(
-        tap(({ feedings, diapers, naps }: { feedings: Feeding[]; diapers: DiaperChange[]; naps: Nap[] }) => {
-          const existingEvents = this.buildExistingEvents(
+        tap(
+          ({
             feedings,
             diapers,
             naps,
-          );
-          const newEvents = this.eventList().filter((e) => !e.isExisting);
-          this.eventList.set([...existingEvents, ...newEvents]);
-        }),
+          }: {
+            feedings: Feeding[];
+            diapers: DiaperChange[];
+            naps: Nap[];
+          }) => {
+            const existingEvents = this.buildExistingEvents(feedings, diapers, naps);
+            const newEvents = this.eventList().filter((e) => !e.isExisting);
+            this.eventList.set([...existingEvents, ...newEvents]);
+          },
+        ),
         catchError((err: unknown) => {
           const apiError = ErrorHandler.handle(err);
           this.toast.error(`Failed to reload events: ${apiError.message}`);
@@ -452,9 +445,7 @@ export class CatchUp implements OnInit {
     this.eventList.set(result.events);
 
     if (result.isOverflowed) {
-      this.toast.warning(
-        'Some events may not fit perfectly in the selected time window',
-      );
+      this.toast.warning('Some events may not fit perfectly in the selected time window');
     }
   }
 
@@ -480,16 +471,15 @@ export class CatchUp implements OnInit {
         catchError((err: unknown) => {
           this.isSubmitting.set(false);
 
-          const batchErrors = err && typeof err === 'object' && 'batchErrors' in err
-            ? (err as { batchErrors?: BatchErrorResponse }).batchErrors
-            : undefined;
+          const batchErrors =
+            err && typeof err === 'object' && 'batchErrors' in err
+              ? (err as { batchErrors?: BatchErrorResponse }).batchErrors
+              : undefined;
 
           if (batchErrors?.errors) {
             batchErrors.errors.forEach((eventError: BatchEventError) => {
               const errorMsg = Object.entries(eventError.errors)
-                .map(([_, msgs]) =>
-                  Array.isArray(msgs) ? msgs[0] : msgs,
-                )
+                .map(([_, msgs]) => (Array.isArray(msgs) ? msgs[0] : msgs))
                 .join('; ');
               this.toast.error(
                 `Activity ${eventError.index + 1} (${eventError.type}): ${errorMsg}`,

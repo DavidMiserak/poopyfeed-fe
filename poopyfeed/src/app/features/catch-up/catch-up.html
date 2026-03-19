@@ -1,8 +1,14 @@
-<div class="min-h-screen relative bg-gradient-to-br from-rose-50 via-amber-50 to-orange-50 px-4 py-6 overflow-hidden">
+<div
+  class="min-h-screen relative bg-gradient-to-br from-rose-50 via-amber-50 to-orange-50 px-4 py-6 overflow-hidden"
+>
   <!-- Decorative background elements (static, Tailwind only) -->
   <div class="absolute inset-0 opacity-10 pointer-events-none">
-    <div class="absolute top-20 left-20 w-64 h-64 bg-gradient-to-br from-rose-400 to-orange-400 rounded-full blur-3xl"></div>
-    <div class="absolute bottom-20 right-20 w-96 h-96 bg-gradient-to-br from-amber-400 to-orange-400 rounded-full blur-3xl"></div>
+    <div
+      class="absolute top-20 left-20 w-64 h-64 bg-gradient-to-br from-rose-400 to-orange-400 rounded-full blur-3xl"
+    ></div>
+    <div
+      class="absolute bottom-20 right-20 w-96 h-96 bg-gradient-to-br from-amber-400 to-orange-400 rounded-full blur-3xl"
+    ></div>
   </div>
 
   <div class="max-w-3xl mx-auto relative z-10">
@@ -32,8 +38,19 @@
             [routerLink]="['/children', childId(), 'advanced']"
             class="font-['DM_Sans',sans-serif] text-sm text-slate-600 hover:text-rose-400 transition-colors font-medium inline-flex items-center gap-2"
           >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M10 19l-7-7m0 0l7-7m-7 7h18"
+              />
             </svg>
             Back to Advanced
           </a>
@@ -41,13 +58,19 @@
 
         <!-- Hero Banner -->
         @if (child(); as c) {
-          <div class="bg-gradient-to-r from-amber-400 via-orange-400 to-rose-400 rounded-3xl shadow-2xl p-6 sm:p-8">
+          <div
+            class="bg-gradient-to-r from-amber-400 via-orange-400 to-rose-400 rounded-3xl shadow-2xl p-6 sm:p-8"
+          >
             <div class="flex items-center gap-4">
-              <div class="w-16 h-16 sm:w-20 sm:h-20 bg-white rounded-full flex items-center justify-center shadow-lg">
+              <div
+                class="w-16 h-16 sm:w-20 sm:h-20 bg-white rounded-full flex items-center justify-center shadow-lg"
+              >
                 <span class="text-4xl sm:text-5xl">{{ getGenderIcon(c.gender) }}</span>
               </div>
               <div>
-                <h1 class="font-['Fredoka',sans-serif] text-2xl sm:text-4xl font-bold text-white mb-1">
+                <h1
+                  class="font-['Fredoka',sans-serif] text-2xl sm:text-4xl font-bold text-white mb-1"
+                >
                   Catch-Up Mode
                 </h1>
                 <p class="font-['DM_Sans',sans-serif] text-white/90 text-lg">
@@ -86,8 +109,12 @@
 
         <!-- Step 1: Time Range -->
         @if (currentStep() === 'time-range') {
-          <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-6 sm:p-8 border-2 border-amber-200">
-            <h2 class="font-['Fredoka',sans-serif] text-2xl font-bold text-slate-900 mb-6">Step 1: Choose Time Window</h2>
+          <div
+            class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-6 sm:p-8 border-2 border-amber-200"
+          >
+            <h2 class="font-['Fredoka',sans-serif] text-2xl font-bold text-slate-900 mb-6">
+              Step 1: Choose Time Window
+            </h2>
             <app-time-window-selector
               [timeWindow]="timeWindow()"
               (timeWindowChange)="goToStep('events', $event)"
@@ -103,8 +130,12 @@
 
         <!-- Step 2: Add Activities -->
         @if (currentStep() === 'events') {
-          <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-6 sm:p-8 border-2 border-amber-200">
-            <h2 class="font-['Fredoka',sans-serif] text-2xl font-bold text-slate-900 mb-6">Step 2: Add Activities</h2>
+          <div
+            class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-6 sm:p-8 border-2 border-amber-200"
+          >
+            <h2 class="font-['Fredoka',sans-serif] text-2xl font-bold text-slate-900 mb-6">
+              Step 2: Add Activities
+            </h2>
             <app-event-timeline
               [events]="eventList()"
               (addEvent)="onAddEvent($event)"
@@ -116,7 +147,9 @@
             @if (selectedEventId(); as eventId) {
               @if (getEventById(eventId); as event) {
                 <div class="mt-6 pt-6 border-t-2 border-slate-200">
-                  <h3 class="font-['Fredoka',sans-serif] text-lg font-bold text-slate-900 mb-4">Edit Activity</h3>
+                  <h3 class="font-['Fredoka',sans-serif] text-lg font-bold text-slate-900 mb-4">
+                    Edit Activity
+                  </h3>
                   <app-event-card
                     [event]="event"
                     (update)="onUpdateEvent(eventId, $event)"
@@ -145,10 +178,10 @@
                 [disabled]="!hasChanges()"
                 class="group relative flex-1 h-12 rounded-xl font-['DM_Sans',sans-serif] font-bold text-white overflow-hidden border-2 border-rose-400 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               >
-                <span class="absolute inset-0 bg-gradient-to-br from-rose-400 to-orange-400 transition-transform duration-300 group-hover:scale-110 group-disabled:scale-100"></span>
-                <span class="relative z-10">
-                  Review {{ newEvents().length }} Activities
-                </span>
+                <span
+                  class="absolute inset-0 bg-gradient-to-br from-rose-400 to-orange-400 transition-transform duration-300 group-hover:scale-110 group-disabled:scale-100"
+                ></span>
+                <span class="relative z-10"> Review {{ newEvents().length }} Activities </span>
               </button>
             </div>
           </div>
@@ -156,10 +189,16 @@
 
         <!-- Step 3: Review & Save -->
         @if (currentStep() === 'review') {
-          <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-6 sm:p-8 border-2 border-amber-200">
-            <h2 class="font-['Fredoka',sans-serif] text-2xl font-bold text-slate-900 mb-2">Step 3: Review & Save</h2>
+          <div
+            class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-6 sm:p-8 border-2 border-amber-200"
+          >
+            <h2 class="font-['Fredoka',sans-serif] text-2xl font-bold text-slate-900 mb-2">
+              Step 3: Review & Save
+            </h2>
             <p class="font-['DM_Sans',sans-serif] text-slate-600 mb-6">
-              Ready to save {{ newEvents().length }} activit{{ newEvents().length === 1 ? 'y' : 'ies' }}?
+              Ready to save {{ newEvents().length }} activit{{
+                newEvents().length === 1 ? 'y' : 'ies'
+              }}?
             </p>
 
             <!-- Summary List (color-coded) -->
@@ -171,8 +210,12 @@
                 >
                   <span class="text-2xl">{{ getActivityIcon(event.type) }}</span>
                   <div class="flex-1">
-                    <p class="font-['DM_Sans',sans-serif] font-semibold text-slate-900 capitalize">{{ event.type }}</p>
-                    <p class="font-['DM_Sans',sans-serif] text-sm text-slate-500">{{ formatTime(event.estimatedTime) }}</p>
+                    <p class="font-['DM_Sans',sans-serif] font-semibold text-slate-900 capitalize">
+                      {{ event.type }}
+                    </p>
+                    <p class="font-['DM_Sans',sans-serif] text-sm text-slate-500">
+                      {{ formatTime(event.estimatedTime) }}
+                    </p>
                   </div>
                 </div>
               }
@@ -193,12 +236,25 @@
                 [attr.aria-busy]="isSubmitting()"
                 class="group relative flex-1 h-12 rounded-xl font-['DM_Sans',sans-serif] font-bold text-white overflow-hidden border-2 border-rose-400 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               >
-                <span class="absolute inset-0 bg-gradient-to-br from-rose-400 to-orange-400 transition-transform duration-300 group-hover:scale-110 group-disabled:scale-100"></span>
+                <span
+                  class="absolute inset-0 bg-gradient-to-br from-rose-400 to-orange-400 transition-transform duration-300 group-hover:scale-110 group-disabled:scale-100"
+                ></span>
                 <span class="relative z-10 flex items-center justify-center gap-2">
                   @if (isSubmitting()) {
                     <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      <circle
+                        class="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        stroke-width="4"
+                      ></circle>
+                      <path
+                        class="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
                     </svg>
                     Saving...
                   } @else {
@@ -212,7 +268,9 @@
 
         <!-- Step 4: Success -->
         @if (currentStep() === 'success') {
-          <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-6 sm:p-8 border-2 border-green-200 text-center">
+          <div
+            class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-6 sm:p-8 border-2 border-green-200 text-center"
+          >
             <div class="text-5xl mb-4">✅</div>
             <h2 class="font-['Fredoka',sans-serif] text-3xl font-bold text-slate-900 mb-2">
               {{ newEvents().length }} Activit{{ newEvents().length === 1 ? 'y' : 'ies' }} Saved!
@@ -222,8 +280,12 @@
             </p>
 
             <!-- Summary (color-coded) -->
-            <div class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-6 border-2 border-amber-200 mb-8 text-left">
-              <p class="font-['DM_Sans',sans-serif] text-sm font-semibold text-slate-900 mb-4">What was saved:</p>
+            <div
+              class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-6 border-2 border-amber-200 mb-8 text-left"
+            >
+              <p class="font-['DM_Sans',sans-serif] text-sm font-semibold text-slate-900 mb-4">
+                What was saved:
+              </p>
               <div class="space-y-2">
                 @for (event of newEvents(); track event.id) {
                   <div class="flex items-center gap-3 text-slate-700 font-['DM_Sans',sans-serif]">
@@ -240,7 +302,9 @@
               (click)="goToAdvanced()"
               class="group relative w-full h-14 rounded-xl font-['DM_Sans',sans-serif] font-bold text-white text-lg overflow-hidden border-2 border-rose-400 cursor-pointer"
             >
-              <span class="absolute inset-0 bg-gradient-to-br from-rose-400 to-orange-400 transition-transform duration-300 group-hover:scale-110"></span>
+              <span
+                class="absolute inset-0 bg-gradient-to-br from-rose-400 to-orange-400 transition-transform duration-300 group-hover:scale-110"
+              ></span>
               <span class="relative z-10">Back to Advanced</span>
             </button>
           </div>
@@ -251,7 +315,13 @@
     @if (showDiscardConfirm()) {
       <app-confirm-dialog
         title="Discard changes?"
-        [message]="'Discard ' + newEvents().length + ' unsaved ' + (newEvents().length === 1 ? 'activity' : 'activities') + '?'"
+        [message]="
+          'Discard ' +
+          newEvents().length +
+          ' unsaved ' +
+          (newEvents().length === 1 ? 'activity' : 'activities') +
+          '?'
+        "
         confirmLabel="Discard"
         cancelLabel="Keep editing"
         variant="danger"

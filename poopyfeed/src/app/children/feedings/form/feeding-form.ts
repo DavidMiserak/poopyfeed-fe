@@ -34,29 +34,14 @@
  * Style: feeding-form.css
  */
 
-import {
-  ChangeDetectionStrategy,
-  Component,
-  effect,
-  inject,
-  OnInit,
-} from '@angular/core';
-import {
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { ChangeDetectionStrategy, Component, effect, inject, OnInit } from '@angular/core';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { FeedingsService } from '../../../services/feedings.service';
 import { ChildrenService } from '../../../services/children.service';
 import { DateTimeService } from '../../../services/datetime.service';
 import { ToastService } from '../../../services/toast.service';
-import {
-  Feeding,
-  FeedingCreate,
-  FEEDING_VALIDATION,
-} from '../../../models/feeding.model';
+import { Feeding, FeedingCreate, FEEDING_VALIDATION } from '../../../models/feeding.model';
 import { TrackingFormBase } from '../../../utils/form-base';
 import { noFutureDateTime } from '../../../utils/date-validators';
 import { GaTrackingService, GaEventName } from '../../../services/ga-tracking.service';
@@ -104,16 +89,12 @@ export class FeedingForm
    * Validators are dynamic based on feeding_type (see updateValidators()).
    */
   protected form = new FormGroup({
-    feeding_type: new FormControl<'bottle' | 'breast'>('bottle', [
-      Validators.required,
-    ]),
+    feeding_type: new FormControl<'bottle' | 'breast'>('bottle', [Validators.required]),
     fed_at: new FormControl('', [Validators.required, noFutureDateTime(this.datetimeService)]),
     amount_oz: new FormControl<number | null>(null),
     duration_minutes: new FormControl<number | null>(null),
     side: new FormControl<'left' | 'right' | 'both' | null>(null),
-    notes: new FormControl('', [
-      Validators.maxLength(FEEDING_VALIDATION.MAX_NOTES_LENGTH),
-    ]),
+    notes: new FormControl('', [Validators.maxLength(FEEDING_VALIDATION.MAX_NOTES_LENGTH)]),
   });
 
   /** Base class metadata */

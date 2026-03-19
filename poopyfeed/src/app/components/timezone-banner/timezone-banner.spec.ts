@@ -108,7 +108,7 @@ describe('TimezoneBanner', () => {
 
   it('should show error toast on update failure', () => {
     tzServiceMock.updateToDetectedTimezone.mockReturnValue(
-      throwError(() => new Error('Network error'))
+      throwError(() => new Error('Network error')),
     );
 
     component.onUpdate();
@@ -127,13 +127,15 @@ describe('TimezoneBanner', () => {
   });
 
   it('should disable update button while updating', () => {
-    tzServiceMock.updateToDetectedTimezone.mockReturnValue(of({
-      id: 1,
-      email: 'test@example.com',
-      first_name: 'Test',
-      last_name: 'User',
-      timezone: 'America/Chicago',
-    }));
+    tzServiceMock.updateToDetectedTimezone.mockReturnValue(
+      of({
+        id: 1,
+        email: 'test@example.com',
+        first_name: 'Test',
+        last_name: 'User',
+        timezone: 'America/Chicago',
+      }),
+    );
 
     component.isUpdating.set(true);
     fixture.detectChanges();

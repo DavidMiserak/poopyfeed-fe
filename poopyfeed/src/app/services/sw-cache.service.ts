@@ -56,9 +56,9 @@ export class SwCacheService {
                 // Ignore malformed URLs.
               }
               return Promise.resolve(false);
-            })
+            }),
           );
-        })
+        }),
       );
     } catch {
       // Cache API may be unavailable or blocked; ignore.

@@ -1,17 +1,32 @@
-<div class="min-h-screen relative bg-gradient-to-br from-orange-50 via-amber-50 to-rose-50 flex items-center justify-center px-6 py-12 overflow-hidden">
+<div
+  class="min-h-screen relative bg-gradient-to-br from-orange-50 via-amber-50 to-rose-50 flex items-center justify-center px-6 py-12 overflow-hidden"
+>
   <!-- Decorative background elements -->
   <div class="absolute inset-0 opacity-20 pointer-events-none">
-    <div class="absolute top-20 right-20 w-64 h-64 bg-gradient-to-br from-orange-400 to-amber-400 rounded-full blur-3xl animate-pulse" style="animation-delay: 0.5s;"></div>
-    <div class="absolute bottom-20 left-20 w-96 h-96 bg-gradient-to-br from-rose-500 to-rose-400 rounded-full blur-3xl animate-pulse"></div>
+    <div
+      class="absolute top-20 right-20 w-64 h-64 bg-gradient-to-br from-orange-400 to-amber-400 rounded-full blur-3xl animate-pulse"
+      style="animation-delay: 0.5s"
+    ></div>
+    <div
+      class="absolute bottom-20 left-20 w-96 h-96 bg-gradient-to-br from-rose-500 to-rose-400 rounded-full blur-3xl animate-pulse"
+    ></div>
   </div>
 
   <div class="w-full max-w-md relative z-10">
     <!-- Logo/Brand -->
     <div class="text-center mb-8">
-      <a href="/" class="inline-flex items-center gap-2 hover:scale-105 transition-transform duration-300 group">
-        <span class="text-4xl animate-bounce group-hover:animate-wiggle" aria-hidden="true">🍼</span>
+      <a
+        href="/"
+        class="inline-flex items-center gap-2 hover:scale-105 transition-transform duration-300 group"
+      >
+        <span class="text-4xl animate-bounce group-hover:animate-wiggle" aria-hidden="true"
+          >🍼</span
+        >
         <span class="font-['Fredoka',sans-serif] text-3xl font-bold">
-          <span class="bg-gradient-to-r from-rose-500 via-orange-500 to-amber-500 bg-clip-text text-transparent">Poopy</span><span class="text-slate-800">Feed</span>
+          <span
+            class="bg-gradient-to-r from-rose-500 via-orange-500 to-amber-500 bg-clip-text text-transparent"
+            >Poopy</span
+          ><span class="text-slate-800">Feed</span>
         </span>
       </a>
     </div>
@@ -19,16 +34,33 @@
     <!-- Signup Card -->
     <div class="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-8 border-2 border-orange-200">
       <div class="text-center mb-8">
-        <h1 class="font-['Fredoka',sans-serif] text-3xl font-bold text-slate-900 mb-2">Join PoopyFeed!</h1>
-        <p class="font-['DM_Sans',sans-serif] text-slate-600">Start tracking your baby's care today</p>
+        <h1 class="font-['Fredoka',sans-serif] text-3xl font-bold text-slate-900 mb-2">
+          Join PoopyFeed!
+        </h1>
+        <p class="font-['DM_Sans',sans-serif] text-slate-600">
+          Start tracking your baby's care today
+        </p>
       </div>
 
       <!-- Error Message -->
       @if (error()) {
-        <div class="bg-gradient-to-r from-red-50 to-rose-50 border-l-4 border-red-500 p-4 mb-6 rounded-xl">
-          <p class="font-['DM_Sans',sans-serif] text-red-700 text-sm font-medium flex items-center gap-2">
-            <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" />
+        <div
+          class="bg-gradient-to-r from-red-50 to-rose-50 border-l-4 border-red-500 p-4 mb-6 rounded-xl"
+        >
+          <p
+            class="font-['DM_Sans',sans-serif] text-red-700 text-sm font-medium flex items-center gap-2"
+          >
+            <svg
+              class="w-5 h-5 flex-shrink-0"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+              aria-hidden="true"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z"
+                clip-rule="evenodd"
+              />
             </svg>
             {{ error() }}
           </p>
@@ -39,7 +71,10 @@
       <form [formGroup]="signupForm" (ngSubmit)="onSubmit()" class="space-y-5">
         <!-- Email Field -->
         <div>
-          <label for="email" class="font-['DM_Sans',sans-serif] block text-sm font-bold text-slate-900 mb-2">
+          <label
+            for="email"
+            class="font-['DM_Sans',sans-serif] block text-sm font-bold text-slate-900 mb-2"
+          >
             Email address
           </label>
           <input
@@ -50,9 +85,15 @@
             placeholder="you&#64;example.com"
           />
           @if (signupForm.controls.email.invalid && signupForm.controls.email.touched) {
-            <p class="font-['DM_Sans',sans-serif] text-red-600 text-sm mt-2 font-medium flex items-center gap-1">
+            <p
+              class="font-['DM_Sans',sans-serif] text-red-600 text-sm mt-2 font-medium flex items-center gap-1"
+            >
               <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
+                <path
+                  fill-rule="evenodd"
+                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z"
+                  clip-rule="evenodd"
+                />
               </svg>
               @if (signupForm.controls.email.errors?.['required']) {
                 Email is required
@@ -66,7 +107,10 @@
 
         <!-- Password Field -->
         <div>
-          <label for="password" class="font-['DM_Sans',sans-serif] block text-sm font-bold text-slate-900 mb-2">
+          <label
+            for="password"
+            class="font-['DM_Sans',sans-serif] block text-sm font-bold text-slate-900 mb-2"
+          >
             Password
           </label>
           <input
@@ -77,9 +121,15 @@
             placeholder="At least 8 characters"
           />
           @if (signupForm.controls.password.invalid && signupForm.controls.password.touched) {
-            <p class="font-['DM_Sans',sans-serif] text-red-600 text-sm mt-2 font-medium flex items-center gap-1">
+            <p
+              class="font-['DM_Sans',sans-serif] text-red-600 text-sm mt-2 font-medium flex items-center gap-1"
+            >
               <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
+                <path
+                  fill-rule="evenodd"
+                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z"
+                  clip-rule="evenodd"
+                />
               </svg>
               @if (signupForm.controls.password.errors?.['required']) {
                 Password is required
@@ -93,7 +143,10 @@
 
         <!-- Confirm Password Field -->
         <div>
-          <label for="confirmPassword" class="font-['DM_Sans',sans-serif] block text-sm font-bold text-slate-900 mb-2">
+          <label
+            for="confirmPassword"
+            class="font-['DM_Sans',sans-serif] block text-sm font-bold text-slate-900 mb-2"
+          >
             Confirm password
           </label>
           <input
@@ -103,10 +156,19 @@
             class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-orange-400 focus:ring-4 focus:ring-orange-200 transition-all outline-none text-slate-900 font-['DM_Sans',sans-serif]"
             placeholder="••••••••"
           />
-          @if (signupForm.controls.confirmPassword.invalid && signupForm.controls.confirmPassword.touched) {
-            <p class="font-['DM_Sans',sans-serif] text-red-600 text-sm mt-2 font-medium flex items-center gap-1">
+          @if (
+            signupForm.controls.confirmPassword.invalid &&
+            signupForm.controls.confirmPassword.touched
+          ) {
+            <p
+              class="font-['DM_Sans',sans-serif] text-red-600 text-sm mt-2 font-medium flex items-center gap-1"
+            >
               <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
+                <path
+                  fill-rule="evenodd"
+                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z"
+                  clip-rule="evenodd"
+                />
               </svg>
               Please confirm your password
             </p>
@@ -119,12 +181,25 @@
           [disabled]="signupForm.invalid || isSubmitting()"
           class="group relative w-full py-3 px-6 rounded-xl font-['DM_Sans',sans-serif] font-bold text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 overflow-hidden border-2 border-orange-400 mt-6"
         >
-          <span class="absolute inset-0 bg-gradient-to-br from-rose-400 via-orange-400 to-amber-400 transition-transform duration-300 group-hover:scale-110 group-disabled:scale-100"></span>
+          <span
+            class="absolute inset-0 bg-gradient-to-br from-rose-400 via-orange-400 to-amber-400 transition-transform duration-300 group-hover:scale-110 group-disabled:scale-100"
+          ></span>
           @if (isSubmitting()) {
             <span class="relative z-10 flex items-center justify-center gap-2">
               <svg class="w-5 h-5 animate-spin" aria-hidden="true" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"
+                ></circle>
+                <path
+                  class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
               </svg>
               Creating account...
             </span>
@@ -149,9 +224,13 @@
     <!-- Footer Text -->
     <p class="font-['DM_Sans',sans-serif] text-center text-sm text-slate-600 mt-6">
       By creating an account, you agree to our
-      <a href="/terms" class="text-orange-400 hover:text-orange-500 transition-colors font-medium">Terms</a>
+      <a href="/terms" class="text-orange-400 hover:text-orange-500 transition-colors font-medium"
+        >Terms</a
+      >
       and
-      <a href="/privacy" class="text-orange-400 hover:text-orange-500 transition-colors font-medium">Privacy</a>
+      <a href="/privacy" class="text-orange-400 hover:text-orange-500 transition-colors font-medium"
+        >Privacy</a
+      >
     </p>
   </div>
 </div>

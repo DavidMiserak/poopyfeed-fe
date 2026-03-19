@@ -10,7 +10,11 @@
 @if (child()) {
   <app-delete-confirmation
     [title]="'Delete ' + child()!.name + '?'"
-    [warningMsg]="'⚠️ This will permanently delete ' + child()!.name + ' and all associated tracking data (feedings, diaper changes, and naps). This cannot be undone.'"
+    [warningMsg]="
+      '⚠️ This will permanently delete ' +
+      child()!.name +
+      ' and all associated tracking data (feedings, diaper changes, and naps). This cannot be undone.'
+    "
     [backRoute]="'/children'"
     [backLabel]="'Back to My Children'"
     [isDeleting]="isDeleting()"

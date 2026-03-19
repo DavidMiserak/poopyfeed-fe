@@ -139,13 +139,17 @@ describe('Date Utilities', () => {
     it('should contain days, months, or years', () => {
       const tenDaysAgo = new Date(Date.now() - 10 * 24 * 60 * 60 * 1000);
       const result = getChildAge(tenDaysAgo.toISOString());
-      expect(['days', 'months', 'years', 'y', 'm'].some(unit => result.includes(unit))).toBe(true);
+      expect(['days', 'months', 'years', 'y', 'm'].some((unit) => result.includes(unit))).toBe(
+        true,
+      );
     });
 
     it('should return different format for older children', () => {
       const sixtyDaysAgo = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000);
       const result = getChildAge(sixtyDaysAgo.toISOString());
-      expect(['days', 'months', 'years', 'y', 'm'].some(unit => result.includes(unit))).toBe(true);
+      expect(['days', 'months', 'years', 'y', 'm'].some((unit) => result.includes(unit))).toBe(
+        true,
+      );
     });
 
     it('should return age in years for older children', () => {
@@ -383,7 +387,7 @@ describe('Date Utilities', () => {
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
       const result = getChildAge(thirtyDaysAgo.toISOString());
-      expect(['month', 'months'].some(unit => result.includes(unit))).toBe(true);
+      expect(['month', 'months'].some((unit) => result.includes(unit))).toBe(true);
     });
 
     it('should handle exactly 12 months (1 year) old', () => {

@@ -47,9 +47,7 @@ describe('ForgotPassword', () => {
   });
 
   it('should call AuthService on valid submit', () => {
-    const spy = vi
-      .spyOn(authService, 'requestPasswordReset')
-      .mockReturnValue(of(void 0));
+    const spy = vi.spyOn(authService, 'requestPasswordReset').mockReturnValue(of(void 0));
 
     component.form.controls.email.setValue('user@example.com');
     component.onSubmit();

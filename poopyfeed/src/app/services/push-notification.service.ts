@@ -85,7 +85,7 @@ export class PushNotificationService {
           .request('DELETE', DEVICES_URL, {
             body: { token: this.currentToken },
           })
-          .pipe(catchError(() => of(null)))
+          .pipe(catchError(() => of(null))),
       );
     } catch {
       // Best effort
@@ -100,7 +100,7 @@ export class PushNotificationService {
    * foreground will be passed to the callback.
    */
   async setupForegroundListener(
-    onMessage: (payload: { title: string; body: string; data?: Record<string, string> }) => void
+    onMessage: (payload: { title: string; body: string; data?: Record<string, string> }) => void,
   ): Promise<void> {
     if (!isPlatformBrowser(this.platformId)) return;
     if (this.foregroundListenerActive) return;
@@ -132,10 +132,9 @@ export class PushNotificationService {
       if (!messaging) return null;
 
       // Register the Firebase messaging SW at its own scope and wait for it to activate
-      const swRegistration = await navigator.serviceWorker.register(
-        '/firebase-messaging-sw.js',
-        { scope: '/firebase-cloud-messaging-push-scope' }
-      );
+      const swRegistration = await navigator.serviceWorker.register('/firebase-messaging-sw.js', {
+        scope: '/firebase-cloud-messaging-push-scope',
+      });
 
       if (swRegistration.installing || swRegistration.waiting) {
         const sw = swRegistration.installing || swRegistration.waiting;
@@ -204,9 +203,7 @@ export class PushNotificationService {
 
   private async registerToken(token: string): Promise<void> {
     await firstValueFrom(
-      this.http
-        .post(DEVICES_URL, { token, platform: 'web' })
-        .pipe(catchError(() => of(null)))
+      this.http.post(DEVICES_URL, { token, platform: 'web' }).pipe(catchError(() => of(null))),
     );
   }
 }

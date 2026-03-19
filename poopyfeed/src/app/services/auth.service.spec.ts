@@ -11,11 +11,7 @@ describe('AuthService', () => {
   beforeEach(() => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
-      providers: [
-        provideHttpClient(),
-        provideHttpClientTesting(),
-        provideRouter([]),
-      ],
+      providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])],
     });
     service = TestBed.inject(AuthService);
     httpMock = TestBed.inject(HttpTestingController);
@@ -36,7 +32,10 @@ describe('AuthService', () => {
   describe('login', () => {
     it('should login successfully with allauth and store token', () => {
       const credentials = { email: 'test@example.com', password: 'password123' };
-      const mockAllauthResponse = { status: 200, data: { user: { id: 1, email: 'test@example.com' } } };
+      const mockAllauthResponse = {
+        status: 200,
+        data: { user: { id: 1, email: 'test@example.com' } },
+      };
       const mockTokenResponse = { auth_token: 'test-token-123' };
 
       service.login(credentials).subscribe({
@@ -123,7 +122,10 @@ describe('AuthService', () => {
       // First request: allauth signup
       const signupReq = httpMock.expectOne('/api/v1/browser/v1/auth/signup');
       expect(signupReq.request.method).toBe('POST');
-      expect(signupReq.request.body).toEqual({ email: signupData.email, password: signupData.password });
+      expect(signupReq.request.body).toEqual({
+        email: signupData.email,
+        password: signupData.password,
+      });
       expect(signupReq.request.withCredentials).toBe(true);
       signupReq.flush(mockAllauthResponse);
 
@@ -146,7 +148,7 @@ describe('AuthService', () => {
       const req = httpMock.expectOne('/api/v1/browser/v1/auth/signup');
       req.flush(
         { email: ['User with this email already exists.'] },
-        { status: 409, statusText: 'Conflict' }
+        { status: 409, statusText: 'Conflict' },
       );
     });
 
@@ -187,9 +189,7 @@ describe('AuthService', () => {
         },
       });
 
-      const req = httpMock.expectOne(
-        '/api/v1/browser/v1/auth/password/request'
-      );
+      const req = httpMock.expectOne('/api/v1/browser/v1/auth/password/request');
       expect(req.request.method).toBe('POST');
       expect(req.request.withCredentials).toBe(true);
       expect(req.request.body).toEqual({ email: 'reset@example.com' });
@@ -208,12 +208,10 @@ describe('AuthService', () => {
         },
       });
 
-      const req = httpMock.expectOne(
-        '/api/v1/browser/v1/auth/password/request'
-      );
+      const req = httpMock.expectOne('/api/v1/browser/v1/auth/password/request');
       req.flush(
         { email: ['Enter a valid email address.'] },
-        { status: 400, statusText: 'Bad Request' }
+        { status: 400, statusText: 'Bad Request' },
       );
 
       expect(errorCaught).toBe(true);
@@ -230,9 +228,7 @@ describe('AuthService', () => {
         },
       });
 
-      const resetReq = httpMock.expectOne(
-        '/api/v1/browser/v1/auth/password/reset'
-      );
+      const resetReq = httpMock.expectOne('/api/v1/browser/v1/auth/password/reset');
       expect(resetReq.request.method).toBe('POST');
       expect(resetReq.request.withCredentials).toBe(true);
       expect(resetReq.request.body).toEqual({
@@ -241,9 +237,7 @@ describe('AuthService', () => {
       });
       resetReq.flush({ status: 200 });
 
-      const tokenReq = httpMock.expectOne(
-        '/api/v1/browser/v1/auth/token/'
-      );
+      const tokenReq = httpMock.expectOne('/api/v1/browser/v1/auth/token/');
       const mockToken = { auth_token: 'reset-token-123' };
       tokenReq.flush(mockToken);
 
@@ -254,21 +248,17 @@ describe('AuthService', () => {
     it('should handle error when resetting password', () => {
       let errorCaught = false;
 
-      service
-        .resetPassword({ key: 'bad-key', password: 'NewSecurePass1!' })
-        .subscribe({
-          error: (error: Error) => {
-            expect(error.message).toContain('Reset password');
-            errorCaught = true;
-          },
-        });
+      service.resetPassword({ key: 'bad-key', password: 'NewSecurePass1!' }).subscribe({
+        error: (error: Error) => {
+          expect(error.message).toContain('Reset password');
+          errorCaught = true;
+        },
+      });
 
-      const resetReq = httpMock.expectOne(
-        '/api/v1/browser/v1/auth/password/reset'
-      );
+      const resetReq = httpMock.expectOne('/api/v1/browser/v1/auth/password/reset');
       resetReq.flush(
         { key: ['Invalid or expired key'] },
-        { status: 400, statusText: 'Bad Request' }
+        { status: 400, statusText: 'Bad Request' },
       );
 
       expect(errorCaught).toBe(true);
@@ -318,11 +308,7 @@ describe('AuthService', () => {
       localStorage.setItem('auth_token', 'stored-token');
 
       TestBed.configureTestingModule({
-        providers: [
-          provideHttpClient(),
-          provideHttpClientTesting(),
-          provideRouter([]),
-        ],
+        providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])],
       });
 
       const newService = TestBed.inject(AuthService);
@@ -356,7 +342,7 @@ describe('AuthService', () => {
       const req = httpMock.expectOne('/api/v1/browser/v1/auth/signup');
       req.flush(
         { password: ['Password must be at least 8 characters'] },
-        { status: 400, statusText: 'Bad Request' }
+        { status: 400, statusText: 'Bad Request' },
       );
 
       expect(errorCaught).toBe(true);
@@ -375,7 +361,7 @@ describe('AuthService', () => {
       const req = httpMock.expectOne('/api/v1/browser/v1/auth/login');
       req.flush(
         { non_field_errors: ['Login: Invalid credentials', 'Please try again'] },
-        { status: 400, statusText: 'Bad Request' }
+        { status: 400, statusText: 'Bad Request' },
       );
 
       expect(errorCaught).toBe(true);
@@ -392,7 +378,10 @@ describe('AuthService', () => {
       });
 
       const req = httpMock.expectOne('/api/v1/browser/v1/auth/login');
-      req.flush({ detail: 'Login: Unable to authenticate' }, { status: 401, statusText: 'Unauthorized' });
+      req.flush(
+        { detail: 'Login: Unable to authenticate' },
+        { status: 401, statusText: 'Unauthorized' },
+      );
 
       expect(errorCaught).toBe(true);
     });
@@ -623,7 +612,7 @@ describe('AuthService', () => {
       const signupReq = httpMock.expectOne('/api/v1/browser/v1/auth/signup');
       signupReq.flush(
         { email: ['Email already registered'] },
-        { status: 400, statusText: 'Bad Request' }
+        { status: 400, statusText: 'Bad Request' },
       );
 
       expect(errorCaught).toBe(true);
@@ -670,11 +659,7 @@ describe('AuthService', () => {
       // Create a new service instance to trigger the afterNextRender
       TestBed.resetTestingModule();
       TestBed.configureTestingModule({
-        providers: [
-          provideHttpClient(),
-          provideHttpClientTesting(),
-          provideRouter([]),
-        ],
+        providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])],
       });
 
       const newService = TestBed.inject(AuthService);
@@ -694,11 +679,7 @@ describe('AuthService', () => {
       // Create a new service with SSR scenario where token exists
       TestBed.resetTestingModule();
       TestBed.configureTestingModule({
-        providers: [
-          provideHttpClient(),
-          provideHttpClientTesting(),
-          provideRouter([]),
-        ],
+        providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])],
       });
 
       localStorage.clear();

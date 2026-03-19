@@ -1,8 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import {
-  HttpTestingController,
-  provideHttpClientTesting,
-} from '@angular/common/http/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
 import { AccountSettings } from './account-settings';
@@ -115,7 +112,7 @@ describe('AccountSettings', () => {
     const req = httpMock.expectOne('/api/v1/account/profile/');
     req.flush(
       { email: ['A user with this email already exists.'] },
-      { status: 400, statusText: 'Bad Request' }
+      { status: 400, statusText: 'Bad Request' },
     );
 
     expect(component.profileError()).toContain('email');
@@ -168,10 +165,7 @@ describe('AccountSettings', () => {
     component.onTimezoneSubmit();
 
     const req = httpMock.expectOne('/api/v1/account/profile/');
-    req.flush(
-      { timezone: ['Invalid timezone.'] },
-      { status: 400, statusText: 'Bad Request' }
-    );
+    req.flush({ timezone: ['Invalid timezone.'] }, { status: 400, statusText: 'Bad Request' });
 
     expect(tzCheckMock.clearDismissal).not.toHaveBeenCalled();
   });
@@ -194,9 +188,7 @@ describe('AccountSettings', () => {
       auth_token: 'new-token',
     });
 
-    expect(component.passwordSuccess()).toBe(
-      'Password changed successfully.'
-    );
+    expect(component.passwordSuccess()).toBe('Password changed successfully.');
   });
 
   it('should show error for mismatched passwords', () => {
@@ -228,7 +220,7 @@ describe('AccountSettings', () => {
     const req = httpMock.expectOne('/api/v1/account/password/');
     req.flush(
       { current_password: ['Current password is incorrect.'] },
-      { status: 400, statusText: 'Bad Request' }
+      { status: 400, statusText: 'Bad Request' },
     );
 
     expect(component.passwordError()).toContain('current_password');
@@ -256,7 +248,7 @@ describe('AccountSettings', () => {
     const req = httpMock.expectOne('/api/v1/account/delete/');
     req.flush(
       { current_password: ['Current password is incorrect.'] },
-      { status: 400, statusText: 'Bad Request' }
+      { status: 400, statusText: 'Bad Request' },
     );
 
     expect(component.deleteError()).toContain('current_password');
@@ -324,10 +316,7 @@ describe('AccountSettings', () => {
     component.onQuietHoursSubmit();
 
     const req = httpMock.expectOne('/api/v1/notifications/quiet-hours/');
-    req.flush(
-      { start_time: ['Invalid time.'] },
-      { status: 400, statusText: 'Bad Request' }
-    );
+    req.flush({ start_time: ['Invalid time.'] }, { status: 400, statusText: 'Bad Request' });
 
     expect(component.quietHoursError()).toBeTruthy();
     expect(component.quietHoursSubmitting()).toBe(false);
@@ -346,9 +335,7 @@ describe('AccountSettings', () => {
   it('should render page heading', () => {
     const fixture = createComponent();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent?.trim()).toBe(
-      'Account Settings'
-    );
+    expect(compiled.querySelector('h1')?.textContent?.trim()).toBe('Account Settings');
   });
 
   it('should not submit timezone form if invalid', () => {
@@ -369,10 +356,7 @@ describe('AccountSettings', () => {
     component.onTimezoneSubmit();
 
     const req = httpMock.expectOne('/api/v1/account/profile/');
-    req.flush(
-      { timezone: ['Invalid timezone.'] },
-      { status: 400, statusText: 'Bad Request' }
-    );
+    req.flush({ timezone: ['Invalid timezone.'] }, { status: 400, statusText: 'Bad Request' });
 
     expect(component.timezoneError()).toContain('timezone');
     expect(component.timezoneSubmitting()).toBe(false);
@@ -633,9 +617,7 @@ describe('AccountSettings', () => {
       fixture.detectChanges();
 
       const compiled = fixture.nativeElement as HTMLElement;
-      const errorDiv = compiled.querySelector(
-        'div.border-l-4.border-red-500:has(+ form)'
-      );
+      const errorDiv = compiled.querySelector('div.border-l-4.border-red-500:has(+ form)');
       expect(errorDiv?.textContent).toContain('Profile update failed');
     });
 
@@ -661,13 +643,9 @@ describe('AccountSettings', () => {
       fixture.detectChanges();
 
       const compiled = fixture.nativeElement as HTMLElement;
-      const emailError = compiled.querySelector(
-        'input[id="email"] + p.text-red-600'
-      );
+      const emailError = compiled.querySelector('input[id="email"] + p.text-red-600');
       expect(emailError).toBeTruthy();
-      expect(emailError?.textContent).toContain(
-        'Please enter a valid email address'
-      );
+      expect(emailError?.textContent).toContain('Please enter a valid email address');
     });
 
     it('should not render email validation error when email untouched', () => {
@@ -678,9 +656,7 @@ describe('AccountSettings', () => {
       fixture.detectChanges();
 
       const compiled = fixture.nativeElement as HTMLElement;
-      const emailError = compiled.querySelector(
-        'input[id="email"] + p.text-red-600'
-      );
+      const emailError = compiled.querySelector('input[id="email"] + p.text-red-600');
       expect(emailError).toBeFalsy();
     });
 
@@ -702,9 +678,9 @@ describe('AccountSettings', () => {
       fixture.detectChanges();
 
       const compiled = fixture.nativeElement as HTMLElement;
-      const profileButton = Array.from(
-        compiled.querySelectorAll('button[type="submit"]')
-      ).find((btn) => btn.textContent?.includes('Save Profile'));
+      const profileButton = Array.from(compiled.querySelectorAll('button[type="submit"]')).find(
+        (btn) => btn.textContent?.includes('Save Profile'),
+      );
 
       expect(profileButton?.textContent).toContain('Save Profile');
       expect(profileButton?.textContent).not.toContain('Saving');
@@ -719,9 +695,7 @@ describe('AccountSettings', () => {
 
       const compiled = fixture.nativeElement as HTMLElement;
       const errors = Array.from(compiled.querySelectorAll('div.border-red-500'));
-      const timezoneError = errors.find((el) =>
-        el.textContent?.includes('Invalid timezone')
-      );
+      const timezoneError = errors.find((el) => el.textContent?.includes('Invalid timezone'));
       expect(timezoneError).toBeTruthy();
     });
 
@@ -735,7 +709,7 @@ describe('AccountSettings', () => {
       const compiled = fixture.nativeElement as HTMLElement;
       const successDivs = compiled.querySelectorAll('div.border-green-500');
       const timezoneSuccess = Array.from(successDivs).find((el) =>
-        el.textContent?.includes('Timezone updated successfully')
+        el.textContent?.includes('Timezone updated successfully'),
       );
       expect(timezoneSuccess).toBeTruthy();
     });
@@ -764,9 +738,7 @@ describe('AccountSettings', () => {
 
       const compiled = fixture.nativeElement as HTMLElement;
       const errors = Array.from(compiled.querySelectorAll('div.border-red-500'));
-      const passwordError = errors.find((el) =>
-        el.textContent?.includes('Password change failed')
-      );
+      const passwordError = errors.find((el) => el.textContent?.includes('Password change failed'));
       expect(passwordError).toBeTruthy();
     });
 
@@ -780,7 +752,7 @@ describe('AccountSettings', () => {
       const compiled = fixture.nativeElement as HTMLElement;
       const successDivs = compiled.querySelectorAll('div.border-green-500');
       const passwordSuccess = Array.from(successDivs).find((el) =>
-        el.textContent?.includes('Password changed successfully')
+        el.textContent?.includes('Password changed successfully'),
       );
       expect(passwordSuccess).toBeTruthy();
     });
@@ -795,13 +767,9 @@ describe('AccountSettings', () => {
       fixture.detectChanges();
 
       const compiled = fixture.nativeElement as HTMLElement;
-      const passwordError = compiled.querySelector(
-        'input[id="new_password"] + p.text-red-600'
-      );
+      const passwordError = compiled.querySelector('input[id="new_password"] + p.text-red-600');
       expect(passwordError).toBeTruthy();
-      expect(passwordError?.textContent).toContain(
-        'Password must be at least 8 characters'
-      );
+      expect(passwordError?.textContent).toContain('Password must be at least 8 characters');
     });
 
     it('should not render password validation error when password untouched', () => {
@@ -812,9 +780,7 @@ describe('AccountSettings', () => {
       fixture.detectChanges();
 
       const compiled = fixture.nativeElement as HTMLElement;
-      const passwordError = compiled.querySelector(
-        'input[id="new_password"] + p.text-red-600'
-      );
+      const passwordError = compiled.querySelector('input[id="new_password"] + p.text-red-600');
       expect(passwordError).toBeFalsy();
     });
 
@@ -845,9 +811,9 @@ describe('AccountSettings', () => {
       fixture.detectChanges();
 
       const compiled = fixture.nativeElement as HTMLElement;
-      const passwordButton = Array.from(
-        compiled.querySelectorAll('button[type="submit"]')
-      ).find((btn) => btn.textContent?.includes('Change Password'));
+      const passwordButton = Array.from(compiled.querySelectorAll('button[type="submit"]')).find(
+        (btn) => btn.textContent?.includes('Change Password'),
+      );
 
       expect(passwordButton?.textContent).toContain('Change Password');
       expect(passwordButton?.textContent).not.toContain('Changing');
@@ -862,9 +828,7 @@ describe('AccountSettings', () => {
 
       const compiled = fixture.nativeElement as HTMLElement;
       const errors = Array.from(compiled.querySelectorAll('div.border-red-500'));
-      const deleteError = errors.find((el) =>
-        el.textContent?.includes('Delete failed')
-      );
+      const deleteError = errors.find((el) => el.textContent?.includes('Delete failed'));
       expect(deleteError).toBeTruthy();
     });
 
@@ -888,9 +852,9 @@ describe('AccountSettings', () => {
       fixture.detectChanges();
 
       const compiled = fixture.nativeElement as HTMLElement;
-      const deleteButton = Array.from(
-        compiled.querySelectorAll('button[type="submit"]')
-      ).find((btn) => btn.textContent?.includes('Delete Account'));
+      const deleteButton = Array.from(compiled.querySelectorAll('button[type="submit"]')).find(
+        (btn) => btn.textContent?.includes('Delete Account'),
+      );
 
       expect(deleteButton?.textContent).toContain('Delete Account');
       expect(deleteButton?.textContent).not.toContain('Deleting');
@@ -904,9 +868,9 @@ describe('AccountSettings', () => {
       fixture.detectChanges();
 
       const compiled = fixture.nativeElement as HTMLElement;
-      const profileButton = Array.from(
-        compiled.querySelectorAll('button[type="submit"]')
-      ).find((btn) => btn.textContent?.includes('Save Profile'));
+      const profileButton = Array.from(compiled.querySelectorAll('button[type="submit"]')).find(
+        (btn) => btn.textContent?.includes('Save Profile'),
+      );
 
       expect((profileButton as HTMLButtonElement).disabled).toBe(true);
     });

@@ -30,7 +30,7 @@ export class NetworkStatusService {
 
     merge(
       fromEvent(window, 'online').pipe(map(() => true)),
-      fromEvent(window, 'offline').pipe(map(() => false))
+      fromEvent(window, 'offline').pipe(map(() => false)),
     )
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((isOnline) => this.online.set(isOnline));

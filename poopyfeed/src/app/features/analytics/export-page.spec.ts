@@ -247,7 +247,7 @@ describe('ExportPage', () => {
 
     it('should set isExporting to false after PDF export completes', async () => {
       vi.spyOn(analyticsService, 'exportPDFAsync').mockReturnValue(
-        of({ task_id: 'job-1', status: 'pending' as const, created_at: '', expires_at: '' })
+        of({ task_id: 'job-1', status: 'pending' as const, created_at: '', expires_at: '' }),
       );
 
       component.onExportDialogSubmit({ format: 'pdf', days: 14 });
@@ -267,7 +267,9 @@ describe('ExportPage', () => {
     });
 
     it('should set isExporting to false after PDF export error', async () => {
-      vi.spyOn(analyticsService, 'exportPDFAsync').mockReturnValue(throwError(() => new Error('fail')));
+      vi.spyOn(analyticsService, 'exportPDFAsync').mockReturnValue(
+        throwError(() => new Error('fail')),
+      );
       vi.spyOn(toastService, 'error');
 
       component.onExportDialogSubmit({ format: 'pdf', days: 30 });

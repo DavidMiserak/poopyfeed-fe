@@ -2,16 +2,16 @@
   @if (today.feedings.count === 0 && today.diapers.count === 0 && today.sleep.naps === 0) {
     <div class="text-center py-8">
       <div class="text-5xl mb-3">🌅</div>
-      <p class="font-['DM_Sans',sans-serif] text-slate-600">
-        No activity recorded today
-      </p>
+      <p class="font-['DM_Sans',sans-serif] text-slate-600">No activity recorded today</p>
     </div>
   } @else {
     <!-- Compact stat strip: single card with dividers -->
     <div class="bg-white rounded-2xl border border-slate-100 shadow-sm">
       <div class="flex flex-col md:flex-row md:divide-x divide-slate-200">
         <!-- Feedings Stat -->
-        <div class="flex-1 px-6 py-4 flex items-center gap-4 border-b md:border-b-0 border-slate-200">
+        <div
+          class="flex-1 px-6 py-4 flex items-center gap-4 border-b md:border-b-0 border-slate-200"
+        >
           <span class="text-3xl" aria-hidden="true">🍼</span>
           <div>
             <p class="font-['Fredoka',sans-serif] text-3xl font-bold text-slate-900">
@@ -25,7 +25,9 @@
         </div>
 
         <!-- Diapers Stat -->
-        <div class="flex-1 px-6 py-4 flex items-center gap-4 border-b md:border-b-0 border-slate-200">
+        <div
+          class="flex-1 px-6 py-4 flex items-center gap-4 border-b md:border-b-0 border-slate-200"
+        >
           <span class="text-3xl" aria-hidden="true">💩</span>
           <div>
             <p class="font-['Fredoka',sans-serif] text-3xl font-bold text-slate-900">
@@ -33,7 +35,8 @@
             </p>
             <p class="font-['DM_Sans',sans-serif] text-xs text-slate-500">Diapers Today</p>
             <p class="font-['DM_Sans',sans-serif] text-xs text-slate-400">
-              {{ today.diapers.wet }} wet, {{ today.diapers.dirty }} dirty, {{ today.diapers.both }} both (wet + dirty)
+              {{ today.diapers.wet }} wet, {{ today.diapers.dirty }} dirty,
+              {{ today.diapers.both }} both (wet + dirty)
             </p>
           </div>
         </div>
@@ -57,8 +60,6 @@
 } @else {
   <div class="text-center py-8">
     <div class="text-5xl mb-3">🌅</div>
-    <p class="font-['DM_Sans',sans-serif] text-slate-600">
-      No activity recorded today
-    </p>
+    <p class="font-['DM_Sans',sans-serif] text-slate-600">No activity recorded today</p>
   </div>
 }

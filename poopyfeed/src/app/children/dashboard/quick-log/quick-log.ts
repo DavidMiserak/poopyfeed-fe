@@ -78,7 +78,10 @@ export class QuickLog {
   bottleAmountHigh = computed(() => {
     const childData = this.child();
     // Use custom amount if defined
-    if (childData?.custom_bottle_high_oz !== null && childData?.custom_bottle_high_oz !== undefined) {
+    if (
+      childData?.custom_bottle_high_oz !== null &&
+      childData?.custom_bottle_high_oz !== undefined
+    ) {
       return childData.custom_bottle_high_oz;
     }
     // Fall back to age-based recommendation + 1
@@ -192,7 +195,10 @@ export class QuickLog {
   }
 
   // Shared helper method (DRY principle)
-  private quickLogBottleWithAmount(amount: number | null, loadingSignal: ReturnType<typeof signal<boolean>>): void {
+  private quickLogBottleWithAmount(
+    amount: number | null,
+    loadingSignal: ReturnType<typeof signal<boolean>>,
+  ): void {
     const childId = this.childId();
     if (!childId || loadingSignal() || !this.canEdit() || !amount) return;
 

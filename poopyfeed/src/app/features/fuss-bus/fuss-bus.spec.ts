@@ -6,7 +6,11 @@ import { FussBusComponent } from './fuss-bus';
 import { ChildrenService } from '../../services/children.service';
 import { AnalyticsService } from '../../services/analytics.service';
 import { Child } from '../../models/child.model';
-import type { DashboardSummaryResponse, PatternAlertsResponse, TimelineResponse } from '../../models/analytics.model';
+import type {
+  DashboardSummaryResponse,
+  PatternAlertsResponse,
+  TimelineResponse,
+} from '../../models/analytics.model';
 
 function createActivatedRouteStub(childId: string) {
   return {

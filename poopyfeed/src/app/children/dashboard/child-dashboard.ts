@@ -70,7 +70,6 @@ import {
 } from '../../utils/date.utils';
 import { GaTrackingService } from '../../services/ga-tracking.service';
 
-
 /**
  * Unified activity item for dashboard feed.
  *
@@ -273,16 +272,16 @@ export class ChildDashboard implements OnInit {
     forkJoin({
       dashboardSummary: this.analyticsService.getDashboardSummary(childId),
       timeline: this.analyticsService.getTimeline(childId, 1, 20),
-      patternAlerts: this.analyticsService.getPatternAlerts(childId).pipe(
-        catchError(() => of(null))
-      ),
+      patternAlerts: this.analyticsService
+        .getPatternAlerts(childId)
+        .pipe(catchError(() => of(null))),
     }).subscribe({
       next: ({ dashboardSummary, timeline, patternAlerts }) => {
         this.todaySummaryData.set(dashboardSummary.today);
         this.notificationService.setUnreadCountFromBatch(dashboardSummary.unread_count);
         this.patternAlerts.set(patternAlerts ?? null);
         const activities = timeline.results.map((event) =>
-          this.timelineEventToActivityItem(event, childId)
+          this.timelineEventToActivityItem(event, childId),
         );
         this.recentActivity.set(activities);
         this.isDetailLoading.set(false);
@@ -297,10 +296,7 @@ export class ChildDashboard implements OnInit {
   /**
    * Map a timeline API event to ActivityItem for the recent activity feed.
    */
-  private timelineEventToActivityItem(
-    event: TimelineEvent,
-    childId: number
-  ): ActivityItem {
+  private timelineEventToActivityItem(event: TimelineEvent, childId: number): ActivityItem {
     const at = event.at;
     if (event.type === 'feeding' && event.feeding) {
       const f = event.feeding;
@@ -565,8 +561,7 @@ export class ChildDashboard implements OnInit {
     const interval = child.feeding_reminder_interval;
     const lastFeeding = child.last_feeding;
     if (interval == null || lastFeeding == null) return false;
-    const hoursSince =
-      (Date.now() - new Date(lastFeeding).getTime()) / (1000 * 60 * 60);
+    const hoursSince = (Date.now() - new Date(lastFeeding).getTime()) / (1000 * 60 * 60);
     return hoursSince >= interval;
   }
 }

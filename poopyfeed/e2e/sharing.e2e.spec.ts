@@ -18,15 +18,13 @@ async function navigateToSharingPage(page: import('@playwright/test').Page) {
   await moreTools.scrollIntoViewIfNeeded();
   await moreTools.click();
   await expect(page).toHaveURL(/\/children\/\d+\/advanced$/, { timeout: E2E_TIMEOUT });
-  await expect(
-    page.getByRole('link', { name: 'Manage Sharing' })
-  ).toBeVisible({ timeout: E2E_TIMEOUT });
+  await expect(page.getByRole('link', { name: 'Manage Sharing' })).toBeVisible({
+    timeout: E2E_TIMEOUT,
+  });
   await page.getByRole('link', { name: 'Manage Sharing' }).click();
 
   await expect(page).toHaveURL(/\/children\/\d+\/sharing$/, { timeout: E2E_TIMEOUT });
-  await expect(
-    page.getByText('Loading sharing settings...')
-  ).toBeHidden({ timeout: E2E_TIMEOUT });
+  await expect(page.getByText('Loading sharing settings...')).toBeHidden({ timeout: E2E_TIMEOUT });
 
   // Hero title is "Sharing Settings"; subtitle is "Manage access for {name}" (design-aligned page)
   const heading = page.getByRole('heading', { name: /Sharing Settings/ });
@@ -37,9 +35,9 @@ async function navigateToSharingPage(page: import('@playwright/test').Page) {
 
   if (!headingVisible) {
     await page.reload({ timeout: E2E_TIMEOUT });
-    await expect(
-      page.getByText('Loading sharing settings...')
-    ).toBeHidden({ timeout: E2E_TIMEOUT });
+    await expect(page.getByText('Loading sharing settings...')).toBeHidden({
+      timeout: E2E_TIMEOUT,
+    });
     await expect(heading).toBeVisible({ timeout: E2E_TIMEOUT });
   }
 }
@@ -49,54 +47,45 @@ test.describe('Sharing', () => {
     await createChildAndGoToDashboard(page, 'E2E Sharing');
     await navigateToSharingPage(page);
 
-    await expect(
-      page.getByRole('heading', { name: /Invite Links/ })
-    ).toBeVisible({ timeout: E2E_TIMEOUT });
-    await expect(
-      page.getByRole('button', { name: 'Create Invite Link' })
-    ).toBeVisible({ timeout: E2E_TIMEOUT });
+    await expect(page.getByRole('heading', { name: /Invite Links/ })).toBeVisible({
+      timeout: E2E_TIMEOUT,
+    });
+    await expect(page.getByRole('button', { name: 'Create Invite Link' })).toBeVisible({
+      timeout: E2E_TIMEOUT,
+    });
 
     // Verify back arrow text and navigation
     await page.getByRole('button', { name: 'Back to Advanced' }).click();
     await expect(page).toHaveURL(/\/children\/\d+\/advanced$/);
   });
 
-  test('owner can create a co-parent invite link and see it in the list', async ({
-    page,
-  }) => {
+  test('owner can create a co-parent invite link and see it in the list', async ({ page }) => {
     await createChildAndGoToDashboard(page, 'E2E Sharing');
     await navigateToSharingPage(page);
 
-    await expect(
-      page.getByRole('heading', { name: /Invite Links/ })
-    ).toBeVisible({ timeout: E2E_TIMEOUT });
-    await expect(
-      page.getByRole('button', { name: 'Create Invite Link' })
-    ).toBeVisible({ timeout: E2E_TIMEOUT });
+    await expect(page.getByRole('heading', { name: /Invite Links/ })).toBeVisible({
+      timeout: E2E_TIMEOUT,
+    });
+    await expect(page.getByRole('button', { name: 'Create Invite Link' })).toBeVisible({
+      timeout: E2E_TIMEOUT,
+    });
 
     await page.getByRole('button', { name: 'Create Invite Link' }).click();
-    const coParentInvite = page
-      .getByTestId('invite-item')
-      .filter({ hasText: 'Co-parent' })
-      .first();
+    const coParentInvite = page.getByTestId('invite-item').filter({ hasText: 'Co-parent' }).first();
     await expect
-      .poll(
-        async () => await coParentInvite.isVisible(),
-        { timeout: E2E_TIMEOUT, intervals: [800] }
-      )
+      .poll(async () => await coParentInvite.isVisible(), {
+        timeout: E2E_TIMEOUT,
+        intervals: [800],
+      })
       .toBe(true);
     await expect(coParentInvite.getByText('Active')).toBeVisible({ timeout: E2E_TIMEOUT });
   });
 
-  test('owner can create a caregiver invite link and see it in the list', async ({
-    page,
-  }) => {
+  test('owner can create a caregiver invite link and see it in the list', async ({ page }) => {
     await createChildAndGoToDashboard(page, 'E2E Sharing');
     await navigateToSharingPage(page);
 
-    await expect(
-      page.getByRole('combobox').first()
-    ).toBeVisible({ timeout: E2E_TIMEOUT });
+    await expect(page.getByRole('combobox').first()).toBeVisible({ timeout: E2E_TIMEOUT });
     await page.getByRole('combobox').first().selectOption('caregiver');
     await page.getByRole('button', { name: 'Create Invite Link' }).click();
 
@@ -105,10 +94,10 @@ test.describe('Sharing', () => {
       .filter({ hasText: 'Caregiver' })
       .first();
     await expect
-      .poll(
-        async () => await caregiverInvite.isVisible(),
-        { timeout: E2E_TIMEOUT, intervals: [800] }
-      )
+      .poll(async () => await caregiverInvite.isVisible(), {
+        timeout: E2E_TIMEOUT,
+        intervals: [800],
+      })
       .toBe(true);
     await expect(caregiverInvite.getByText('Active')).toBeVisible({ timeout: E2E_TIMEOUT });
   });

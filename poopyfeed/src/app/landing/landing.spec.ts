@@ -55,5 +55,4 @@ describe('Landing', () => {
     expect(main?.querySelector('app-benefits')).toBeTruthy();
     expect(main?.querySelector('app-cta')).toBeTruthy();
   });
-
 });

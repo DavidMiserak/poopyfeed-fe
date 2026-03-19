@@ -1,9 +1,4 @@
-import {
-  Component,
-  input,
-  output,
-  ChangeDetectionStrategy,
-} from '@angular/core';
+import { Component, input, output, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
   selector: 'app-tracking-list-header',
@@ -71,7 +66,8 @@ export class TrackingListHeaderComponent {
       amber: 'bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600',
     };
 
-    const gradient = gradientMap[this.accentColor()] || 'bg-gradient-to-br from-rose-400 via-rose-500 to-rose-600';
+    const gradient =
+      gradientMap[this.accentColor()] || 'bg-gradient-to-br from-rose-400 via-rose-500 to-rose-600';
 
     return `${gradient} transition-transform duration-300 group-hover:scale-110`;
   }

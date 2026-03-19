@@ -23,11 +23,10 @@ describe('ChildrenList', () => {
     last_diaper_change: '2024-02-10T14:30:00Z',
     last_nap: '2024-02-10T13:00:00Z',
     last_feeding: '2024-02-10T12:00:00Z',
-        custom_bottle_low_oz: null,
-        custom_bottle_mid_oz: null,
-        custom_bottle_high_oz: null,
-        feeding_reminder_interval: null,
-
+    custom_bottle_low_oz: null,
+    custom_bottle_mid_oz: null,
+    custom_bottle_high_oz: null,
+    feeding_reminder_interval: null,
   };
 
   const mockChildCoParent: Child = {
@@ -41,11 +40,10 @@ describe('ChildrenList', () => {
     last_diaper_change: '2024-02-10T10:00:00Z',
     last_nap: '2024-02-10T09:00:00Z',
     last_feeding: '2024-02-10T08:00:00Z',
-        custom_bottle_low_oz: null,
-        custom_bottle_mid_oz: null,
-        custom_bottle_high_oz: null,
-        feeding_reminder_interval: null,
-
+    custom_bottle_low_oz: null,
+    custom_bottle_mid_oz: null,
+    custom_bottle_high_oz: null,
+    feeding_reminder_interval: null,
   };
 
   const mockChildCaregiver: Child = {
@@ -59,18 +57,13 @@ describe('ChildrenList', () => {
     last_diaper_change: '2024-02-10T16:00:00Z',
     last_nap: '2024-02-10T15:00:00Z',
     last_feeding: '2024-02-10T14:00:00Z',
-        custom_bottle_low_oz: null,
-        custom_bottle_mid_oz: null,
-        custom_bottle_high_oz: null,
-        feeding_reminder_interval: null,
-
+    custom_bottle_low_oz: null,
+    custom_bottle_mid_oz: null,
+    custom_bottle_high_oz: null,
+    feeding_reminder_interval: null,
   };
 
-  const mockChildren: Child[] = [
-    mockChildOwner,
-    mockChildCoParent,
-    mockChildCaregiver,
-  ];
+  const mockChildren: Child[] = [mockChildOwner, mockChildCoParent, mockChildCaregiver];
 
   beforeEach(async () => {
     const childrenServiceMock = {
@@ -203,9 +196,7 @@ describe('ChildrenList', () => {
 
     it('should handle API errors', () => {
       const error = new Error('Network error');
-      vi.mocked(childrenService.list).mockReturnValue(
-        throwError(() => error)
-      );
+      vi.mocked(childrenService.list).mockReturnValue(throwError(() => error));
 
       component.loadChildren();
 
@@ -216,9 +207,7 @@ describe('ChildrenList', () => {
     it('should preserve children when error occurs', () => {
       component.children.set(mockChildren);
       const error = new Error('API error');
-      vi.mocked(childrenService.list).mockReturnValue(
-        throwError(() => error)
-      );
+      vi.mocked(childrenService.list).mockReturnValue(throwError(() => error));
 
       component.loadChildren();
 
@@ -242,9 +231,7 @@ describe('ChildrenList', () => {
 
     it('should handle validation errors from API', () => {
       const validationError = new Error('Invalid data format');
-      vi.mocked(childrenService.list).mockReturnValue(
-        throwError(() => validationError)
-      );
+      vi.mocked(childrenService.list).mockReturnValue(throwError(() => validationError));
 
       component.loadChildren();
 
@@ -253,9 +240,7 @@ describe('ChildrenList', () => {
 
     it('should handle timeout errors from API', () => {
       const timeoutError = new Error('Request timeout');
-      vi.mocked(childrenService.list).mockReturnValue(
-        throwError(() => timeoutError)
-      );
+      vi.mocked(childrenService.list).mockReturnValue(throwError(() => timeoutError));
 
       component.loadChildren();
 
@@ -273,34 +258,18 @@ describe('ChildrenList', () => {
     it('should navigate to child dashboard', () => {
       component.navigateToChild(1);
 
-      expect(router.navigate).toHaveBeenCalledWith([
-        '/children',
-        1,
-        'dashboard',
-      ]);
+      expect(router.navigate).toHaveBeenCalledWith(['/children', 1, 'dashboard']);
     });
 
     it('should navigate to correct child when clicking different children', () => {
       component.navigateToChild(1);
-      expect(router.navigate).toHaveBeenCalledWith([
-        '/children',
-        1,
-        'dashboard',
-      ]);
+      expect(router.navigate).toHaveBeenCalledWith(['/children', 1, 'dashboard']);
 
       component.navigateToChild(2);
-      expect(router.navigate).toHaveBeenCalledWith([
-        '/children',
-        2,
-        'dashboard',
-      ]);
+      expect(router.navigate).toHaveBeenCalledWith(['/children', 2, 'dashboard']);
 
       component.navigateToChild(3);
-      expect(router.navigate).toHaveBeenCalledWith([
-        '/children',
-        3,
-        'dashboard',
-      ]);
+      expect(router.navigate).toHaveBeenCalledWith(['/children', 3, 'dashboard']);
     });
 
     it('should update navigatingToChildId for each navigation', () => {
@@ -484,9 +453,7 @@ describe('ChildrenList', () => {
   describe('Error State Management', () => {
     it('should clear error when reloading successfully', () => {
       const error = new Error('Initial error');
-      vi.mocked(childrenService.list).mockReturnValue(
-        throwError(() => error)
-      );
+      vi.mocked(childrenService.list).mockReturnValue(throwError(() => error));
 
       component.loadChildren();
       expect(component.error()).toBe('Initial error');
@@ -502,9 +469,7 @@ describe('ChildrenList', () => {
       expect(component.children()).toHaveLength(3);
 
       const newError = new Error('New error');
-      vi.mocked(childrenService.list).mockReturnValue(
-        throwError(() => newError)
-      );
+      vi.mocked(childrenService.list).mockReturnValue(throwError(() => newError));
 
       component.loadChildren();
       expect(component.error()).toBe('New error');
@@ -512,9 +477,7 @@ describe('ChildrenList', () => {
 
     it('should handle special characters in error messages', () => {
       const error = new Error('Error: Invalid "data" & failed');
-      vi.mocked(childrenService.list).mockReturnValue(
-        throwError(() => error)
-      );
+      vi.mocked(childrenService.list).mockReturnValue(throwError(() => error));
 
       component.loadChildren();
       expect(component.error()).toBe('Error: Invalid "data" & failed');
@@ -523,9 +486,7 @@ describe('ChildrenList', () => {
     it('should handle very long error messages', () => {
       const longMessage = 'a'.repeat(500);
       const error = new Error(longMessage);
-      vi.mocked(childrenService.list).mockReturnValue(
-        throwError(() => error)
-      );
+      vi.mocked(childrenService.list).mockReturnValue(throwError(() => error));
 
       component.loadChildren();
       expect(component.error()).toBe(longMessage);
@@ -856,11 +817,10 @@ describe('ChildrenList', () => {
         last_diaper_change: null,
         last_nap: '2024-02-10T13:00:00Z',
         last_feeding: '2024-02-10T12:00:00Z',
-            custom_bottle_low_oz: null,
-            custom_bottle_mid_oz: null,
-            custom_bottle_high_oz: null,
+        custom_bottle_low_oz: null,
+        custom_bottle_mid_oz: null,
+        custom_bottle_high_oz: null,
         feeding_reminder_interval: null,
-
       };
       vi.mocked(childrenService.list).mockReturnValue(of([childNoActivity]));
       fixture.detectChanges();
@@ -868,7 +828,7 @@ describe('ChildrenList', () => {
       const el = fixture.nativeElement as HTMLElement;
       const italicSpans = el.querySelectorAll('.italic');
       const noneYetTexts = Array.from(italicSpans).filter(
-        (span) => span.textContent?.trim() === 'None yet'
+        (span) => span.textContent?.trim() === 'None yet',
       );
       expect(noneYetTexts.length).toBe(1);
     });
@@ -890,11 +850,10 @@ describe('ChildrenList', () => {
         last_diaper_change: '2024-02-10T14:30:00Z',
         last_nap: null,
         last_feeding: '2024-02-10T12:00:00Z',
-            custom_bottle_low_oz: null,
-            custom_bottle_mid_oz: null,
-            custom_bottle_high_oz: null,
+        custom_bottle_low_oz: null,
+        custom_bottle_mid_oz: null,
+        custom_bottle_high_oz: null,
         feeding_reminder_interval: null,
-
       };
       vi.mocked(childrenService.list).mockReturnValue(of([childNoNap]));
       fixture.detectChanges();
@@ -902,7 +861,7 @@ describe('ChildrenList', () => {
       const el = fixture.nativeElement as HTMLElement;
       const italicSpans = el.querySelectorAll('.italic');
       const noneYetTexts = Array.from(italicSpans).filter(
-        (span) => span.textContent?.trim() === 'None yet'
+        (span) => span.textContent?.trim() === 'None yet',
       );
       expect(noneYetTexts.length).toBe(1);
     });
@@ -914,11 +873,10 @@ describe('ChildrenList', () => {
         last_diaper_change: '2024-02-10T14:30:00Z',
         last_nap: '2024-02-10T13:00:00Z',
         last_feeding: null,
-            custom_bottle_low_oz: null,
-            custom_bottle_mid_oz: null,
-            custom_bottle_high_oz: null,
+        custom_bottle_low_oz: null,
+        custom_bottle_mid_oz: null,
+        custom_bottle_high_oz: null,
         feeding_reminder_interval: null,
-
       };
       vi.mocked(childrenService.list).mockReturnValue(of([childNoFeeding]));
       fixture.detectChanges();
@@ -926,7 +884,7 @@ describe('ChildrenList', () => {
       const el = fixture.nativeElement as HTMLElement;
       const italicSpans = el.querySelectorAll('.italic');
       const noneYetTexts = Array.from(italicSpans).filter(
-        (span) => span.textContent?.trim() === 'None yet'
+        (span) => span.textContent?.trim() === 'None yet',
       );
       expect(noneYetTexts.length).toBe(1);
     });

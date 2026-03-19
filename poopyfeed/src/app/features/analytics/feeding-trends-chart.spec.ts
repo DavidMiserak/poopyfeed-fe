@@ -346,7 +346,7 @@ describe('FeedingTrendsChart', () => {
 
       expect(consoleSpy).toHaveBeenCalledWith(
         'Failed to render feeding trends chart:',
-        expect.any(Error)
+        expect.any(Error),
       );
       consoleSpy.mockRestore();
       newFixture.destroy();

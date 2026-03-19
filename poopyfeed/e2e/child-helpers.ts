@@ -16,22 +16,15 @@ import { E2E_TIMEOUT } from './constants';
  * @param baseName - Prefix for the child name (e.g. 'E2E Feedings')
  * @returns The full child name used (e.g. 'E2E Feedings a1b2c3d4')
  */
-export async function createChildAndGoToDashboard(
-  page: Page,
-  baseName: string
-): Promise<string> {
+export async function createChildAndGoToDashboard(page: Page, baseName: string): Promise<string> {
   const childName = `${baseName} ${crypto.randomUUID().slice(0, 8)}`;
   const MAX_ATTEMPTS = 3;
 
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
     await page.goto('/children');
-    await expect(
-      page.getByRole('heading', { name: 'My Children' })
-    ).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'My Children' })).toBeVisible();
 
-    if (
-      await page.getByRole('heading', { name: 'No children yet!' }).isVisible()
-    ) {
+    if (await page.getByRole('heading', { name: 'No children yet!' }).isVisible()) {
       await page.getByRole('link', { name: 'Add Your First Baby' }).click();
     } else {
       await page.getByRole('link', { name: 'Add a new baby' }).first().click();

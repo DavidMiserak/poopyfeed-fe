@@ -26,9 +26,7 @@ describe('TrackingFilterComponent', () => {
 
   it('should not show clear button when no filters active', () => {
     fixture.detectChanges();
-    const clearButton = fixture.nativeElement.querySelector(
-      'button:has-text("Clear")'
-    );
+    const clearButton = fixture.nativeElement.querySelector('button:has-text("Clear")');
 
     expect(clearButton).toBeFalsy();
   });
@@ -104,7 +102,6 @@ describe('TrackingFilterComponent', () => {
       expect(lastCriteria.dateTo).toBeUndefined();
     });
   });
-
 
   describe('clearFilters()', () => {
     it('should clear all filters', () => {
@@ -316,9 +313,7 @@ describe('TrackingFilterComponent', () => {
     });
 
     it('should show type badge when filter is active', () => {
-      fixture.componentRef.setInput('typeOptions', [
-        { value: 'bottle', label: 'Bottle' },
-      ]);
+      fixture.componentRef.setInput('typeOptions', [{ value: 'bottle', label: 'Bottle' }]);
       component.filters.set({ type: 'bottle' });
       fixture.detectChanges();
 

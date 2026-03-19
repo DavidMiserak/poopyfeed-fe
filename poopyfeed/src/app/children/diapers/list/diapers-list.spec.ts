@@ -29,11 +29,10 @@ describe('DiapersList - Batch Operations', () => {
     last_diaper_change: '2024-01-15T14:30:00Z',
     last_nap: '2024-01-15T13:00:00Z',
     last_feeding: '2024-01-15T12:00:00Z',
-        custom_bottle_low_oz: null,
-        custom_bottle_mid_oz: null,
-        custom_bottle_high_oz: null,
-        feeding_reminder_interval: null,
-
+    custom_bottle_low_oz: null,
+    custom_bottle_mid_oz: null,
+    custom_bottle_high_oz: null,
+    feeding_reminder_interval: null,
   };
 
   const mockDiapers: DiaperChange[] = [
@@ -146,7 +145,7 @@ describe('DiapersList - Batch Operations', () => {
 
     component.bulkDelete();
 
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise((resolve) => setTimeout(resolve, 100));
     expect(diapersService.delete).toHaveBeenCalledWith(1, 1);
     expect(diapersService.delete).toHaveBeenCalledWith(1, 2);
     expect(component.selectedIds()).toEqual(new Set());
@@ -193,11 +192,10 @@ describe('DiapersList - Comprehensive Tests', () => {
     last_diaper_change: '2024-02-10T14:30:00Z',
     last_nap: '2024-02-10T13:00:00Z',
     last_feeding: '2024-02-10T12:00:00Z',
-        custom_bottle_low_oz: null,
-        custom_bottle_mid_oz: null,
-        custom_bottle_high_oz: null,
-        feeding_reminder_interval: null,
-
+    custom_bottle_low_oz: null,
+    custom_bottle_mid_oz: null,
+    custom_bottle_high_oz: null,
+    feeding_reminder_interval: null,
   };
 
   const mockCoParentChild: Child = {
@@ -307,7 +305,6 @@ describe('DiapersList - Comprehensive Tests', () => {
       expect(component.allItems()).toEqual([]);
     });
 
-
     it('should initialize with no error', () => {
       expect(component.error()).toBeNull();
     });
@@ -333,7 +330,7 @@ describe('DiapersList - Comprehensive Tests', () => {
 
     it('should load diapers after child loads', async () => {
       component.ngOnInit();
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
 
       expect(diapersService.list).toHaveBeenCalledWith(1, expect.any(Object), 1);
     });
@@ -346,14 +343,14 @@ describe('DiapersList - Comprehensive Tests', () => {
 
     it('should populate allDiapers signal', async () => {
       component.ngOnInit();
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
 
       expect(component.allItems()).toEqual(mockDiapers);
     });
 
     it('should set isLoading=false after load', async () => {
       component.ngOnInit();
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
 
       expect(component.isLoading()).toBe(false);
     });
@@ -372,7 +369,7 @@ describe('DiapersList - Comprehensive Tests', () => {
       vi.mocked(diapersService.list).mockReturnValue(throwError(() => error));
 
       component.ngOnInit();
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
 
       expect(component.error()).toBe('Failed to load');
     });
@@ -422,13 +419,7 @@ describe('DiapersList - Comprehensive Tests', () => {
     it('should navigate to delete', () => {
       component.navigateToDelete(5);
 
-      expect(router.navigate).toHaveBeenCalledWith([
-        '/children',
-        1,
-        'diapers',
-        5,
-        'delete',
-      ]);
+      expect(router.navigate).toHaveBeenCalledWith(['/children', 1, 'diapers', 5, 'delete']);
     });
 
     it('should navigate to dashboard', () => {
@@ -529,17 +520,17 @@ describe('DiapersList - Comprehensive Tests', () => {
 
   describe('Change Type Handling', () => {
     it('should have wet option', () => {
-      const wet = component.changeTypeOptions.find(o => o.value === 'wet');
+      const wet = component.changeTypeOptions.find((o) => o.value === 'wet');
       expect(wet?.label).toBe('Wet');
     });
 
     it('should have dirty option', () => {
-      const dirty = component.changeTypeOptions.find(o => o.value === 'dirty');
+      const dirty = component.changeTypeOptions.find((o) => o.value === 'dirty');
       expect(dirty?.label).toBe('Dirty');
     });
 
     it('should have both option', () => {
-      const both = component.changeTypeOptions.find(o => o.value === 'both');
+      const both = component.changeTypeOptions.find((o) => o.value === 'both');
       expect(both?.label).toBe('Both');
     });
   });
@@ -678,11 +669,10 @@ describe('DiapersList - Route and Concurrent Operations', () => {
     last_diaper_change: '2024-01-15T14:30:00Z',
     last_nap: '2024-01-15T13:00:00Z',
     last_feeding: '2024-01-15T12:00:00Z',
-        custom_bottle_low_oz: null,
-        custom_bottle_mid_oz: null,
-        custom_bottle_high_oz: null,
-        feeding_reminder_interval: null,
-
+    custom_bottle_low_oz: null,
+    custom_bottle_mid_oz: null,
+    custom_bottle_high_oz: null,
+    feeding_reminder_interval: null,
   };
 
   const mockDiapers: DiaperChange[] = [
@@ -762,15 +752,11 @@ describe('DiapersList - Route and Concurrent Operations', () => {
 
       const mockRoute = TestBed.inject(ActivatedRoute);
       const originalGet = mockRoute.snapshot.paramMap.get;
-      mockRoute.snapshot.paramMap.get = vi.fn((key: string) =>
-        key === 'childId' ? '2' : null
-      );
-      vi.mocked(childrenService.get).mockReturnValue(
-        of({ ...mockChild, id: 2, name: 'Baby Bob' })
-      );
+      mockRoute.snapshot.paramMap.get = vi.fn((key: string) => (key === 'childId' ? '2' : null));
+      vi.mocked(childrenService.get).mockReturnValue(of({ ...mockChild, id: 2, name: 'Baby Bob' }));
 
       component.ngOnInit();
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
 
       expect(component.childId()).toBe(2);
       expect(component.child()?.id).toBe(2);
@@ -788,7 +774,7 @@ describe('DiapersList - Route and Concurrent Operations', () => {
       vi.mocked(diapersService.list).mockReturnValue(of([]));
 
       component.ngOnInit();
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
 
       expect(component.allItems()).toEqual([]);
 
@@ -877,7 +863,9 @@ describe('DiapersList - Route and Concurrent Operations', () => {
     it('should handle ngOnInit with no childId in route', () => {
       const activatedRoute = TestBed.inject(ActivatedRoute);
       const originalGet = activatedRoute.snapshot.paramMap.get;
-      activatedRoute.snapshot.paramMap.get = vi.fn().mockReturnValue(null) as typeof activatedRoute.snapshot.paramMap.get;
+      activatedRoute.snapshot.paramMap.get = vi
+        .fn()
+        .mockReturnValue(null) as typeof activatedRoute.snapshot.paramMap.get;
       vi.mocked(childrenService.get).mockClear();
 
       component.ngOnInit();

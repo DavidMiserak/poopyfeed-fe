@@ -28,7 +28,7 @@ export class ApiError extends Error {
   constructor(
     message: string,
     readonly status?: number,
-    readonly originalError?: unknown
+    readonly originalError?: unknown,
   ) {
     super(message);
     this.name = 'ApiError';
@@ -206,7 +206,7 @@ export class ErrorHandler {
     // Check for non_field_errors (validation errors that apply to multiple fields)
     if ('non_field_errors' in errorObj && Array.isArray(errorObj['non_field_errors'])) {
       const messages = (errorObj['non_field_errors'] as unknown[]).filter(
-        (msg) => typeof msg === 'string'
+        (msg) => typeof msg === 'string',
       );
       if (messages.length > 0) {
         return messages.join(', ');

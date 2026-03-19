@@ -29,11 +29,10 @@ describe('NapForm', () => {
     last_diaper_change: '2024-02-10T14:30:00Z',
     last_nap: '2024-02-10T13:00:00Z',
     last_feeding: '2024-02-10T12:00:00Z',
-        custom_bottle_low_oz: null,
-        custom_bottle_mid_oz: null,
-        custom_bottle_high_oz: null,
-        feeding_reminder_interval: null,
-
+    custom_bottle_low_oz: null,
+    custom_bottle_mid_oz: null,
+    custom_bottle_high_oz: null,
+    feeding_reminder_interval: null,
   };
 
   const mockNap: Nap = {
@@ -157,9 +156,7 @@ describe('NapForm', () => {
       expect(component.napForm.get('napped_at')?.hasError('required')).toBe(true);
 
       component.napForm.get('napped_at')?.setValue('2024-02-10T10:30');
-      expect(component.napForm.get('napped_at')?.hasError('required')).toBe(
-        false
-      );
+      expect(component.napForm.get('napped_at')?.hasError('required')).toBe(false);
     });
 
     it('should allow ended_at to be optional', () => {
@@ -211,9 +208,7 @@ describe('NapForm', () => {
     });
 
     it('should convert UTC to local when patching form in edit mode', () => {
-      vi.mocked(dateTimeService.toInputFormat).mockReturnValue(
-        '2024-02-10T13:00'
-      );
+      vi.mocked(dateTimeService.toInputFormat).mockReturnValue('2024-02-10T13:00');
 
       component['patchFormWithResource'](mockNap);
 
@@ -221,9 +216,7 @@ describe('NapForm', () => {
     });
 
     it('should handle ended_at conversion when present', () => {
-      vi.mocked(dateTimeService.toInputFormat).mockReturnValue(
-        '2024-02-10T14:30'
-      );
+      vi.mocked(dateTimeService.toInputFormat).mockReturnValue('2024-02-10T14:30');
 
       component['patchFormWithResource'](mockNap);
 
@@ -234,13 +227,9 @@ describe('NapForm', () => {
   describe('Form Submission - Create Mode', () => {
     beforeEach(() => {
       vi.mocked(childrenService.get).mockReturnValue(of(mockChild));
-      vi.mocked(dateTimeService.toInputFormat).mockReturnValue(
-        '2024-02-10T10:30'
-      );
+      vi.mocked(dateTimeService.toInputFormat).mockReturnValue('2024-02-10T10:30');
       vi.mocked(dateTimeService.toUTC).mockReturnValue('2024-02-10T10:30:00Z');
-      vi.mocked(dateTimeService.toLocal).mockReturnValue(
-        new Date('2024-02-10T13:00:00')
-      );
+      vi.mocked(dateTimeService.toLocal).mockReturnValue(new Date('2024-02-10T13:00:00'));
     });
 
     it('should build correct NapCreate DTO with required fields', () => {
@@ -305,9 +294,7 @@ describe('NapForm', () => {
     });
 
     it('should convert napped_at to UTC before API call', () => {
-      vi.mocked(dateTimeService.fromInputFormat).mockReturnValue(
-        new Date('2024-02-10T10:30:00')
-      );
+      vi.mocked(dateTimeService.fromInputFormat).mockReturnValue(new Date('2024-02-10T10:30:00'));
       vi.mocked(dateTimeService.toUTC).mockReturnValue('2024-02-10T10:30:00Z');
 
       component.napForm.patchValue({
@@ -316,9 +303,7 @@ describe('NapForm', () => {
 
       const dto = component['buildCreateDto']();
 
-      expect(dateTimeService.fromInputFormat).toHaveBeenCalledWith(
-        '2024-02-10T10:30'
-      );
+      expect(dateTimeService.fromInputFormat).toHaveBeenCalledWith('2024-02-10T10:30');
       expect(dateTimeService.toUTC).toHaveBeenCalled();
       expect(dto.napped_at).toBe('2024-02-10T10:30:00Z');
     });
@@ -326,9 +311,7 @@ describe('NapForm', () => {
 
   describe('Form Patch - Edit Mode', () => {
     beforeEach(() => {
-      vi.mocked(dateTimeService.toInputFormat).mockReturnValue(
-        '2024-02-10T13:00'
-      );
+      vi.mocked(dateTimeService.toInputFormat).mockReturnValue('2024-02-10T13:00');
     });
 
     it('should load existing nap data into form', () => {
@@ -360,9 +343,7 @@ describe('NapForm', () => {
     });
 
     it('should leave ended_at empty when null', () => {
-      vi.mocked(dateTimeService.toInputFormat).mockReturnValue(
-        '2024-02-10T13:00'
-      );
+      vi.mocked(dateTimeService.toInputFormat).mockReturnValue('2024-02-10T13:00');
 
       component['patchFormWithResource'](mockNapNoNotes);
 
@@ -699,6 +680,5 @@ describe('NapForm', () => {
         expect(component.error()).toBe('Second error');
       });
     });
-
   });
 });

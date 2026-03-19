@@ -1,9 +1,8 @@
 @if (meta() && meta()!.totalPages > 1) {
-  <nav
-    aria-label="Pagination"
-    class="flex justify-center mt-6"
-  >
-    <div class="inline-flex items-center gap-2 rounded-xl bg-white/80 backdrop-blur border-2 border-slate-200/60 px-4 py-2 shadow-sm">
+  <nav aria-label="Pagination" class="flex justify-center mt-6">
+    <div
+      class="inline-flex items-center gap-2 rounded-xl bg-white/80 backdrop-blur border-2 border-slate-200/60 px-4 py-2 shadow-sm"
+    >
       <button
         type="button"
         [disabled]="!meta()!.previous"

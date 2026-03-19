@@ -29,11 +29,10 @@ describe('DiaperForm', () => {
     last_diaper_change: '2024-02-10T14:30:00Z',
     last_nap: '2024-02-10T13:00:00Z',
     last_feeding: '2024-02-10T12:00:00Z',
-        custom_bottle_low_oz: null,
-        custom_bottle_mid_oz: null,
-        custom_bottle_high_oz: null,
-        feeding_reminder_interval: null,
-
+    custom_bottle_low_oz: null,
+    custom_bottle_mid_oz: null,
+    custom_bottle_high_oz: null,
+    feeding_reminder_interval: null,
   };
 
   const mockDiaperWet: DiaperChange = {
@@ -177,35 +176,25 @@ describe('DiaperForm', () => {
 
     it('should require change_type field', () => {
       component.diaperForm.get('change_type')?.setValue(null);
-      expect(component.diaperForm.get('change_type')?.hasError('required')).toBe(
-        true
-      );
+      expect(component.diaperForm.get('change_type')?.hasError('required')).toBe(true);
     });
   });
 
   describe('Required Fields', () => {
     it('should require changed_at field', () => {
       component.diaperForm.get('changed_at')?.setValue('');
-      expect(component.diaperForm.get('changed_at')?.hasError('required')).toBe(
-        true
-      );
+      expect(component.diaperForm.get('changed_at')?.hasError('required')).toBe(true);
 
       component.diaperForm.get('changed_at')?.setValue('2024-02-10T10:30');
-      expect(component.diaperForm.get('changed_at')?.hasError('required')).toBe(
-        false
-      );
+      expect(component.diaperForm.get('changed_at')?.hasError('required')).toBe(false);
     });
 
     it('should require change_type field', () => {
       component.diaperForm.get('change_type')?.setValue(null);
-      expect(component.diaperForm.get('change_type')?.hasError('required')).toBe(
-        true
-      );
+      expect(component.diaperForm.get('change_type')?.hasError('required')).toBe(true);
 
       component.diaperForm.get('change_type')?.setValue('wet');
-      expect(component.diaperForm.get('change_type')?.hasError('required')).toBe(
-        false
-      );
+      expect(component.diaperForm.get('change_type')?.hasError('required')).toBe(false);
     });
   });
 
@@ -237,18 +226,10 @@ describe('DiaperForm', () => {
   describe('Form Submission - Create', () => {
     beforeEach(() => {
       vi.mocked(childrenService.get).mockReturnValue(of(mockChild));
-      vi.mocked(dateTimeService.toInputFormat).mockReturnValue(
-        '2024-02-10T10:30'
-      );
-      vi.mocked(dateTimeService.toUTC).mockReturnValue(
-        '2024-02-10T10:30:00Z'
-      );
-      vi.mocked(dateTimeService.toLocal).mockReturnValue(
-        new Date('2024-02-10T14:30:00')
-      );
-      vi.mocked(dateTimeService.fromInputFormat).mockReturnValue(
-        new Date('2024-02-10T10:30:00')
-      );
+      vi.mocked(dateTimeService.toInputFormat).mockReturnValue('2024-02-10T10:30');
+      vi.mocked(dateTimeService.toUTC).mockReturnValue('2024-02-10T10:30:00Z');
+      vi.mocked(dateTimeService.toLocal).mockReturnValue(new Date('2024-02-10T14:30:00'));
+      vi.mocked(dateTimeService.fromInputFormat).mockReturnValue(new Date('2024-02-10T10:30:00'));
     });
 
     it('should build correct DTO for wet diaper creation', () => {
@@ -359,15 +340,11 @@ describe('DiaperForm', () => {
 
     it('should convert UTC datetime to local format', () => {
       const _mockLocalDate = new Date('2024-02-10T14:30:00');
-      vi.mocked(dateTimeService.toInputFormat).mockReturnValue(
-        '2024-02-10T14:30'
-      );
+      vi.mocked(dateTimeService.toInputFormat).mockReturnValue('2024-02-10T14:30');
 
       component['patchFormWithResource'](mockDiaperWet);
 
-      expect(component.diaperForm.get('changed_at')?.value).toBe(
-        '2024-02-10T14:30'
-      );
+      expect(component.diaperForm.get('changed_at')?.value).toBe('2024-02-10T14:30');
     });
 
     it('should set empty string for missing notes', () => {
@@ -386,17 +363,13 @@ describe('DiaperForm', () => {
     it('should accept notes up to 500 characters', () => {
       const longNotes = 'a'.repeat(500);
       component.diaperForm.get('notes')?.setValue(longNotes);
-      expect(component.diaperForm.get('notes')?.hasError('maxlength')).toBe(
-        false
-      );
+      expect(component.diaperForm.get('notes')?.hasError('maxlength')).toBe(false);
     });
 
     it('should reject notes exceeding 500 characters', () => {
       const tooLongNotes = 'a'.repeat(501);
       component.diaperForm.get('notes')?.setValue(tooLongNotes);
-      expect(component.diaperForm.get('notes')?.hasError('maxlength')).toBe(
-        true
-      );
+      expect(component.diaperForm.get('notes')?.hasError('maxlength')).toBe(true);
     });
 
     it('should accept empty notes', () => {
@@ -558,15 +531,11 @@ describe('DiaperForm', () => {
     });
 
     it('should expose success message for create', () => {
-      expect(component['successMessageCreate']).toBe(
-        'Diaper change recorded successfully'
-      );
+      expect(component['successMessageCreate']).toBe('Diaper change recorded successfully');
     });
 
     it('should expose success message for update', () => {
-      expect(component['successMessageUpdate']).toBe(
-        'Diaper change updated successfully'
-      );
+      expect(component['successMessageUpdate']).toBe('Diaper change updated successfully');
     });
   });
 
@@ -609,9 +578,7 @@ describe('DiaperForm', () => {
         component.error.set('Server error occurred');
 
         expect(component.diaperForm.get('change_type')?.value).toBe('wet');
-        expect(component.diaperForm.get('changed_at')?.value).toBe(
-          '2024-02-10T10:30'
-        );
+        expect(component.diaperForm.get('changed_at')?.value).toBe('2024-02-10T10:30');
         expect(component.diaperForm.get('notes')?.value).toBe('Normal amount');
       });
 

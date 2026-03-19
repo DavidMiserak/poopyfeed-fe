@@ -7,7 +7,7 @@
  * - Mobile-first responsive design
  */
 
-@import "tailwindcss";
+@import 'tailwindcss';
 
 /* Self-hosted fonts (Latin subset only) */
 @font-face {
@@ -48,64 +48,64 @@
 
 @theme {
   /* Rose Primary Palette - Soft Playful Professional */
-  --color-primary-50: #fff5f7;   /* rose-50 */
-  --color-primary-100: #ffe4e6;  /* rose-100 */
-  --color-primary-200: #fecdd3;  /* rose-200 */
-  --color-primary-300: #fda4af;  /* rose-300 */
-  --color-primary-400: #fb7185;  /* rose-400 */
-  --color-primary-500: #f43f5e;  /* rose-500 */
-  --color-primary-600: #e11d48;  /* rose-600 */
-  --color-primary-700: #be123c;  /* rose-700 */
-  --color-primary-800: #9f1239;  /* rose-800 */
-  --color-primary-900: #881337;  /* rose-900 */
+  --color-primary-50: #fff5f7; /* rose-50 */
+  --color-primary-100: #ffe4e6; /* rose-100 */
+  --color-primary-200: #fecdd3; /* rose-200 */
+  --color-primary-300: #fda4af; /* rose-300 */
+  --color-primary-400: #fb7185; /* rose-400 */
+  --color-primary-500: #f43f5e; /* rose-500 */
+  --color-primary-600: #e11d48; /* rose-600 */
+  --color-primary-700: #be123c; /* rose-700 */
+  --color-primary-800: #9f1239; /* rose-800 */
+  --color-primary-900: #881337; /* rose-900 */
 
   /* Amber/Orange Accent Palette - Warm & Cheerful */
-  --color-accent-50: #fffbeb;   /* amber-50 */
-  --color-accent-100: #fef3c7;  /* amber-100 */
-  --color-accent-200: #fde68a;  /* amber-200 */
-  --color-accent-300: #fcd34d;  /* amber-300 */
-  --color-accent-400: #fbbf24;  /* amber-400 */
-  --color-accent-500: #f59e0b;  /* amber-500 */
-  --color-accent-600: #d97706;  /* amber-600 */
-  --color-accent-700: #b45309;  /* amber-700 */
-  --color-accent-800: #92400e;  /* amber-800 */
-  --color-accent-900: #78350f;  /* amber-900 */
+  --color-accent-50: #fffbeb; /* amber-50 */
+  --color-accent-100: #fef3c7; /* amber-100 */
+  --color-accent-200: #fde68a; /* amber-200 */
+  --color-accent-300: #fcd34d; /* amber-300 */
+  --color-accent-400: #fbbf24; /* amber-400 */
+  --color-accent-500: #f59e0b; /* amber-500 */
+  --color-accent-600: #d97706; /* amber-600 */
+  --color-accent-700: #b45309; /* amber-700 */
+  --color-accent-800: #92400e; /* amber-800 */
+  --color-accent-900: #78350f; /* amber-900 */
 
   /* Emerald Success Palette - Positive Confirmation */
-  --color-success-50: #ecfdf5;   /* emerald-50 */
-  --color-success-100: #d1fae5;  /* emerald-100 */
-  --color-success-200: #a7f3d0;  /* emerald-200 */
-  --color-success-300: #6ee7b7;  /* emerald-300 */
-  --color-success-400: #34d399;  /* emerald-400 */
-  --color-success-500: #10b981;  /* emerald-500 */
-  --color-success-600: #059669;  /* emerald-600 */
-  --color-success-700: #047857;  /* emerald-700 */
-  --color-success-800: #065f46;  /* emerald-800 */
-  --color-success-900: #064e3b;  /* emerald-900 */
+  --color-success-50: #ecfdf5; /* emerald-50 */
+  --color-success-100: #d1fae5; /* emerald-100 */
+  --color-success-200: #a7f3d0; /* emerald-200 */
+  --color-success-300: #6ee7b7; /* emerald-300 */
+  --color-success-400: #34d399; /* emerald-400 */
+  --color-success-500: #10b981; /* emerald-500 */
+  --color-success-600: #059669; /* emerald-600 */
+  --color-success-700: #047857; /* emerald-700 */
+  --color-success-800: #065f46; /* emerald-800 */
+  --color-success-900: #064e3b; /* emerald-900 */
 
   /* Neutral Slate Palette - Text & Backgrounds */
-  --color-neutral-50: #f8fafc;   /* slate-50 */
-  --color-neutral-100: #f1f5f9;  /* slate-100 */
-  --color-neutral-200: #e2e8f0;  /* slate-200 */
-  --color-neutral-300: #cbd5e1;  /* slate-300 */
-  --color-neutral-400: #94a3b8;  /* slate-400 */
-  --color-neutral-500: #64748b;  /* slate-500 */
-  --color-neutral-600: #475569;  /* slate-600 */
-  --color-neutral-700: #334155;  /* slate-700 */
-  --color-neutral-800: #1e293b;  /* slate-800 */
-  --color-neutral-900: #0f172a;  /* slate-900 */
+  --color-neutral-50: #f8fafc; /* slate-50 */
+  --color-neutral-100: #f1f5f9; /* slate-100 */
+  --color-neutral-200: #e2e8f0; /* slate-200 */
+  --color-neutral-300: #cbd5e1; /* slate-300 */
+  --color-neutral-400: #94a3b8; /* slate-400 */
+  --color-neutral-500: #64748b; /* slate-500 */
+  --color-neutral-600: #475569; /* slate-600 */
+  --color-neutral-700: #334155; /* slate-700 */
+  --color-neutral-800: #1e293b; /* slate-800 */
+  --color-neutral-900: #0f172a; /* slate-900 */
 
   /* Red Error Palette - Alerts & Warnings */
-  --color-error-50: #fef2f2;     /* red-50 */
-  --color-error-100: #fee2e2;    /* red-100 */
-  --color-error-200: #fecaca;    /* red-200 */
-  --color-error-300: #fca5a5;    /* red-300 */
-  --color-error-400: #f87171;    /* red-400 */
-  --color-error-500: #ef4444;    /* red-500 */
-  --color-error-600: #dc2626;    /* red-600 */
-  --color-error-700: #b91c1c;    /* red-700 */
-  --color-error-800: #991b1b;    /* red-800 */
-  --color-error-900: #7f1d1d;    /* red-900 */
+  --color-error-50: #fef2f2; /* red-50 */
+  --color-error-100: #fee2e2; /* red-100 */
+  --color-error-200: #fecaca; /* red-200 */
+  --color-error-300: #fca5a5; /* red-300 */
+  --color-error-400: #f87171; /* red-400 */
+  --color-error-500: #ef4444; /* red-500 */
+  --color-error-600: #dc2626; /* red-600 */
+  --color-error-700: #b91c1c; /* red-700 */
+  --color-error-800: #991b1b; /* red-800 */
+  --color-error-900: #7f1d1d; /* red-900 */
 }
 
 /* Global Styles */
@@ -122,14 +122,23 @@ html {
 body {
   margin: 0;
   padding: 0;
-  font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+  font-family:
+    'DM Sans',
+    system-ui,
+    -apple-system,
+    sans-serif;
   background: var(--color-neutral-50);
   color: var(--color-neutral-800);
   line-height: 1.6;
 }
 
 /* Typography Scale */
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: 'Fredoka', system-ui, sans-serif;
   font-weight: 700;
   line-height: 1.2;
@@ -208,12 +217,12 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* Form Elements - Large & Clear */
-input[type="text"],
-input[type="email"],
-input[type="password"],
-input[type="number"],
-input[type="datetime-local"],
-input[type="date"],
+input[type='text'],
+input[type='email'],
+input[type='password'],
+input[type='number'],
+input[type='datetime-local'],
+input[type='date'],
 textarea,
 select {
   font-family: 'DM Sans', system-ui, sans-serif;
@@ -235,8 +244,8 @@ select:focus {
 }
 
 /* Radio & Checkbox - Larger Touch Targets */
-input[type="radio"],
-input[type="checkbox"] {
+input[type='radio'],
+input[type='checkbox'] {
   width: 24px;
   height: 24px;
   cursor: pointer;

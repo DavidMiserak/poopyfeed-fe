@@ -146,12 +146,7 @@ describe('FilterService', () => {
     describe('with type filtering', () => {
       it('should filter by feeding type', () => {
         const criteria: FilterCriteria = { type: 'bottle' };
-        const result = service.filter(
-          mockFeedings,
-          criteria,
-          'fed_at',
-          'feeding_type'
-        );
+        const result = service.filter(mockFeedings, criteria, 'fed_at', 'feeding_type');
 
         expect(result.length).toBe(2);
         expect(result[0].id).toBe(1);
@@ -160,12 +155,7 @@ describe('FilterService', () => {
 
       it('should filter by different feeding type', () => {
         const criteria: FilterCriteria = { type: 'breast' };
-        const result = service.filter(
-          mockFeedings,
-          criteria,
-          'fed_at',
-          'feeding_type'
-        );
+        const result = service.filter(mockFeedings, criteria, 'fed_at', 'feeding_type');
 
         expect(result.length).toBe(1);
         expect(result[0].id).toBe(2);
@@ -186,12 +176,7 @@ describe('FilterService', () => {
           dateTo: '2024-02-01',
           type: 'bottle',
         };
-        const result = service.filter(
-          mockFeedings,
-          criteria,
-          'fed_at',
-          'feeding_type'
-        );
+        const result = service.filter(mockFeedings, criteria, 'fed_at', 'feeding_type');
 
         expect(result.length).toBe(1);
         expect(result[0].id).toBe(1);
@@ -203,12 +188,7 @@ describe('FilterService', () => {
           dateTo: '2024-01-19',
           type: 'breast',
         };
-        const result = service.filter(
-          mockFeedings,
-          criteria,
-          'fed_at',
-          'feeding_type'
-        );
+        const result = service.filter(mockFeedings, criteria, 'fed_at', 'feeding_type');
 
         expect(result.length).toBe(0);
       });
@@ -244,12 +224,7 @@ describe('FilterService', () => {
 
       it('should filter diapers by change_type', () => {
         const criteria: FilterCriteria = { type: 'wet' };
-        const result = service.filter(
-          mockDiapers,
-          criteria,
-          'changed_at',
-          'change_type'
-        );
+        const result = service.filter(mockDiapers, criteria, 'changed_at', 'change_type');
 
         expect(result.length).toBe(1);
         expect(result[0].id).toBe(1);

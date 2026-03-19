@@ -16,11 +16,7 @@ import { ErrorHandler } from './error.utils';
 import { Observable, tap, catchError, throwError, map } from 'rxjs';
 import { SwCacheService } from './sw-cache.service';
 import { Nap, NapCreate, NapUpdate } from '../models/nap.model';
-import {
-  PaginatedResponse,
-  PaginationMeta,
-  DEFAULT_PAGE_SIZE,
-} from '../models/pagination.model';
+import { PaginatedResponse, PaginationMeta, DEFAULT_PAGE_SIZE } from '../models/pagination.model';
 
 @Injectable({
   providedIn: 'root',
@@ -74,7 +70,7 @@ export class NapsService {
       dateFrom?: string;
       dateTo?: string;
     },
-    page = 1
+    page = 1,
   ): Observable<Nap[]> {
     let params = new HttpParams().set('page', String(page));
 
@@ -87,25 +83,23 @@ export class NapsService {
       }
     }
 
-    return this.http
-      .get<PaginatedResponse<Nap>>(`${this.baseUrl(childId)}/`, { params })
-      .pipe(
-        tap((response) => {
-          this.naps.set(response.results);
-          this.pagination.set({
-            count: response.count,
-            next: response.next,
-            previous: response.previous,
-            page,
-            pageSize: DEFAULT_PAGE_SIZE,
-            totalPages: Math.ceil(response.count / DEFAULT_PAGE_SIZE) || 1,
-          });
-        }),
-        map((response) => response.results),
-        catchError((error) => {
-          return throwError(() => ErrorHandler.handle(error, 'List'));
-        })
-      );
+    return this.http.get<PaginatedResponse<Nap>>(`${this.baseUrl(childId)}/`, { params }).pipe(
+      tap((response) => {
+        this.naps.set(response.results);
+        this.pagination.set({
+          count: response.count,
+          next: response.next,
+          previous: response.previous,
+          page,
+          pageSize: DEFAULT_PAGE_SIZE,
+          totalPages: Math.ceil(response.count / DEFAULT_PAGE_SIZE) || 1,
+        });
+      }),
+      map((response) => response.results),
+      catchError((error) => {
+        return throwError(() => ErrorHandler.handle(error, 'List'));
+      }),
+    );
   }
 
   /**
@@ -115,7 +109,7 @@ export class NapsService {
     return this.http.get<Nap>(`${this.baseUrl(childId)}/${id}/`).pipe(
       catchError((error) => {
         return throwError(() => ErrorHandler.handle(error, 'Get'));
-      })
+      }),
     );
   }
 
@@ -132,7 +126,7 @@ export class NapsService {
       }),
       catchError((error) => {
         return throwError(() => ErrorHandler.handle(error, 'Create'));
-      })
+      }),
     );
   }
 
@@ -140,24 +134,22 @@ export class NapsService {
    * Update an existing nap
    */
   update(childId: number, id: number, data: NapUpdate): Observable<Nap> {
-    return this.http
-      .patch<Nap>(`${this.baseUrl(childId)}/${id}/`, data)
-      .pipe(
-        tap((updatedNap) => {
-          // Update in cached list
-          const currentNaps = this.naps();
-          const index = currentNaps.findIndex((n) => n.id === id);
-          if (index !== -1) {
-            const updatedNaps = [...currentNaps];
-            updatedNaps[index] = updatedNap;
-            this.naps.set(updatedNaps);
-          }
-          this.swCache.evictReadonlyListCaches(childId);
-        }),
-        catchError((error) => {
-          return throwError(() => ErrorHandler.handle(error, 'Update'));
-        })
-      );
+    return this.http.patch<Nap>(`${this.baseUrl(childId)}/${id}/`, data).pipe(
+      tap((updatedNap) => {
+        // Update in cached list
+        const currentNaps = this.naps();
+        const index = currentNaps.findIndex((n) => n.id === id);
+        if (index !== -1) {
+          const updatedNaps = [...currentNaps];
+          updatedNaps[index] = updatedNap;
+          this.naps.set(updatedNaps);
+        }
+        this.swCache.evictReadonlyListCaches(childId);
+      }),
+      catchError((error) => {
+        return throwError(() => ErrorHandler.handle(error, 'Update'));
+      }),
+    );
   }
 
   /**
@@ -173,7 +165,7 @@ export class NapsService {
       }),
       catchError((error) => {
         return throwError(() => ErrorHandler.handle(error, 'Delete'));
-      })
+      }),
     );
   }
 }

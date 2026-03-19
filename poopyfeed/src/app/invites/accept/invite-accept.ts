@@ -1,10 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  OnInit,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { SharingService } from '../../services/sharing.service';
 import { GaTrackingService } from '../../services/ga-tracking.service';
@@ -48,11 +42,10 @@ export class InviteAccept implements OnInit {
 
     this.sharingService.acceptInvite(token).subscribe({
       next: (response) => {
-        const childInfo =
-          response.child ?? {
-            id: (response as unknown as { id: number }).id,
-            name: (response as unknown as { name: string }).name,
-          };
+        const childInfo = response.child ?? {
+          id: (response as unknown as { id: number }).id,
+          name: (response as unknown as { name: string }).name,
+        };
         this.child.set(childInfo);
         this.isProcessing.set(false);
         this.gaTracking.trackEvent('accept_invite');

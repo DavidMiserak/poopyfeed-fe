@@ -1,8 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import {
-  HttpTestingController,
-  provideHttpClientTesting,
-} from '@angular/common/http/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { AccountService } from './account.service';
 import { UserProfile } from '../models/user.model';
@@ -82,19 +79,17 @@ describe('AccountService', () => {
     it('should handle duplicate email error', () => {
       let errorCaught = false;
 
-      service
-        .updateProfile({ email: 'taken@example.com' })
-        .subscribe({
-          error: (error) => {
-            expect(error.message).toContain('email');
-            errorCaught = true;
-          },
-        });
+      service.updateProfile({ email: 'taken@example.com' }).subscribe({
+        error: (error) => {
+          expect(error.message).toContain('email');
+          errorCaught = true;
+        },
+      });
 
       const req = httpMock.expectOne('/api/v1/account/profile/');
       req.flush(
         { email: ['A user with this email already exists.'] },
-        { status: 400, statusText: 'Bad Request' }
+        { status: 400, statusText: 'Bad Request' },
       );
 
       expect(errorCaught).toBe(true);
@@ -103,20 +98,15 @@ describe('AccountService', () => {
     it('should handle invalid timezone error', () => {
       let errorCaught = false;
 
-      service
-        .updateProfile({ timezone: 'Invalid/Zone' })
-        .subscribe({
-          error: (error) => {
-            expect(error.message).toContain('timezone');
-            errorCaught = true;
-          },
-        });
+      service.updateProfile({ timezone: 'Invalid/Zone' }).subscribe({
+        error: (error) => {
+          expect(error.message).toContain('timezone');
+          errorCaught = true;
+        },
+      });
 
       const req = httpMock.expectOne('/api/v1/account/profile/');
-      req.flush(
-        { timezone: ['Invalid timezone.'] },
-        { status: 400, statusText: 'Bad Request' }
-      );
+      req.flush({ timezone: ['Invalid timezone.'] }, { status: 400, statusText: 'Bad Request' });
 
       expect(errorCaught).toBe(true);
     });
@@ -164,7 +154,7 @@ describe('AccountService', () => {
       const req = httpMock.expectOne('/api/v1/account/password/');
       req.flush(
         { current_password: ['Current password is incorrect.'] },
-        { status: 400, statusText: 'Bad Request' }
+        { status: 400, statusText: 'Bad Request' },
       );
 
       expect(errorCaught).toBe(true);
@@ -189,7 +179,7 @@ describe('AccountService', () => {
       const req = httpMock.expectOne('/api/v1/account/password/');
       req.flush(
         { new_password_confirm: ['New passwords do not match.'] },
-        { status: 400, statusText: 'Bad Request' }
+        { status: 400, statusText: 'Bad Request' },
       );
 
       expect(errorCaught).toBe(true);
@@ -198,11 +188,9 @@ describe('AccountService', () => {
 
   describe('deleteAccount', () => {
     it('should delete account successfully', () => {
-      service
-        .deleteAccount({ current_password: 'password' })
-        .subscribe((response) => {
-          expect(response).toBeFalsy();
-        });
+      service.deleteAccount({ current_password: 'password' }).subscribe((response) => {
+        expect(response).toBeFalsy();
+      });
 
       const req = httpMock.expectOne('/api/v1/account/delete/');
       expect(req.request.method).toBe('POST');
@@ -212,19 +200,17 @@ describe('AccountService', () => {
     it('should handle wrong password on delete', () => {
       let errorCaught = false;
 
-      service
-        .deleteAccount({ current_password: 'wrong' })
-        .subscribe({
-          error: (error) => {
-            expect(error.message).toContain('current_password');
-            errorCaught = true;
-          },
-        });
+      service.deleteAccount({ current_password: 'wrong' }).subscribe({
+        error: (error) => {
+          expect(error.message).toContain('current_password');
+          errorCaught = true;
+        },
+      });
 
       const req = httpMock.expectOne('/api/v1/account/delete/');
       req.flush(
         { current_password: ['Current password is incorrect.'] },
-        { status: 400, statusText: 'Bad Request' }
+        { status: 400, statusText: 'Bad Request' },
       );
 
       expect(errorCaught).toBe(true);
@@ -245,7 +231,7 @@ describe('AccountService', () => {
       const req = httpMock.expectOne('/api/v1/account/profile/');
       req.flush(
         { non_field_errors: ['Something went wrong'] },
-        { status: 400, statusText: 'Bad Request' }
+        { status: 400, statusText: 'Bad Request' },
       );
 
       expect(errorCaught).toBe(true);
@@ -262,10 +248,7 @@ describe('AccountService', () => {
       });
 
       const req = httpMock.expectOne('/api/v1/account/profile/');
-      req.flush(
-        { detail: 'Not found.' },
-        { status: 404, statusText: 'Not Found' }
-      );
+      req.flush({ detail: 'Not found.' }, { status: 404, statusText: 'Not Found' });
 
       expect(errorCaught).toBe(true);
     });
@@ -483,10 +466,7 @@ describe('AccountService', () => {
       });
 
       const req = httpMock.expectOne('/api/v1/account/profile/');
-      req.flush(
-        { email: ['Invalid email'] },
-        { status: 400, statusText: 'Bad Request' }
-      );
+      req.flush({ email: ['Invalid email'] }, { status: 400, statusText: 'Bad Request' });
 
       expect(clientErrorCaught).toBe(true);
       // Client error should mention the specific field
@@ -518,10 +498,7 @@ describe('AccountService', () => {
       });
 
       const req = httpMock.expectOne('/api/v1/account/profile/');
-      req.flush(
-        { detail: 'User profile not found' },
-        { status: 404, statusText: 'Not Found' }
-      );
+      req.flush({ detail: 'User profile not found' }, { status: 404, statusText: 'Not Found' });
 
       // Error message includes the detail from the response
       expect(notFoundError.toLowerCase()).toContain('not found');
@@ -548,15 +525,17 @@ describe('AccountService', () => {
     it('should handle CORS error', () => {
       let corsError = false;
 
-      service.changePassword({
-        current_password: 'old',
-        new_password: 'new123!',
-        new_password_confirm: 'new123!',
-      }).subscribe({
-        error: () => {
-          corsError = true;
-        },
-      });
+      service
+        .changePassword({
+          current_password: 'old',
+          new_password: 'new123!',
+          new_password_confirm: 'new123!',
+        })
+        .subscribe({
+          error: () => {
+            corsError = true;
+          },
+        });
 
       const req = httpMock.expectOne('/api/v1/account/password/');
       req.error(new ProgressEvent('Network error'));

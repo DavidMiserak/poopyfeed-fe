@@ -4,12 +4,7 @@
  */
 
 import { Component, ChangeDetectionStrategy } from '@angular/core';
-import {
-  FormGroup,
-  FormControl,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { FormGroup, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-contact',
@@ -23,10 +18,7 @@ export class Contact {
     name: new FormControl('', [Validators.required, Validators.minLength(2)]),
     email: new FormControl('', [Validators.required, Validators.email]),
     subject: new FormControl('', [Validators.required]),
-    message: new FormControl('', [
-      Validators.required,
-      Validators.minLength(10),
-    ]),
+    message: new FormControl('', [Validators.required, Validators.minLength(10)]),
   });
 
   get isSubmitting(): boolean {

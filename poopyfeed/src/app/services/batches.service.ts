@@ -45,12 +45,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import {
-  BatchRequest,
-  BatchResponse,
-  BatchErrorResponse,
-  CatchUpEvent,
-} from '../models';
+import { BatchRequest, BatchResponse, BatchErrorResponse, CatchUpEvent } from '../models';
 import { ErrorHandler } from './error.utils';
 
 /**
@@ -123,11 +118,7 @@ export class BatchesService {
 
     return this.http
       .post<BatchResponse>(`${this.API_BASE}/${childId}/batch/`, request)
-      .pipe(
-        catchError((error) =>
-          this.handleError(error, events.length),
-        ),
-      );
+      .pipe(catchError((error) => this.handleError(error, events.length)));
   }
 
   /**
@@ -143,16 +134,11 @@ export class BatchesService {
    *
    * @internal
    */
-  private handleError(
-    error: HttpErrorResponse,
-    _totalEvents: number,
-  ): Observable<never> {
+  private handleError(error: HttpErrorResponse, _totalEvents: number): Observable<never> {
     // Try to parse batch-specific error format
     if (error.status === 400 && error.error?.errors) {
       const batchError = error.error as BatchErrorResponse;
-      const apiError = new Error(
-        'Batch validation failed',
-      ) as BatchApiError;
+      const apiError = new Error('Batch validation failed') as BatchApiError;
       apiError.status = 400;
       apiError.batchErrors = batchError;
 

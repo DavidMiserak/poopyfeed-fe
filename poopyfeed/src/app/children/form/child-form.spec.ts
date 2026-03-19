@@ -28,11 +28,10 @@ describe('ChildForm', () => {
     last_diaper_change: '2024-02-10T14:30:00Z',
     last_nap: '2024-02-10T13:00:00Z',
     last_feeding: '2024-02-10T12:00:00Z',
-        custom_bottle_low_oz: null,
-        custom_bottle_mid_oz: null,
-        custom_bottle_high_oz: null,
-        feeding_reminder_interval: null,
-
+    custom_bottle_low_oz: null,
+    custom_bottle_mid_oz: null,
+    custom_bottle_high_oz: null,
+    feeding_reminder_interval: null,
   };
 
   const mockChildMale: Child = {
@@ -46,11 +45,10 @@ describe('ChildForm', () => {
     last_diaper_change: '2024-02-10T14:30:00Z',
     last_nap: '2024-02-10T13:00:00Z',
     last_feeding: '2024-02-10T12:00:00Z',
-        custom_bottle_low_oz: null,
-        custom_bottle_mid_oz: null,
-        custom_bottle_high_oz: null,
-        feeding_reminder_interval: null,
-
+    custom_bottle_low_oz: null,
+    custom_bottle_mid_oz: null,
+    custom_bottle_high_oz: null,
+    feeding_reminder_interval: null,
   };
 
   const mockChildOther: Child = {
@@ -64,11 +62,10 @@ describe('ChildForm', () => {
     last_diaper_change: '2024-02-10T14:30:00Z',
     last_nap: '2024-02-10T13:00:00Z',
     last_feeding: '2024-02-10T12:00:00Z',
-        custom_bottle_low_oz: null,
-        custom_bottle_mid_oz: null,
-        custom_bottle_high_oz: null,
-        feeding_reminder_interval: null,
-
+    custom_bottle_low_oz: null,
+    custom_bottle_mid_oz: null,
+    custom_bottle_high_oz: null,
+    feeding_reminder_interval: null,
   };
 
   describe('Create Mode', () => {
@@ -278,9 +275,7 @@ describe('ChildForm', () => {
 
         component.onSubmit();
 
-        expect(toastService.success).toHaveBeenCalledWith(
-          'Child created successfully'
-        );
+        expect(toastService.success).toHaveBeenCalledWith('Child created successfully');
       });
 
       it('should navigate to new child dashboard on create success', () => {
@@ -294,18 +289,12 @@ describe('ChildForm', () => {
 
         component.onSubmit();
 
-        expect(router.navigate).toHaveBeenCalledWith([
-          '/children',
-          mockChild.id,
-          'dashboard',
-        ]);
+        expect(router.navigate).toHaveBeenCalledWith(['/children', mockChild.id, 'dashboard']);
       });
 
       it('should handle API errors and display error message', () => {
         const error = new Error('Network error');
-        vi.mocked(childrenService.create).mockReturnValue(
-          throwError(() => error)
-        );
+        vi.mocked(childrenService.create).mockReturnValue(throwError(() => error));
 
         component.childForm.patchValue({
           name: 'Baby Alice',
@@ -327,13 +316,11 @@ describe('ChildForm', () => {
         });
 
         // Simulate form value with null values
-        const formSpy = vi
-          .spyOn(component.childForm, 'value', 'get')
-          .mockReturnValue({
-            name: null,
-            date_of_birth: '2024-01-15',
-            gender: 'F',
-          });
+        const formSpy = vi.spyOn(component.childForm, 'value', 'get').mockReturnValue({
+          name: null,
+          date_of_birth: '2024-01-15',
+          gender: 'F',
+        });
 
         component.onSubmit();
 
@@ -378,9 +365,7 @@ describe('ChildForm', () => {
 
       it('should set isSubmitting=false after error', () => {
         const error = new Error('Network error');
-        vi.mocked(childrenService.create).mockReturnValue(
-          throwError(() => error)
-        );
+        vi.mocked(childrenService.create).mockReturnValue(throwError(() => error));
 
         component.childForm.patchValue({
           name: 'Baby Alice',
@@ -421,9 +406,7 @@ describe('ChildForm', () => {
       it('should reject name exceeding max length', () => {
         const tooLongName = 'a'.repeat(101);
         component.childForm.get('name')?.setValue(tooLongName);
-        expect(component.childForm.get('name')?.hasError('maxlength')).toBe(
-          true
-        );
+        expect(component.childForm.get('name')?.hasError('maxlength')).toBe(true);
       });
 
       it('should accept name with special characters', () => {
@@ -478,7 +461,9 @@ describe('ChildForm', () => {
 
       const mockNotificationService = {
         getPreferences: vi.fn().mockReturnValue(of([mockPreference])),
-        updatePreference: vi.fn().mockReturnValue(of({ ...mockPreference, notify_feedings: false })),
+        updatePreference: vi
+          .fn()
+          .mockReturnValue(of({ ...mockPreference, notify_feedings: false })),
       };
 
       const mockActivatedRoute = {
@@ -548,17 +533,13 @@ describe('ChildForm', () => {
         component.loadChild(1);
 
         expect(component.childForm.get('name')?.value).toBe('Baby Alice');
-        expect(component.childForm.get('date_of_birth')?.value).toBe(
-          '2024-01-15'
-        );
+        expect(component.childForm.get('date_of_birth')?.value).toBe('2024-01-15');
         expect(component.childForm.get('gender')?.value).toBe('F');
       });
 
       it('should set error signal on API error', () => {
         const error = new Error('Failed to load child');
-        vi.mocked(childrenService.get).mockReturnValue(
-          throwError(() => error)
-        );
+        vi.mocked(childrenService.get).mockReturnValue(throwError(() => error));
 
         component.loadChild(1);
 
@@ -567,9 +548,7 @@ describe('ChildForm', () => {
 
       it('should handle network errors gracefully', () => {
         const error = new Error('Network timeout');
-        vi.mocked(childrenService.get).mockReturnValue(
-          throwError(() => error)
-        );
+        vi.mocked(childrenService.get).mockReturnValue(throwError(() => error));
 
         component.loadChild(1);
 
@@ -601,7 +580,16 @@ describe('ChildForm', () => {
 
       it('should set notificationPreference to null when no preference for child', () => {
         vi.mocked(notificationService.getPreferences).mockReturnValue(
-          of([{ id: 99, child_id: 999, child_name: 'Other', notify_feedings: true, notify_diapers: true, notify_naps: true }])
+          of([
+            {
+              id: 99,
+              child_id: 999,
+              child_name: 'Other',
+              notify_feedings: true,
+              notify_diapers: true,
+              notify_naps: true,
+            },
+          ]),
         );
 
         component.loadChild(1);
@@ -611,7 +599,7 @@ describe('ChildForm', () => {
 
       it('should set preferenceError when getPreferences fails', () => {
         vi.mocked(notificationService.getPreferences).mockReturnValue(
-          throwError(() => new Error('Preferences load failed'))
+          throwError(() => new Error('Preferences load failed')),
         );
 
         component.loadChild(1);
@@ -626,7 +614,9 @@ describe('ChildForm', () => {
 
         component.onPreferenceToggle('notify_feedings', false);
 
-        expect(notificationService.updatePreference).toHaveBeenCalledWith(pref!.id, { notify_feedings: false });
+        expect(notificationService.updatePreference).toHaveBeenCalledWith(pref!.id, {
+          notify_feedings: false,
+        });
       });
 
       it('should update notificationPreference signal on successful toggle', () => {
@@ -656,7 +646,7 @@ describe('ChildForm', () => {
       it('should show error toast and clear preferenceSaving on update error', () => {
         component.loadChild(1);
         vi.mocked(notificationService.updatePreference).mockReturnValue(
-          throwError(() => new Error('Update failed'))
+          throwError(() => new Error('Update failed')),
         );
 
         component.onPreferenceToggle('notify_naps', true);
@@ -697,8 +687,7 @@ describe('ChildForm', () => {
           custom_bottle_low_oz: null,
           custom_bottle_mid_oz: null,
           custom_bottle_high_oz: null,
-        feeding_reminder_interval: null,
-
+          feeding_reminder_interval: null,
         });
       });
 
@@ -714,9 +703,7 @@ describe('ChildForm', () => {
         component.childId.set(1);
         component.onSubmit();
 
-        expect(toastService.success).toHaveBeenCalledWith(
-          'Child updated successfully'
-        );
+        expect(toastService.success).toHaveBeenCalledWith('Child updated successfully');
       });
 
       it('should navigate to /children on success', () => {
@@ -736,9 +723,7 @@ describe('ChildForm', () => {
 
       it('should handle API errors in edit mode', () => {
         const error = new Error('Validation error');
-        vi.mocked(childrenService.update).mockReturnValue(
-          throwError(() => error)
-        );
+        vi.mocked(childrenService.update).mockReturnValue(throwError(() => error));
 
         component.childForm.patchValue({
           name: 'Baby Alice',
@@ -755,10 +740,12 @@ describe('ChildForm', () => {
 
       it('should allow updating only name field', () => {
         vi.mocked(childrenService.get).mockReturnValue(of(mockChild));
-        vi.mocked(childrenService.update).mockReturnValue(of({
-          ...mockChild,
-          name: 'Baby Alice Updated',
-        }));
+        vi.mocked(childrenService.update).mockReturnValue(
+          of({
+            ...mockChild,
+            name: 'Baby Alice Updated',
+          }),
+        );
 
         component.ngOnInit();
         component.childForm.get('name')?.setValue('Baby Alice Updated');
@@ -772,17 +759,18 @@ describe('ChildForm', () => {
           custom_bottle_low_oz: null,
           custom_bottle_mid_oz: null,
           custom_bottle_high_oz: null,
-        feeding_reminder_interval: null,
-
+          feeding_reminder_interval: null,
         });
       });
 
       it('should allow updating only gender field', () => {
         vi.mocked(childrenService.get).mockReturnValue(of(mockChildMale));
-        vi.mocked(childrenService.update).mockReturnValue(of({
-          ...mockChildMale,
-          gender: 'O',
-        }));
+        vi.mocked(childrenService.update).mockReturnValue(
+          of({
+            ...mockChildMale,
+            gender: 'O',
+          }),
+        );
 
         component.ngOnInit();
         component.childForm.get('gender')?.setValue('O');
@@ -796,8 +784,7 @@ describe('ChildForm', () => {
           custom_bottle_low_oz: null,
           custom_bottle_mid_oz: null,
           custom_bottle_high_oz: null,
-        feeding_reminder_interval: null,
-
+          feeding_reminder_interval: null,
         });
       });
     });
@@ -956,9 +943,7 @@ describe('ChildForm', () => {
         });
 
         expect(component.childForm.get('name')?.value).toBe('Updated Name');
-        expect(component.childForm.get('date_of_birth')?.value).toBe(
-          '2024-01-15'
-        );
+        expect(component.childForm.get('date_of_birth')?.value).toBe('2024-01-15');
       });
     });
   });
@@ -1337,7 +1322,7 @@ describe('ChildForm', () => {
           expect.objectContaining({
             name: 'Updated Baby',
             feeding_reminder_interval: 4,
-          })
+          }),
         );
       });
 
@@ -1365,10 +1350,9 @@ describe('ChildForm', () => {
           1,
           expect.objectContaining({
             feeding_reminder_interval: null,
-          })
+          }),
         );
       });
-
     });
   });
 
@@ -1388,10 +1372,25 @@ describe('ChildForm', () => {
       await TestBed.configureTestingModule({
         imports: [ChildForm],
         providers: [
-          { provide: ChildrenService, useValue: { get: vi.fn(), create: vi.fn(), update: vi.fn() } },
-          { provide: NotificationService, useValue: { getPreferences: vi.fn(), updatePreference: vi.fn() } },
+          {
+            provide: ChildrenService,
+            useValue: { get: vi.fn(), create: vi.fn(), update: vi.fn() },
+          },
+          {
+            provide: NotificationService,
+            useValue: { getPreferences: vi.fn(), updatePreference: vi.fn() },
+          },
           { provide: ToastService, useValue: { success: vi.fn(), error: vi.fn() } },
-          { provide: Router, useValue: { navigate: vi.fn(), parseUrl: vi.fn(), createUrlTree: vi.fn(), serializeUrl: vi.fn(() => ''), events: of() } as unknown as Router },
+          {
+            provide: Router,
+            useValue: {
+              navigate: vi.fn(),
+              parseUrl: vi.fn(),
+              createUrlTree: vi.fn(),
+              serializeUrl: vi.fn(() => ''),
+              events: of(),
+            } as unknown as Router,
+          },
           { provide: ActivatedRoute, useValue: createModeRoute },
         ],
       }).compileComponents();
@@ -1418,10 +1417,29 @@ describe('ChildForm', () => {
       await TestBed.configureTestingModule({
         imports: [ChildForm],
         providers: [
-          { provide: ChildrenService, useValue: { get: vi.fn(), create: vi.fn().mockReturnValue(of({ id: 100, name: 'New Baby' })), update: vi.fn() } },
-          { provide: NotificationService, useValue: { getPreferences: vi.fn(), updatePreference: vi.fn() } },
+          {
+            provide: ChildrenService,
+            useValue: {
+              get: vi.fn(),
+              create: vi.fn().mockReturnValue(of({ id: 100, name: 'New Baby' })),
+              update: vi.fn(),
+            },
+          },
+          {
+            provide: NotificationService,
+            useValue: { getPreferences: vi.fn(), updatePreference: vi.fn() },
+          },
           { provide: ToastService, useValue: { success: vi.fn(), error: vi.fn() } },
-          { provide: Router, useValue: { navigate: vi.fn(), parseUrl: vi.fn(), createUrlTree: vi.fn(), serializeUrl: vi.fn(() => ''), events: of() } as unknown as Router },
+          {
+            provide: Router,
+            useValue: {
+              navigate: vi.fn(),
+              parseUrl: vi.fn(),
+              createUrlTree: vi.fn(),
+              serializeUrl: vi.fn(() => ''),
+              events: of(),
+            } as unknown as Router,
+          },
           { provide: ActivatedRoute, useValue: createModeRoute },
         ],
       }).compileComponents();

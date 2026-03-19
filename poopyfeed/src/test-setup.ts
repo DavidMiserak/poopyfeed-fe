@@ -22,15 +22,25 @@ class MockIntersectionObserver implements IntersectionObserver {
 
   constructor(
     private callback: IntersectionObserverCallback,
-    private _options?: IntersectionObserverInit
+    private _options?: IntersectionObserverInit,
   ) {}
 
   observe(_target: Element): void {
     // Run asynchronously so Angular's defer trigger behaves like in browser
     queueMicrotask(() => {
       this.callback(
-        [{ isIntersecting: true, intersectionRatio: 1, target: _target, boundingClientRect: {} as DOMRectReadOnly, intersectionRect: {} as DOMRectReadOnly, rootBounds: null, time: 0 }],
-        this
+        [
+          {
+            isIntersecting: true,
+            intersectionRatio: 1,
+            target: _target,
+            boundingClientRect: {} as DOMRectReadOnly,
+            intersectionRect: {} as DOMRectReadOnly,
+            rootBounds: null,
+            time: 0,
+          },
+        ],
+        this,
       );
     });
   }
@@ -48,7 +58,8 @@ class MockIntersectionObserver implements IntersectionObserver {
 }
 
 if (typeof globalThis.IntersectionObserver === 'undefined') {
-  globalThis.IntersectionObserver = MockIntersectionObserver as unknown as typeof IntersectionObserver;
+  globalThis.IntersectionObserver =
+    MockIntersectionObserver as unknown as typeof IntersectionObserver;
 }
 
 // When using `ng test`, init-testbed.js already calls initTestEnvironment; avoid double init.

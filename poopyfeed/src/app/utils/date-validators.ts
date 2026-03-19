@@ -8,9 +8,7 @@ import { DateTimeService } from '../services/datetime.service';
  * @param datetimeService - DateTimeService instance for timezone-aware "today"
  * @returns ValidatorFn that returns `{ futureDate: true }` if value > today
  */
-export function noFutureDate(
-  datetimeService: DateTimeService,
-): ValidatorFn {
+export function noFutureDate(datetimeService: DateTimeService): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
     const value = control.value;
     if (!value) {
@@ -28,9 +26,7 @@ export function noFutureDate(
  * @param datetimeService - DateTimeService instance for timezone-aware "now"
  * @returns ValidatorFn that returns `{ futureDate: true }` if value > now
  */
-export function noFutureDateTime(
-  datetimeService: DateTimeService,
-): ValidatorFn {
+export function noFutureDateTime(datetimeService: DateTimeService): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
     const value = control.value;
     if (!value) {

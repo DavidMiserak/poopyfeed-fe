@@ -51,24 +51,22 @@ export class Signup {
     this.error.set(null);
 
     // Sign up (allauth automatically logs in the user)
-    this.authService
-      .signup({ email, password })
-      .subscribe({
-        next: () => {
-          this.isSubmitting.set(false);
-          this.toast.success('Account created successfully');
-          this.gaTracking.trackEvent('sign_up');
-          // Load profile (timezone) so timeline and other views show times in user's timezone
-          this.accountService.getProfile().subscribe({
-            next: () => this.router.navigate(['/children']),
-            error: () => this.router.navigate(['/children']),
-          });
-        },
-        error: (err: Error) => {
-          this.isSubmitting.set(false);
-          this.error.set(err.message);
-          this.toast.error(err.message);
-        },
-      });
+    this.authService.signup({ email, password }).subscribe({
+      next: () => {
+        this.isSubmitting.set(false);
+        this.toast.success('Account created successfully');
+        this.gaTracking.trackEvent('sign_up');
+        // Load profile (timezone) so timeline and other views show times in user's timezone
+        this.accountService.getProfile().subscribe({
+          next: () => this.router.navigate(['/children']),
+          error: () => this.router.navigate(['/children']),
+        });
+      },
+      error: (err: Error) => {
+        this.isSubmitting.set(false);
+        this.error.set(err.message);
+        this.toast.error(err.message);
+      },
+    });
   }
 }

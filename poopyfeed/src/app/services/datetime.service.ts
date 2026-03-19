@@ -70,10 +70,7 @@ export class DateTimeService {
    * @returns True if the timestamp falls on today in user's timezone
    */
   isTodayInUserTimezone(utcTimestamp: string): boolean {
-    return (
-      this.getDateInUserTimezone(utcTimestamp) ===
-      this.getTodayInUserTimezone()
-    );
+    return this.getDateInUserTimezone(utcTimestamp) === this.getTodayInUserTimezone();
   }
 
   /**
@@ -146,8 +143,7 @@ export class DateTimeService {
       hour12: false,
     }).formatToParts(d);
 
-    const get = (type: string) =>
-      parts.find((p) => p.type === type)?.value || '';
+    const get = (type: string) => parts.find((p) => p.type === type)?.value || '';
 
     const year = get('year');
     const month = get('month');
@@ -300,8 +296,7 @@ export class DateTimeService {
       hour12: false,
     }).formatToParts(date);
 
-    const get = (type: string) =>
-      parts.find((p) => p.type === type)?.value || '';
+    const get = (type: string) => parts.find((p) => p.type === type)?.value || '';
 
     let hours = get('hour');
     if (hours === '24') {

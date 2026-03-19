@@ -1,10 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  OnInit,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { NotificationService } from '../services/notification.service';
 import { ToastService } from '../services/toast.service';
@@ -88,14 +82,12 @@ export class NotificationsPage implements OnInit {
     this.markingAllRead.set(true);
     this.notificationService.markAllRead().subscribe({
       next: (count) => {
-        this.notifications.update((list) =>
-          list.map((n) => ({ ...n, is_read: true }))
-        );
+        this.notifications.update((list) => list.map((n) => ({ ...n, is_read: true })));
         this.markingAllRead.set(false);
         this.toast.success(
           count > 0
             ? `Marked ${count} notification${count === 1 ? '' : 's'} as read`
-            : 'All notifications marked as read'
+            : 'All notifications marked as read',
         );
       },
       error: (err: Error) => {

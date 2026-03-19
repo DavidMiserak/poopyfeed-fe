@@ -32,7 +32,7 @@ describe('NotificationsPage', () => {
         next: null,
         previous: null,
         results: [mockNotification],
-      })
+      }),
     );
     await TestBed.configureTestingModule({
       imports: [NotificationsPage],
@@ -73,7 +73,7 @@ describe('NotificationsPage', () => {
 
   it('should show error state on load failure', () => {
     vi.mocked(notificationService.listPage).mockReturnValue(
-      throwError(() => new Error('Network error'))
+      throwError(() => new Error('Network error')),
     );
     fixture.detectChanges();
     expect(component.loadError()).toBe('Network error');

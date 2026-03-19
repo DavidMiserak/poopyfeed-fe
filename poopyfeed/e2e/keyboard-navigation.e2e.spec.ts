@@ -8,15 +8,13 @@ import { createChildAndGoToDashboard } from './child-helpers';
  * Covers VERIFICATION.md E2E gap: Keyboard navigation (child list cards).
  */
 test.describe('Keyboard navigation (child list cards)', () => {
-  test('Tab focuses a child card and Enter navigates to dashboard', async ({
-    page,
-  }) => {
+  test('Tab focuses a child card and Enter navigates to dashboard', async ({ page }) => {
     await createChildAndGoToDashboard(page, 'E2E Keyboard Enter');
     await page.goto('/children');
 
-    await expect(
-      page.getByRole('heading', { name: 'My Children' })
-    ).toBeVisible({ timeout: E2E_TIMEOUT });
+    await expect(page.getByRole('heading', { name: 'My Children' })).toBeVisible({
+      timeout: E2E_TIMEOUT,
+    });
     const firstCard = page.getByRole('button').first();
     await expect(firstCard).toBeVisible({ timeout: E2E_TIMEOUT });
 
@@ -28,15 +26,13 @@ test.describe('Keyboard navigation (child list cards)', () => {
     });
   });
 
-  test('Tab focuses a child card and Space navigates to dashboard', async ({
-    page,
-  }) => {
+  test('Tab focuses a child card and Space navigates to dashboard', async ({ page }) => {
     await createChildAndGoToDashboard(page, 'E2E Keyboard Space');
     await page.goto('/children');
 
-    await expect(
-      page.getByRole('heading', { name: 'My Children' })
-    ).toBeVisible({ timeout: E2E_TIMEOUT });
+    await expect(page.getByRole('heading', { name: 'My Children' })).toBeVisible({
+      timeout: E2E_TIMEOUT,
+    });
     const firstCard = page.getByRole('button').first();
     await expect(firstCard).toBeVisible({ timeout: E2E_TIMEOUT });
 

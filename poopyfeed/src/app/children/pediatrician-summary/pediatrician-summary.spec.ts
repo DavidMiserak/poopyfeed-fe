@@ -160,7 +160,9 @@ describe('PediatricianSummaryComponent', () => {
     component = fixture.componentInstance;
     fixture.detectChanges();
 
-    expect(titleService.setTitle).toHaveBeenCalledWith('Pediatrician summary – Baby Alice – PoopyFeed');
+    expect(titleService.setTitle).toHaveBeenCalledWith(
+      'Pediatrician summary – Baby Alice – PoopyFeed',
+    );
   });
 
   it('should show empty state when summary has all zero counts', () => {
@@ -191,7 +193,7 @@ describe('PediatricianSummaryComponent', () => {
 
   it('should show error state and retry button when weekly summary fetch fails', () => {
     vi.spyOn(analyticsService, 'getWeeklySummary').mockReturnValue(
-      throwError(() => new Error('Server error'))
+      throwError(() => new Error('Server error')),
     );
     fixture = TestBed.createComponent(PediatricianSummaryComponent);
     component = fixture.componentInstance;

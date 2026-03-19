@@ -20,10 +20,23 @@ describe('CatchUpComponent - Step Wizard', () => {
   let feedingsService: { list: ReturnType<typeof vi.fn> };
   let diapersService: { list: ReturnType<typeof vi.fn> };
   let napsService: { list: ReturnType<typeof vi.fn> };
-  let timeEstimationService: { validateTimeWindow: ReturnType<typeof vi.fn>; estimateEventTimes: ReturnType<typeof vi.fn> };
+  let timeEstimationService: {
+    validateTimeWindow: ReturnType<typeof vi.fn>;
+    estimateEventTimes: ReturnType<typeof vi.fn>;
+  };
   let batchesService: { create: ReturnType<typeof vi.fn> };
-  let toastService: { success: ReturnType<typeof vi.fn>; error: ReturnType<typeof vi.fn>; warning: ReturnType<typeof vi.fn>; info: ReturnType<typeof vi.fn> };
-  let router: { navigate: ReturnType<typeof vi.fn>; events: typeof EMPTY; createUrlTree: ReturnType<typeof vi.fn>; serializeUrl: ReturnType<typeof vi.fn> };
+  let toastService: {
+    success: ReturnType<typeof vi.fn>;
+    error: ReturnType<typeof vi.fn>;
+    warning: ReturnType<typeof vi.fn>;
+    info: ReturnType<typeof vi.fn>;
+  };
+  let router: {
+    navigate: ReturnType<typeof vi.fn>;
+    events: typeof EMPTY;
+    createUrlTree: ReturnType<typeof vi.fn>;
+    serializeUrl: ReturnType<typeof vi.fn>;
+  };
   let route: { snapshot: { paramMap: { get: ReturnType<typeof vi.fn> } } };
 
   const mockChild: Child = {
@@ -37,11 +50,10 @@ describe('CatchUpComponent - Step Wizard', () => {
     last_diaper_change: '2024-01-15T14:30:00Z',
     last_nap: '2024-01-15T13:00:00Z',
     last_feeding: '2024-01-15T12:00:00Z',
-        custom_bottle_low_oz: null,
-        custom_bottle_mid_oz: null,
-        custom_bottle_high_oz: null,
-        feeding_reminder_interval: null,
-
+    custom_bottle_low_oz: null,
+    custom_bottle_mid_oz: null,
+    custom_bottle_high_oz: null,
+    feeding_reminder_interval: null,
   };
 
   beforeEach(async () => {
@@ -195,24 +207,24 @@ describe('CatchUpComponent - Step Wizard', () => {
       // Verify the dates passed are actually within 4 hours
       const callDateFrom = new Date(fourHoursAgo);
       const callDateTo = new Date(now);
-      const windowDurationHours = (callDateTo.getTime() - callDateFrom.getTime()) / (1000 * 60 * 60);
+      const windowDurationHours =
+        (callDateTo.getTime() - callDateFrom.getTime()) / (1000 * 60 * 60);
       expect(windowDurationHours).toBeCloseTo(4, 1); // Within 1 hour of 4 hours
 
       // The component should only show event within 4h
-      const existingFeedings = component.eventList()
-        .filter(e => e.type === 'feeding' && e.isExisting);
+      const existingFeedings = component
+        .eventList()
+        .filter((e) => e.type === 'feeding' && e.isExisting);
 
       // Should have the event from within 4h
-      expect(existingFeedings.some(e => e.existingId === 1)).toBe(true);
+      expect(existingFeedings.some((e) => e.existingId === 1)).toBe(true);
       // Should NOT have events outside the window
-      expect(existingFeedings.some(e => e.existingId === 2)).toBe(false);
-      expect(existingFeedings.some(e => e.existingId === 3)).toBe(false);
+      expect(existingFeedings.some((e) => e.existingId === 2)).toBe(false);
+      expect(existingFeedings.some((e) => e.existingId === 3)).toBe(false);
     });
 
     it('should validate time window before advancing', () => {
-      timeEstimationService.validateTimeWindow.mockReturnValue([
-        'Invalid time window',
-      ]);
+      timeEstimationService.validateTimeWindow.mockReturnValue(['Invalid time window']);
 
       const timeWindow = {
         startTime: 'invalid',
@@ -364,11 +376,7 @@ describe('CatchUpComponent - Step Wizard', () => {
     it('should navigate to child dashboard', () => {
       component.goToAdvanced();
 
-      expect(router.navigate).toHaveBeenCalledWith([
-        '/children',
-        1,
-        'advanced',
-      ]);
+      expect(router.navigate).toHaveBeenCalledWith(['/children', 1, 'advanced']);
     });
   });
 
@@ -419,15 +427,11 @@ describe('CatchUpComponent - Step Wizard', () => {
       component.onSubmit();
 
       expect(batchesService.create).not.toHaveBeenCalled();
-      expect(toastService.error).toHaveBeenCalledWith(
-        'Add at least one activity before saving',
-      );
+      expect(toastService.error).toHaveBeenCalledWith('Add at least one activity before saving');
     });
 
     it('should handle generic error without batchErrors', () => {
-      batchesService.create.mockReturnValue(
-        throwError(() => ({ message: 'Network error' })),
-      );
+      batchesService.create.mockReturnValue(throwError(() => ({ message: 'Network error' })));
 
       component.onAddEvent('feeding');
       component.currentStep.set('review');
@@ -525,10 +529,13 @@ describe('CatchUpComponent - Step Wizard', () => {
 
       component.goToStep('events', timeWindow);
 
-      expect(feedingsService.list).toHaveBeenCalledWith(1, expect.objectContaining({
-        dateFrom: timeWindow.startTime,
-        dateTo: timeWindow.endTime,
-      }));
+      expect(feedingsService.list).toHaveBeenCalledWith(
+        1,
+        expect.objectContaining({
+          dateFrom: timeWindow.startTime,
+          dateTo: timeWindow.endTime,
+        }),
+      );
     });
   });
 
@@ -537,7 +544,9 @@ describe('CatchUpComponent - Step Wizard', () => {
       component.onAddEvent('feeding');
       const eventId = component.newEvents()[0].id;
 
-      component.onUpdateEvent(eventId, { data: { feeding_type: 'breast', fed_at: '2024-01-15T10:00:00Z' } });
+      component.onUpdateEvent(eventId, {
+        data: { feeding_type: 'breast', fed_at: '2024-01-15T10:00:00Z' },
+      });
 
       const updated = component.getEventById(eventId);
       expect((updated?.data as FeedingCreate)?.feeding_type).toBe('breast');
@@ -765,7 +774,7 @@ describe('CatchUpComponent - Step Wizard', () => {
       component.goToStep('events', timeWindow);
 
       expect(component.existingEvents().length).toBe(3);
-      const napEvent = component.existingEvents().find(e => e.existingId === 4);
+      const napEvent = component.existingEvents().find((e) => e.existingId === 4);
       expect((napEvent?.data as NapCreate)?.ended_at).toBeUndefined();
     });
   });

@@ -96,9 +96,12 @@ describe('TodaySummaryCards', () => {
 
   describe('formatMinutes formatting', () => {
     it('should format minutes under 60', () => {
-      fixture.componentRef.setInput('summary', makeSummary({
-        sleep: { naps: 1, total_minutes: 45, avg_duration: 45 },
-      }));
+      fixture.componentRef.setInput(
+        'summary',
+        makeSummary({
+          sleep: { naps: 1, total_minutes: 45, avg_duration: 45 },
+        }),
+      );
       fixture.detectChanges();
 
       const compiled = fixture.nativeElement as HTMLElement;
@@ -106,9 +109,12 @@ describe('TodaySummaryCards', () => {
     });
 
     it('should format exact hours', () => {
-      fixture.componentRef.setInput('summary', makeSummary({
-        sleep: { naps: 2, total_minutes: 120, avg_duration: 60 },
-      }));
+      fixture.componentRef.setInput(
+        'summary',
+        makeSummary({
+          sleep: { naps: 2, total_minutes: 120, avg_duration: 60 },
+        }),
+      );
       fixture.detectChanges();
 
       const compiled = fixture.nativeElement as HTMLElement;
@@ -116,9 +122,12 @@ describe('TodaySummaryCards', () => {
     });
 
     it('should format hours and minutes', () => {
-      fixture.componentRef.setInput('summary', makeSummary({
-        sleep: { naps: 3, total_minutes: 150, avg_duration: 50 },
-      }));
+      fixture.componentRef.setInput(
+        'summary',
+        makeSummary({
+          sleep: { naps: 3, total_minutes: 150, avg_duration: 50 },
+        }),
+      );
       fixture.detectChanges();
 
       const compiled = fixture.nativeElement as HTMLElement;
@@ -126,9 +135,12 @@ describe('TodaySummaryCards', () => {
     });
 
     it('should round fractional minutes', () => {
-      fixture.componentRef.setInput('summary', makeSummary({
-        sleep: { naps: 1, total_minutes: 45.7, avg_duration: 45.7 },
-      }));
+      fixture.componentRef.setInput(
+        'summary',
+        makeSummary({
+          sleep: { naps: 1, total_minutes: 45.7, avg_duration: 45.7 },
+        }),
+      );
       fixture.detectChanges();
 
       const compiled = fixture.nativeElement as HTMLElement;
@@ -138,11 +150,14 @@ describe('TodaySummaryCards', () => {
 
   describe('partial activity', () => {
     it('should show cards when only feedings exist', () => {
-      fixture.componentRef.setInput('summary', makeSummary({
-        feedings: { count: 2, total_oz: 8, bottle: 2, breast: 0 },
-        diapers: { count: 0, wet: 0, dirty: 0, both: 0 },
-        sleep: { naps: 0, total_minutes: 0, avg_duration: 0 },
-      }));
+      fixture.componentRef.setInput(
+        'summary',
+        makeSummary({
+          feedings: { count: 2, total_oz: 8, bottle: 2, breast: 0 },
+          diapers: { count: 0, wet: 0, dirty: 0, both: 0 },
+          sleep: { naps: 0, total_minutes: 0, avg_duration: 0 },
+        }),
+      );
       fixture.detectChanges();
 
       const compiled = fixture.nativeElement as HTMLElement;
@@ -151,11 +166,14 @@ describe('TodaySummaryCards', () => {
     });
 
     it('should show cards when only diapers exist', () => {
-      fixture.componentRef.setInput('summary', makeSummary({
-        feedings: { count: 0, total_oz: 0, bottle: 0, breast: 0 },
-        diapers: { count: 3, wet: 2, dirty: 1, both: 0 },
-        sleep: { naps: 0, total_minutes: 0, avg_duration: 0 },
-      }));
+      fixture.componentRef.setInput(
+        'summary',
+        makeSummary({
+          feedings: { count: 0, total_oz: 0, bottle: 0, breast: 0 },
+          diapers: { count: 3, wet: 2, dirty: 1, both: 0 },
+          sleep: { naps: 0, total_minutes: 0, avg_duration: 0 },
+        }),
+      );
       fixture.detectChanges();
 
       const compiled = fixture.nativeElement as HTMLElement;
@@ -164,11 +182,14 @@ describe('TodaySummaryCards', () => {
     });
 
     it('should show cards when only naps exist', () => {
-      fixture.componentRef.setInput('summary', makeSummary({
-        feedings: { count: 0, total_oz: 0, bottle: 0, breast: 0 },
-        diapers: { count: 0, wet: 0, dirty: 0, both: 0 },
-        sleep: { naps: 1, total_minutes: 60, avg_duration: 60 },
-      }));
+      fixture.componentRef.setInput(
+        'summary',
+        makeSummary({
+          feedings: { count: 0, total_oz: 0, bottle: 0, breast: 0 },
+          diapers: { count: 0, wet: 0, dirty: 0, both: 0 },
+          sleep: { naps: 1, total_minutes: 60, avg_duration: 60 },
+        }),
+      );
       fixture.detectChanges();
 
       const compiled = fixture.nativeElement as HTMLElement;

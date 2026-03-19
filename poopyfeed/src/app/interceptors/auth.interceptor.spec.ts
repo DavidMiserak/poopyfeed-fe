@@ -167,9 +167,11 @@ describe('authInterceptor', () => {
     httpMock = TestBed.inject(HttpTestingController);
     httpClient = TestBed.inject(HttpClient);
 
-    httpClient.get('/api/v1/children/', {
-      headers: { 'Custom-Header': 'custom-value' }
-    }).subscribe();
+    httpClient
+      .get('/api/v1/children/', {
+        headers: { 'Custom-Header': 'custom-value' },
+      })
+      .subscribe();
 
     const req = httpMock.expectOne('/api/v1/children/');
     expect(req.request.headers.get('Authorization')).toBe('Token test-token');

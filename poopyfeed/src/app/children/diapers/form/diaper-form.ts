@@ -32,25 +32,14 @@
  * Style: diaper-form.css
  */
 import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
-import {
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { DiapersService } from '../../../services/diapers.service';
 import { ChildrenService } from '../../../services/children.service';
 import { DateTimeService } from '../../../services/datetime.service';
 import { ToastService } from '../../../services/toast.service';
-import {
-  DiaperChange,
-  DiaperChangeCreate,
-  DIAPER_VALIDATION,
-} from '../../../models/diaper.model';
-import {
-  TrackingFormBase,
-} from '../../../utils/form-base';
+import { DiaperChange, DiaperChangeCreate, DIAPER_VALIDATION } from '../../../models/diaper.model';
+import { TrackingFormBase } from '../../../utils/form-base';
 import { noFutureDateTime } from '../../../utils/date-validators';
 import { GaTrackingService, GaEventName } from '../../../services/ga-tracking.service';
 import { ActionButtonGroupComponent } from '../../../components/action-button-group/action-button-group.component';
@@ -100,13 +89,9 @@ export class DiaperForm
    * All fields have consistent validators regardless of change_type.
    */
   protected form = new FormGroup({
-    change_type: new FormControl<'wet' | 'dirty' | 'both'>('wet', [
-      Validators.required,
-    ]),
+    change_type: new FormControl<'wet' | 'dirty' | 'both'>('wet', [Validators.required]),
     changed_at: new FormControl('', [Validators.required, noFutureDateTime(this.datetimeService)]),
-    notes: new FormControl('', [
-      Validators.maxLength(DIAPER_VALIDATION.MAX_NOTES_LENGTH),
-    ]),
+    notes: new FormControl('', [Validators.maxLength(DIAPER_VALIDATION.MAX_NOTES_LENGTH)]),
   });
 
   /** Base class metadata */

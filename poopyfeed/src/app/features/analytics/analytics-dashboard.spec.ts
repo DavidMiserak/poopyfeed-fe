@@ -21,9 +21,7 @@ describe('AnalyticsDashboard', () => {
   const mockFeedingTrends = {
     period: '2024-01-01 to 2024-01-30',
     child_id: 1,
-    daily_data: [
-      { date: '2024-01-01', count: 5, average_duration: 12.5, total_oz: 20 },
-    ],
+    daily_data: [{ date: '2024-01-01', count: 5, average_duration: 12.5, total_oz: 20 }],
     weekly_summary: {
       avg_per_day: 5.4,
       trend: 'stable' as const,
@@ -124,7 +122,6 @@ describe('AnalyticsDashboard', () => {
       fixture.detectChanges();
       expect(component.childId()).toBe(1);
     });
-
   });
 
   describe('Data Loading', () => {
@@ -146,12 +143,8 @@ describe('AnalyticsDashboard', () => {
     });
 
     it('should set loading state during request', async () => {
-      vi.spyOn(analyticsService, 'getFeedingTrends').mockReturnValue(
-        of(mockFeedingTrends)
-      );
-      vi.spyOn(analyticsService, 'getDiaperPatterns').mockReturnValue(
-        of(mockDiaperPatterns)
-      );
+      vi.spyOn(analyticsService, 'getFeedingTrends').mockReturnValue(of(mockFeedingTrends));
+      vi.spyOn(analyticsService, 'getDiaperPatterns').mockReturnValue(of(mockDiaperPatterns));
       vi.spyOn(analyticsService, 'getSleepSummary').mockReturnValue(of(mockSleepSummary));
       vi.spyOn(analyticsService, 'getTodaySummary').mockReturnValue(of(mockTodaySummary));
       vi.spyOn(analyticsService, 'getWeeklySummary').mockReturnValue(of(mockWeeklySummary));
@@ -200,7 +193,7 @@ describe('AnalyticsDashboard', () => {
 
     it('should display error message in template', async () => {
       vi.spyOn(analyticsService, 'getFeedingTrends').mockReturnValue(
-        throwError(() => new Error('Failed to load'))
+        throwError(() => new Error('Failed to load')),
       );
       vi.spyOn(analyticsService, 'getDiaperPatterns').mockReturnValue(of(mockDiaperPatterns));
       vi.spyOn(analyticsService, 'getSleepSummary').mockReturnValue(of(mockSleepSummary));
@@ -334,7 +327,7 @@ describe('AnalyticsDashboard', () => {
       fixture.detectChanges();
       const compiled = fixture.nativeElement as HTMLElement;
       const button = Array.from(compiled.querySelectorAll('button')).find((btn) =>
-        btn.textContent?.includes('Export Data')
+        btn.textContent?.includes('Export Data'),
       );
       expect(button).toBeFalsy();
     });

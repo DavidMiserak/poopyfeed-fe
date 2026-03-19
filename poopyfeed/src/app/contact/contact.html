@@ -1,11 +1,13 @@
-<div class="flex justify-center items-center min-h-[calc(100vh-200px)] px-4 py-8 bg-gradient-to-br from-amber-50 to-orange-50">
+<div
+  class="flex justify-center items-center min-h-[calc(100vh-200px)] px-4 py-8 bg-gradient-to-br from-amber-50 to-orange-50"
+>
   <div class="w-full max-w-2xl bg-white rounded-lg shadow-md p-8">
     <!-- Header -->
     <div class="text-center mb-8">
       <h1 class="text-3xl font-bold text-gray-900 mb-2">Contact Us</h1>
       <p class="text-gray-600 text-lg">
-        Have a question or feedback? We'd love to hear from you. Fill out the
-        form below and we'll get back to you as soon as possible.
+        Have a question or feedback? We'd love to hear from you. Fill out the form below and we'll
+        get back to you as soon as possible.
       </p>
     </div>
 
@@ -33,11 +35,14 @@
           required
         />
         @if (form.get('name')?.invalid && form.get('name')?.touched) {
-        <p class="text-sm text-red-600 mt-1" data-testid="contact-name-error">
-          @if (form.get('name')?.errors?.['required']) { Full name is
-          required. } @if (form.get('name')?.errors?.['minlength']) { Full name
-          must be at least 2 characters. }
-        </p>
+          <p class="text-sm text-red-600 mt-1" data-testid="contact-name-error">
+            @if (form.get('name')?.errors?.['required']) {
+              Full name is required.
+            }
+            @if (form.get('name')?.errors?.['minlength']) {
+              Full name must be at least 2 characters.
+            }
+          </p>
         }
       </div>
 
@@ -57,11 +62,14 @@
           required
         />
         @if (form.get('email')?.invalid && form.get('email')?.touched) {
-        <p class="text-sm text-red-600 mt-1" data-testid="contact-email-error">
-          @if (form.get('email')?.errors?.['required']) { Email is required. }
-          @if (form.get('email')?.errors?.['email']) { Please enter a valid
-          email address. }
-        </p>
+          <p class="text-sm text-red-600 mt-1" data-testid="contact-email-error">
+            @if (form.get('email')?.errors?.['required']) {
+              Email is required.
+            }
+            @if (form.get('email')?.errors?.['email']) {
+              Please enter a valid email address.
+            }
+          </p>
         }
       </div>
 
@@ -81,9 +89,9 @@
           required
         />
         @if (form.get('subject')?.invalid && form.get('subject')?.touched) {
-        <p class="text-sm text-red-600 mt-1" data-testid="contact-subject-error">
-          Subject is required.
-        </p>
+          <p class="text-sm text-red-600 mt-1" data-testid="contact-subject-error">
+            Subject is required.
+          </p>
         }
       </div>
 
@@ -103,12 +111,14 @@
           required
         ></textarea>
         @if (form.get('message')?.invalid && form.get('message')?.touched) {
-        <p class="text-sm text-red-600 mt-1" data-testid="contact-message-error">
-          @if (form.get('message')?.errors?.['required']) { Message is
-          required. } @if (form.get('message')?.errors?.['minlength']) {
-          Message must be at least 10 characters.
-          }
-        </p>
+          <p class="text-sm text-red-600 mt-1" data-testid="contact-message-error">
+            @if (form.get('message')?.errors?.['required']) {
+              Message is required.
+            }
+            @if (form.get('message')?.errors?.['minlength']) {
+              Message must be at least 10 characters.
+            }
+          </p>
         }
       </div>
 
@@ -119,7 +129,11 @@
         data-testid="contact-submit-button"
         class="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200 transform hover:scale-105 active:scale-100"
       >
-        @if (isSubmitting) { Sending... } @else { Send Message }
+        @if (isSubmitting) {
+          Sending...
+        } @else {
+          Send Message
+        }
       </button>
     </form>
 

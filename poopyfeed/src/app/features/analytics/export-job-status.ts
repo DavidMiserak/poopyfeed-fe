@@ -104,10 +104,7 @@ export class ExportJobStatusComponent implements OnInit, OnDestroy {
 
   // Computed signals
   isComplete = computed(
-    () =>
-      this.status() === 'completed' ||
-      this.status() === 'failed' ||
-      !this.isPolling()
+    () => this.status() === 'completed' || this.status() === 'failed' || !this.isPolling(),
   );
 
   // Cleanup subjects for subscriptions
@@ -145,7 +142,7 @@ export class ExportJobStatusComponent implements OnInit, OnDestroy {
         switchMap(() => this.analyticsService.getPDFJobStatus(this.childId(), this.taskId())),
         finalize(() => this.isPolling.set(false)),
         takeUntil(this.stopPolling$),
-        takeUntil(this.destroy$)
+        takeUntil(this.destroy$),
       )
       .subscribe({
         next: (response: JobStatusResponse) => {

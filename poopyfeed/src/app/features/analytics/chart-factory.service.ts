@@ -64,7 +64,7 @@ export class ChartFactoryService {
       LinearScale,
       Legend,
       Tooltip,
-      Filler
+      Filler,
     );
 
     chartConstructor = Chart;

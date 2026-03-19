@@ -25,6 +25,8 @@ describe('SummaryEmptyStateComponent', () => {
 
   it('should render static hint to start logging', () => {
     const el = fixture.nativeElement as HTMLElement;
-    expect(el.textContent).toContain('Start logging feedings, diapers, and naps to see a summary here.');
+    expect(el.textContent).toContain(
+      'Start logging feedings, diapers, and naps to see a summary here.',
+    );
   });
 });

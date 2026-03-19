@@ -10,23 +10,17 @@ import { editTrackingItemAndSeeUpdateOnList, waitForTrackingList200 } from './tr
  * [Test] Happy path + error case (validation) per Test Master.
  */
 test.describe('Diapers', () => {
-  test('user can add a diaper change and see it on the diapers list', async ({
-    page,
-  }) => {
+  test('user can add a diaper change and see it on the diapers list', async ({ page }) => {
     await createChildAndGoToDashboard(page, 'E2E Diapers');
     const logWithDetails = page.getByText('Log with details', { exact: true }).locator('..');
     await logWithDetails.getByRole('button', { name: 'Go to diapers list' }).click();
     // Button now navigates to list, not create form
     await expect(page).toHaveURL(/\/children\/\d+\/diapers$/, { timeout: E2E_TIMEOUT });
-    await expect(
-      page.getByRole('button', { name: 'Add Diaper Change' })
-    ).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Add Diaper Change' })).toBeVisible();
     // Navigate to create form from list
     await page.getByRole('button', { name: 'Add Diaper Change' }).click();
     await expect(page).toHaveURL(/\/children\/\d+\/diapers\/create/, { timeout: E2E_TIMEOUT });
-    await expect(
-      page.getByRole('heading', { name: /Add Diaper Change/ })
-    ).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Add Diaper Change/ })).toBeVisible();
 
     await page.locator('form label').filter({ hasText: 'Both' }).click();
     await page.getByLabel('Date & Time').fill('2024-06-15T16:30');
@@ -35,21 +29,17 @@ test.describe('Diapers', () => {
     await list200Promise;
 
     await expect(page).toHaveURL(/\/children\/\d+\/diapers$/, { timeout: E2E_TIMEOUT });
-    await expect(
-      page.getByRole('button', { name: 'Add Diaper Change' })
-    ).toBeVisible({ timeout: E2E_TIMEOUT });
+    await expect(page.getByRole('button', { name: 'Add Diaper Change' })).toBeVisible({
+      timeout: E2E_TIMEOUT,
+    });
     await page.reload();
-    await expect(
-      page.getByRole('button', { name: 'Add Diaper Change' })
-    ).toBeVisible({ timeout: E2E_TIMEOUT });
-    await expect(
-      page.getByText('Wet & Dirty').first()
-    ).toBeVisible({ timeout: E2E_TIMEOUT });
+    await expect(page.getByRole('button', { name: 'Add Diaper Change' })).toBeVisible({
+      timeout: E2E_TIMEOUT,
+    });
+    await expect(page.getByText('Wet & Dirty').first()).toBeVisible({ timeout: E2E_TIMEOUT });
   });
 
-  test('diaper form shows validation when date and time is missing', async ({
-    page,
-  }) => {
+  test('diaper form shows validation when date and time is missing', async ({ page }) => {
     await createChildAndGoToDashboard(page, 'E2E Diapers');
     const logWithDetails = page.getByText('Log with details', { exact: true }).locator('..');
     await logWithDetails.getByRole('button', { name: 'Go to diapers list' }).click();
@@ -64,9 +54,7 @@ test.describe('Diapers', () => {
     await expect(page).toHaveURL(/\/children\/\d+\/diapers\/create/);
   });
 
-  test('user can edit a diaper change and see update on the diapers list', async ({
-    page,
-  }) => {
+  test('user can edit a diaper change and see update on the diapers list', async ({ page }) => {
     await editTrackingItemAndSeeUpdateOnList(page, {
       childNamePrefix: 'E2E Diapers',
       dashboardButton: 'Go to diapers list',
@@ -97,9 +85,7 @@ test.describe('Diapers', () => {
     });
   });
 
-  test('user can delete a diaper change and return to the list', async ({
-    page,
-  }) => {
+  test('user can delete a diaper change and return to the list', async ({ page }) => {
     await createChildAndGoToDashboard(page, 'E2E Diapers');
     const logWithDetails = page.getByText('Log with details', { exact: true }).locator('..');
     await logWithDetails.getByRole('button', { name: 'Go to diapers list' }).click();
@@ -112,27 +98,23 @@ test.describe('Diapers', () => {
     await page.locator('form').getByRole('button', { name: 'Add Diaper Change' }).click();
     await list200AfterAdd;
     await expect(page).toHaveURL(/\/children\/\d+\/diapers$/, { timeout: E2E_TIMEOUT });
-    await expect(
-      page.getByText('Wet & Dirty').first()
-    ).toBeVisible({ timeout: E2E_TIMEOUT });
-    await expect(
-      page.getByRole('button', { name: 'Delete diaper change' }).first()
-    ).toBeVisible({ timeout: E2E_TIMEOUT });
+    await expect(page.getByText('Wet & Dirty').first()).toBeVisible({ timeout: E2E_TIMEOUT });
+    await expect(page.getByRole('button', { name: 'Delete diaper change' }).first()).toBeVisible({
+      timeout: E2E_TIMEOUT,
+    });
 
     await page.getByRole('button', { name: 'Delete diaper change' }).first().click();
     await expect(page).toHaveURL(/\/children\/\d+\/diapers\/\d+\/delete/);
-    await expect(
-      page.getByRole('heading', { name: 'Delete Diaper Change?' })
-    ).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Delete Diaper Change?' })).toBeVisible();
 
     const list200AfterDelete = waitForTrackingList200(page, 'diapers');
     await page.getByRole('button', { name: 'Yes, Delete Forever' }).click();
     await list200AfterDelete;
 
     await expect(page).toHaveURL(/\/children\/\d+\/diapers$/, { timeout: E2E_TIMEOUT });
-    await expect(
-      page.getByRole('button', { name: 'Add Diaper Change' })
-    ).toBeVisible({ timeout: E2E_TIMEOUT });
+    await expect(page.getByRole('button', { name: 'Add Diaper Change' })).toBeVisible({
+      timeout: E2E_TIMEOUT,
+    });
   });
 
   test('diapers list shows pagination and user can go to next and previous page', async ({
@@ -145,28 +127,24 @@ test.describe('Diapers', () => {
     }));
 
     await page.goto(`/children/${childId}/diapers/`);
-    await expect(page).toHaveURL(new RegExp(`/children/${childId}/diapers/?$`), { timeout: E2E_TIMEOUT });
+    await expect(page).toHaveURL(new RegExp(`/children/${childId}/diapers/?$`), {
+      timeout: E2E_TIMEOUT,
+    });
 
-    await expect(
-      page.getByRole('heading', { name: /Diaper Changes for/ })
-    ).toBeVisible({ timeout: E2E_TIMEOUT });
+    await expect(page.getByRole('heading', { name: /Diaper Changes for/ })).toBeVisible({
+      timeout: E2E_TIMEOUT,
+    });
 
     await expect(page.getByText('Page 1 of 2')).toBeVisible({ timeout: E2E_TIMEOUT });
-    await expect(
-      page.getByRole('button', { name: 'Next page' })
-    ).toBeVisible({ timeout: E2E_TIMEOUT });
-    await expect(
-      page.getByRole('button', { name: 'Previous page' })
-    ).toBeDisabled();
+    await expect(page.getByRole('button', { name: 'Next page' })).toBeVisible({
+      timeout: E2E_TIMEOUT,
+    });
+    await expect(page.getByRole('button', { name: 'Previous page' })).toBeDisabled();
 
     await page.getByRole('button', { name: 'Next page' }).click();
     await expect(page.getByText('Page 2 of 2')).toBeVisible({ timeout: E2E_TIMEOUT });
-    await expect(
-      page.getByRole('button', { name: 'Previous page' })
-    ).toBeEnabled();
-    await expect(
-      page.getByRole('button', { name: 'Next page' })
-    ).toBeDisabled();
+    await expect(page.getByRole('button', { name: 'Previous page' })).toBeEnabled();
+    await expect(page.getByRole('button', { name: 'Next page' })).toBeDisabled();
 
     await page.getByRole('button', { name: 'Previous page' }).click();
     await expect(page.getByText('Page 1 of 2')).toBeVisible({ timeout: E2E_TIMEOUT });

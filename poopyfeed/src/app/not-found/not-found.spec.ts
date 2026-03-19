@@ -29,7 +29,7 @@ describe('NotFound', () => {
 
   it('should have a link to home', () => {
     const link = fixture.nativeElement.querySelector(
-      '[data-testid="not-found-go-home"]'
+      '[data-testid="not-found-go-home"]',
     ) as HTMLAnchorElement;
     expect(link).toBeTruthy();
     expect(link.getAttribute('href')).toBe('/');

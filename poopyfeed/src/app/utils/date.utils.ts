@@ -68,9 +68,7 @@ export function getAgeInMonths(dateOfBirth: string): number {
   const birthDate = parseDateOnly(dateOfBirth);
   const today = new Date();
   return (
-    (today.getFullYear() - birthDate.getFullYear()) * 12 +
-    today.getMonth() -
-    birthDate.getMonth()
+    (today.getFullYear() - birthDate.getFullYear()) * 12 + today.getMonth() - birthDate.getMonth()
   );
 }
 
@@ -96,14 +94,10 @@ export function getChildAge(dateOfBirth: string): string {
   const birthDate = parseDateOnly(dateOfBirth);
   const today = new Date();
   const ageInMonths =
-    (today.getFullYear() - birthDate.getFullYear()) * 12 +
-    today.getMonth() -
-    birthDate.getMonth();
+    (today.getFullYear() - birthDate.getFullYear()) * 12 + today.getMonth() - birthDate.getMonth();
 
   if (ageInMonths < 1) {
-    const ageInDays = Math.floor(
-      (today.getTime() - birthDate.getTime()) / (1000 * 60 * 60 * 24)
-    );
+    const ageInDays = Math.floor((today.getTime() - birthDate.getTime()) / (1000 * 60 * 60 * 24));
     return `${ageInDays} days`;
   } else if (ageInMonths < 12) {
     return `${ageInMonths} months`;
@@ -359,7 +353,10 @@ export function getRoleBadgeColor(role: 'owner' | 'co-parent' | 'caregiver' | st
   const colors: Record<string, string> = {
     owner: 'bg-gradient-to-r from-amber-100 to-amber-200 text-amber-800 border-amber-300',
     'co-parent': 'bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800 border-blue-300',
-    caregiver: 'bg-gradient-to-r from-emerald-100 to-emerald-200 text-emerald-800 border-emerald-300',
+    caregiver:
+      'bg-gradient-to-r from-emerald-100 to-emerald-200 text-emerald-800 border-emerald-300',
   };
-  return colors[role] || 'bg-gradient-to-r from-slate-100 to-slate-200 text-slate-800 border-slate-300';
+  return (
+    colors[role] || 'bg-gradient-to-r from-slate-100 to-slate-200 text-slate-800 border-slate-300'
+  );
 }

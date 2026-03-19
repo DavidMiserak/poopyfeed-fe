@@ -1,9 +1,4 @@
-import {
-  Component,
-  input,
-  output,
-  ChangeDetectionStrategy,
-} from '@angular/core';
+import { Component, input, output, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
   selector: 'app-action-button-group',
@@ -52,7 +47,8 @@ export class ActionButtonGroupComponent {
       red: 'bg-gradient-to-br from-red-500 via-rose-500 to-red-600',
     };
 
-    const gradient = gradientMap[this.accentColor()] || 'bg-gradient-to-br from-rose-400 via-rose-500 to-rose-600';
+    const gradient =
+      gradientMap[this.accentColor()] || 'bg-gradient-to-br from-rose-400 via-rose-500 to-rose-600';
 
     return `${gradient} transition-transform duration-300 group-hover:scale-110 group-disabled:scale-100`;
   }

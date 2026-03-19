@@ -68,15 +68,15 @@ describe('ResetPassword', () => {
     const resetSpy = vi
       .spyOn(authService, 'resetPassword')
       .mockReturnValue(of({ auth_token: 'new-token' }));
-    const profileSpy = vi
-      .spyOn(accountService, 'getProfile')
-      .mockReturnValue(of({
+    const profileSpy = vi.spyOn(accountService, 'getProfile').mockReturnValue(
+      of({
         id: 1,
         email: 'test@example.com',
         first_name: '',
         last_name: '',
         timezone: 'UTC',
-      }));
+      }),
+    );
     const navigateSpy = vi.spyOn(router, 'navigate');
 
     component.form.patchValue({

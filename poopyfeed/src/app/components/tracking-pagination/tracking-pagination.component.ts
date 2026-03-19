@@ -1,9 +1,4 @@
-import {
-  Component,
-  input,
-  output,
-  ChangeDetectionStrategy,
-} from '@angular/core';
+import { Component, input, output, ChangeDetectionStrategy } from '@angular/core';
 import { PaginationMeta } from '../../models/pagination.model';
 
 @Component({

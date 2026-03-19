@@ -87,10 +87,7 @@ export class NotificationBellComponent implements OnInit {
   }
 
   onDocumentClick(event: MouseEvent): void {
-    if (
-      this.dropdownOpen() &&
-      !this.elementRef.nativeElement.contains(event.target as Node)
-    ) {
+    if (this.dropdownOpen() && !this.elementRef.nativeElement.contains(event.target as Node)) {
       this.dropdownOpen.set(false);
     }
   }
