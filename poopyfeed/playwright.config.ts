@@ -56,7 +56,7 @@ export default defineConfig({
         storageState: 'e2e/.auth/user.json',
       },
       testMatch:
-        /(children|feedings|diapers|naps|sharing|analytics|invite-accept|notifications|feeding-reminders|quick-log|catch-up|pediatrician-summary|pattern-alerts|fuss-bus)\.e2e\.spec\.ts/,
+        /(children|feedings|diapers|naps|sharing|analytics|invite-accept|notifications|feeding-reminders|quick-log|catch-up|pediatrician-summary|pattern-alerts|fuss-bus|timeline)\.e2e\.spec\.ts/,
       dependencies: ['setup'],
     },
     {
@@ -66,7 +66,7 @@ export default defineConfig({
         storageState: 'e2e/.auth/user.json',
       },
       testMatch:
-        /(children|feedings|diapers|naps|sharing|analytics|invite-accept|notifications|feeding-reminders|quick-log|catch-up|pediatrician-summary|pattern-alerts|fuss-bus)\.e2e\.spec\.ts/,
+        /(children|feedings|diapers|naps|sharing|analytics|invite-accept|notifications|feeding-reminders|quick-log|catch-up|pediatrician-summary|pattern-alerts|fuss-bus|timeline)\.e2e\.spec\.ts/,
       dependencies: ['setup'],
     },
   ],

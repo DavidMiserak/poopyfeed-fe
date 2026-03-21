@@ -3,6 +3,8 @@ import { E2E_TIMEOUT } from './constants';
 import type { Page } from '@playwright/test';
 import { createChildAndGoToDashboard } from './child-helpers';
 
+const baseURL = process.env.BASE_URL ?? 'http://localhost:4200';
+
 /**
  * E2E: Timeline view (7-day activity history).
  * Uses auth fixture; creates a child then navigates: Dashboard → Advanced → Timeline.
@@ -74,5 +76,58 @@ test.describe('Timeline view', () => {
     await expect(page.getByText('Wet', { exact: true }).first()).toBeVisible({
       timeout: E2E_TIMEOUT,
     });
+  });
+
+  test('Add nap button replaces gap with nap entry', async ({ page }) => {
+    await createChildAndGoToDashboard(page, 'E2E Timeline AddNap');
+
+    // Create two feedings 2.5 hours apart via API to produce a nap-eligible gap
+    const match = page.url().match(/\/children\/(\d+)\//);
+    if (!match) throw new Error('Expected to be on child dashboard');
+    const childId = match[1];
+    const token = await page.evaluate(() => localStorage.getItem('auth_token'));
+    if (!token) throw new Error('No auth token in localStorage');
+
+    const now = Date.now();
+    const oneHour = 60 * 60 * 1000;
+    const times = [new Date(now - 3 * oneHour), new Date(now - 30 * 60 * 1000)];
+
+    for (const fedAt of times) {
+      const resp = await page.request.post(`${baseURL}/api/v1/children/${childId}/feedings/`, {
+        headers: {
+          Authorization: `Token ${token}`,
+          'Content-Type': 'application/json',
+        },
+        data: {
+          feeding_type: 'bottle',
+          fed_at: fedAt.toISOString(),
+          amount_oz: 4,
+        },
+      });
+      if (resp.status() !== 201) {
+        throw new Error(`POST feeding returned ${resp.status()}`);
+      }
+    }
+
+    await goToTimeline(page);
+
+    // Wait for timeline to load
+    await expect(page.getByRole('heading', { name: /'s Timeline$/ })).toBeVisible({
+      timeout: E2E_TIMEOUT,
+    });
+
+    // Should see the "Add nap" button in the gap
+    const addNapButton = page.getByRole('button', { name: /Add nap/ });
+    await expect(addNapButton).toBeVisible({ timeout: E2E_TIMEOUT });
+
+    // Click the "Add nap" button
+    await addNapButton.click();
+
+    // Should see success toast
+    await expect(page.getByText('Nap recorded')).toBeVisible({ timeout: E2E_TIMEOUT });
+
+    // After reload: "Add nap" button should be gone and a nap entry should appear
+    await expect(addNapButton).not.toBeVisible({ timeout: E2E_TIMEOUT });
+    await expect(page.getByText(/Nap:/).first()).toBeVisible({ timeout: E2E_TIMEOUT });
   });
 });
