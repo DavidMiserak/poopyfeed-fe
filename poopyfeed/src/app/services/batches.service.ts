@@ -45,7 +45,13 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { BatchRequest, BatchResponse, BatchErrorResponse, CatchUpEvent } from '../models';
+import {
+  BatchRequest,
+  BatchResponse,
+  BatchErrorResponse,
+  CatchUpEvent,
+  NapCreate,
+} from '../models';
 import { ErrorHandler } from './error.utils';
 
 /**
@@ -111,6 +117,7 @@ export class BatchesService {
             }),
             ...(event.type === 'nap' && {
               napped_at: event.estimatedTime,
+              ended_at: this.calculateNapEndTime(event),
             }),
           },
         })),
@@ -119,6 +126,24 @@ export class BatchesService {
     return this.http
       .post<BatchResponse>(`${this.API_BASE}/${childId}/batch/`, request)
       .pipe(catchError((error) => this.handleError(error, events.length)));
+  }
+
+  /**
+   * Calculate nap end time relative to estimated start, capped at now.
+   *
+   * Preserves the original nap duration (ended_at - napped_at) but shifts
+   * it to the estimated time. Caps at current time to avoid future timestamps
+   * which the backend rejects.
+   */
+  private calculateNapEndTime(event: CatchUpEvent): string {
+    const napData = event.data as NapCreate;
+    const estimatedStart = new Date(event.estimatedTime).getTime();
+    const nappedAt = napData.napped_at ? new Date(napData.napped_at).getTime() : NaN;
+    const endedAt = napData.ended_at ? new Date(napData.ended_at).getTime() : NaN;
+    const duration =
+      !isNaN(nappedAt) && !isNaN(endedAt) ? endedAt - nappedAt : 3600000; // default 1 hour
+    const calculatedEnd = estimatedStart + duration;
+    return new Date(Math.min(calculatedEnd, Date.now())).toISOString();
   }
 
   /**

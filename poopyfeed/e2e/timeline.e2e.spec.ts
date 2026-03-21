@@ -35,9 +35,10 @@ test.describe('Timeline view', () => {
     await expect(page.getByRole('heading', { name: /'s Timeline$/ })).toBeVisible({
       timeout: E2E_TIMEOUT,
     });
-    const noEvents = page.getByText('No events logged on this day.');
-    const daySection = page.getByRole('heading', { level: 2 });
-    await expect(noEvents.or(daySection)).toBeVisible({ timeout: E2E_TIMEOUT });
+    const main = page.getByRole('main');
+    const noEvents = main.getByText('No events logged on this day.');
+    const daySection = main.getByRole('heading', { level: 2 }).first();
+    await expect(noEvents.or(daySection).first()).toBeVisible({ timeout: E2E_TIMEOUT });
   });
 
   test('timeline shows day navigation (Previous and Next)', async ({ page }) => {
