@@ -56,6 +56,7 @@ import { NapsService } from '../../services/naps.service';
 import { ChildrenService } from '../../services/children.service';
 import { ToastService } from '../../services/toast.service';
 import { DateTimeService } from '../../services/datetime.service';
+import { SwCacheService } from '../../services/sw-cache.service';
 import { Feeding } from '../../models/feeding.model';
 import { DiaperChange } from '../../models/diaper.model';
 import { Nap } from '../../models/nap.model';
@@ -103,6 +104,7 @@ export class ChildTimeline implements OnInit {
   private napsService = inject(NapsService);
   private toastService = inject(ToastService);
   private datetimeService = inject(DateTimeService);
+  private swCache = inject(SwCacheService);
 
   /** Child ID from URL (/children/123/timeline) */
   childId = signal<number | null>(null);
@@ -516,9 +518,12 @@ export class ChildTimeline implements OnInit {
   /**
    * Reload timeline data without showing the loading skeleton.
    *
-   * Used after adding a nap so the backend recalculates gap metadata.
+   * Awaits service-worker cache eviction before fetching so the GET
+   * hits the network instead of returning stale cached data.
    */
-  private reloadTimeline(childId: number): void {
+  private async reloadTimeline(childId: number): Promise<void> {
+    await this.swCache.evictReadonlyListCachesAsync(childId);
+
     this.analyticsService.getTimeline(childId, 1, 100).subscribe({
       next: (timeline) => {
         const activities = timeline.results.map((event) =>

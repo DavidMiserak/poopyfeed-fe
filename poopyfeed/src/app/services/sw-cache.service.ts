@@ -23,6 +23,16 @@ export class SwCacheService {
    * @param childId - Child ID whose list caches to evict
    */
   evictReadonlyListCaches(childId: number): void {
+    void this.evictReadonlyListCachesAsync(childId);
+  }
+
+  /**
+   * Awaitable variant of evictReadonlyListCaches.
+   *
+   * Use when the caller must wait for eviction to complete before issuing
+   * a fetch (e.g. reloading the timeline after adding a nap).
+   */
+  async evictReadonlyListCachesAsync(childId: number): Promise<void> {
     if (!isPlatformBrowser(this.platformId) || !('caches' in window)) {
       return;
     }
@@ -35,7 +45,7 @@ export class SwCacheService {
       `/api/v1/analytics/children/${childId}/timeline/`,
     ];
 
-    void this.evictByPrefixes(prefixes);
+    await this.evictByPrefixes(prefixes);
   }
 
   private async evictByPrefixes(prefixes: string[]): Promise<void> {

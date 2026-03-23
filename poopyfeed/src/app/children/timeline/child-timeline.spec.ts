@@ -853,7 +853,7 @@ describe('ChildTimeline', () => {
       expect(component.canAddNap()).toBeTruthy();
     });
 
-    it('should create nap with gap timestamps adjusted by ±1 minute and reload timeline', () => {
+    it('should create nap with gap timestamps adjusted by ±1 minute and reload timeline', async () => {
       const napsServiceMock = TestBed.inject(NapsService);
       const toastServiceMock = TestBed.inject(ToastService);
       const analyticsServiceMock = TestBed.inject(AnalyticsService);
@@ -874,6 +874,9 @@ describe('ChildTimeline', () => {
       const startTimestamp = `${todayStr}T08:00:00Z`;
       const endTimestamp = `${todayStr}T10:30:00Z`;
       component.addNapForGap(startTimestamp, endTimestamp);
+
+      // Flush microtask from async cache eviction in reloadTimeline
+      await fixture.whenStable();
 
       // Verify napsService.create was called with adjusted times (±1 minute)
       const callArgs = vi.mocked(napsServiceMock.create).mock.calls[0][1];
