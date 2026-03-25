@@ -48,6 +48,13 @@ export const routes: Routes = [
     data: { description: 'Set a new password for your PoopyFeed account.', showAds: true },
   },
   {
+    path: 'auth/callback',
+    loadComponent: () =>
+      import('./auth/oauth-callback/oauth-callback').then((m) => m.OAuthCallback),
+    title: 'Signing In - PoopyFeed',
+    data: { description: 'Completing social login.' },
+  },
+  {
     path: 'account',
     canActivate: [authGuard],
     loadComponent: () =>
