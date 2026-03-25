@@ -40,6 +40,14 @@ export interface PasswordResetEmailRequest {
   email: string;
 }
 
+/** A connected social account (Google, Facebook, etc.). */
+export interface SocialAccount {
+  id: number;
+  provider: string;
+  uid: string;
+  display?: string;
+}
+
 /**
  * Authentication service for login, signup, logout, and token management.
  *
@@ -291,6 +299,80 @@ export class AuthService {
       return null;
     }
     return localStorage.getItem(this.TOKEN_KEY);
+  }
+
+  /**
+   * Initiate social login via OAuth redirect.
+   * Redirects the browser to the provider's auth page.
+   */
+  socialRedirect(provider: string, callbackUrl: string, process: string = 'login'): void {
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = `${this.ALLAUTH_BASE}/provider/redirect`;
+
+    const fields = { provider, callback_url: callbackUrl, process };
+    for (const [key, value] of Object.entries(fields)) {
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = key;
+      input.value = value;
+      form.appendChild(input);
+    }
+
+    document.body.appendChild(form);
+    form.submit();
+  }
+
+  /**
+   * Complete social login after OAuth callback.
+   * Fetches the auth token for the now-authenticated session.
+   */
+  completeSocialLogin(): Observable<AuthResponse> {
+    return this.http
+      .post<AuthResponse>(
+        `${this.ALLAUTH_BASE}/token/`,
+        {},
+        { withCredentials: true },
+      )
+      .pipe(
+        tap((response) => {
+          this.setToken(response.auth_token);
+        }),
+        catchError((error) => {
+          return throwError(() => ErrorHandler.handle(error, 'Social login'));
+        }),
+      );
+  }
+
+  /**
+   * Get list of connected social accounts for the current user.
+   */
+  getSocialAccounts(): Observable<SocialAccount[]> {
+    return this.http
+      .get<{ data: SocialAccount[] }>(`${this.ALLAUTH_BASE}/socialaccount/`, {
+        withCredentials: true,
+      })
+      .pipe(
+        switchMap((response) => [response.data]),
+        catchError((error) => {
+          return throwError(() => ErrorHandler.handle(error, 'Get social accounts'));
+        }),
+      );
+  }
+
+  /**
+   * Disconnect a social account.
+   */
+  disconnectSocialAccount(id: number): Observable<void> {
+    return this.http
+      .delete<void>(`${this.ALLAUTH_BASE}/socialaccount/${id}/`, {
+        withCredentials: true,
+      })
+      .pipe(
+        catchError((error) => {
+          return throwError(() => ErrorHandler.handle(error, 'Disconnect social account'));
+        }),
+      );
   }
 
   private clearServiceWorkerCaches(): void {
