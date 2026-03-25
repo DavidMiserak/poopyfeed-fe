@@ -215,6 +215,12 @@ describe('Signup', () => {
     expect(buttonText).toContain('Create Account');
   });
 
+  it('should render social login buttons', () => {
+    fixture.detectChanges();
+    const socialButtons = fixture.nativeElement.querySelector('app-social-login-buttons');
+    expect(socialButtons).toBeTruthy();
+  });
+
   it('should have link to login page', () => {
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;

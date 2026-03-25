@@ -5,10 +5,11 @@ import { AuthService } from '../../services/auth.service';
 import { AccountService } from '../../services/account.service';
 import { ToastService } from '../../services/toast.service';
 import { GaTrackingService } from '../../services/ga-tracking.service';
+import { SocialLoginButtons } from '../social-login-buttons/social-login-buttons';
 
 @Component({
   selector: 'app-signup',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, SocialLoginButtons],
   templateUrl: './signup.html',
   styleUrl: './signup.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
