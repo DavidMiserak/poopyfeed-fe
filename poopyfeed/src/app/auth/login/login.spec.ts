@@ -35,6 +35,12 @@ describe('Login', () => {
     expect(component).toBeTruthy();
   });
 
+  it('should render social login buttons', () => {
+    fixture.detectChanges();
+    const socialButtons = fixture.nativeElement.querySelector('app-social-login-buttons');
+    expect(socialButtons).toBeTruthy();
+  });
+
   it('should have a login form with email and password fields', () => {
     expect(component.loginForm.controls.email).toBeTruthy();
     expect(component.loginForm.controls.password).toBeTruthy();
