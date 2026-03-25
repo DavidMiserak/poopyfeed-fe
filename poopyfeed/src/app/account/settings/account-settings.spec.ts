@@ -55,6 +55,9 @@ describe('AccountSettings', () => {
     // Flush the quiet hours request triggered after profile load
     const quietHoursReq = httpMock.expectOne('/api/v1/notifications/quiet-hours/');
     quietHoursReq.flush(mockQuietHours);
+    // Flush the social accounts request triggered by ngOnInit
+    const socialReq = httpMock.expectOne('/api/v1/browser/v1/auth/socialaccount/');
+    socialReq.flush({ data: [] });
     fixture.detectChanges();
     return fixture;
   }
@@ -81,6 +84,9 @@ describe('AccountSettings', () => {
 
     const req = httpMock.expectOne('/api/v1/account/profile/');
     req.flush({}, { status: 401, statusText: 'Unauthorized' });
+    // Flush social accounts request (also triggered by ngOnInit)
+    const socialReq = httpMock.expectOne('/api/v1/browser/v1/auth/socialaccount/');
+    socialReq.flush({ data: [] });
     fixture.detectChanges();
 
     expect(fixture.componentInstance.loadError()).toBeTruthy();
@@ -486,6 +492,8 @@ describe('AccountSettings', () => {
     profileReq.flush(mockProfile);
     const quietHoursReq = httpMock.expectOne('/api/v1/notifications/quiet-hours/');
     quietHoursReq.flush(mockQuietHours);
+    const socialReq = httpMock.expectOne('/api/v1/browser/v1/auth/socialaccount/');
+    socialReq.flush({ data: [] });
 
     expect(component.isLoading()).toBe(false);
   });
@@ -576,6 +584,8 @@ describe('AccountSettings', () => {
       profileReq.flush(mockProfile);
       const quietHoursReq = httpMock.expectOne('/api/v1/notifications/quiet-hours/');
       quietHoursReq.flush(mockQuietHours);
+      const socialReq = httpMock.expectOne('/api/v1/browser/v1/auth/socialaccount/');
+      socialReq.flush({ data: [] });
     });
 
     it('should hide loading spinner when isLoading is false', () => {
@@ -592,6 +602,8 @@ describe('AccountSettings', () => {
 
       const req = httpMock.expectOne('/api/v1/account/profile/');
       req.flush({}, { status: 500, statusText: 'Internal Server Error' });
+      const socialReq = httpMock.expectOne('/api/v1/browser/v1/auth/socialaccount/');
+      socialReq.flush({ data: [] });
       fixture.detectChanges();
 
       const compiled = fixture.nativeElement as HTMLElement;
@@ -935,6 +947,51 @@ describe('AccountSettings', () => {
       errorMessages = compiled.querySelectorAll('div.border-red-500');
       expect(errorMessages.length).toBe(1);
       expect(errorMessages[0].textContent).toContain('Profile error');
+    });
+  });
+
+  describe('Connected Accounts', () => {
+    it('should load social accounts on init', () => {
+      const fixture = createComponent();
+      // getSocialAccounts was already called and flushed in createComponent
+      expect(fixture.componentInstance.socialAccounts()).toEqual([]);
+    });
+
+    it('should show connect buttons when no accounts linked', () => {
+      const fixture = createComponent();
+      fixture.detectChanges();
+      const text = fixture.nativeElement.textContent;
+      expect(text).toContain('Connect Google');
+      expect(text).toContain('Connect Facebook');
+    });
+
+    it('should show connected state for linked accounts', () => {
+      const fixture = createComponent();
+      const component = fixture.componentInstance;
+      component.socialAccounts.set([
+        { id: 1, provider: 'google', uid: '123' },
+      ]);
+      fixture.detectChanges();
+      const text = fixture.nativeElement.textContent;
+      expect(text).toContain('Connected');
+    });
+
+    it('should call disconnect when clicking disconnect button', () => {
+      const fixture = createComponent();
+      const component = fixture.componentInstance;
+      const account = { id: 1, provider: 'google', uid: '123' };
+      component.socialAccounts.set([account]);
+      fixture.detectChanges();
+
+      // Find the disconnect button
+      const buttons = fixture.nativeElement.querySelectorAll('button');
+      const disconnectBtn = Array.from(buttons).find((b: any) => b.textContent.includes('Disconnect'));
+      (disconnectBtn as HTMLElement)?.click();
+
+      const req = httpMock.expectOne('/api/v1/browser/v1/auth/socialaccount/1/');
+      req.flush(null, { status: 204, statusText: 'No Content' });
+
+      expect(component.socialAccounts().length).toBe(0);
     });
   });
 });

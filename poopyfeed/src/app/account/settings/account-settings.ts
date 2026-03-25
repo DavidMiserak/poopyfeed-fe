@@ -1,8 +1,8 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AccountService } from '../../services/account.service';
-import { AuthService } from '../../services/auth.service';
+import { AuthService, SocialAccount } from '../../services/auth.service';
 import { NotificationService } from '../../services/notification.service';
 import { PushNotificationService } from '../../services/push-notification.service';
 import { TimezoneCheckService } from '../../services/timezone-check.service';
@@ -57,6 +57,13 @@ export class AccountSettings implements OnInit {
   deleteSubmitting = signal(false);
   deleteError = signal<string | null>(null);
 
+  // Social accounts state
+  socialAccounts = signal<SocialAccount[]>([]);
+  socialLoading = signal(false);
+  socialError = signal<string | null>(null);
+  googleAccount = computed(() => this.socialAccounts().find(a => a.provider === 'google') ?? null);
+  facebookAccount = computed(() => this.socialAccounts().find(a => a.provider === 'facebook') ?? null);
+
   profileForm = new FormGroup({
     first_name: new FormControl('', [Validators.maxLength(150)]),
     last_name: new FormControl('', [Validators.maxLength(150)]),
@@ -102,6 +109,7 @@ export class AccountSettings implements OnInit {
         this.isLoading.set(false);
       },
     });
+    this.loadSocialAccounts();
   }
 
   private loadQuietHours(): void {
@@ -267,6 +275,40 @@ export class AccountSettings implements OnInit {
     } finally {
       this.pushToggling.set(false);
     }
+  }
+
+  loadSocialAccounts() {
+    this.socialLoading.set(true);
+    this.authService.getSocialAccounts().subscribe({
+      next: (accounts) => {
+        this.socialAccounts.set(accounts);
+        this.socialLoading.set(false);
+      },
+      error: () => {
+        this.socialLoading.set(false);
+      },
+    });
+  }
+
+  connectSocialAccount(provider: string) {
+    const callbackUrl = `${window.location.origin}/account`;
+    this.authService.socialRedirect(provider, callbackUrl, 'connect');
+  }
+
+  disconnectSocialAccount(account: SocialAccount) {
+    this.socialError.set(null);
+    this.authService.disconnectSocialAccount(account.id).subscribe({
+      next: () => {
+        this.socialAccounts.update((accounts) =>
+          accounts.filter((a) => a.id !== account.id),
+        );
+        this.toast.success(`Disconnected ${account.provider}`);
+      },
+      error: (err: Error) => {
+        this.socialError.set(err.message);
+        this.toast.error(err.message);
+      },
+    });
   }
 
   onDeleteSubmit() {
