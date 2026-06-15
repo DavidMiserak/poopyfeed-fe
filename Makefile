@@ -5,6 +5,36 @@ REGISTRY := localhost
 IMAGE_NAME := poopyfeed-fe
 IMAGE_TAG := latest
 
+.PHONY: help
+help:
+	@echo "Usage: make <target>"
+	@echo ""
+	@echo "Development:"
+	@echo "  run                  Build dev image and start containers"
+	@echo "  stop                 Stop containers"
+	@echo "  logs                 Show container logs"
+	@echo "  shell                Open shell in web container"
+	@echo ""
+	@echo "Build:"
+	@echo "  build                Build the Angular app locally"
+	@echo "  image-build-prod     Build production container image"
+	@echo "  image-build-dev      Build development container image"
+	@echo ""
+	@echo "Testing:"
+	@echo "  test                 Run tests in container"
+	@echo "  test-local           Run tests locally"
+	@echo "  test-coverage        Run tests with coverage in container"
+	@echo "  test-coverage-local  Run tests with coverage locally"
+	@echo ""
+	@echo "Code Quality:"
+	@echo "  lint                 Run linter"
+	@echo "  format               Run formatter"
+	@echo "  pre-commit-setup     Install and run pre-commit hooks"
+	@echo ""
+	@echo "Misc:"
+	@echo "  install              Install npm dependencies"
+	@echo "  clean                Remove node_modules, dist, and .angular"
+
 .PHONY: pre-commit-setup
 pre-commit-setup:
 	@echo "Setting up pre-commit hooks..."
